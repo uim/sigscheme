@@ -1,0 +1,40 @@
+Overview of changes from 0.5.0 (r3097 + private modifications) to 0.6.0
+==
+* New features
+
+  - Support R5RS hygienic macros
+
+  - Support format strings (covers SRFI-28 and SRFI-48)
+
+  - Add global symbol exportation control method in portable way (see
+    doc/global-obj.txt)
+
+  - Add experimental support for embedded platforms that lack writable static
+    data, such as BREW or Symbian OS (see doc/global-obj.txt)
+
+* Fixes
+
+  - Make installed libsscm and header files workable
+
+
+Overview of changes from 0.5.0-alpha (r2902 + private modifications) to 0.5.0
+==
+* New features
+
+  - Support 64-bit data models (storage-compact is not yet)
+
+  - Add lacking character predicates and complete all R5RS character procedures
+
+  - Add lacking string predicates and complete all R5RS string procedures
+
+  - Support constant list (storage-compact does not)
+
+  - Support constant vector (storage-compact is not yet)
+
+  - Add quote-less vector literal check
+
+* Fixes
+
+  - Make behavior of internal definitions strictly conforming to R5RS
+
+  - Make C99-dependent stdint.h unneeded

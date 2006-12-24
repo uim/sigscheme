@@ -32,13 +32,13 @@
 
 (load "./test/unittest.scm")
 
+(use srfi-1)
+(use srfi-8)
+
 (if (not (provided? "srfi-1"))
     (test-skip "SRFI-1 is not enabled"))
 
 (define tn test-name)
-
-(use srfi-1)
-(use srfi-8)
 
 ; xcons
 (assert-equal? "xcons test1" '(a b c) (xcons '(b c) 'a))

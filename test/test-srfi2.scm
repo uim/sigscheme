@@ -32,12 +32,12 @@
 
 (load "./test/unittest.scm")
 
+(use srfi-2)
+
 (if (not (provided? "srfi-2"))
     (test-skip "SRFI-2 is not enabled"))
 
 (define tn test-name)
-
-(use srfi-2)
 
 ;; (and-let* <claws> <body>)
 ;; 

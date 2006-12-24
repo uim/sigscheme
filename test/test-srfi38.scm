@@ -32,13 +32,13 @@
 
 (load "./test/unittest.scm")
 
+(use srfi-38)
+(use srfi-6)
+
 (if (not (provided? "srfi-38"))
     (test-skip "SRFI-38 is not enabled"))
 
 (define tn test-name)
-
-(use srfi-38)
-(use srfi-6)
 
 (tn "write/ss short-name alias")
 (if sigscheme?

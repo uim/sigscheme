@@ -32,12 +32,12 @@
 
 (load "./test/unittest.scm")
 
+(use srfi-60)
+
 (if (not (provided? "srfi-60"))
     (test-skip "SRFI-60 is not enabled"))
 
 (define tn test-name)
-
-(use srfi-60)
 
 
 ;;

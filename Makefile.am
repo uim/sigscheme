@@ -5,12 +5,12 @@ endif
 SUBDIRS += include src lib test test-c bench
 
 UIM_REPOSITORY = http://anonsvn.freedesktop.org/svn/uim
-SSCM_REPOSITORY = $(UIM_REPOSITORY)/branches/r5rs/sigscheme
+SSCM_REPOSITORY = $(UIM_REPOSITORY)/sigscheme-trunk
 TAGS_REPOSITORY = $(UIM_REPOSITORY)/tags
 DIST_SUM_LIST = $(PACKAGE)-$(VERSION).sum
 
 EXTRA_DIST = \
-        sigscheme.pc.in TODO QALog autogen.sh \
+        sigscheme.pc.in autogen.sh RELNOTE TODO QALog \
         compare-scm.sh runbench.sh runtest.sh runtest-tail-rec.sh \
         make-report.sh
 

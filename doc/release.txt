@@ -66,14 +66,14 @@ Tagging
 A release must be tagged for development management.
 
 ----------------------------------------------------------------
-$ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/branches/r5rs/sigscheme \
+$ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/sigscheme-trunk \
                 svn+ssh://svn.freedesktop.org/svn/uim/tags/sigscheme-x.y.z
 ----------------------------------------------------------------
 
 If the release is a snapshot, tag as follows:
 
 ----------------------------------------------------------------
-$ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/branches/r5rs/sigscheme \
+$ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/sigscheme-trunk \
                 svn+ssh://svn.freedesktop.org/svn/uim/tags/sigscheme-snapshot-YYYYMMDD
 ----------------------------------------------------------------
 

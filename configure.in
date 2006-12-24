@@ -174,14 +174,6 @@ else
   ax_prog_cc_version="unknown"
 fi
 
-# -std=gnu89 is required only for (old?) glibc. -std=c89 is sufficient for
-# other environments.
-if test "x$ax_cv_lib_glibc" = xyes; then
-  AX_CFLAGS_GCC_OPTION([-std=gnu89])
-else
-  AX_CFLAGS_GCC_OPTION([-std=c89])
-fi
-
 AX_CFLAGS_GCC_OPTION([-pedantic])
 AX_CFLAGS_GCC_OPTION([-Wall])
 AX_CFLAGS_GCC_OPTION([-Wchar-subscripts])
@@ -195,6 +187,9 @@ AX_CFLAGS_GCC_OPTION([-Wsign-compare])
 
 # Suppress warnings about strings longer than ISO C 89 maximum length (509).
 AX_CFLAGS_GCC_OPTION([-Wno-overlength-strings])
+
+# Disable the problematic preprocessing on Mac OS X
+AX_CFLAGS_GCC_OPTION([-no-cpp-precomp])
 
 #
 # Checks for library functions
@@ -464,7 +459,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi75_named_chars=yes
         use_srfi75=yes
         use_sscm_extensions=yes
-        use_sscm_format_extensions=yes
+        use_sscm_format_extension=yes
         use_compat_siod=no
         use_compat_siod_bugs=no
         use_eval_c_string=yes
@@ -484,7 +479,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi75_named_chars=no
         use_srfi75=no
         use_sscm_extensions=no
-        use_sscm_format_extensions=no
+        use_sscm_format_extension=no
         use_compat_siod=no
         use_compat_siod_bugs=no
         use_eval_c_string=no
@@ -504,7 +499,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi75_named_chars=no
         use_srfi75=no
         use_sscm_extensions=yes
-        use_sscm_format_extensions=no
+        use_sscm_format_extension=no
         use_compat_siod=yes
         use_compat_siod_bugs=yes
         use_eval_c_string=yes
@@ -524,7 +519,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi75_named_chars=yes
         use_srfi75=no
         use_sscm_extensions=yes
-        use_sscm_format_extensions=yes
+        use_sscm_format_extension=yes
         use_compat_siod=yes
         use_compat_siod_bugs=yes
         use_eval_c_string=yes
@@ -634,7 +629,7 @@ AX_FEATURE_VAR_N(legacy-macro,     ['define-macro' (not implemented yet)])
 
 # SigScheme-specific features
 AX_FEATURE_ARG_Y(sscm-extensions,     [SigScheme-specific extensions])
-AX_FEATURE_ARG_Y(sscm-format-extensions, [SigScheme-specific 'format+'])
+AX_FEATURE_ARG_Y(sscm-format-extension, [SigScheme-specific 'format+'])
 AX_FEATURE_ARG_N(compat-siod,         [some SIOD compatible features])
 AX_FEATURE_ARG_N(compat-siod-bugs,    [emulating the buggy behaviors of SIOD])
 AX_FEATURE_ARG_Y(eval-c-string,       [eval_c_string() of libsscm])
@@ -910,7 +905,7 @@ AC_SUBST(use_srfi60)
 AC_SUBST(use_srfi75)
 AC_SUBST(use_srfi75_named_chars)
 AC_SUBST(use_sscm_extensions)
-AC_SUBST(use_sscm_format_extensions)
+AC_SUBST(use_sscm_format_extension)
 AC_SUBST(use_compat_siod)
 AC_SUBST(use_compat_siod_bugs)
 AC_SUBST(use_eval_c_string)
@@ -938,6 +933,18 @@ AC_DEFINE(SCM_SCMPORT_USE_WITH_SIGSCHEME, 1,
 if test "x$use_debug" = xyes; then
   if test "x$ac_cv_prog_cc_g" = xyes; then
     CFLAGS="$CFLAGS -g"
+  fi
+
+  # Restricting the C dialect tends to cause system library disfunction such as
+  # on glibc and Darwin libc. So this option is only specified at debugging
+  # mode.
+  #
+  # -std=gnu89 is required only for (old?) glibc. -std=c89 is sufficient for
+  # other environments.
+  if test "x$ax_cv_lib_glibc" = xyes; then
+    AX_CFLAGS_GCC_OPTION([-std=gnu89])
+  else
+    AX_CFLAGS_GCC_OPTION([-std=c89])
   fi
 else
   CFLAGS="$CFLAGS -DNDEBUG"
@@ -1041,7 +1048,7 @@ SRFI-75 named chars: $use_srfi75_named_chars
 
 [SigScheme-specific extensions]
 SigScheme extensions: $use_sscm_extensions
-format+ procedure:    $use_sscm_format_extensions
+format+ procedure:    $use_sscm_format_extension
 SIOD compatibilities: $use_compat_siod
 SIOD bugs emulation:  $use_compat_siod_bugs
 eval_c_string():      $use_eval_c_string

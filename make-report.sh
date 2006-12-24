@@ -25,10 +25,12 @@ if test "x$MAKE" != x && $PERL -v >/dev/null; then
   fi
   pkg=`perl -ne 'print $1 if /^Package:\s+(.+)$/' $TMPFILE`
   host=`perl -ne 'print $1 if /^host \(compile for\):\s+(.+)$/' $TMPFILE`
+  compiler=`perl -ne 'print $1 if /^Compiler:\s+(.+)$/' $TMPFILE`
+  compiler_ver=`perl -ne 'print $1 if /^Compiler version:\s+(.+)$/' $TMPFILE`
 
   cat >report.mail <<EOT
 To: ${ADDR}
-Subject: ${result}: ${pkg} ${host}
+Subject: ${result}: ${pkg} ${host} ${compiler} ${compiler_ver}
 
 EOT
   cat $TMPFILE >>report.mail

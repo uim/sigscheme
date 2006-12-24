@@ -1,9 +1,6 @@
 Release management of SigScheme
 ===============================
 
-FIXME: obsolete
-
-
 Acknowledgement
 ---------------
 
@@ -88,8 +85,10 @@ work.
 $ cd /tmp
 $ svn co http://anonsvn.freedesktop.org/svn/uim/tags/sigscheme-x.y.z
 $ cd sigscheme-x.y.z
+$ svn co http://anonsvn.freedesktop.org/svn/uim/tags/libgcroots-x.y.z libgcroots
+$ (cd libgcroots && sh autogen.sh)
 $ ./autogen.sh
-$ ./configure --enable-maintainer-mode
+$ ./configure --enable-maintainer-mode --enable-conf=full
 $ make distcheck sum
 ----------------------------------------------------------------
 
@@ -98,7 +97,7 @@ It produces:
 ----------------------------------------------------------------
 sigscheme-x.y.z.tar.gz
 sigscheme-x.y.z.tar.bz2
-sigscheme-x.y.z.md5
+sigscheme-x.y.z.sum
 ----------------------------------------------------------------
 
 Publishing and announcements

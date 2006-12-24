@@ -51,7 +51,9 @@ See doc/spec.txt and doc/design.txt for furtuer information.
 How to build
 ------------
 
-At first, you need to run ./configure with some options at the top directory.
+GNU make is requied to build.
+
+Run ./configure with some options at the top directory.
 
   $ ./configure [--enable-conf=CONF] [--enable-default-encoding=ENCODING]
 

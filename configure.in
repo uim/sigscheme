@@ -266,7 +266,7 @@ case "${with_libgcroots:=no}" in
     AC_CONFIG_SUBDIRS([libgcroots])
 
     GCROOTS_LIBS='$(top_builddir)/libgcroots/libgcroots.la'
-    GCROOTS_CFLAGS='-I$(top_builddir)/libgcroots/include'
+    GCROOTS_CFLAGS='-I$(top_srcdir)/libgcroots/include'
     use_libgcroots="bundled one"
     GCROOTS_REQ=gcroots
   ;;

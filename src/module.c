@@ -174,7 +174,7 @@ scm_providedp(ScmObj feature)
 SCM_EXPORT scm_bool
 scm_use(const char *feature)
 {
-    return (scm_bool)scm_call_with_gc_ready_stack((ScmGCGateFunc)scm_use_internal, (void *)feature);
+    return scm_call_with_gc_ready_stack((ScmGCGateFunc)scm_use_internal, (void *)feature) ? scm_true : scm_false;
 }
 
 static void *
@@ -185,7 +185,7 @@ scm_use_internal(const char *feature)
     SCM_ASSERT(feature);
 
     ok = scm_s_use(scm_intern(feature), SCM_INTERACTION_ENV);
-    return (void *)TRUEP(ok);
+    return (void *)(uintptr_t)TRUEP(ok);
 }
 
 /*

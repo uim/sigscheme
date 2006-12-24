@@ -2,7 +2,8 @@
  *  Filename : error.c
  *  About    : handling errors
  *
- *  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
+ *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
+ *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
  *
  *  All rights reserved.
  *

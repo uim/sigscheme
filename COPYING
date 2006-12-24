@@ -39,6 +39,26 @@ Supplementary explanation (only for help and not legal):
   must be distributed under the terms of the license specified therein.
   Each file indicates its copyright holder in its header.
 
+
+libgcroots is covered by:
+-----------------------------------------------------------------------------
+Copyright 1988, 1989 Hans-J. Boehm, Alan J. Demers
+Copyright (c) 1991-1995 by Xerox Corporation.  All rights reserved.
+Copyright (c) 1996-1999 by Silicon Graphics.  All rights reserved.
+Copyright (c) 1999-2001 by Hewlett-Packard. All rights reserved.
+Copyright (c) 2006 YAMAMOTO Kengo All rights reserved.
+
+THIS MATERIAL IS PROVIDED AS IS, WITH ABSOLUTELY NO WARRANTY EXPRESSED
+OR IMPLIED.  ANY USE IS AT YOUR OWN RISK.
+
+Permission is hereby granted to use or copy this program
+for any purpose,  provided the above notices are retained on all copies.
+Permission to modify the code and to distribute modified code is granted,
+provided the above notices are retained, and a notice that the code was
+modified is included with the above copyright notice.
+-----------------------------------------------------------------------------
+
+
 test/gauche-*.scm and some part of src/read.c and src/list.c are covered by:
 -----------------------------------------------------------------------------
 

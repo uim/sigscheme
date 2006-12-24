@@ -1,4 +1,4 @@
-SigScheme 0.7.0 Release Note
+SigScheme 0.7.1 Release Note
 ============================
 
 What's SigScheme
@@ -13,7 +13,7 @@ SigScheme is a R5RS Scheme interpreter for embedded use.
 About This Release
 ------------------
 
-This distribution of SigScheme 0.7.0 is first stable release of the
+This distribution of SigScheme 0.7.1 is first stable release of the
 software. This release will soon be adopted by uim 1.4.0, the primary
 application of SigScheme.
 

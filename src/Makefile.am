@@ -9,7 +9,8 @@ BUILD_FUNCTBL_DEPS = \
         $(BUILD_FUNCTBL) \
         $(SCRIPT_DIR)/scm_decl.rb \
         $(SCRIPT_DIR)/functable-header.txt \
-        $(SCRIPT_DIR)/functable-footer.txt
+        $(SCRIPT_DIR)/functable-footer.txt \
+        $(top_builddir)/config.status
 
 FUNC_TABLES = \
         functable-sscm-core.c \

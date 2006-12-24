@@ -200,6 +200,8 @@ AX_CFLAGS_GCC_OPTION([-Wno-overlength-strings])
 # Checks for library functions
 #
 
+AX_FUNC_GETCONTEXT
+
 AC_CHECK_FUNCS([strtoll strtoimax \
                 memalign \
                 fileno getcwd getpagesize])
@@ -983,6 +985,7 @@ base config:  $use_conf
 [Storage configuration]
 Storage impl: $use_storage
 Fixnum size:  $use_fixnum
+getcontext:   $ax_cv_func_getcontext
 libgcroots:   $use_libgcroots
 
 [Multibyte character handlings]

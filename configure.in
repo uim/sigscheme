@@ -262,13 +262,15 @@ case "${with_libgcroots:=no}" in
     ac_configure_args="$ac_configure_args "
     AC_CONFIG_SUBDIRS([libgcroots])
 
-    GCROOTS_LIBS='$(top_builddir)/libgcroots/libgcroots.la'
-    GCROOTS_CFLAGS='-I$(top_srcdir)/libgcroots/include'
+    # Specify absolute directories to make being usable from superordinate
+    # packages such as uim.
+    GCROOTS_LIBS='$(abs_top_builddir)/libgcroots/libgcroots.la'
+    GCROOTS_CFLAGS='-I$(abs_top_srcdir)/libgcroots/include'
     use_libgcroots="bundled one"
     GCROOTS_REQ=gcroots
   ;;
   yes|installed)
-    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.1.0],
+    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.1.2],
                       [],
                       [AC_MSG_ERROR([installed libgcroots is not found.])])
     use_libgcroots="installed one"
@@ -968,6 +970,7 @@ AH_BOTTOM([
 #endif /* __SIGSCHEME_CONFIG_H */])
 
 AC_CONFIG_FILES([sigscheme.pc
+                 libgcroots.mk
                  Makefile
                  doc/Makefile
                  m4/Makefile

@@ -11,7 +11,7 @@ RELEASE_URL     = $(TAGS_REPOSITORY)/$(PACKAGE)-$(VERSION)
 DIST_SUM_LIST = $(PACKAGE)-$(VERSION).sum
 
 EXTRA_DIST = \
-        sigscheme.pc.in autogen.sh RELNOTE TODO QALog \
+        sigscheme.pc.in libgcroots.mk.in autogen.sh RELNOTE TODO QALog \
         compare-scm.sh runbench.sh runtest.sh runtest-tail-rec.sh \
         make-report.sh make-dist.sh
 

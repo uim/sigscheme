@@ -3,6 +3,7 @@ EXTRA_DIST = unittest.scm unittest-bigloo.scm unittest-gauche.scm \
              run-singletest.sh.in
 
 sscm_xfail_tests =
+sscm_optional_tests =
 # Native tests of SigScheme
 sscm_tests = \
         test-apply.scm \

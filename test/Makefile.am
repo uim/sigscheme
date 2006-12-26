@@ -59,28 +59,32 @@ sscm_tests = \
         test-vector.scm
 
 if USE_UTF8
-sscm_tests += test-enc-utf8.scm
+sscm_optional_tests += test-enc-utf8.scm
 else
 sscm_xfail_tests += test-enc-utf8.scm
 endif
+EXTRA_DIST += test-enc-utf8.scm
 
 if USE_EUCCN
-sscm_tests += test-enc-eucgeneric.scm
+sscm_optional_tests += test-enc-eucgeneric.scm
 else
 sscm_xfail_tests += test-enc-eucgeneric.scm
 endif
+EXTRA_DIST += test-enc-eucgeneric.scm
 
 if USE_EUCJP
-sscm_tests += test-enc-eucjp.scm test-char.scm
+sscm_optional_tests += test-enc-eucjp.scm test-char.scm
 else
 sscm_xfail_tests += test-enc-eucjp.scm test-char.scm
 endif
+EXTRA_DIST += test-enc-eucjp.scm
 
 if USE_SJIS
-sscm_tests += test-enc-sjis.scm
+sscm_optional_tests += test-enc-sjis.scm
 else
 sscm_xfail_tests += test-enc-sjis.scm
 endif
+EXTRA_DIST += test-enc-sjis.scm
 
 EXTRA_DIST += test-tail-rec.scm
 
@@ -101,7 +105,7 @@ imported_tests = \
 EXTRA_DIST += $(sscm_tests) $(imported_tests)
 
 TESTS_ENVIRONMENT = $(SH) $(top_builddir)/test/run-singletest.sh
-TESTS = $(sscm_tests)
+TESTS = $(sscm_tests) $(sscm_optional_tests)
 XFAIL_TESTS = $(sscm_xfail_tests)
 
 DISTCLEANFILES = run-singletest.sh

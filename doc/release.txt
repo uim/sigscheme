@@ -41,6 +41,11 @@ feature freeze.
 Release procedures
 ------------------
 
+Documents update
+~~~~~~~~~~~~~~~~
+
+Update `RELNOTE` and `NEWS`.
+
 Declaration
 ~~~~~~~~~~~
 
@@ -50,12 +55,13 @@ that no developer is having a problem on the release.
 Versioning
 ~~~~~~~~~~
 
-Confirm the version number written in `AC_INIT()` of the `configure.in` prior
-to a release. The number should immediately be incremented once a release has
-been finished.
+Confirm the version number written in `AC_INIT()` of the `configure.in` and
+SSCM_VERSION_* of sigscheme.h prior to a release.
 
 And do not forget updating `src/libtool-version.mk` if `libsscm` ABI has been
 altered from previous version.
+
+Finally, update LIBGCROOTS_URL in `make-dist.sh`.
 
 Tagging
 ~~~~~~~
@@ -77,19 +83,11 @@ $ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/sigscheme-trunk \
 Packaging
 ~~~~~~~~~
 
-SigScheme's `make dist` needs a tagged source tree freshly checked out to
-generate `ChangeLog` for the release properly. `svn export`-ed tree does not
-work.
-
 ----------------------------------------------------------------
 $ cd /tmp
-$ svn co http://anonsvn.freedesktop.org/svn/uim/tags/sigscheme-x.y.z
+$ svn export http://anonsvn.freedesktop.org/svn/uim/tags/sigscheme-x.y.z
 $ cd sigscheme-x.y.z
-$ svn co http://anonsvn.freedesktop.org/svn/uim/tags/libgcroots-x.y.z libgcroots
-$ (cd libgcroots && sh autogen.sh)
-$ ./autogen.sh
-$ ./configure --enable-maintainer-mode --enable-conf=full
-$ make distcheck sum
+$ ./make-dist.sh
 ----------------------------------------------------------------
 
 It produces:
@@ -102,5 +100,9 @@ sigscheme-x.y.z.sum
 
 Publishing and announcements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Place sigscheme-x.y.z.tar.{gz,bz2} to http://uim.freedesktop.org/releases/
+
+# Place sigscheme-x.y.z.tar.{gz,bz2} to http://uim.freedesktop.org/releases/
 
 FIXME

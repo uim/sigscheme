@@ -7,12 +7,13 @@ SUBDIRS += include src lib test test-c bench
 UIM_REPOSITORY = http://anonsvn.freedesktop.org/svn/uim
 SSCM_REPOSITORY = $(UIM_REPOSITORY)/sigscheme-trunk
 TAGS_REPOSITORY = $(UIM_REPOSITORY)/tags
+RELEASE_URL     = $(TAGS_REPOSITORY)/$(PACKAGE)-$(VERSION)
 DIST_SUM_LIST = $(PACKAGE)-$(VERSION).sum
 
 EXTRA_DIST = \
         sigscheme.pc.in autogen.sh RELNOTE TODO QALog \
         compare-scm.sh runbench.sh runtest.sh runtest-tail-rec.sh \
-        make-report.sh
+        make-report.sh make-dist.sh
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = sigscheme.pc
@@ -27,30 +28,14 @@ FORCE:
 ChangeLog: FORCE
 	svn export $(UIM_REPOSITORY)/trunk/tools/gnuify-changelog.pl \
 	    tools/gnuify-changelog.pl
-	svn log | tools/gnuify-changelog.pl > $@
+	svn log $(RELEASE_URL) | tools/gnuify-changelog.pl > $@
 	@test -s $@ && echo 'ChangeLog updated successfully.'
 
 sum: FORCE
 	$(MD5) $(DIST_ARCHIVES) >$(DIST_SUM_LIST)
 	$(SHA1) $(DIST_ARCHIVES) >>$(DIST_SUM_LIST)
 
-# To generate ChangeLog for a release properly, a source tree for official
-# release must not be obtained by 'svn export' but 'svn co'. See
-# doc/release.txt for further information.
-dist-hook:
-	svn info | $(EGREP) -q "^URL: .+/svn/uim/tags/sigscheme-" \
-	    || (echo "error: not an official release. checkout tagged one"; \
-                exit 1)
-
-# for 'svn log'
-distcheck-hook:
-	cp -Rp $(top_srcdir)/.svn $(distdir)/_build
-	touch $(distdir)/_build/.svn/prepared-for-distcheck
-
 distclean-local:
 	if test '$(top_srcdir)' != '$(top_builddir)'; then  \
 	    rm -f ChangeLog;                                    \
-	fi
-	if test -f .svn/prepared-for-distcheck; then    \
-	    rm -rf .svn;                                \
 	fi

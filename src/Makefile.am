@@ -9,8 +9,7 @@ BUILD_FUNCTBL_DEPS = \
         $(BUILD_FUNCTBL) \
         $(SCRIPT_DIR)/scm_decl.rb \
         $(SCRIPT_DIR)/functable-header.txt \
-        $(SCRIPT_DIR)/functable-footer.txt \
-        $(top_builddir)/config.status
+        $(SCRIPT_DIR)/functable-footer.txt
 
 FUNC_TABLES = \
         functable-sscm-core.c \
@@ -44,6 +43,7 @@ FUNC_TABLES = \
         functable-srfi60.c
 
 if MAINTAINER_MODE
+$(FUNC_TABLES): $(top_builddir)/config.status
 # Core
 SSCM_CORE_SRCS = error.c module.c
 R5RS_CORE_SRCS = eval.c procedure.c list.c

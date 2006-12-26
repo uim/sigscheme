@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ADDR="uim@freedesktop.org"
+ADDR="sigscheme-ja@googlegroups.com"
 TMPDIR=/tmp
 TMPFILE=$TMPDIR/sigscheme-report.$$
 PERL=perl

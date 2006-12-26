@@ -1,4 +1,4 @@
-SigScheme 0.7.1 Release Note
+SigScheme 0.7.2 Release Note
 ============================
 
 What's SigScheme
@@ -13,11 +13,11 @@ SigScheme is a R5RS Scheme interpreter for embedded use.
 About This Release
 ------------------
 
-This distribution of SigScheme 0.7.1 is first stable release of the
+This distribution of SigScheme 0.7.2 is latest stable release of the
 software. This release will soon be adopted by uim 1.4.0, the primary
 application of SigScheme.
 
-As declared in previous release, the main goal of this release is to acquire
+As declared in 0.6.1 release, the main goal of 0.7.x series is to acquire
 stability and standards conformance. Though many parts have been validated
 against the standards, reviewed, tested and fixed, following parts are not done
 yet. Please keep in mind that using these features involves standards
@@ -51,6 +51,14 @@ Mailinglist: uim@freedesktop.org
 
 What's New
 ----------
+
+  - Change To: mail address of make-report.sh which does not have size
+    limitation
+
+  - Fix distribution creation procedure
+
+
+  New in 0.7.1:
 
   - Fix 17 R5RS-conformance bugs and 4 SRFI-conformance bugs
 

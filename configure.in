@@ -51,6 +51,9 @@ AC_CHECK_HEADERS([stdint.h inttypes.h sys/inttypes.h sys/types.h \
 # Checks for typedefs, structures, and compiler characteristics
 #
 
+# FIXME: depending on the internal variable name
+AC_DEFUN([AX_LANG_WNOERROR], [ac_[]_AC_LANG_ABBREV[]_werror_flag=])
+
 AC_C_CONST
 AC_C_VOLATILE
 AC_C_STRINGIZE
@@ -174,6 +177,8 @@ else
   ax_prog_cc_version="unknown"
 fi
 
+AC_LANG_WERROR  # Turn warning-only unknown options into error.
+
 AX_CFLAGS_GCC_OPTION([-pedantic])
 AX_CFLAGS_GCC_OPTION([-Wall])
 AX_CFLAGS_GCC_OPTION([-Wchar-subscripts])
@@ -190,6 +195,8 @@ AX_CFLAGS_GCC_OPTION([-Wno-overlength-strings])
 
 # Disable the problematic preprocessing on Mac OS X
 AX_CFLAGS_GCC_OPTION([-no-cpp-precomp])
+
+AX_LANG_WNOERROR  # end AC_LANG_WERROR
 
 #
 # Checks for library functions
@@ -945,11 +952,13 @@ if test "x$use_debug" = xyes; then
   #
   # -std=gnu89 is required only for (old?) glibc. -std=c89 is sufficient for
   # other environments.
+  AC_LANG_WERROR  # Turn warning-only unknown options into error.
   if test "x$ax_cv_lib_glibc" = xyes; then
     AX_CFLAGS_GCC_OPTION([-std=gnu89])
   else
     AX_CFLAGS_GCC_OPTION([-std=c89])
   fi
+  AX_LANG_WNOERROR  # end AC_LANG_WERROR
 else
   CFLAGS="$CFLAGS -DNDEBUG"
 fi

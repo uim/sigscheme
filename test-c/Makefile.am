@@ -25,12 +25,19 @@ endif
 # Name your test suite with a -coll suffix if you want it processed
 # with collect.sh.  Leave the suffix out if you don't want some script
 # messing around with your masterpiece.
+if USE_LIBSSCM
 TESTS= test-alignment-coll \
        test-global-coll \
        test-gc-coll test-gc-protect-stack-coll \
        test-storage-coll test-storage-compact-coll \
        test-strcasecmp-coll test-length-coll test-format-coll
+XFAIL_TESTS =
 check_PROGRAMS= $(TESTS) test-minishell
+else
+TESTS=
+XFAIL_TESTS =
+check_PROGRAMS=
+endif
 
 # GNU version of sed is required to run collect.sh
 dist-hook:

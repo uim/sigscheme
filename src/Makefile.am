@@ -1,4 +1,5 @@
 include libtool-version.mk
+include $(top_builddir)/libgcroots.mk
 
 lib_LTLIBRARIES = libsscm.la
 

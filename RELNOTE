@@ -14,8 +14,8 @@ About This Release
 ------------------
 
 This distribution of SigScheme 0.7.2 is latest stable release of the
-software. This release will soon be adopted by uim 1.4.0, the primary
-application of SigScheme.
+software. Only minor fixes have been applied after 0.7.1. This release will
+soon be adopted by uim 1.4.0, the primary application of SigScheme.
 
 As declared in 0.6.1 release, the main goal of 0.7.x series is to acquire
 stability and standards conformance. Though many parts have been validated
@@ -52,13 +52,16 @@ Mailinglist: uim@freedesktop.org
 What's New
 ----------
 
+  - Fix distribution making procedure
+
+  - Fix '-no-cpp-precomp' warning on gcc
+
   - Change To: mail address of make-report.sh which does not have size
     limitation
 
-  - Fix distribution creation procedure
 
-
-  New in 0.7.1:
+What's New in 0.7.1
+-------------------
 
   - Fix 17 R5RS-conformance bugs and 4 SRFI-conformance bugs
 

@@ -3,10 +3,12 @@ Overview of changes from 0.7.1 to 0.7.2
 
 * Fixes
 
+  - Fix distribution making procedure
+
+  - Fix '-no-cpp-precomp' warning on gcc
+
   - Change To: mail address of make-report.sh which does not have size
     limitation
-
-  - Fix distribution creation procedure
 
 
 Overview of changes from 0.6.1 to 0.7.1

@@ -1,7 +1,9 @@
 include libtool-version.mk
 include $(top_builddir)/libgcroots.mk
 
+if USE_LIBSSCM
 lib_LTLIBRARIES = libsscm.la
+endif
 
 SCRIPT_DIR = $(top_srcdir)/tools
 BUILD_FUNCTBL = $(SCRIPT_DIR)/build_func_table.rb

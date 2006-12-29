@@ -3,7 +3,7 @@ Overview of changes from 0.7.1 to 0.7.2
 
 * Fixes
 
-  - Fix broken libgcroots (Etsushi)
+  - [CRITICAL] Fix broken libgcroots (Etsushi)
 
   - Fix distribution making procedure
 

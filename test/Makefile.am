@@ -78,7 +78,7 @@ sscm_optional_tests += test-enc-eucjp.scm test-char.scm
 else
 sscm_xfail_tests += test-enc-eucjp.scm test-char.scm
 endif
-EXTRA_DIST += test-enc-eucjp.scm
+EXTRA_DIST += test-enc-eucjp.scm test-char.scm
 
 if USE_SJIS
 sscm_optional_tests += test-enc-sjis.scm

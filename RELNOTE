@@ -52,7 +52,7 @@ Mailinglist: uim@freedesktop.org
 What's New
 ----------
 
-  - Fix broken libgcroots (Etsushi)
+  - [CRITICAL] Fix broken libgcroots (Etsushi)
 
   - Fix distribution making procedure
 

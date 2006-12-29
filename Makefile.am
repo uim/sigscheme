@@ -9,7 +9,7 @@ SSCM_REPOSITORY = $(UIM_REPOSITORY)/sigscheme-trunk
 TAGS_REPOSITORY = $(UIM_REPOSITORY)/tags
 #RELEASE_URL     = $(SSCM_REPOSITORY)
 RELEASE_URL     = $(TAGS_REPOSITORY)/$(PACKAGE)-$(VERSION)
-DIST_SUM_LIST = $(PACKAGE)-$(VERSION).sum
+DIST_SUM_LIST = $(distdir).sum
 
 EXTRA_DIST = \
         sigscheme.pc.in libgcroots.mk.in autogen.sh RELNOTE TODO QALog \

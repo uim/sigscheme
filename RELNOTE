@@ -52,6 +52,8 @@ Mailinglist: uim@freedesktop.org
 What's New
 ----------
 
+  - Fix broken libgcroots (Etsushi)
+
   - Fix distribution making procedure
 
   - Fix '-no-cpp-precomp' warning on gcc

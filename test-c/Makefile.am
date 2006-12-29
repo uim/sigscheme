@@ -1,3 +1,5 @@
+include $(top_builddir)/libgcroots.mk
+
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/src
 AM_CFLAGS   = @GCROOTS_CFLAGS@
 AM_LDFLAGS  = -rpath $(libdir)

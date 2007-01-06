@@ -10,6 +10,8 @@ SSCM_REPOSITORY="${TAGS_REPOSITORY}/sigscheme-0.7.3"
 LIBGCROOTS_URL="${TAGS_REPOSITORY}/libgcroots-0.1.4"
 
 svn export $LIBGCROOTS_URL libgcroots
-(cd libgcroots && ./autogen.sh) && ./autogen.sh
-./configure --enable-maintainer-mode --enable-conf=full
-$MAKE distcheck sum
+(cd libgcroots && ./autogen.sh) \
+&& ./autogen.sh \
+|| { echo 'autogen failed.' && exit 1; }
+
+./configure --enable-maintainer-mode --enable-conf=full && $MAKE distcheck sum

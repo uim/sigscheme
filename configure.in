@@ -277,7 +277,7 @@ case "${with_libgcroots:=no}" in
     GCROOTS_REQ=gcroots
   ;;
   yes|installed)
-    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.1.2],
+    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.1.4],
                       [],
                       [AC_MSG_ERROR([installed libgcroots is not found.])])
     use_libgcroots="installed one"
@@ -286,6 +286,7 @@ case "${with_libgcroots:=no}" in
   tiny-subst)
     # use src/gcroots/gcroots.[hc]
     with_libgcroots=tiny_subst
+    GCROOTS_CFLAGS='-I$(sscm_abs_top_srcdir)/src/gcroots'
     use_libgcroots="tiny substitution in src/gcroots"
   ;;
   *)

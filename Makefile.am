@@ -4,6 +4,10 @@ SUBDIRS += libgcroots
 endif
 SUBDIRS += include src lib test test-c bench
 
+# To make 'make distclean' workable on --with-libgcroots=tiny-subdir,
+# libgcroots must be eliminated from $DIST_SUBDIRS.
+DIST_SUBDIRS = $(SUBDIRS)
+
 UIM_REPOSITORY = http://anonsvn.freedesktop.org/svn/uim
 SSCM_REPOSITORY = $(UIM_REPOSITORY)/sigscheme-trunk
 TAGS_REPOSITORY = $(UIM_REPOSITORY)/tags

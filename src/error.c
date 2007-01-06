@@ -88,6 +88,8 @@ SCM_DEFINE_STATIC_VARS(static_error);
 #if SCM_USE_SRFI34
 static scm_bool srfi34_providedp(void);
 #endif
+static void scm_error_obj_internal(const char *func_name, const char *msg,
+                                   ScmObj obj, ...) SCM_NORETURN;
 static void scm_error_internal(const char *func_name, ScmObj obj,
                                const char *msg, va_list args) SCM_NORETURN;
 #if (SCM_USE_BACKTRACE && SCM_DEBUG_BACKTRACE_VAL)
@@ -405,8 +407,15 @@ scm_error(const char *func_name, const char *msg, ...)
 SCM_EXPORT void
 scm_error_obj(const char *func_name, const char *msg, ScmObj obj)
 {
-    va_list dummy_va SCM_UNUSED;
+    scm_error_obj_internal(func_name, msg, obj);
+}
 
+static void
+scm_error_obj_internal(const char *func_name, const char *msg, ScmObj obj, ...)
+{
+    va_list dummy_va;
+
+    va_start(dummy_va, obj);
     scm_error_internal(func_name, obj, msg, dummy_va);
     /* NOTREACHED */
 }

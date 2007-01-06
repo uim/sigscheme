@@ -159,7 +159,7 @@ typedef const char *format_string_t;
 #define FORMAT_STR_PEEK(fmt)      (*(fmt))
 #endif /* SCM_USE_MULTIBYTE_CHAR */
 
-#define FORMAT_STR_SKIP_CHAR(fmt) (FORMAT_STR_READ(fmt), 0)
+#define FORMAT_STR_SKIP_CHAR(fmt) ((void)FORMAT_STR_READ(fmt))
 
 
 enum format_args_type {

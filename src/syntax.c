@@ -73,7 +73,7 @@
         else if (permitted_type == ScmMacro)                                 \
             SCM_ASSERT(HMACROP(bindee));                                     \
         else                                                                 \
-            SCM_ASSERT(scm_false);                                           \
+            SCM_NOTREACHED;                                                  \
     } while (/* CONSTCOND */ 0)
 #else
 #define CHECK_VALID_BINDEE(permitted_type, bindee)                           \
@@ -81,7 +81,7 @@
         if (permitted_type == ScmFirstClassObj)                              \
             CHECK_VALID_EVALED_VALUE(bindee);                                \
         else                                                                 \
-            SCM_ASSERT(scm_false);                                           \
+            SCM_NOTREACHED;                                                  \
     } while (/* CONSTCOND */ 0)
 #endif
 

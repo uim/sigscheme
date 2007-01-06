@@ -615,7 +615,7 @@ read_sexpression(ScmObj port)
             /* NOTREACHED */
 
         default:
-            SCM_ASSERT(scm_false);
+            SCM_NOTREACHED;
         }
     }
 }
@@ -780,7 +780,7 @@ read_unicode_sequence(ScmObj port, char prefix)
     case 'u': len = 4; break;
     case 'U': len = 8; break;
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
     seq[0] = prefix;
     read_sequence(port, &seq[1], len);

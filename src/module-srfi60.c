@@ -58,7 +58,7 @@
             result = (SCM_INT_VALUE(left) op SCM_INT_VALUE(right));          \
             break;                                                           \
         default:                                                             \
-            SCM_ASSERT(scm_false);                                           \
+            SCM_NOTREACHED;                                                  \
         }                                                                    \
         return MAKE_INT(result);                                             \
     } while (/* CONSTCOND */ 0)

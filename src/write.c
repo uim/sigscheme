@@ -334,7 +334,7 @@ write_obj(ScmObj port, ScmObj obj, enum OutputType otype)
     case ScmReal:
     case ScmComplex:
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 }
 
@@ -368,7 +368,7 @@ write_char(ScmObj port, ScmObj obj, enum OutputType otype)
         break;
 
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 }
 #endif /* SCM_USE_CHAR */
@@ -433,7 +433,7 @@ write_string(ScmObj port, ScmObj obj, enum OutputType otype)
         break;
 
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 }
 #endif /* SCM_USE_STRING */
@@ -561,7 +561,7 @@ write_constant(ScmObj port, ScmObj obj, enum  OutputType otype)
     else if (EQ(obj, SCM_UNDEF))
         str = "#<undef>";
     else
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
 
     scm_port_puts(port, str);
 }
@@ -589,7 +589,7 @@ write_errobj(ScmObj port, ScmObj obj, enum  OutputType otype)
         break;
 
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 
     FOR_EACH (elm, objs) {
@@ -681,7 +681,7 @@ hash_lookup(hash_table *tab, ScmObj key, scm_intobj_t datum, int flag)
     }
 
     /* A linear probe should always find a slot. */
-    SCM_ASSERT(scm_false);
+    SCM_NOTREACHED;
 }
 
 /**

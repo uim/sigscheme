@@ -306,7 +306,7 @@ scm_listran(sequence_translator *t, tr_msg msg, ScmObj obj)
         RETURN_OBJECT(TRL_EXTRACT(*t));
 
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
     RETURN_OBJECT(SCM_INVALID);
 }
@@ -398,7 +398,7 @@ scm_vectran(sequence_translator *t, tr_msg msg, ScmObj obj)
         RETURN_OBJECT(t->u.vec.src);
 
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
     RETURN_OBJECT(SCM_INVALID);
 }
@@ -551,9 +551,7 @@ scm_s_quasiquote(ScmObj datum, ScmObj env)
     case TR_MSG_REPLACE:
         return ret.obj;
     default:
-        SCM_ASSERT(scm_false);
-        /* NOTREACHED */
-        return SCM_FALSE;
+        SCM_NOTREACHED;
     }
 }
 

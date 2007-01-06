@@ -699,7 +699,7 @@ format_internal(ScmObj port, enum ScmFormatCapability fcap,
                 continue;
             }
 #endif /* SCM_USE_SRFI28 */
-            SCM_ASSERT(scm_false);
+            SCM_NOTREACHED;
         } else {
             scm_port_put_char(port, c);
             last_c = c;

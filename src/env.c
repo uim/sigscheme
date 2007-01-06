@@ -306,7 +306,7 @@ scm_add_environment(ScmObj var, ScmObj val, ScmObj env)
         SET_CAR(frame, formals);
         SET_CDR(frame, actuals);
     } else {
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
     return env;
 }

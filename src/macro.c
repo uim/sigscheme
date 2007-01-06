@@ -905,7 +905,7 @@ transcribe_rec(transcription_context *ctx, ScmObj template, ScmObj sub,
             case MSG_SPLICE:                                    \
                 SCM_QUEUE_APPEND((_q), r.u.obj); break;         \
             default:                                            \
-                SCM_ASSERT(scm_false);                          \
+                SCM_NOTREACHED;                                 \
             }                                                   \
         } while (0)
 

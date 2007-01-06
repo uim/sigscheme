@@ -90,7 +90,7 @@ scm_p_add(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_0:
         break;
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 
     return MAKE_INT(result);
@@ -117,7 +117,7 @@ scm_p_multiply(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_0:
         break;
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 
     return MAKE_INT(result);
@@ -149,7 +149,7 @@ scm_p_subtract(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_0:
         ERR(ERRMSG_REQ_1_ARG);
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
     return MAKE_INT(result);
 }
@@ -178,7 +178,7 @@ scm_p_divide(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_0:
         ERR(ERRMSG_REQ_1_ARG);
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
     return MAKE_INT(result);
 }
@@ -214,7 +214,7 @@ scm_p_integerp(ScmObj obj)
         break;                                                               \
                                                                              \
     default:                                                                 \
-        SCM_ASSERT(scm_false);                                               \
+        SCM_NOTREACHED;                                                      \
     }                                                                        \
     return SCM_FALSE
 

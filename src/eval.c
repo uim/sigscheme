@@ -207,7 +207,7 @@ call_closure(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
 
         formals = args = SCM_NULL;
     } else {
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 
     eval_state->env = scm_extend_environment(formals, args, proc_env);
@@ -376,8 +376,7 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
 #endif
 
     default:
-        SCM_ASSERT(scm_false);
-        return SCM_INVALID;
+        SCM_NOTREACHED;
     }
 }
 

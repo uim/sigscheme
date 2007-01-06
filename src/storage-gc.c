@@ -710,7 +710,7 @@ free_cell(ScmCell *cell)
     case ScmComplex:
 #endif
     default:
-        SCM_ASSERT(scm_false);
+        SCM_NOTREACHED;
     }
 #endif /* SCM_USE_STORAGE_COMPACT */
 }

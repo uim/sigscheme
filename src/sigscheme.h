@@ -152,7 +152,8 @@ extern "C" {
 #define SCM_ENSURE_ALLOCATED(p)                                              \
     ((p) || (scm_fatal_error(SCM_ERRMSG_MEMORY_EXHAUSTED), 1))
 
-#if (!SCM_SOFT_ASSERT && !HAVE_ASSERT_H && SCM_USE_WARNING_SUPPRESSOR)
+#if (SCM_USE_WARNING_SUPPRESSOR                                              \
+     && !SCM_SOFT_ASSERT && (!HAVE_ASSERT_H || defined(NDEBUG)))
 #include <stdlib.h>
 #define SCM_NOTREACHED (abort())
 #else

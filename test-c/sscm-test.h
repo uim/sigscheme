@@ -359,20 +359,20 @@ do {                                                            \
 #define TST_EQ_INT(x, a, desc)  TST_EQUALITY(TST_C_EQUAL, intmax_t, \
                                              "%jd", x, a, desc)
 #define TST_EQ_UINT(x, a, desc) TST_EQUALITY(TST_C_EQUAL, uintmax_t, \
-                                             "%ujd", x, a, desc)
+                                             "%ju", x, a, desc)
 #define TST_NEQ_INT(x, a, desc)  TST_EQUALITY(!TST_C_EQUAL, intmax_t, \
                                               "%jd", x, a, desc)
 #define TST_NEQ_UINT(x, a, desc) TST_EQUALITY(!TST_C_EQUAL, uintmax_t, \
-                                              "%ujd", x, a, desc)
+                                              "%ju", x, a, desc)
 #else  /* not have intmax_t */
 #define TST_EQ_INT(x, a, desc)  TST_EQUALITY(TST_C_EQUAL, long, \
                                              "%ld", x, a, desc)
 #define TST_EQ_UINT(x, a, desc) TST_EQUALITY(TST_C_EQUAL, unsigned long, \
-                                             "%uld", x, a, desc)
+                                             "%lu", x, a, desc)
 #define TST_NEQ_INT(x, a, desc)  TST_EQUALITY(!TST_C_EQUAL, long, \
                                              "%ld", x, a, desc)
 #define TST_NEQ_UINT(x, a, desc) TST_EQUALITY(!TST_C_EQUAL, unsigned long, \
-                                             "%uld", x, a, desc)
+                                             "%lu", x, a, desc)
 #endif /* not have intmax_t */
 
 #define TST_EQ_STR(x, a, desc)  TST_EQUALITY(TST_STR_EQUAL, char*,      \

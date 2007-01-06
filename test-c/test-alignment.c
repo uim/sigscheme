@@ -37,29 +37,29 @@
 #define MSG(offs, exp) ("offset " #offs ": " #exp)
 
 #define TEST_ALIGNMENT(od, offs)                                             \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.i % sizeof(int),                 \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.i % ALIGNOF_INT,                 \
                 MSG(offs, int));                                             \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.l % sizeof(long),                \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.l % ALIGNOF_LONG,                \
                 MSG(offs, long));                                            \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.p % sizeof(void *),              \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.p % ALIGNOF_VOID_P,              \
                 MSG(offs, void *));                                          \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.cp.p % sizeof(void *),           \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.cp.p % ALIGNOF_VOID_P,           \
                 MSG(offs, {char; void *p;}.p));                              \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.sp.p % sizeof(void *),           \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.sp.p % ALIGNOF_VOID_P,           \
                 MSG(offs, {short; void *p;}.p));                             \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.c3p.p % sizeof(void *),          \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.c3p.p % ALIGNOF_VOID_P,          \
                 MSG(offs, {char[3]; void *p;}.p));                           \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.ip.p % sizeof(void *),           \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.ip.p % ALIGNOF_VOID_P,           \
                 MSG(offs, {int; void *p;}.p));                               \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.c5p.p % sizeof(void *),          \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.c5p.p % ALIGNOF_VOID_P,          \
                 MSG(offs, {char[5]; void *p;}.p));                           \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.lp.p % sizeof(void *),           \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.lp.p % ALIGNOF_VOID_P,           \
                 MSG(offs, {long; void *p;}.p));                              \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.qp.p % sizeof(void *),           \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.qp.p % ALIGNOF_VOID_P,           \
                 MSG(offs, {int64_t; void *p;}.p));                           \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.i32p.p % sizeof(void *),         \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.i32p.p % ALIGNOF_VOID_P,         \
                 MSG(offs, {int32_t; void *p;}.p));                           \
-    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.c9p.p % sizeof(void *),          \
+    TST_EQ_UINT(0, (uintptr_t)&od.o##offs.d.c9p.p % ALIGNOF_VOID_P,          \
                 MSG(offs, {char[9]; void *p;}.p))
 
 
@@ -118,7 +118,7 @@ union data {
     } c9p;
 };
 
-struct offsettable_data {
+union offsettable_data {
     struct {
         union data d;
     } o0;
@@ -157,11 +157,16 @@ struct offsettable_data {
         char offset[7];
         union data d;
     } o7;
+
+    struct {
+        char offset[8];
+        union data d;
+    } o8;
 };
 
 TST_CASE("stack alignment all")
 {
-    struct offsettable_data od;
+    union offsettable_data od;
 
     TEST_ALIGNMENT(od, 0);
     TEST_ALIGNMENT(od, 1);
@@ -171,4 +176,5 @@ TST_CASE("stack alignment all")
     TEST_ALIGNMENT(od, 5);
     TEST_ALIGNMENT(od, 6);
     TEST_ALIGNMENT(od, 7);
+    TEST_ALIGNMENT(od, 8);
 }

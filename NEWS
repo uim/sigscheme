@@ -6,6 +6,13 @@ Overview of changes from 0.7.2 to 0.7.3
   - [CRITICAL] Fix broken libgcroots compilation on SPARC and IA-64 (NIIBE
     Yutaka)
 
+  - Fix broken eval_state passing in call() on possible configurations that
+    (sizeof(ScmObj) != sizeof(void *))
+
+  - Fix some build problems
+
+  - Suppress warnings
+
 
 Overview of changes from 0.7.1 to 0.7.2
 ==

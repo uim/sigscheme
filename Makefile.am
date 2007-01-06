@@ -8,12 +8,15 @@ SUBDIRS += include src lib test test-c bench
 # libgcroots must be eliminated from $DIST_SUBDIRS.
 DIST_SUBDIRS = $(SUBDIRS)
 
+# $(distdir) does work as a part of $(RELEASE_URL) when configured as a
+# subpackage.
+DIST_NAME = $(PACKAGE)-$(VERSION)
 UIM_REPOSITORY = http://anonsvn.freedesktop.org/svn/uim
 SSCM_REPOSITORY = $(UIM_REPOSITORY)/sigscheme-trunk
 TAGS_REPOSITORY = $(UIM_REPOSITORY)/tags
 #RELEASE_URL     = $(SSCM_REPOSITORY)
-RELEASE_URL     = $(TAGS_REPOSITORY)/$(distdir)
-DIST_SUM_LIST = $(distdir).sum
+RELEASE_URL     = $(TAGS_REPOSITORY)/$(DIST_NAME)
+DIST_SUM_LIST = $(DIST_NAME).sum
 
 EXTRA_DIST = \
         sigscheme.pc.in libgcroots.mk.in autogen.sh RELNOTE TODO QALog \

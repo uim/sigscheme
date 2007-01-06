@@ -1,5 +1,6 @@
 #!/bin/sh
 
+MYNAME=`whoami`
 ADDR="sigscheme-ja@googlegroups.com"
 TMPDIR=/tmp
 TMPFILE=$TMPDIR/sigscheme-report.$$
@@ -33,7 +34,11 @@ To: ${ADDR}
 Subject: ${result}: ${pkg} ${host} ${compiler} ${compiler_ver}
 
 EOT
-  cat $TMPFILE >>report.mail
+
+  #cat $TMPFILE >>report.mail
+  # Hide reporter's private information.
+  sed -e "s/\\/${MYNAME}\\//\\/<username>\\//g" $TMPFILE >>report.mail
+
   rm -f $TMPFILE
   echo
   echo "File 'report.mail' has been created. Please send it to us."

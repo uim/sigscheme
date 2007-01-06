@@ -3,6 +3,7 @@
  *  About    : a minimal repl that's more backtrace-friendly than sscm
  *
  *  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
+ *  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
  *
  *  All rights reserved.
  *

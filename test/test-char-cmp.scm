@@ -2,6 +2,7 @@
 ;;  About    : unit test for R5RS char comparison predicates
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
+;;  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
 ;;
 ;;  All rights reserved.
 ;;

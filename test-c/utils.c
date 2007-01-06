@@ -3,6 +3,7 @@
  *  About    : utilities that may be #include's in tests
  *
  *  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
+ *  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
  *
  *  All rights reserved.
  *

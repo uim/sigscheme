@@ -3,6 +3,7 @@
  *  About    : SRFI-60 Integers as Bits
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
+ *  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
  *
  *  All rights reserved.
  *

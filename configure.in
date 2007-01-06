@@ -542,9 +542,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_debug=yes
         use_warning_suppressor=yes
         ;;
-      uim)
-        use_backtrace=yes
-        ;;
     esac
   ])
 

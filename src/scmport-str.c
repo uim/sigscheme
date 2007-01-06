@@ -230,7 +230,10 @@ istrport_close(ScmInputStrPort *port)
 {
     SCM_PORT_ASSERT(port->finalize);
 
-    (*port->finalize)((char **)&port->str,
+    /* To suppress the "dereferencing type-punned pointer will break
+     * strict-aliasing rules" warning on gcc, apply a reinterpret_cast
+     * here. This operation is safe on the case.   -- YamaKen 2007-01-06 */
+    (*port->finalize)((char **)(uintptr_t)&port->str,
                       port->has_str_ownership, &port->opaque);
     free(port);
 }
@@ -345,7 +348,11 @@ ostrport_close(ScmOutputStrPort *port)
 {
     SCM_PORT_ASSERT(port->finalize);
 
-    (*port->finalize)((char **)&port->str, port->buf_size, &port->opaque);
+    /* To suppress the "dereferencing type-punned pointer will break
+     * strict-aliasing rules" warning on gcc, apply a reinterpret_cast
+     * here. This operation is safe on the case.   -- YamaKen 2007-01-06 */
+    (*port->finalize)((char **)(uintptr_t)&port->str,
+                      port->buf_size, &port->opaque);
     free(port);
 }
 

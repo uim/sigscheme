@@ -376,7 +376,7 @@ corner case tests:
 
 file:              scmport-str.c
 category:          base
-spec by eyes:      yamaken@r3963, yamaken@r3992, yamaken@r4068
+spec by eyes:      yamaken@r3963, yamaken@r3992, yamaken@r4068, yamaken@r4298
 spec by tests:     
 general review:    yamaken@r3963, yamaken@r3992
 64-bit by eyes:    yamaken@r3963, yamaken@r3992
@@ -684,7 +684,7 @@ corner case tests: yamaken@r3880
 
 file:              eval.c
 category:          core
-spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152
+spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299
 spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103
 general review:    yamaken@r3865
 64-bit by eyes:    yamaken@r3865

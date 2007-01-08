@@ -269,8 +269,6 @@ scm_call_with_gc_ready_stack(ScmGCGateFunc func, void *arg)
 static void
 initialize_heap(const ScmStorageConf *conf)
 {
-    size_t i;
-
     l_heap_size            = conf->heap_size;
     l_heap_alloc_threshold = conf->heap_alloc_threshold;
     l_n_heaps_max          = conf->n_heaps_max;
@@ -280,12 +278,11 @@ initialize_heap(const ScmStorageConf *conf)
     l_heaps_highest = NULL;
     l_freelist = SCM_NULL;
 
-#if 1
-    i = SCM_INT_MAX;
+    /* Since maximum length of list can be represented by a Scheme integer,
+     * SCM_INT_MAX limits the number of cons cells. */
     if (SCM_INT_MAX < l_n_heaps_max * l_heap_size
         || SCM_INT_MAX < conf->n_heaps_init * l_heap_size)
         scm_fatal_error("too large heap size specified");
-#endif
 
     scm_prealloc_heaps(conf->n_heaps_init);
 }

@@ -654,6 +654,7 @@ SCM_EXPORT void scm_fin_storage(void);
 SCM_EXPORT void scm_init_gc(const ScmStorageConf *conf);
 SCM_EXPORT void scm_fin_gc(void);
 SCM_EXPORT ScmObj scm_alloc_cell(void);
+SCM_EXPORT void scm_prealloc_heaps(size_t n);
 
 /* continuation.c */
 #if SCM_USE_CONTINUATION

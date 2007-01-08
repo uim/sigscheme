@@ -179,6 +179,22 @@ scm_alloc_cell(void)
     return ret;
 }
 
+SCM_EXPORT void
+scm_prealloc_heaps(size_t n)
+{
+    size_t i;
+
+    if (!n)
+        n = l_n_heaps + 1;
+
+    if (n > l_n_heaps_max)
+        PLAIN_ERR("heap number ~ZU exceeded maxmum number ~ZU",
+                  n, l_n_heaps_max);
+
+    for (i = l_n_heaps; i < n; i++)
+        add_heap();
+}
+
 /*===========================================================================
   ScmObj Protection
 ===========================================================================*/
@@ -271,9 +287,7 @@ initialize_heap(const ScmStorageConf *conf)
         scm_fatal_error("too large heap size specified");
 #endif
 
-    /* preallocate heaps */
-    for (i = 0; i < conf->n_heaps_init; i++)
-        add_heap();
+    scm_prealloc_heaps(conf->n_heaps_init);
 }
 
 static void

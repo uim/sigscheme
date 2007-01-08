@@ -115,6 +115,20 @@ scm_p_current_environment(ScmEvalState *eval_state)
     return eval_state->env;
 }
 
+SCM_EXPORT ScmObj
+scm_p_prealloc_heaps(ScmObj n)
+{
+    DECLARE_FUNCTION("%%prealloc-heaps", procedure_fixed_1);
+
+    ENSURE_INT(n);
+    if (SCM_INT_VALUE(n) < 0)
+        ERR_OBJ("non-negative number required but got", n);
+
+    scm_prealloc_heaps((size_t)SCM_INT_VALUE(n));
+
+    return n;
+}
+
 /* R6RS (R5.91RS) compatible */
 SCM_EXPORT ScmObj
 scm_p_fixnum_width(void)

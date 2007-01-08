@@ -1615,6 +1615,7 @@ SCM_EXPORT ScmObj scm_format(ScmObj port, enum ScmFormatCapability fcap,
 SCM_EXPORT void scm_require(const char *filename);
 SCM_EXPORT ScmObj scm_p_symbol_boundp(ScmObj sym, ScmObj rest);
 SCM_EXPORT ScmObj scm_p_current_environment(ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_p_prealloc_heaps(ScmObj n);
 SCM_EXPORT ScmObj scm_p_fixnum_width(void);
 SCM_EXPORT ScmObj scm_p_least_fixnum(void);
 SCM_EXPORT ScmObj scm_p_greatest_fixnum(void);

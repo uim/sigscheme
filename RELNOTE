@@ -1,4 +1,4 @@
-SigScheme 0.7.3 Release Note
+SigScheme 0.7.4 Release Note
 ============================
 
 What's SigScheme
@@ -13,7 +13,7 @@ SigScheme is a R5RS Scheme interpreter for embedded use.
 About This Release
 ------------------
 
-This distribution of SigScheme 0.7.3 is latest stable release of the
+This distribution of SigScheme 0.7.4 is latest stable release of the
 software. And this release has been adopted by uim 1.4.0, the primary
 application of SigScheme.
 
@@ -51,6 +51,12 @@ Mailinglist: uim@freedesktop.org
 
 What's New
 ----------
+
+  - New %%prealloc-heaps procedure for memory consumptive applications
+
+
+What's New in 0.7.3
+-------------------
 
   - [CRITICAL] Fix broken libgcroots compilation on SPARC and IA-64 (NIIBE
     Yutaka)

@@ -40,8 +40,7 @@
  * FIXME: Replace obsoleted SRFI-75 with latest R6RS specifications once it has
  * been stabilized.  -- YamaKen 2006-11-28
  *
- * - Remove #\uXXXX and #\UXXXXXXXX literals
- * - Support variable-length #\xXX literal
+ * - Support new escapes in string (\<linefeed> and \<space>)
  * - Support character category validation for identifiers
  * - Disable #\newline on R6RS-compatible mode
  * - Confirm symbol escape syntax (not defined in R6RS yet)
@@ -57,6 +56,7 @@
  * 2006-02-03 YamaKen  Add SRFI-75 support, introduce safe and low-consumptive
  *                     stack management, table-based char classification, and
  *                     overall rewrite.
+ * 2007-01-20 YamaKen  Revise SRFI-75 support into R6RS (R5.92RS) characters.
  *
  */
 
@@ -184,7 +184,7 @@
 #define OK 0
 #define TOKEN_BUF_EXCEEDED (-1)
 
-/* can accept "backspace" of R5RS and "U0010FFFF" of SRFI-75 */
+/* can accept "backspace" of R5RS and "x0010FFFF" of R6RS characters */
 #define CHAR_LITERAL_LEN_MAX (sizeof("backspace") - sizeof(""))
 
 /* #b-010101... */
@@ -380,9 +380,8 @@ static size_t read_token(ScmObj port, int *err,
 static ScmObj read_sexpression(ScmObj port);
 static ScmObj read_list(ScmObj port, scm_ichar_t closing_paren);
 #if SCM_USE_SRFI75
-static void        read_sequence(ScmObj port, char *buf, int len);
 static scm_ichar_t parse_unicode_sequence(const char *seq, int len);
-static scm_ichar_t read_unicode_sequence(ScmObj port, char prefix);
+static scm_ichar_t read_unicode_sequence(ScmObj port);
 #endif /* SCM_USE_SRFI75 */
 #if SCM_USE_CHAR
 static ScmObj read_char(ScmObj port);
@@ -459,9 +458,10 @@ read_token(ScmObj port, int *err,
     enum ScmCharClass ch_class;
     scm_ichar_t c;
     size_t len;
-    char *p;
+    char *p, *buf_last;
     DECLARE_INTERNAL_FUNCTION("read");
 
+    buf_last = &buf[buf_size - sizeof("")];
     for (p = buf;;) {
         c = scm_port_peek_char(port);
         ch_class = ICHAR_CLASS(c);
@@ -479,7 +479,7 @@ read_token(ScmObj port, int *err,
 
         if (ch_class & SCM_CH_NONASCII) {
 #if SCM_USE_SRFI75
-            if (&buf[buf_size] <= p + SCM_MB_MAX_LEN) {
+            if (buf_last <= p + SCM_MB_MAX_LEN) {
                 *err = TOKEN_BUF_EXCEEDED;
                 break;
             }
@@ -494,7 +494,7 @@ read_token(ScmObj port, int *err,
             ERR("non-ASCII char in token: 0x~X", (int)c);
 #endif
         } else {
-            if (p == &buf[buf_size - sizeof("")]) {
+            if (p == buf_last) {
                 *err = TOKEN_BUF_EXCEEDED;
                 break;
             }
@@ -712,39 +712,17 @@ static scm_ichar_t
 parse_unicode_sequence(const char *seq, int len)
 {
     scm_ichar_t c;
-    char *end;
+    int err;
     DECLARE_INTERNAL_FUNCTION("read");
 
     /* reject ordinary char literal and invalid signed hexadecimal */
-    if (len < 3 || !ICHAR_HEXA_NUMERICP(seq[1]))
+    if (len < 2 || seq[0] != 'x' || !ICHAR_HEXA_NUMERICP(seq[1]))
         return -1;
 
-    c = strtol(&seq[1], &end, 16);
-    if (*end)
+    c = scm_string2number(&seq[1], 16, &err);
+    SCM_ASSERT(c >= 0);
+    if (err)
         return -1;
-
-    switch (seq[0]) {
-    case 'x':
-        /* #\x<x><x> : <x> = a hexadecimal digit (ignore case) */
-        if (len != 3)
-            ERR("invalid hexadecimal character sequence. conform \\x<x><x>");
-        break;
-
-    case 'u':
-        /* #\u<x><x><x><x> : Unicode char of BMP */
-        if (len != 5)
-            ERR("invalid Unicode sequence. conform \\u<x><x><x><x>");
-        break;
-
-    case 'U':
-        /* #\U<x><x><x><x><x><x><x><x> : Unicode char of BMP or SMP */
-        if (len != 9)
-            ERR("invalid Unicode sequence. conform \\U<x><x><x><x><x><x><x><x>");
-        break;
-
-    default:
-        return -1;
-    }
 
     if ((0xd800 <= c && c <= 0xdfff) || 0x10ffff < c)
         ERR("invalid Unicode value: 0x~MX", (scm_int_t)c);
@@ -752,40 +730,29 @@ parse_unicode_sequence(const char *seq, int len)
     return c;
 }
 
-static void
-read_sequence(ScmObj port, char *buf, int len)
+static scm_ichar_t
+read_unicode_sequence(ScmObj port)
 {
+    int err;
     scm_ichar_t c;
-    char *p;
+    size_t len;
+    char seq[sizeof("x0010ffff")];
     DECLARE_INTERNAL_FUNCTION("read");
 
-    for (p = buf; p < &buf[len]; p++) {
-        c = scm_port_get_char(port);
-        if (c == SCM_ICHAR_EOF)
-            ERR("unexpected EOF");
-        if (!ICHAR_ASCIIP(c))
-            ERR("unexpected non-ASCII char");
-        *p = c;
-    }
-    buf[len] = '\0';
-}
+    seq[0] = 'x';
+    len = read_token(port, &err, &seq[1], sizeof(seq) - sizeof((char)'x'),
+                     SCM_CH_DELIMITER);
+    if (err == TOKEN_BUF_EXCEEDED)
+        goto err;
 
-static scm_ichar_t
-read_unicode_sequence(ScmObj port, char prefix)
-{
-    int len;
-    char seq[sizeof("U0010ffff")];
+    c = parse_unicode_sequence(seq, len + sizeof((char)'x'));
+    if (c < 0)
+        goto err;
 
-    switch (prefix) {
-    case 'x': len = 2; break;
-    case 'u': len = 4; break;
-    case 'U': len = 8; break;
-    default:
-        SCM_NOTREACHED;
-    }
-    seq[0] = prefix;
-    read_sequence(port, &seq[1], len);
-    return parse_unicode_sequence(seq, len + sizeof(prefix));
+    return c;
+
+ err:
+    ERR("invalid hex scalar value");
 }
 #endif /* SCM_USE_SRFI75 */
 
@@ -794,9 +761,6 @@ static ScmObj
 read_char(ScmObj port)
 {
     const ScmSpecialCharInfo *info;
-#if SCM_USE_SRFI75
-    ScmCharCodec *codec;
-#endif
     size_t len;
     scm_ichar_t c, next;
 #if SCM_USE_SRFI75
@@ -809,12 +773,13 @@ read_char(ScmObj port)
     /* raw char (multibyte-ready) */
     c = scm_port_get_char(port);
     next = scm_port_peek_char(port);
-    if (ICHAR_ASCII_CLASS(next) & SCM_CH_DELIMITER || next == SCM_ICHAR_EOF)
-        return MAKE_CHAR(c);
-#if SCM_USE_SRFI75
-    else if (!ICHAR_ASCIIP(c))
-        ERR("invalid character literal");
+    if (ICHAR_ASCII_CLASS(next) & SCM_CH_DELIMITER || next == SCM_ICHAR_EOF) {
+#if !SCM_USE_SRFI75
+        if (!ICHAR_ASCIIP(c))
+            ERR("invalid character literal");
 #endif
+        return MAKE_CHAR(c);
+    }
 
     buf[0] = c;
     len = read_token(port, &err, &buf[1], sizeof(buf) - 1, SCM_CH_DELIMITER);
@@ -824,13 +789,9 @@ read_char(ScmObj port)
     CDBG((SCM_DBG_PARSER, "read_char: ch = ~S", buf));
 
 #if SCM_USE_SRFI75
-    unicode = parse_unicode_sequence(buf, len + 1);
-    if (0 <= unicode) {
-        codec = scm_port_codec(port);
-        if (c != 'x' && SCM_CHARCODEC_CCS(codec) != SCM_CCS_UCS4)
-            ERR_OBJ("Unicode char sequence on non-Unicode port", port);
+    unicode = parse_unicode_sequence(buf, len + sizeof((char)c));
+    if (0 <= unicode)
         return MAKE_CHAR(unicode);
-    }
 #endif
     /* named chars */
     for (info = scm_special_char_table; info->esc_seq; info++) {
@@ -889,17 +850,18 @@ read_string(ScmObj port)
         case '\\':
             c = scm_port_get_char(port);
 #if SCM_USE_SRFI75
-            if (strchr("xuU", c)) {
-                if (c != 'x' && SCM_CHARCODEC_CCS(codec) != SCM_CCS_UCS4)
-                    ERR_OBJ("Unicode char sequence on non-Unicode port", port);
-                c = read_unicode_sequence(port, c);
+            if (c == 'x') {
+                c = read_unicode_sequence(port);
                 LBUF_EXTEND(lbuf, SCM_LBUF_F_STRING,
                             offset + SCM_MB_CHAR_BUF_SIZE);
                 p = &LBUF_BUF(lbuf)[offset];
                 p = SCM_CHARCODEC_INT2STR(codec, p, c, SCM_MB_STATELESS);
                 if (!p)
-                    ERR("invalid Unicode sequence in string: 0x~MX",
+                    ERR("invalid inline hex escape in string: 0x~MX",
                         (scm_int_t)c);
+                c = scm_port_get_char(port);
+                if (c != ';')
+                    ERR("inline hex escape must be followed by ';'");
                 goto found;
             } else
 #endif

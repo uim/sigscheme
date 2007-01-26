@@ -46,8 +46,8 @@
 #include <stdarg.h>
 
 #include <gcroots.h>
-#if (GCROOTS_API_REVISION < 0)
-#error "libgcroots that has API revision >= 0 is required"
+#if (GCROOTS_API_REVISION < 1)
+#error "libgcroots that has API revision >= 1 is required"
 #endif
 
 #include "scmint.h"
@@ -66,8 +66,8 @@ extern "C" {
   Macro Definitions
 =======================================*/
 #define SSCM_VERSION_MAJOR      (0)
-#define SSCM_VERSION_MINOR      (7)
-#define SSCM_VERSION_PATCHLEVEL (4)
+#define SSCM_VERSION_MINOR      (8)
+#define SSCM_VERSION_PATCHLEVEL (0)
 #define SSCM_VERSION_REQUIRE(major, minor, patchlevel)			     \
   ((major) < SSCM_VERSION_MAJOR						     \
    || ((major) == SSCM_VERSION_MAJOR && (minor) < SSCM_VERSION_MINOR)	     \
@@ -1247,7 +1247,9 @@ SCM_EXPORT char *scm_strdup(const char *str);
 SCM_EXPORT void scm_gc_protect(ScmObj *var);
 SCM_EXPORT void scm_gc_protect_with_init(ScmObj *var, ScmObj init_val);
 SCM_EXPORT void scm_gc_unprotect(ScmObj *var);
+SCM_EXPORT scm_bool scm_gc_protectedp(ScmObj obj);
 SCM_EXPORT void *scm_call_with_gc_ready_stack(ScmGCGateFunc func, void *arg);
+SCM_EXPORT scm_bool scm_gc_protected_contextp(void);
 
 /* symbol.c */
 SCM_EXPORT ScmObj scm_intern(const char *name);

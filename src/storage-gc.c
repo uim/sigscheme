@@ -257,10 +257,37 @@ scm_gc_unprotect(ScmObj *var)
     }
 }
 
+SCM_EXPORT scm_bool
+scm_gc_protectedp(ScmObj obj)
+{
+    ScmObj **slot;
+
+    if (GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
+        return scm_true;
+
+    if (l_protected_vars) {
+        for (slot = l_protected_vars;
+             slot < &l_protected_vars[l_protected_vars_size];
+             slot++)
+        {
+            if (*slot && **slot == obj)
+                return scm_true;
+        }
+    }
+
+    return scm_false;
+}
+
 SCM_EXPORT void *
 scm_call_with_gc_ready_stack(ScmGCGateFunc func, void *arg)
 {
     return GCROOTS_call_with_gc_ready_stack(l_gcroots_ctx, func, arg);
+}
+
+SCM_EXPORT scm_bool
+scm_gc_protected_contextp(void)
+{
+  return GCROOTS_is_protected_context(l_gcroots_ctx);
 }
 
 /*===========================================================================

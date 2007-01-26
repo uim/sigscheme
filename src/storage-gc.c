@@ -257,12 +257,16 @@ scm_gc_unprotect(ScmObj *var)
     }
 }
 
+/* Though immediate values and symbols are GC safe even if not being
+ * explicitly protected, the condition may vary according to build
+ * configuration or future specification changes. So libsscm users should
+ * explicitly protect such objects.  -- YamaKen 2007-01-26 */
 SCM_EXPORT scm_bool
 scm_gc_protectedp(ScmObj obj)
 {
     ScmObj **slot;
 
-    if (GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
+    if (SCM_CONSTANTP(obj) || GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
         return scm_true;
 
     if (l_protected_vars) {

@@ -1010,6 +1010,27 @@ struct ScmStorageConf_ {
 #define SCM_SYM_ELLIPSIS         scm_sym_ellipsis
 
 /*=======================================
+  List Constructor
+=======================================*/
+typedef ScmRef ScmQueue;
+#define SCM_QUEUE_INVALIDATE(_q)     ((_q) = SCM_INVALID_REF)
+#define SCM_QUEUE_VALIDP(_q)         ((_q) != SCM_INVALID_REF)
+#define SCM_QUEUE_POINT_TO(_q, _out) ((_q) = SCM_REF_OFF_HEAP(_out))
+#define SCM_QUEUE_ADD(_q, _dat)      (SCM_SET((_q), SCM_LIST_1(_dat)),       \
+                                      (_q) = SCM_REF_CDR(SCM_DEREF(_q)))
+#define SCM_QUEUE_CONST_ADD(_q, _dat)                                        \
+    (SCM_SET((_q), SCM_IMMUTABLE_CONS((_dat), SCM_NULL)),                    \
+     (_q) = SCM_REF_CDR(SCM_DEREF(_q)))
+#define SCM_QUEUE_APPEND(_q, _lst)                                           \
+    do {                                                                     \
+        SCM_SET((_q), (_lst));                                               \
+        while (SCM_CONSP(SCM_DEREF(_q)))                                     \
+            (_q) = SCM_REF_CDR(SCM_DEREF(_q));                               \
+    } while (/* CONSTCOND */ 0)
+#define SCM_QUEUE_TERMINATOR(_q)          (SCM_DEREF(_q))
+#define SCM_QUEUE_SLOPPY_APPEND(_q, _lst) (SCM_SET((_q), (_lst)))
+
+/*=======================================
    Evaluator's State
 =======================================*/
 enum ScmValueType {

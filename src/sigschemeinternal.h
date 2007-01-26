@@ -502,27 +502,6 @@ SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
 #define ICHAR_FOLDCASE(c) (ICHAR_DOWNCASE(c))
 
 /*=======================================
-  List Constructor
-=======================================*/
-typedef ScmRef ScmQueue;
-#define SCM_QUEUE_INVALIDATE(_q)     ((_q) = SCM_INVALID_REF)
-#define SCM_QUEUE_VALIDP(_q)         ((_q) != SCM_INVALID_REF)
-#define SCM_QUEUE_POINT_TO(_q, _out) ((_q) = SCM_REF_OFF_HEAP(_out))
-#define SCM_QUEUE_ADD(_q, _dat)      (SET((_q), LIST_1(_dat)),               \
-                                      (_q) = REF_CDR(DEREF(_q)))
-#define SCM_QUEUE_CONST_ADD(_q, _dat)                                        \
-    (SET((_q), IMMUTABLE_CONS((_dat), SCM_NULL)),                            \
-     (_q) = REF_CDR(DEREF(_q)))
-#define SCM_QUEUE_APPEND(_q, _lst)                                           \
-    do {                                                                     \
-        SET((_q), (_lst));                                                   \
-        while (CONSP(DEREF(_q)))                                             \
-            (_q) = REF_CDR(DEREF(_q));                                       \
-    } while (/* CONSTCOND */ 0)
-#define SCM_QUEUE_TERMINATOR(_q)          (DEREF(_q))
-#define SCM_QUEUE_SLOPPY_APPEND(_q, _lst) (SET((_q), (_lst)))
-
-/*=======================================
   Local Buffer Allocator
 =======================================*/
 /* don't touch member variables directly */

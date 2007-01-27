@@ -1271,6 +1271,9 @@ SCM_EXPORT void scm_gc_unprotect(ScmObj *var);
 SCM_EXPORT scm_bool scm_gc_protectedp(ScmObj obj);
 SCM_EXPORT void *scm_call_with_gc_ready_stack(ScmGCGateFunc func, void *arg);
 SCM_EXPORT scm_bool scm_gc_protected_contextp(void);
+/* for semantic assertions */
+#define scm_gc_any_contextp()                                                \
+    (!scm_gc_protected_contextp() || scm_gc_protected_contextp())
 
 /* symbol.c */
 SCM_EXPORT ScmObj scm_intern(const char *name);

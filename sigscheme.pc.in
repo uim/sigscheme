@@ -49,7 +49,7 @@ sscm_srfi60=@use_srfi60@
 sscm_srfi75=@use_srfi75@
 sscm_srfi75_named_chars=@use_srfi75_named_chars@
 sscm_extensions=@use_sscm_extensions@
-sscm_format_extensions=@use_sscm_format_extensions@
+sscm_format_extension=@use_sscm_format_extension@
 sscm_compat_siod=@use_compat_siod@
 sscm_compat_siod_bugs=@use_compat_siod_bugs@
 sscm_eval_c_string=@use_eval_c_string@
@@ -61,4 +61,4 @@ Description: Scheme interpreter for embedded use
 Version: @VERSION@
 Requires: @GCROOTS_REQ@
 Libs: -L${libdir} -lsscm
-Cflags: -I${includedir}/sigscheme
+Cflags: -I${includedir}

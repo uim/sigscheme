@@ -1,14 +1,16 @@
 include $(top_builddir)/libgcroots.mk
 
-AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/src
-AM_CFLAGS   = @GCROOTS_CFLAGS@
+# To take precedence over installed gcroots.h by the bundled
+# libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
+AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/src @GCROOTS_CFLAGS@
+AM_CFLAGS   =
 AM_LDFLAGS  = -rpath $(libdir)
 LIBS        = $(top_builddir)/src/libsscm.la @GCROOTS_LIBS@
 
 EXTRA_DIST= sscm-test.h utils.c \
             test-alignment.c \
             test-global.c \
-            test-gc.c test-gc-protect-stack.c \
+            test-gc.c test-gc-protect.c test-gc-protect-stack.c \
             test-storage.c test-storage-compact.c \
             test-strcasecmp.c test-length.c test-format.c
 
@@ -30,7 +32,7 @@ endif
 if USE_LIBSSCM
 TESTS= test-alignment-coll \
        test-global-coll \
-       test-gc-coll test-gc-protect-stack-coll \
+       test-gc-coll test-gc-protect-coll test-gc-protect-stack-coll \
        test-storage-coll test-storage-compact-coll \
        test-strcasecmp-coll test-length-coll test-format-coll
 XFAIL_TESTS =

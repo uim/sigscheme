@@ -417,20 +417,34 @@ typedef void (*tst_funcptr_t)();
 /* Since TST_FOO(..., tst_name(TST_CASE_INFO->desc, TST_CASE_INFO->done + 1))
  * returns incorrect serial number, it is saved before evaluating
  * TST_FAIL() or TST_SUCC(). */
-#define TST_TN_TRUE(exp)      TST_TN_SAVE; TST_TRUE((exp), TST_TN_NAME())
-#define TST_TN_FALSE(exp)     TST_TN_SAVE; TST_FALSE((exp), TST_TN_NAME())
-#define TST_TN_EQ_INT(x, a)   TST_TN_SAVE; TST_EQ_INT((x), (a), TST_TN_NAME())
-#define TST_TN_EQ_UINT(x, a)  TST_TN_SAVE; TST_EQ_UINT((x), (a), TST_TN_NAME())
-#define TST_TN_NEQ_INT(x, a)  TST_TN_SAVE; TST_NEQ_INT((x), (a), TST_TN_NAME())
-#define TST_TN_NEQ_UINT(x, a) TST_TN_SAVE; TST_NEQ_UINT((x), (a), TST_TN_NAME())
-#define TST_TN_EQ_STR(x, a)   TST_TN_SAVE; TST_EQ_STR((x), (a), TST_TN_NAME())
-#define TST_TN_NEQ_STR(x, a)  TST_TN_SAVE; TST_NEQ_STR((x), (a), TST_TN_NAME())
-#define TST_TN_EQ_PTR(x, a)   TST_TN_SAVE; TST_EQ_PTR((x), (a), TST_TN_NAME())
-#define TST_TN_NEQ_PTR(x, a)  TST_TN_SAVE; TST_NEQ_PTR((x), (a), TST_TN_NAME())
-#define TST_TN_EQ_OBJ(x, a)   TST_TN_SAVE; TST_EQ_OBJ((x), (a), TST_TN_NAME())
-#define TST_TN_NEQ_OBJ(x, a)  TST_TN_SAVE; TST_NEQ_OBJ((x), (a), TST_TN_NAME())
-#define TST_TN_EQ_FPTR(x, a)  TST_TN_SAVE; TST_EQ_FPTR((x), (a), TST_TN_NAME())
-#define TST_TN_NEQ_FPTR(x, a) TST_TN_SAVE; TST_NEQ_FPTR((x), (a), TST_TN_NAME())
+#define TST_TN_TRUE(exp)                                                     \
+    do { TST_TN_SAVE; TST_TRUE((exp), TST_TN_NAME()); } while (0)
+#define TST_TN_FALSE(exp)                                                    \
+    do { TST_TN_SAVE; TST_FALSE((exp), TST_TN_NAME()); } while (0)
+#define TST_TN_EQ_INT(x, a)                                                  \
+    do { TST_TN_SAVE; TST_EQ_INT((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_EQ_UINT(x, a)                                                 \
+    do { TST_TN_SAVE; TST_EQ_UINT((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_NEQ_INT(x, a)                                                 \
+    do { TST_TN_SAVE; TST_NEQ_INT((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_NEQ_UINT(x, a)                                                \
+    do { TST_TN_SAVE; TST_NEQ_UINT((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_EQ_STR(x, a)                                                  \
+    do { TST_TN_SAVE; TST_EQ_STR((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_NEQ_STR(x, a)                                                 \
+    do { TST_TN_SAVE; TST_NEQ_STR((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_EQ_PTR(x, a)                                                  \
+    do { TST_TN_SAVE; TST_EQ_PTR((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_NEQ_PTR(x, a)                                                 \
+    do { TST_TN_SAVE; TST_NEQ_PTR((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_EQ_OBJ(x, a)                                                  \
+    do { TST_TN_SAVE; TST_EQ_OBJ((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_NEQ_OBJ(x, a)                                                 \
+    do { TST_TN_SAVE; TST_NEQ_OBJ((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_EQ_FPTR(x, a)                                                 \
+    do { TST_TN_SAVE; TST_EQ_FPTR((x), (a), TST_TN_NAME()); } while (0)
+#define TST_TN_NEQ_FPTR(x, a)                                                \
+    do { TST_TN_SAVE; TST_NEQ_FPTR((x), (a), TST_TN_NAME()); } while (0)
 #define TST_TN_EQ  TST_TN_EQ_OBJ
 #define TST_TN_NEQ TST_TN_NEQ_OBJ
 

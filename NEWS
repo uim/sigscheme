@@ -4,6 +4,7 @@ Overview of changes from 0.7.4 to 0.7.5
 * New features
 
   - Add SIOD compatibility about syntax 'if'.
+  - Revise the SRFI-75 support into R6RS (R5.92RS) characters.
 
 
 Overview of changes from 0.7.3 to 0.7.4

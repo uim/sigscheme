@@ -53,6 +53,7 @@ What's New
 ----------
 
   - Add SIOD compatibility about syntax 'if'.
+  - Revise the SRFI-75 support into R6RS (R5.92RS) characters.
 
 
 What's New in 0.7.4

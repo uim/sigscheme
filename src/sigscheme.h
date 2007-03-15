@@ -67,7 +67,7 @@ extern "C" {
 =======================================*/
 #define SSCM_VERSION_MAJOR      (0)
 #define SSCM_VERSION_MINOR      (7)
-#define SSCM_VERSION_PATCHLEVEL (5)
+#define SSCM_VERSION_PATCHLEVEL (6)
 #define SSCM_VERSION_REQUIRE(major, minor, patchlevel)			     \
   ((major) < SSCM_VERSION_MAJOR						     \
    || ((major) == SSCM_VERSION_MAJOR && (minor) < SSCM_VERSION_MINOR)	     \

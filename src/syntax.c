@@ -227,7 +227,7 @@ scm_s_if(ScmObj test, ScmObj conseq, ScmObj rest, ScmEvalState *eval_state)
         return conseq;
     } else {
 #if SCM_COMPAT_SIOD_BUGS
-        alt = (CONSP(rest)) ? CAR(rest) : SCM_NULL;
+        alt = (CONSP(rest)) ? CAR(rest) : SCM_FALSE;
 #else
         alt = (CONSP(rest)) ? CAR(rest) : SCM_UNDEF;
 #endif

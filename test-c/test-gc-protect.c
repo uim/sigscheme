@@ -44,13 +44,15 @@ static void *make_obj_internal(void *dummy);
 static void *protected_func(void *arg);
 static void *var_in_protected_func(void *arg);
 static void *vars_in_protected_func(void *arg);
+static void *test_implicit_protection(void *dummy);
 
 /* To disable GC stack protection, remove scm_call_with_gc_ready_stack() */
 #undef TST_RUN
 #define TST_RUN(fn, s, c) (fn(s, c))
 
 #define N_OBJS 128
-ScmObj static_objs[N_OBJS];
+static ScmObj static_objs[N_OBJS];
+static ScmObj protected_lst, unprotected_lst;
 
 static ScmObj
 make_obj(void)
@@ -174,4 +176,65 @@ TST_CASE("GC auto variable protection with scm_gc_protect()")
         scm_gc_unprotect(&auto_objs[i]);
     for (i = 0; i < N_OBJS; i++)
         TST_TN_FALSE(scm_gc_protectedp(auto_objs[i]));
+}
+
+static void *
+test_implicit_protection(void *dummy)
+{
+    scm_bool result;
+    ScmObj lst;
+
+    lst = LIST_2(SCM_FALSE, SCM_FALSE);
+    unprotected_lst = CDR(lst);
+
+    result = scm_gc_protectedp(lst);
+    /* the cdr is implicitly protected since indirectly referred from the lst */
+    result = result && scm_gc_protectedp(unprotected_lst);
+    /* unlink the indirect reference */
+    lst = SCM_FALSE;
+    /* it makes the variable unprotected */
+#if 0
+    /* This condition may not be met since the values of unprotected_lst or
+     * lst may be remained in registers */
+    result = result && !scm_gc_protectedp(unprotected_lst);
+#endif
+
+    return (void *)result;
+}
+
+TST_CASE("GC indirect protection via on-heap object reference")
+{
+    ScmObj lst;  /* unprotected */
+
+    TST_TN_FALSE(scm_gc_protected_contextp());
+
+    TST_TN_TRUE (scm_call_with_gc_ready_stack(test_implicit_protection, NULL));
+
+    /* unprotected lst */
+    lst = LIST_2(SCM_FALSE, SCM_FALSE);
+    unprotected_lst = CDR(lst);
+
+    TST_TN_FALSE(scm_gc_protectedp(lst));
+    TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
+    lst = SCM_FALSE;
+    TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
+
+    /* unprotected static lst */
+    protected_lst = LIST_2(SCM_FALSE, SCM_FALSE);
+    unprotected_lst = CDR(protected_lst);
+
+    TST_TN_FALSE(scm_gc_protectedp(protected_lst));
+    TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
+    lst = SCM_FALSE;
+    TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
+
+    /* protected static lst */
+    scm_gc_protect(&protected_lst);
+    protected_lst = LIST_2(SCM_FALSE, SCM_FALSE);
+    unprotected_lst = CDR(protected_lst);
+
+    TST_TN_TRUE (scm_gc_protectedp(protected_lst));
+    TST_TN_TRUE (scm_gc_protectedp(unprotected_lst));
+    protected_lst = SCM_FALSE;
+    TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
 }

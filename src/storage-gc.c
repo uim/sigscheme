@@ -131,6 +131,7 @@ static void gc_mark_definite_locations_n(ScmObj *start, size_t n);
 static void gc_mark_locations(ScmObj *start, ScmObj *end,
                               int is_certain, int is_aligned);
 static void gc_mark(void);
+static void gc_mark_global_vars(void);
 
 /* GC Sweep Related Functions */
 static void free_cell(ScmCell *cell);
@@ -257,6 +258,19 @@ scm_gc_unprotect(ScmObj *var)
     }
 }
 
+/* Usage:
+ *
+ *   assert(scm_gc_protectedp(obj));
+ *
+ * Don't use this predicate to ensure that an object is UNPROTECTED:
+ *
+ *   assert(!scm_gc_protectedp(obj));  // may cause unexpected failure
+ *
+ * This predicate cannot ensure that an object is UNPROTECTED, when
+ * scm_gc_protected_contextp() is true. i.e. An object may be identified as
+ * protected even if it is not placed on directly or indirectly protected
+ * location since an expired register variable may refer the object.
+ *   -- YamaKen 2007-03-25 */
 /* Though immediate values and symbols are GC safe even if not being
  * explicitly protected, the condition may vary according to build
  * configuration or future specification changes. So libsscm users should
@@ -266,9 +280,11 @@ scm_gc_protectedp(ScmObj obj)
 {
     ScmObj **slot;
 
+    /* constants or objects referred from registers or stack */
     if (SCM_CONSTANTP(obj) || GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
         return scm_true;
 
+    /* referred from static variables */
     if (l_protected_vars) {
         for (slot = l_protected_vars;
              slot < &l_protected_vars[l_protected_vars_size];
@@ -279,7 +295,21 @@ scm_gc_protectedp(ScmObj obj)
         }
     }
 
-    return scm_false;
+    /* referred from on-heap objects */
+    if (scm_gc_protected_contextp()) {
+        /* mark registers, stack and global vars */
+        gc_mark();
+    } else {
+        /* doesn't mark registers and stack */
+        gc_mark_global_vars();
+    }
+    gc_sweep();
+
+    return (
+#if SCM_USE_STORAGE_COMPACT
+            SCM_TAG_CONSISTENTP(obj, *SCM_UNTAG_PTR(obj)) &&
+#endif
+            !SCM_FREECELLP(obj));
 }
 
 SCM_EXPORT void *
@@ -657,6 +687,12 @@ gc_mark(void)
      * register windows (SPARC), register stack backing store (IA-64) etc. */
     GCROOTS_mark(l_gcroots_ctx);
 
+    gc_mark_global_vars();
+}
+
+static void
+gc_mark_global_vars(void)
+{
     gc_mark_protected_var();
     if (scm_symbol_hash)
         gc_mark_definite_locations_n(scm_symbol_hash, scm_symbol_hash_size);

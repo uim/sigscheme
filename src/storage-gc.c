@@ -307,7 +307,8 @@ scm_gc_protectedp(ScmObj obj)
 
     return (
 #if SCM_USE_STORAGE_COMPACT
-            SCM_TAG_CONSISTENTP(obj, *SCM_UNTAG_PTR(obj)) &&
+            SCM_IMMP(obj)
+            || SCM_TAG_CONSISTENTP(obj, *SCM_UNTAG_PTR(obj)) &&
 #endif
             !SCM_FREECELLP(obj));
 }

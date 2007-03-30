@@ -57,7 +57,7 @@
 #define HANDLE_MBC_START 0
 
 #if SCM_USE_STATEFUL_ENCODING
-#define SCM_MBCPORT_CLEAR_STATE(port) (port->state = NULL)
+#define SCM_MBCPORT_CLEAR_STATE(port) (port->rstate = 0, port->wstate = 0)
 #else
 #define SCM_MBCPORT_CLEAR_STATE(port) SCM_EMPTY_EXPR
 #endif
@@ -72,7 +72,7 @@ struct ScmMultiByteCharPort_ {  /* inherits ScmBaseCharPort */
     size_t linenum;      /* protected */
 
     ScmCharCodec *codec;
-    ScmMultibyteState state;
+    ScmMultibyteState rstate, wstate;
     scm_byte_t rbuf[SCM_MB_CHAR_BUF_SIZE];
 };
 
@@ -220,7 +220,7 @@ mbcport_peek_char(ScmMultiByteCharPort *port)
     size = SCM_MBCINFO_GET_SIZE(mbc);
     if (size)
         ch = SCM_CHARCODEC_STR2INT(port->codec, (char *)port->rbuf, size,
-                                   port->state);
+                                   port->rstate);
     else
         ch = SCM_ICHAR_EOF;
 
@@ -244,7 +244,7 @@ mbcport_put_char(ScmMultiByteCharPort *port, scm_ichar_t ch)
     char wbuf[SCM_MB_CHAR_BUF_SIZE];
 
     /* FIXME: set updated state to port->state */
-    end = SCM_CHARCODEC_INT2STR(port->codec, wbuf, ch, port->state);
+    end = SCM_CHARCODEC_INT2STR(port->codec, wbuf, ch, port->wstate);
     if (!end)
         SCM_CHARPORT_ERROR(port, "ScmMultibyteCharPort: invalid character");
     size = end - wbuf;
@@ -260,12 +260,13 @@ mbcport_fill_rbuf(ScmMultiByteCharPort *port, scm_bool blockp)
     ScmMultibyteCharInfo mbc;
 
     end = (scm_byte_t *)strchr((char *)port->rbuf, '\0');
-    SCM_MBS_SET_STATE(mbs, port->state);
+    SCM_MBS_SET_STATE(mbs, port->rstate);
     do {
         SCM_MBS_SET_STR(mbs, (char *)port->rbuf);
         SCM_MBS_SET_SIZE(mbs, end - port->rbuf);
 
         mbc = SCM_CHARCODEC_SCAN_CHAR(port->codec, mbs);
+        SCM_MBCINFO_SET_STATE(mbc, SCM_MBS_GET_STATE(mbs));
 
         if (SCM_MBCINFO_ERRORP(mbc))
             SCM_CHARPORT_ERROR(port, "ScmMultibyteCharPort: broken character");
@@ -275,7 +276,6 @@ mbcport_fill_rbuf(ScmMultiByteCharPort *port, scm_bool blockp)
             SCM_CHARPORT_ERROR(port, "ScmMultibyteCharPort: broken scanner");
 
         byte = SCM_BYTEPORT_GET_BYTE(port->bport);
-        SCM_MBCINFO_SET_STATE(mbc, SCM_MBS_GET_STATE(mbs));
         if (byte == SCM_ICHAR_EOF) {
             SCM_MBCINFO_INIT(mbc);
             port->rbuf[0] = '\0';

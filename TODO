@@ -62,6 +62,9 @@ Extensions: (not required for now)
   - Define SAL accessors considering SRFI-50 and other implementations
   - Evaluate R6RS Arithmetic
 
+* Add ISO-2022-JP support to encoding.[hc] and scmport-mbchar.c. It requires
+  encoding API fix on int2str() which lacks post-write state update
+
 * Add GB18030 to encoding.c
 
 * Add Big5 to encoding.c

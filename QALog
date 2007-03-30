@@ -220,8 +220,8 @@ y yy y   base scmport-str.c
 y yy y   base scmport-basechar.c
 y yy y   base scmport-sbchar.h
 y yy y   base scmport-sbchar.c
-         base scmport-mbchar.h
-         base scmport-mbchar.c
+y yy y   base scmport-mbchar.h
+y yy y   base scmport-mbchar.c
 y yy y   base encoding.h
 y yy y   base encoding-dummy.h
 y yy y   base encoding-config.h
@@ -420,23 +420,23 @@ corner case tests:
 
 file:              scmport-mbchar.h
 category:          base
-spec by eyes:      
+spec by eyes:      yamaken@r4528
 spec by tests:     
-general review:    
-64-bit by eyes:    
+general review:    yamaken@r4528
+64-bit by eyes:    yamaken@r4528
 64-bit by tests:   
-coding style:      
+coding style:      yamaken@r4528
 normal case tests: 
 corner case tests: 
 
 file:              scmport-mbchar.c
 category:          base
-spec by eyes:      
+spec by eyes:      yamaken@r4528
 spec by tests:     
-general review:    
-64-bit by eyes:    
+general review:    yamaken@r4528
+64-bit by eyes:    yamaken@r4528
 64-bit by tests:   
-coding style:      
+coding style:      yamaken@r4528
 normal case tests: 
 corner case tests: 
 
@@ -1081,6 +1081,21 @@ corner case tests:
 
 Log
 ---
+2007-03-31  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * scmport-mbchar.h
+        * scmport-mbchar.c
+          - QA done @r4528
+          - Fix broken read state update for mbc
+
+2007-03-30  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * encoding-config.h
+        * encoding.h
+        * encoding.c
+          - QA done @r4527
+          - The encoding rule itself has not been verified because it had
+            already been done at the time I added the codec interface-based API
+          - Make Shift_JIS encoding name (CES) and Unicode CCS names proper
+
 2007-03-25  YamaKen <yamaken AT bp.iij4u.or.jp>
         * storage-gc.c
           - QA done again @r4515

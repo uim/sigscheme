@@ -751,7 +751,7 @@ euckr_scan_char(ScmMultibyteString mbs)
 #if SCM_USE_UTF8
 /* RFC 3629 */
 #define MASK(n)        ((LEN_CODE(n) >> 1) | 0x80)
-#define LEN_CODE(n)    (((1 << (n))-1) << (8-n))
+#define LEN_CODE(n)    (((1 << (n)) - 1) << (8 - n))
 #define IS_LEN(c, n)   ((MASK(n) & (c)) == LEN_CODE(n))
 #define IS_TRAILING(c) (IS_LEN((c), 1))
 
@@ -771,7 +771,7 @@ utf8_encoding(void)
 static enum ScmCodedCharSet
 utf8_ccs(void)
 {
-    return SCM_CCS_UCS4;
+    return SCM_CCS_UNICODE;
 }
 
 /* FIXME: Optimize */
@@ -923,13 +923,13 @@ utf8_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
 static const char *
 sjis_encoding(void)
 {
-    return "SHIFT_JIS";
+    return "Shift_JIS";
 }
 
 static enum ScmCodedCharSet
 sjis_ccs(void)
 {
-    return SCM_CCS_UNKNOWN;
+    return SCM_CCS_JIS;
 }
 
 /* FIXME: Optimize */

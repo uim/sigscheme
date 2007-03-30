@@ -40,6 +40,7 @@
 #include "sigscheme.h"
 #else /* SCM_ENCODING_USE_WITH_SIGSCHEME */
 #include <stdlib.h>
+#include <assert.h>
 #endif /* SCM_ENCODING_USE_WITH_SIGSCHEME */
 
 #ifdef __cplusplus
@@ -68,7 +69,7 @@ extern "C" {
 #define SCM_USE_EUCKR_AS_DEFAULT 0
 #define SCM_USE_SJIS_AS_DEFAULT  0
 
-#define SCM_ENCODING_ASSERT(cond) SCM_EMPTY_EXPR
+#define SCM_ENCODING_ASSERT(cond) (assert(cond))
 #define SCM_ENCODING_ERROR(msg)   (exit(EXIT_FAILURE))
 #define SCM_ENCODING_CDBG(args)   SCM_EMPTY_EXPR
 #define SCM_ENCODING_DBG(args)    SCM_EMPTY_EXPR

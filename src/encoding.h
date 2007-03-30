@@ -74,11 +74,11 @@ extern "C" {
 #define SCM_MBCINFO_SET_STATE(inf, stat) SCM_EMPTY_EXPR
 #define SCM_MBCINFO_GET_STATE(inf)       SCM_MB_STATELESS
 #endif /* SCM_USE_STATEFUL_ENCODING */
-#define SCM_MBCINFO_CLEAR_FLAG(inf)      ((inf).flag = 0)
-#define SCM_MBCINFO_SET_ERROR(inf)       ((inf).flag |= 1)
-#define SCM_MBCINFO_SET_INCOMPLETE(inf)  ((inf).flag |= 2)
-#define SCM_MBCINFO_ERRORP(inf)          ((inf).flag & 1)
-#define SCM_MBCINFO_INCOMPLETEP(inf)     ((inf).flag & 2)
+#define SCM_MBCINFO_CLEAR_FLAG(inf)      ((inf).flag = SCM_MBCFLAG_NONE)
+#define SCM_MBCINFO_SET_ERROR(inf)       ((inf).flag |= SCM_MBCFLAG_ERROR)
+#define SCM_MBCINFO_SET_INCOMPLETE(inf)  ((inf).flag |= SCM_MBCFLAG_INCOMPLETE)
+#define SCM_MBCINFO_ERRORP(inf)          ((inf).flag & SCM_MBCFLAG_ERROR)
+#define SCM_MBCINFO_INCOMPLETEP(inf)     ((inf).flag & SCM_MBCFLAG_INCOMPLETE)
 #define SCM_MBCINFO_INIT(inf)                                                \
     do {                                                                     \
         SCM_MBCINFO_SET_SIZE((inf), 0);                                      \
@@ -100,12 +100,7 @@ extern "C" {
 #define SCM_MBS_SET_STATE(mbs, stat)  SCM_EMPTY_EXPR
 #define SCM_MBS_CLEAR_STATE(mbs)      SCM_EMPTY_EXPR
 #endif
-#define SCM_MBS_INIT(mbs)                                                    \
-    do {                                                                     \
-        SCM_MBS_SET_STR((mbs), NULL);                                        \
-        SCM_MBS_SET_SIZE((mbs), 0);                                          \
-        SCM_MBS_CLEAR_STATE(mbs);                                            \
-    } while (/* CONSTCOND */ 0)
+#define SCM_MBS_INIT(mbs) SCM_MBS_INIT2((mbs), NULL, 0)
 #define SCM_MBS_INIT2(mbs, s, siz)                                           \
     do {                                                                     \
         SCM_MBS_SET_STR((mbs), (s));                                         \
@@ -138,8 +133,7 @@ extern "C" {
 =======================================*/
 enum ScmCodedCharSet {
     SCM_CCS_UNKNOWN   = 0,
-    SCM_CCS_UCS2      = 1,
-    SCM_CCS_UCS4      = 2,
+    SCM_CCS_UNICODE   = 1,
     SCM_CCS_ISO8859_1 = 10,
     SCM_CCS_JIS       = 30  /* ASCII + JIS X 0208, 0212, 0213 */
 };
@@ -148,6 +142,12 @@ enum ScmCodedCharSet {
  * It might as well be defined as mbstate_t if we're using libc. */
 typedef int ScmMultibyteState;
 #define SCM_MB_STATELESS 0
+
+enum ScmMultibyteCharFlag {
+    SCM_MBCFLAG_NONE       = 0,
+    SCM_MBCFLAG_ERROR      = 1 << 0,
+    SCM_MBCFLAG_INCOMPLETE = 1 << 1
+};
 
 /* Metadata of a multibyte character.  These are usually allocated on
    stack or register, so we'll make liberal use of space. */

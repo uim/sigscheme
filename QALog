@@ -222,10 +222,10 @@ y yy y   base scmport-sbchar.h
 y yy y   base scmport-sbchar.c
          base scmport-mbchar.h
          base scmport-mbchar.c
-         base encoding.h
+y yy y   base encoding.h
 y yy y   base encoding-dummy.h
-         base encoding-config.h
-         base encoding.c
+y yy y   base encoding-config.h
+y yy y   base encoding.c
 y yy yy  base global.h
 y yy y   base global-aggregated.c
 y yy y   core config-old.h
@@ -442,12 +442,12 @@ corner case tests:
 
 file:              encoding.h
 category:          base
-spec by eyes:      
+spec by eyes:      yamaken@r4527
 spec by tests:     
-general review:    
-64-bit by eyes:    
+general review:    yamaken@r4527
+64-bit by eyes:    yamaken@r4527
 64-bit by tests:   
-coding style:      
+coding style:      yamaken@r4527
 normal case tests: 
 corner case tests: 
 
@@ -464,23 +464,23 @@ corner case tests:
 
 file:              encoding-config.h
 category:          base
-spec by eyes:      
+spec by eyes:      yamaken@r4527
 spec by tests:     
-general review:    
-64-bit by eyes:    
+general review:    yamaken@r4527
+64-bit by eyes:    yamaken@r4527
 64-bit by tests:   
-coding style:      
+coding style:      yamaken@r4527
 normal case tests: 
 corner case tests: 
 
 file:              encoding.c
 category:          base
-spec by eyes:      
+spec by eyes:      yamaken@r4527
 spec by tests:     
-general review:    
-64-bit by eyes:    
+general review:    yamaken@r4527
+64-bit by eyes:    yamaken@r4527
 64-bit by tests:   
-coding style:      
+coding style:      yamaken@r4527
 normal case tests: 
 corner case tests: 
 

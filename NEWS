@@ -5,6 +5,9 @@ Overview of changes from 0.7.x to 0.8.0
 
 * Specification changes
 
+  - SRFI-75 characters have been turned into R6RS (R5.92RS) characters
+    completely, including configuration names
+
   - Make Shift_JIS encoding name (CES) and Unicode CCS names of the codec API
     proper
 

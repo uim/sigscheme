@@ -41,7 +41,7 @@ Features
   - SRFI-38 : External Representation for Data with Shared Structure (partial)
   - SRFI-48 : Intermediate Format Strings
   - SRFI-60 : Integer as Bits (partial)
-  - SRFI-75 : R6RS Unicode data (partial and obsolete)
+- R6RS: R6RS characters (partial and preliminary)
 - Multibyte character encodings support
 - Partial SIOD compatibility
 

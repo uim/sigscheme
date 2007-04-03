@@ -37,8 +37,8 @@
 ===========================================================================*/
 
 /*
- * FIXME: Replace obsoleted SRFI-75 with latest R6RS specifications once it has
- * been stabilized.  -- YamaKen 2006-11-28
+ * FIXME: Support full R6RS characters once the specification has been
+ * finalized.  -- YamaKen 2007-04-03
  *
  * - Support new escapes in string (\<linefeed> and \<space>)
  * - Support character category validation for identifiers
@@ -379,10 +379,10 @@ static size_t read_token(ScmObj port, int *err,
 
 static ScmObj read_sexpression(ScmObj port);
 static ScmObj read_list(ScmObj port, scm_ichar_t closing_paren);
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
 static scm_ichar_t parse_unicode_sequence(const char *seq, int len);
 static scm_ichar_t read_unicode_sequence(ScmObj port);
-#endif /* SCM_USE_SRFI75 */
+#endif /* SCM_USE_R6RS_CHARS */
 #if SCM_USE_CHAR
 static ScmObj read_char(ScmObj port);
 #endif /* SCM_USE_CHAR */
@@ -452,7 +452,7 @@ static size_t
 read_token(ScmObj port, int *err,
            char *buf, size_t buf_size, enum ScmCharClass delim)
 {
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
     ScmCharCodec *codec;
 #endif
     enum ScmCharClass ch_class;
@@ -478,7 +478,7 @@ read_token(ScmObj port, int *err,
         }
 
         if (ch_class & SCM_CH_NONASCII) {
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
             if (buf_last <= p + SCM_MB_MAX_LEN) {
                 *err = TOKEN_BUF_EXCEEDED;
                 break;
@@ -707,7 +707,7 @@ read_list(ScmObj port, scm_ichar_t closing_paren)
     }
 }
 
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
 static scm_ichar_t
 parse_unicode_sequence(const char *seq, int len)
 {
@@ -754,7 +754,7 @@ read_unicode_sequence(ScmObj port)
  err:
     ERR("invalid hex scalar value");
 }
-#endif /* SCM_USE_SRFI75 */
+#endif /* SCM_USE_R6RS_CHARS */
 
 #if SCM_USE_CHAR
 static ScmObj
@@ -763,7 +763,7 @@ read_char(ScmObj port)
     const ScmSpecialCharInfo *info;
     size_t len;
     scm_ichar_t c, next;
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
     scm_ichar_t unicode;
 #endif
     int err;
@@ -774,7 +774,7 @@ read_char(ScmObj port)
     c = scm_port_get_char(port);
     next = scm_port_peek_char(port);
     if (ICHAR_ASCII_CLASS(next) & SCM_CH_DELIMITER || next == SCM_ICHAR_EOF) {
-#if !SCM_USE_SRFI75
+#if !SCM_USE_R6RS_CHARS
         if (!ICHAR_ASCIIP(c))
             ERR("invalid character literal");
 #endif
@@ -788,7 +788,7 @@ read_char(ScmObj port)
 
     CDBG((SCM_DBG_PARSER, "read_char: ch = ~S", buf));
 
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
     unicode = parse_unicode_sequence(buf, len + sizeof((char)c));
     if (0 <= unicode)
         return MAKE_CHAR(unicode);
@@ -849,7 +849,7 @@ read_string(ScmObj port)
 
         case '\\':
             c = scm_port_get_char(port);
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
             if (c == 'x') {
                 c = read_unicode_sequence(port);
                 LBUF_EXTEND(lbuf, SCM_LBUF_F_STRING,
@@ -884,7 +884,7 @@ read_string(ScmObj port)
             LBUF_EXTEND(lbuf, SCM_LBUF_F_STRING,
                         offset + SCM_MB_CHAR_BUF_SIZE);
             p = &LBUF_BUF(lbuf)[offset];
-#if SCM_USE_SRFI75
+#if SCM_USE_R6RS_CHARS
             /* FIXME: support stateful encoding */
             p = SCM_CHARCODEC_INT2STR(codec, p, c, SCM_MB_STATELESS);
             if (!p)

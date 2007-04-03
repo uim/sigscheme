@@ -73,7 +73,7 @@ scm_intern(const char *name)
     uint32_t hash;
     DECLARE_INTERNAL_FUNCTION("scm_intern");
 
-#if (SCM_USE_SRFI75 && SCM_STRICT_ARGCHECK)
+#if (SCM_USE_R6RS_CHARS && SCM_STRICT_ARGCHECK)
 #if 0
     /* FIXME: detect error correctly */
     if (scm_mb_bare_c_strlen(scm_identifier_codec, name) <= 0)

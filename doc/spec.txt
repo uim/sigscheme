@@ -133,7 +133,7 @@ Characters
 
 All character category-sensitive procedures and predicates (such as
 char-upcase) work correctly only in ASCII range. i.e. Neither Unicode
-processing specified in SRFI-75 nor other non-Unicode multibyte character
+processing specified in R6RS nor other non-Unicode multibyte character
 processing are supported in such procedures/predicates.
 
 Case-insensitive character comparison
@@ -143,7 +143,7 @@ SigScheme's case-insensitive comparison conforms to the foldcase'ed
 comparison described in SRFI-75 and SRFI-13, although R5RS does not specify
 comparison between alphabetic and non-alphabetic char.
 
-See the description in operations.c for further details.
+See the description in sigschemeinternal.h for further details.
 
 Case-sensitive identifiers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -565,30 +565,30 @@ And the others listed below are not.
     * *procedure:* list->integer list
     * *procedure:* booleans->integer bool1 ...
 
-SRFI-75 R6RS Unicode data
-~~~~~~~~~~~~~~~~~~~~~~~~~
+R6RS characters
+~~~~~~~~~~~~~~~
 
-SRFI-75 is partially implemented. But since SRFI-75 had already been obsoleted,
-it is not validated deeply. It will be replaced with stable R6RS implementation
-once the specifications have been stabilized
+R6RS characters are partially implemented based on R5.92RS. But since R6RS
+specification is not finalized yet, future SigScheme may change the
+specification around R6RS characters.
 
-Current SRFI-75 status
-^^^^^^^^^^^^^^^^^^^^^^
+Current R6RS characters status
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   - Supports Unicode character literals such as #\λ
-  - Supports #xXX, #\uXXXX and #\UXXXXXXXX literals
-  - Supports Unicode identifiers (lacks character category validation)
+  - Supports #x<digit16>+ literals
+  - Supports \x<digit16>+; literals in string
+  - Supports Unicode identifiers (but lacks character category validation)
   - Supports all named chars such as #\backspace, #\esc, and #\nul
-  - Quoted-symbol by vertical bar (such as '|-symbol|) is not supported
+  - Quoted-symbol by vertical bar (such as '|-symbol|) is not supported yet
 
 TODOs
 ^^^^^
 
-  - Remove #\uXXXX and #\UXXXXXXXX literals
-  - Support variable-length #\xXX literal
-  - Support character category validation for identifiers
-  - Disable #\newline on R6RS-compatible mode
+  - Support new escapes in string (\<linefeed> and \<space>)
   - Confirm symbol escape syntax (not defined in R6RS yet)
+  - Support Unicode character category validation for identifiers
+  - Disable #\newline on R6RS-compatible mode
 
 
 SIOD compatibility

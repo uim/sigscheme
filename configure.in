@@ -466,8 +466,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi38=yes
         use_srfi48=yes
         use_srfi60=yes
-        use_srfi75_named_chars=yes
-        use_srfi75=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=no
@@ -486,8 +484,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi38=no
         use_srfi48=no
         use_srfi60=no
-        use_srfi75_named_chars=no
-        use_srfi75=no
         use_sscm_extensions=no
         use_sscm_format_extension=no
         use_compat_siod=no
@@ -506,8 +502,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi38=no
         use_srfi48=no
         use_srfi60=no
-        use_srfi75_named_chars=no
-        use_srfi75=no
         use_sscm_extensions=yes
         use_sscm_format_extension=no
         use_compat_siod=yes
@@ -526,13 +520,23 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi38=yes
         use_srfi48=yes
         use_srfi60=yes
-        use_srfi75_named_chars=yes
-        use_srfi75=no
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=yes
         use_compat_siod_bugs=yes
         use_eval_c_string=yes
+        ;;
+    esac
+
+    # R6RS features
+    case "$enable_conf" in
+      full|dev|uim)
+        use_r6rs_named_chars=yes
+        use_r6rs_chars=yes
+        ;;
+      r5rs|small|siod)
+        use_r6rs_named_chars=no
+        use_r6rs_chars=no
         ;;
     esac
 
@@ -626,8 +630,10 @@ AX_FEATURE_ARG_Y(srfi34,         [SRFI-34 exception handling for programs])
 AX_FEATURE_ARG_Y(srfi38,         [SRFI-38 'write/ss' ('read/ss' is not provided)])
 AX_FEATURE_ARG_Y(srfi48,         [SRFI-48 'format' (superset of SRFI-28)])
 AX_FEATURE_ARG_Y(srfi60,         [SRFI-60 integers as bits (partial)])
-AX_FEATURE_ARG_Y(srfi75-named-chars, [named characters of SRFI-75 R6RS unicode data])
-AX_FEATURE_ARG_Y(srfi75, [SRFI-75 R6RS unicode data (partial and obsolete)])
+
+# R6RS features (preliminary)
+AX_FEATURE_ARG_Y(r6rs-named-chars, [named characters of R6RS (preliminary)])
+AX_FEATURE_ARG_Y(r6rs-chars,       [R6RS characters (preliminary)])
 
 # Common Scheme features
 AX_FEATURE_VAR_N(syntax-case,      ['syntax-case' (not implemented yet)])
@@ -686,8 +692,8 @@ srfi6: port string
 srfi34: continuation srfi23
 srfi38: writer
 srfi60: int
-srfi75_named_chars: char
-srfi75: char utf8 reader srfi75_named_chars utf8_as_default
+r6rs_named_chars: char
+r6rs_chars: char utf8 reader r6rs_named_chars utf8_as_default
 
 compat_siod: sscm_extensions srfi60 eval_c_string
 compat_siod_bugs: compat_siod
@@ -838,8 +844,10 @@ AX_FEATURE_DEFINE(srfi34)
 AX_FEATURE_DEFINE(srfi38)
 AX_FEATURE_DEFINE(srfi48)
 AX_FEATURE_DEFINE(srfi60)
-AX_FEATURE_DEFINE(srfi75_named_chars)
-AX_FEATURE_DEFINE(srfi75)
+
+# R6RS features (preliminary)
+AX_FEATURE_DEFINE(r6rs_named_chars)
+AX_FEATURE_DEFINE(r6rs_chars)
 
 # Common Scheme features
 AX_FEATURE_DEFINE(syntax_case)
@@ -911,8 +919,8 @@ AC_SUBST(use_srfi34)
 AC_SUBST(use_srfi38)
 AC_SUBST(use_srfi48)
 AC_SUBST(use_srfi60)
-AC_SUBST(use_srfi75)
-AC_SUBST(use_srfi75_named_chars)
+AC_SUBST(use_r6rs_chars)
+AC_SUBST(use_r6rs_named_chars)
 AC_SUBST(use_sscm_extensions)
 AC_SUBST(use_sscm_format_extension)
 AC_SUBST(use_compat_siod)
@@ -1055,8 +1063,10 @@ SRFI-34: $use_srfi34
 SRFI-38: $use_srfi38
 SRFI-48: $use_srfi48
 SRFI-60: $use_srfi60
-SRFI-75: $use_srfi75
-SRFI-75 named chars: $use_srfi75_named_chars
+
+[R6RS features (preliminary)]
+R6RS characters:  $use_r6rs_chars
+R6RS named chars: $use_r6rs_named_chars
 
 [SigScheme-specific extensions]
 SigScheme extensions: $use_sscm_extensions

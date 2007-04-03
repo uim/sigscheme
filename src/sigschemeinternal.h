@@ -477,7 +477,7 @@ SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
 
 /*
  * SigScheme's case-insensitive character comparison conforms to the
- * foldcase'ed comparison described in SRFI-75 and SRFI-13, although R5RS does
+ * foldcase'ed comparison described in R6RS and SRFI-13, although R5RS does
  * not define comparison between alphabetic and non-alphabetic char.
  *
  * This specification is needed to produce natural result on sort functions
@@ -490,14 +490,15 @@ SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
  *
  * See also:
  *
- *   - Description around 'char-foldcase' in SRFI-75
+ *   - Description around 'char-foldcase' in R6RS (R5.92) Standard Libraries
+ *     http://www.r6rs.org/document/lib-html/r6rs-lib-Z-H-3.html#node_sec_1.1
  *   - "Case mapping and case-folding" and "Comparison" section of SRFI-13
  */
-/* FIXME: support SRFI-75 */
+/* FIXME: support non-ASCII chars */
 #define ICHAR_DOWNCASE(c) (ICHAR_UPPER_CASEP(c) ? (c) + ('a' - 'A') : (c))
 #define ICHAR_UPCASE(c)   (ICHAR_LOWER_CASEP(c) ? (c) - ('a' - 'A') : (c))
 /* foldcase for case-insensitive character comparison is done by downcase as
- * described in SRFI-75. Although SRFI-13 expects (char-downcase (char-upcase
+ * described in R6RS libs. Although SRFI-13 expects (char-downcase (char-upcase
  * c)), this implementation is sufficient for ASCII range. */
 #define ICHAR_FOLDCASE(c) (ICHAR_DOWNCASE(c))
 

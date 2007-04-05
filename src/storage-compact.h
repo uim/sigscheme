@@ -252,7 +252,8 @@ typedef ScmObj (*ScmFuncType)();
 #define SCM_UNTAG_PTR(o)     ((ScmCell *)SCM_DROP_TAG(o))
 
 /* Raw accessors. */
-#define SCM_PTR(o)      ((ScmCell *)(o))
+#define SCM_PTR(o)      (SCM_ASSERT(!((scm_uintobj_t)(o) % sizeof(ScmCell))), \
+                         (ScmCell *)(o))
 #define SCM_X(o)        (SCM_PTR(o)->obj_x)
 #define SCM_Y(o)        (SCM_PTR(o)->obj_y)
 #define SCM_SET_X(o, x) (SCM_X(o) = (x))
@@ -904,7 +905,8 @@ SCM_MISC_DECLARE_TYPE(FARSYMBOL, L3(2, 5, 3),
 #endif /* SCM_USE_HYGIENIC_MACRO */
 
 
-/* Each argument must be an untagged pointer to a cell.
+/* Each argument except for SCM_SAL_FREECELLP() must be an untagged pointer to
+ * a cell.
  *
  * TODO: If we assume, as we currently safely can, that the GC never
  * marks a free cell (GC takes place until all freecells are used up),
@@ -913,7 +915,8 @@ SCM_MISC_DECLARE_TYPE(FARSYMBOL, L3(2, 5, 3),
  */
 #define SCM_MTAG_FREECELL         SCM_MAKE_MTAG_L2(7, 3)
 #define SCM_SAL_FREECELL_NEXT(o)  (SCM_X(o))
-#define SCM_SAL_FREECELLP(o)      (SCM_Y(o) == SCM_MTAG_FREECELL)
+#define SCM_SAL_FREECELLP(o)                                            \
+    (!SCM_IMMP(o) && SCM_Y(SCM_DROP_TAG(o)) == SCM_MTAG_FREECELL)
 #define SCM_SAL_RECLAIM_CELL(o, next)                           \
     (SCM_SET_X((o), (ScmObj)(next)), SCM_SET_Y((o), SCM_MTAG_FREECELL))
 

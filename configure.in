@@ -739,7 +739,7 @@ shell: libsscm
 AX_FEATURE_RESOLVE_DEPENDENCIES([recommended], [
 conf_dev: warning_suppressor
 storage_fatty: valuecons const_list_literal const_vector_literal
-debug: soft_assert accessor_assert strict_argcheck strict_encoding_check
+debug: accessor_assert strict_argcheck strict_encoding_check
 backtrace: srfi38
 ])
 

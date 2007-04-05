@@ -305,12 +305,7 @@ scm_gc_protectedp(ScmObj obj)
     }
     gc_sweep();
 
-    return (
-#if SCM_USE_STORAGE_COMPACT
-            SCM_IMMP(obj)
-            || SCM_TAG_CONSISTENTP(obj, *SCM_UNTAG_PTR(obj)) &&
-#endif
-            !SCM_FREECELLP(obj));
+    return !SCM_FREECELLP(obj);
 }
 
 SCM_EXPORT void *

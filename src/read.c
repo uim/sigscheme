@@ -724,6 +724,9 @@ parse_unicode_sequence(const char *seq, int len)
     if (err)
         return -1;
 
+    /* R6RS: 3.2.6 Strings
+     * the sequence of <digit 16>s forms a hexadecimal number between 0 and
+     * #x10FFFF excluding the range [#xD800, #xDFFF] */
     if ((0xd800 <= c && c <= 0xdfff) || 0x10ffff < c)
         ERR("invalid Unicode value: 0x~MX", (scm_int_t)c);
 

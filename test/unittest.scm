@@ -158,9 +158,8 @@
     (assert-true test-name (guard (err
                                    (else
                                     #f))
-                             (lambda ()
-                               (string-read str)
-                               #t)))))
+                             (string-read str)
+                             #t))))
 
 ;;
 ;; misc

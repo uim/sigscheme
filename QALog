@@ -717,9 +717,9 @@ corner case tests:
 
 file:              port.c
 category:          semicore
-spec by eyes:      yamaken@r3992, yamaken@r4152
+spec by eyes:      yamaken@r3992, yamaken@r4152, yamaken@r4533
 spec by tests:     
-general review:    yamaken@r3992
+general review:    yamaken@r3992, yamaken@r4533
 64-bit by eyes:    yamaken@r3992
 64-bit by tests:   
 coding style:      yamaken@r3992
@@ -728,14 +728,14 @@ corner case tests:
 
 file:              read.c
 category:          semicore
-spec by eyes:      yamaken@r4012
-spec by tests:     yamaken@r4012, yamaken@r4014, yamaken@r4015
-general review:    yamaken@r4012
+spec by eyes:      yamaken@r4012, yamaken@r4533
+spec by tests:     yamaken@r4012, yamaken@r4014, yamaken@r4015, yamaken@r4533
+general review:    yamaken@r4012, yamaken@r4533
 64-bit by eyes:    yamaken@r4012
 64-bit by tests:   
 coding style:      yamaken@r4012
-normal case tests: yamaken@r4012
-corner case tests: yamaken@r4012
+normal case tests: yamaken@r4012, yamaken@r4533
+corner case tests: yamaken@r4012, yamaken@r4533
 
 file:              write.c
 category:          semicore
@@ -1081,6 +1081,14 @@ corner case tests:
 
 Log
 ---
+2007-03-31  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * port.c
+        * read.c
+          - QA done again @r4533 for SCM_USE_MULTIBYTE_CHAR and
+            SCM_USE_R6RS*_CHARS
+        * unittest.scm
+          - (assert-parseable): Fix broken parse error detection
+
 2007-03-31  YamaKen <yamaken AT bp.iij4u.or.jp>
         * scmport-mbchar.h
         * scmport-mbchar.c

@@ -52,20 +52,10 @@
 (assert-equal? (tn)
                (integer->char 120)
                (read (open-input-string "#\\x")))
-(assert-parse-error (tn) "#\\x0")
-(assert-parse-error (tn) "#\\x1")
 (assert-parse-error (tn) "#\\x0g")
 (assert-parse-error (tn) "#\\x1g")
 (assert-parse-error (tn) "#\\x00g")
 (assert-parse-error (tn) "#\\x01g")
-
-(assert-parse-error (tn) "#\\x000")
-(assert-parse-error (tn) "#\\x010")
-(assert-parse-error (tn) "#\\x001")
-(assert-parse-error (tn) "#\\x100")
-(assert-parse-error (tn) "#\\x00a")
-(assert-parse-error (tn) "#\\x0a0")
-(assert-parse-error (tn) "#\\xa00")
 
 (assert-parse-error (tn) "#\\x-0")
 (assert-parse-error (tn) "#\\x-1")
@@ -90,6 +80,17 @@
 (assert-parse-error (tn) "#\\x+00a")
 (assert-parse-error (tn) "#\\x+0a0")
 (assert-parse-error (tn) "#\\x+a00")
+
+(tn "improper SRFI-75 char literals (proper in R5.92RS)")
+(assert-true (tn) (char? (string-read "#\\x0")))
+(assert-true (tn) (char? (string-read "#\\x1")))
+(assert-true (tn) (char? (string-read "#\\x000")))
+(assert-true (tn) (char? (string-read "#\\x010")))
+(assert-true (tn) (char? (string-read "#\\x001")))
+(assert-true (tn) (char? (string-read "#\\x100")))
+(assert-true (tn) (char? (string-read "#\\x00a")))
+(assert-true (tn) (char? (string-read "#\\x0a0")))
+(assert-true (tn) (char? (string-read "#\\xa00")))
 
 ;; check char?
 (assert-true "alphabet char" (char? #\a))
@@ -800,6 +801,7 @@
 (tn "integer->char")
 (assert-equal? (tn) #\nul       (integer->char 0))    ;; 0
 (assert-equal? (tn) #\x01       (integer->char 1))    ;; 1
+(assert-equal? (tn) #\x1        (integer->char 1))    ;; 1
 (assert-equal? (tn) #\x02       (integer->char 2))    ;; 2
 (assert-equal? (tn) #\x03       (integer->char 3))    ;; 3
 (assert-equal? (tn) #\x04       (integer->char 4))    ;; 4
@@ -814,6 +816,7 @@
 (assert-equal? (tn) #\return    (integer->char 13))   ;; 13
 (assert-equal? (tn) #\x0e       (integer->char 14))   ;; 14
 (assert-equal? (tn) #\x0f       (integer->char 15))   ;; 15
+(assert-equal? (tn) #\xf        (integer->char 15))   ;; 15
 (assert-equal? (tn) #\x10       (integer->char 16))   ;; 16
 (assert-equal? (tn) #\x11       (integer->char 17))   ;; 17
 (assert-equal? (tn) #\x12       (integer->char 18))   ;; 18
@@ -830,6 +833,7 @@
 (assert-equal? (tn) #\x1d       (integer->char 29))   ;; 29
 (assert-equal? (tn) #\x1e       (integer->char 30))   ;; 30
 (assert-equal? (tn) #\x1f       (integer->char 31))   ;; 31
+(assert-equal? (tn) #\x01f      (integer->char 31))   ;; 31
 (assert-equal? (tn) #\space     (integer->char 32))   ;; 32
 (assert-equal? (tn) #\!         (integer->char 33))   ;; 33
 (assert-equal? (tn) #\"         (integer->char 34))   ;; 34

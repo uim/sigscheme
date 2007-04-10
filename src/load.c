@@ -145,6 +145,7 @@ scm_load(const char *filename)
                                  (void *)filename);
 }
 
+/* FIXME: scm_current_char_codec on an exception */
 static void *
 scm_load_internal(const char *filename)
 {

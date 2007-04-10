@@ -750,7 +750,7 @@ corner case tests:
 
 file:              load.c
 category:          semicore
-spec by eyes:      yamaken@r4017, yamaken@r4182
+spec by eyes:      yamaken@r4017, yamaken@r4182, yamaken@r4541
 spec by tests:     
 general review:    yamaken@r4017
 64-bit by eyes:    yamaken@r4017
@@ -1081,7 +1081,11 @@ corner case tests:
 
 Log
 ---
-2007-03-31  YamaKen <yamaken AT bp.iij4u.or.jp>
+2007-04-10  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * load.c
+          - QA done again @r4541 for SCM_USE_MULTIBYTE_CHAR
+
+2007-04-06  YamaKen <yamaken AT bp.iij4u.or.jp>
         * port.c
         * read.c
           - QA done again @r4533 for SCM_USE_MULTIBYTE_CHAR and

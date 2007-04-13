@@ -706,7 +706,7 @@ corner case tests:
 
 file:              sigscheme.c
 category:          core
-spec by eyes:      yamaken@r4017, yamaken@r4019, yamaken@r4066, yamaken@r4152, yamaken@r4182
+spec by eyes:      yamaken@r4017, yamaken@r4019, yamaken@r4066, yamaken@r4152, yamaken@r4182, yamaken@r4543
 spec by tests:     
 general review:    yamaken@r4017
 64-bit by eyes:    yamaken@r4017
@@ -739,7 +739,7 @@ corner case tests: yamaken@r4012, yamaken@r4533
 
 file:              write.c
 category:          semicore
-spec by eyes:      yamaken@r4041, yamaken@r4152
+spec by eyes:      yamaken@r4041, yamaken@r4152, yamaken@r4543
 spec by tests:     
 general review:    yamaken@r4041
 64-bit by eyes:    yamaken@r4041
@@ -761,7 +761,7 @@ corner case tests:
 
 file:              format.c
 category:          semicore
-spec by eyes:      yamaken@r4052, yamaken@r4070, yamaken@r4152
+spec by eyes:      yamaken@r4052, yamaken@r4070, yamaken@r4152, yamaken@r4543
 spec by tests:     yamaken@r4052, yamaken@r4070
 general review:    yamaken@r4052
 64-bit by eyes:    yamaken@r4052
@@ -1081,6 +1081,12 @@ corner case tests:
 
 Log
 ---
+2007-04-13  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * write.c
+        * format.c
+        * sigscheme.c
+          - QA done again @r4543 for SCM_USE_MULTIBYTE_CHAR
+
 2007-04-10  YamaKen <yamaken AT bp.iij4u.or.jp>
         * load.c
           - QA done again @r4541 for SCM_USE_MULTIBYTE_CHAR

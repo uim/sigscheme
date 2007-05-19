@@ -1642,6 +1642,13 @@ SCM_EXPORT void scm_require(const char *filename);
 SCM_EXPORT ScmObj scm_p_symbol_boundp(ScmObj sym, ScmObj rest);
 SCM_EXPORT ScmObj scm_p_current_environment(ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_p_prealloc_heaps(ScmObj n);
+SCM_EXPORT ScmObj scm_p_pair_mutablep(ScmObj kons);
+#if SCM_USE_STRING
+SCM_EXPORT ScmObj scm_p_string_mutablep(ScmObj str);
+#endif
+#if SCM_USE_VECTOR
+SCM_EXPORT ScmObj scm_p_vector_mutablep(ScmObj vec);
+#endif
 SCM_EXPORT ScmObj scm_p_fixnum_width(void);
 SCM_EXPORT ScmObj scm_p_least_fixnum(void);
 SCM_EXPORT ScmObj scm_p_greatest_fixnum(void);

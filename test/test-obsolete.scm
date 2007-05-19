@@ -35,6 +35,7 @@
 
 (define *test-track-progress* #f)
 (define tn test-name)
+(define cp string-copy)
 
 
 (assert-equal? "basic case check1" 'case1 (case 1
@@ -103,5 +104,65 @@
 (assert-true   (tn) (pair? '(a b c)))
 (assert-equal? (tn) #f (pair? '()))
 (assert-equal? (tn) #f (pair? '#(a b)))
+
+;;
+;; All procedures that take a string as argument are tested with
+;; both immutable and mutable string.
+;;
+;; See "3.4 Storage model" of R5RS
+;;
+
+
+(tn "string->list immutable")
+(assert-equal? (tn) '()                (string->list ""))
+(assert-equal? (tn) '(#\\)             (string->list "\\"))
+(assert-equal? (tn) '(#\\ #\\)         (string->list "\\\\"))
+(assert-equal? (tn) '(#\\ #\\ #\\)     (string->list "\\\\\\"))
+;;(assert-equal? (tn) '(#\tab)           (string->list "\t"))
+(assert-equal? (tn) '(#\	)      (string->list "\t"))
+;;(assert-equal? (tn) '(#\return)        (string->list "\r"))
+(assert-equal? (tn) '(#\)            (string->list "\r"))
+(assert-equal? (tn) '(#\ #\)       (string->list "\r\r"))
+(assert-equal? (tn) '(#\newline)           (string->list "\n"))
+(assert-equal? (tn) '(#\newline #\newline) (string->list "\n\n"))
+(assert-equal? (tn) '(#\space)         (string->list " "))
+(assert-equal? (tn) '(#\space #\space) (string->list "  "))
+(assert-equal? (tn) '(#\")             (string->list "\""))
+(assert-equal? (tn) '(#\" #\")         (string->list "\"\""))
+(tn "string->list mutable")
+(assert-equal? (tn) '()                    (string->list (cp "")))
+(assert-equal? (tn) '(#\\)                 (string->list (cp "\\")))
+(assert-equal? (tn) '(#\\ #\\)             (string->list (cp "\\\\")))
+(assert-equal? (tn) '(#\\ #\\ #\\)         (string->list (cp "\\\\\\")))
+;;(assert-equal? (tn) '(#\tab)           (string->list (cp "\t")))
+(assert-equal? (tn) '(#\	)            (string->list (cp "\t")))
+;;(assert-equal? (tn) '(#\return)        (string->list (cp "\r")))
+(assert-equal? (tn) '(#\)                (string->list (cp "\r")))
+(assert-equal? (tn) '(#\ #\)           (string->list (cp "\r\r")))
+(assert-equal? (tn) '(#\newline)           (string->list (cp "\n")))
+(assert-equal? (tn) '(#\newline #\newline) (string->list (cp "\n\n")))
+(assert-equal? (tn) '(#\space)             (string->list (cp " ")))
+(assert-equal? (tn) '(#\space #\space)     (string->list (cp "  ")))
+(assert-equal? (tn) '(#\")                 (string->list (cp "\"")))
+(assert-equal? (tn) '(#\" #\")             (string->list (cp "\"\"")))
+
+(tn "list->string")
+(assert-equal? (tn) ""     (list->string '()))
+(assert-equal? (tn) "\\"     (list->string '(#\\)))
+(assert-equal? (tn) "\\\\"   (list->string '(#\\ #\\)))
+(assert-equal? (tn) "\\\\\\" (list->string '(#\\ #\\ #\\)))
+(assert-equal? (tn) "\t" (list->string '(#\	)))
+;;(assert-equal? (tn) "\t" (list->string '(#\tab)))
+(assert-equal? (tn) "\r" (list->string '(#\)))
+;;(assert-equal? (tn) "\r" (list->string '(#\return)))
+(assert-equal? (tn) "\n" (list->string '(#\
+)))
+(assert-equal? (tn) "\n" (list->string '(#\newline)))
+(assert-equal? (tn) " " (list->string '(#\ )))
+(assert-equal? (tn) " " (list->string '(#\space)))
+(assert-equal? (tn) " " (list->string '(#\ )))
+(assert-equal? (tn) "\"" (list->string '(#\")))
+(assert-equal? (tn) "\"a\"" (list->string '(#\" #\a #\")))
+
 
 (total-report)

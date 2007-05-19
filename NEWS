@@ -3,6 +3,9 @@ Overview of changes from 0.7.x to 0.8.0
 
 * New features
 
+  - New debugging procedures %pair-mutable?, %string-mutable?,
+    %vector-mutable?
+
 * Specification changes
 
   - SRFI-75 characters have been turned into R6RS (R5.92RS) characters
@@ -11,12 +14,19 @@ Overview of changes from 0.7.x to 0.8.0
   - Make Shift_JIS encoding name (CES) and Unicode CCS names of the codec API
     proper
 
-  - Accept any non-ASCII singlebyte values on integer->char when
-    !SCM_USE_MULTIBYTE_CHAR
+  - Accept any non-ASCII singlebyte values on integer->char, make-string and
+    string-fill! when !SCM_USE_MULTIBYTE_CHAR
+
+  - Replace implicit filler value ' ' for make-string with '?' to avoid wrong
+    assumption by user
+
+  - make-string and string-fill! now returns SCM_UNDEF instead of the str
 
 * Fixes
 
   - Fix invalid Unicode character acception on integer->char
+
+  - Fix unexpected memory exhaustion on negative length on make-string
 
 * Others
 

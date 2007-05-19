@@ -260,7 +260,7 @@ yyyy yyy r5rs list.c
 yyyy yyy r5rs deep-cadrs.c
 yyyy yy  r5rs char.c
 yyyy yyy r5rs string.c
-         r5rs string-procedure.c
+yyyy yy  r5rs string-procedure.c
          r5rs vector.c
 yyyy yyy r5rs qquote.c
          r5rs macro.c
@@ -860,13 +860,13 @@ corner case tests: yamaken@r3911
 
 file:              string-procedure.c
 category:          r5rs
-spec by eyes:      
-spec by tests:     
-general review:    
-64-bit by eyes:    
+spec by eyes:      yamaken@r4552
+spec by tests:     yamaken@r4552
+general review:    yamaken@r4552
+64-bit by eyes:    yamaken@r4552
 64-bit by tests:   
-coding style:      
-normal case tests: 
+coding style:      yamaken@r4552
+normal case tests: yamaken@r4552
 corner case tests: 
 
 file:              vector.c
@@ -1081,6 +1081,10 @@ corner case tests:
 
 Log
 ---
+2007-05-20  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * string-procedure.c
+          - QA done @r4552 with test-string-{proc,cmp}.scm
+
 2007-05-19  YamaKen <yamaken AT bp.iij4u.or.jp>
         * char.c
           - QA done @r4550 with test-char{,-pred}.scm

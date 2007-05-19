@@ -31,7 +31,7 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-;; See also test-string-{core,null}.scm
+;; See also test-string-{core,null,pred,proc}.scm
 
 (load "./test/unittest.scm")
 
@@ -44,177 +44,6 @@
 (if (and (provided? "sigscheme")
          (not (symbol-bound? 'make-string)))
     (test-skip "string part of R5RS is not enabled"))
-
-;;
-;; All procedures that take a string as argument are tested with
-;; both immutable and mutable string.
-;;
-;; See "3.4 Storage model" of R5RS
-;;
-
-
-(tn "make-string")
-(assert-equal? (tn) ""   (make-string 0))
-(assert-equal? (tn) " "  (make-string 1))
-(assert-equal? (tn) "  " (make-string 2))
-(assert-equal? (tn) ""   (make-string 0 #\a))
-(assert-equal? (tn) "a"  (make-string 1 #\a))
-(assert-equal? (tn) "aa" (make-string 2 #\a))
-
-(tn "string-ref immutable")
-(assert-equal? (tn) #\a (string-ref "abcde" 0))
-(assert-equal? (tn) #\e (string-ref "abcde" 4))
-(assert-error  (tn) (lambda ()
-                      (string-ref "abcde" -1)))
-(assert-error  (tn) (lambda ()
-                      (string-ref "abcde" 5)))
-(tn "string-ref mutable")
-(assert-equal? (tn) #\a (string-ref (cp "abcde") 0))
-(assert-equal? (tn) #\e (string-ref (cp "abcde") 4))
-(assert-error  (tn) (lambda ()
-                      (string-ref (cp "abcde") -1)))
-(assert-error  (tn) (lambda ()
-                      (string-ref (cp "abcde") 5)))
-
-(tn "string-set! immutable")
-(assert-error (tn) (lambda ()
-                     (string-set! "foo" 0 #\b)))
-(assert-error (tn) (lambda ()
-                     (string-set! (symbol->string 'foo) 0 #\b)))
-(assert-error (tn) (lambda ()
-                     (define immutable-str "foo")
-                     (string-set! immutable-str 0 #\b)
-                     immutable-str))
-(tn "string-set! mutable")
-(assert-equal? (tn)
-               "zbcdef"
-	       (begin
-		 (define tmpstr (cp "abcdef"))
-		 (string-set! tmpstr 0 #\z)
-		 tmpstr))
-(assert-equal? (tn)
-               "abzdef"
-	       (begin
-		 (define tmpstr (cp "abcdef"))
-		 (string-set! tmpstr 2 #\z)
-		 tmpstr))
-(assert-equal? (tn)
-               "abcdez"
-	       (begin
-		 (define tmpstr (cp "abcdef"))
-		 (string-set! tmpstr 5 #\z)
-		 tmpstr))
-(assert-error  (tn) (lambda ()
-                      (string-set! (cp "abcdef") -1 #\z)))
-(assert-error  (tn) (lambda ()
-                      (string-set! (cp "abcdef")  6 #\z)))
-
-(tn "substring immutable")
-(assert-error  (tn) (lambda () (substring "foo" 0 -1)))
-(assert-equal? (tn) ""    (substring "foo" 0 0))
-(assert-equal? (tn) "f"   (substring "foo" 0 1))
-(assert-equal? (tn) "fo"  (substring "foo" 0 2))
-(assert-equal? (tn) "foo" (substring "foo" 0 3))
-(assert-error  (tn) (lambda () (substring "foo" 0 4)))
-(assert-error  (tn) (lambda () (substring "foo" -1 0)))
-(assert-error  (tn) (lambda () (substring "foo" 1 0)))
-(assert-equal? (tn) "oo"  (substring "foo" 1 3))
-(assert-equal? (tn) "o"   (substring "foo" 2 3))
-(assert-equal? (tn) ""    (substring "foo" 3 3))
-(assert-error  (tn) (lambda () (substring "foo" 4 3)))
-(assert-error  (tn) (lambda () (substring "foo" 4 4)))
-(assert-equal? (tn) "foo" (substring (symbol->string 'foo) 0 3))
-(tn "substring mutable")
-(assert-equal? (tn) ""    (substring (cp "abcde") 0 0))
-(assert-equal? (tn) "a"   (substring (cp "abcde") 0 1))
-(assert-equal? (tn) "bc"  (substring (cp "abcde") 1 3))
-(assert-equal? (tn) "bcd" (substring (cp "abcde") 1 4))
-(assert-error  (tn) (lambda ()
-                      (substring (cp "abcde") 1 -1)))
-(assert-error  (tn) (lambda ()
-                      (substring (cp "abcde") -1 1)))
-(assert-error  (tn) (lambda ()
-                      (substring (cp "abcde") -1 -1)))
-(assert-error  (tn) (lambda ()
-                      (substring (cp "abcde") 2 1)))
-
-(tn "string->list immutable")
-(assert-equal? (tn) '()                (string->list ""))
-(assert-equal? (tn) '(#\\)             (string->list "\\"))
-(assert-equal? (tn) '(#\\ #\\)         (string->list "\\\\"))
-(assert-equal? (tn) '(#\\ #\\ #\\)     (string->list "\\\\\\"))
-;;(assert-equal? (tn) '(#\tab)           (string->list "\t"))
-(assert-equal? (tn) '(#\	)      (string->list "\t"))
-;;(assert-equal? (tn) '(#\return)        (string->list "\r"))
-(assert-equal? (tn) '(#\)            (string->list "\r"))
-(assert-equal? (tn) '(#\ #\)       (string->list "\r\r"))
-(assert-equal? (tn) '(#\newline)           (string->list "\n"))
-(assert-equal? (tn) '(#\newline #\newline) (string->list "\n\n"))
-(assert-equal? (tn) '(#\space)         (string->list " "))
-(assert-equal? (tn) '(#\space #\space) (string->list "  "))
-(assert-equal? (tn) '(#\")             (string->list "\""))
-(assert-equal? (tn) '(#\" #\")         (string->list "\"\""))
-(tn "string->list mutable")
-(assert-equal? (tn) '()                    (string->list (cp "")))
-(assert-equal? (tn) '(#\\)                 (string->list (cp "\\")))
-(assert-equal? (tn) '(#\\ #\\)             (string->list (cp "\\\\")))
-(assert-equal? (tn) '(#\\ #\\ #\\)         (string->list (cp "\\\\\\")))
-;;(assert-equal? (tn) '(#\tab)           (string->list (cp "\t")))
-(assert-equal? (tn) '(#\	)            (string->list (cp "\t")))
-;;(assert-equal? (tn) '(#\return)        (string->list (cp "\r")))
-(assert-equal? (tn) '(#\)                (string->list (cp "\r")))
-(assert-equal? (tn) '(#\ #\)           (string->list (cp "\r\r")))
-(assert-equal? (tn) '(#\newline)           (string->list (cp "\n")))
-(assert-equal? (tn) '(#\newline #\newline) (string->list (cp "\n\n")))
-(assert-equal? (tn) '(#\space)             (string->list (cp " ")))
-(assert-equal? (tn) '(#\space #\space)     (string->list (cp "  ")))
-(assert-equal? (tn) '(#\")                 (string->list (cp "\"")))
-(assert-equal? (tn) '(#\" #\")             (string->list (cp "\"\"")))
-
-(tn "list->string")
-(assert-equal? (tn) ""     (list->string '()))
-(assert-equal? (tn) "\\"     (list->string '(#\\)))
-(assert-equal? (tn) "\\\\"   (list->string '(#\\ #\\)))
-(assert-equal? (tn) "\\\\\\" (list->string '(#\\ #\\ #\\)))
-(assert-equal? (tn) "\t" (list->string '(#\	)))
-;;(assert-equal? (tn) "\t" (list->string '(#\tab)))
-(assert-equal? (tn) "\r" (list->string '(#\)))
-;;(assert-equal? (tn) "\r" (list->string '(#\return)))
-(assert-equal? (tn) "\n" (list->string '(#\
-)))
-(assert-equal? (tn) "\n" (list->string '(#\newline)))
-(assert-equal? (tn) " " (list->string '(#\ )))
-(assert-equal? (tn) " " (list->string '(#\space)))
-(assert-equal? (tn) " " (list->string '(#\ )))
-(assert-equal? (tn) "\"" (list->string '(#\")))
-(assert-equal? (tn) "\"a\"" (list->string '(#\" #\a #\")))
-
-(tn "string-fill! immutable")
-(assert-error (tn) (lambda ()
-                     (string-fill! "" #\j)))
-(assert-error (tn) (lambda ()
-                     (string-fill! "foo" #\j)))
-(assert-error (tn) (lambda ()
-                     (string-fill! (string->symbol 'foo) #\j)))
-(tn "string-fill! mutable")
-(assert-equal? (tn)
-               ""
-               (begin
-                 (define tmpstr (cp ""))
-                 (string-fill! tmpstr #\j)
-                 tmpstr))
-(assert-equal? (tn)
-               "jjjjj"
-               (begin
-                 (define tmpstr (cp "abcde"))
-                 (string-fill! tmpstr #\j)
-                 tmpstr))
-(assert-equal? (tn)
-               "\\\\\\"
-               (begin
-                 (define tmpstr (cp "abc"))
-                 (string-fill! tmpstr #\\)
-                 tmpstr))
 
 (tn "symbol->string")
 (assert-equal? (tn) "a"  (symbol->string 'a))

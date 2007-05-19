@@ -79,12 +79,12 @@ scm_p_make_string(ScmObj length, ScmObj args)
 {
     ScmObj filler;
     scm_ichar_t filler_val;
-    size_t len;
+    ssize_t len;
     int ch_len;
     char *str, *dst;
 #if SCM_USE_MULTIBYTE_CHAR
     const char *next;
-    char ch_str[SCM_MB_CHAR_BUF_SIZE];
+    char ch_buf[SCM_MB_CHAR_BUF_SIZE];
 #endif
     DECLARE_FUNCTION("make-string", procedure_variadic_1);
 
@@ -100,8 +100,15 @@ scm_p_make_string(ScmObj length, ScmObj args)
 
     /* extract filler */
     if (NULLP(args)) {
-        filler_val = ' ';
-        ch_len = sizeof((char)' ');
+      /* To avoid assuming implicit filler value (such as space) by users,
+       * SigScheme fills '?' into the result string to indicate the filler
+       * value is undefined in R5RS.
+       *
+       * R5RS: If char is given, then all elements of the string are
+       * initialized to char, otherwise the contents of the string are
+       * unspecified. */
+        filler_val = '?';
+        ch_len = sizeof((char)'?');
     } else {
         filler = POP(args);
         ASSERT_NO_MORE_ARG(args);
@@ -117,7 +124,7 @@ scm_p_make_string(ScmObj length, ScmObj args)
 #endif
 
 #if SCM_USE_MULTIBYTE_CHAR
-    next = SCM_CHARCODEC_INT2STR(scm_current_char_codec, ch_str, filler_val,
+    next = SCM_CHARCODEC_INT2STR(scm_current_char_codec, ch_buf, filler_val,
                                  SCM_MB_STATELESS);
     if (!next)
         ERR("invalid char 0x~MX for encoding ~S",
@@ -126,9 +133,9 @@ scm_p_make_string(ScmObj length, ScmObj args)
 
     str = scm_malloc(ch_len * len + sizeof(""));
     for (dst = str; dst < &str[ch_len * len]; dst += ch_len)
-        memcpy(dst, ch_str, ch_len);
+        memcpy(dst, ch_buf, ch_len);
 #else
-    SCM_ASSERT(ICHAR_ASCIIP(filler_val));
+    SCM_ASSERT(ICHAR_SINGLEBYTEP(filler_val));
     str = scm_malloc(len + sizeof(""));
     for (dst = str; dst < &str[len];)
         *dst++ = filler_val;
@@ -245,11 +252,11 @@ scm_p_string_setx(ScmObj str, ScmObj k, ScmObj ch)
     SCM_STRING_SET_STR(str, new_str);
 #else
     ch_val = SCM_CHAR_VALUE(ch);
-    SCM_ASSERT(ICHAR_ASCIIP(ch_val));
+    SCM_ASSERT(ICHAR_SINGLEBYTEP(ch_val));
     c_str[idx] = ch_val;
 #endif
 
-    return str;
+    return SCM_UNDEF;
 }
 
 /* Upper case letters are less than lower. */
@@ -544,7 +551,7 @@ scm_p_string_fillx(ScmObj str, ScmObj ch)
 #if SCM_USE_MULTIBYTE_CHAR
     int ch_len;
     char *new_str;
-    char ch_str[SCM_MB_CHAR_BUF_SIZE];
+    char ch_buf[SCM_MB_CHAR_BUF_SIZE];
     const char *next;
 #else
     scm_ichar_t ch_val;
@@ -564,7 +571,7 @@ scm_p_string_fillx(ScmObj str, ScmObj ch)
         return MAKE_STRING_COPYING("", 0);
 
 #if SCM_USE_MULTIBYTE_CHAR
-    next = SCM_CHARCODEC_INT2STR(scm_current_char_codec, ch_str,
+    next = SCM_CHARCODEC_INT2STR(scm_current_char_codec, ch_buf,
                                  SCM_CHAR_VALUE(ch), SCM_MB_STATELESS);
     if (!next)
         ERR("invalid char 0x~MX for encoding ~S",
@@ -572,20 +579,20 @@ scm_p_string_fillx(ScmObj str, ScmObj ch)
             SCM_CHARCODEC_ENCODING(scm_current_char_codec));
 
     /* create new str */
-    ch_len = next - ch_str;
+    ch_len = next - ch_buf;
     new_str = scm_realloc(SCM_STRING_STR(str), str_len * ch_len + sizeof(""));
     for (dst = new_str; dst < &new_str[ch_len * str_len]; dst += ch_len)
-        memcpy(dst, ch_str, ch_len);
+        memcpy(dst, ch_buf, ch_len);
     *dst = '\0';
 
     SCM_STRING_SET_STR(str, new_str);
 #else
     ch_val = SCM_CHAR_VALUE(ch);
-    SCM_ASSERT(ICHAR_ASCIIP(ch_val));
+    SCM_ASSERT(ICHAR_SINGLEBYTEP(ch_val));
     c_str = SCM_STRING_STR(str);
     for (dst = c_str; dst < &c_str[str_len]; dst++)
         *dst = ch_val;
 #endif
 
-    return str;
+    return SCM_UNDEF;
 }

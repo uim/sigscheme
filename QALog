@@ -258,7 +258,7 @@ yyyyyyyy r5rs number.c
 yyyyyyyy r5rs number-io.c
 yyyy yyy r5rs list.c
 yyyy yyy r5rs deep-cadrs.c
-         r5rs char.c
+yyyy yy  r5rs char.c
 yyyy yyy r5rs string.c
          r5rs string-procedure.c
          r5rs vector.c
@@ -530,7 +530,7 @@ corner case tests:
 
 file:              sigschemeinternal.h
 category:          core
-spec by eyes:      yamaken@r4061, yamaken@r4101, yamaken@r4103, yamaken@r4152
+spec by eyes:      yamaken@r4061, yamaken@r4101, yamaken@r4103, yamaken@r4152, yamaken@r4550
 spec by tests:     
 general review:    yamaken@r4061
 64-bit by eyes:    yamaken@r4061
@@ -728,7 +728,7 @@ corner case tests:
 
 file:              read.c
 category:          semicore
-spec by eyes:      yamaken@r4012, yamaken@r4533
+spec by eyes:      yamaken@r4012, yamaken@r4533, yamaken@r4550
 spec by tests:     yamaken@r4012, yamaken@r4014, yamaken@r4015, yamaken@r4533
 general review:    yamaken@r4012, yamaken@r4533
 64-bit by eyes:    yamaken@r4012
@@ -838,13 +838,13 @@ corner case tests: yamaken@r3903
 
 file:              char.c
 category:          r5rs
-spec by eyes:      
-spec by tests:     
-general review:    
-64-bit by eyes:    
+spec by eyes:      yamaken@r4550
+spec by tests:     yamaken@r4550
+general review:    yamaken@r4550
+64-bit by eyes:    yamaken@r4550
 64-bit by tests:   
-coding style:      
-normal case tests: 
+coding style:      yamaken@r4550
+normal case tests: yamaken@r4550
 corner case tests: 
 
 file:              string.c
@@ -1081,6 +1081,10 @@ corner case tests:
 
 Log
 ---
+2007-05-19  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * char.c
+          - QA done @r4550 with test-char{,-pred}.scm
+
 2007-04-13  YamaKen <yamaken AT bp.iij4u.or.jp>
         * write.c
         * format.c

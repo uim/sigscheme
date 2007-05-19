@@ -125,6 +125,8 @@ scm_p_char_greater_equalp(ScmObj ch1, ScmObj ch2)
     CHAR_CMP_BODY(>=, ch1, ch2);
 }
 
+#undef CHAR_CMP_BODY
+
 #define CHAR_CI_CMP_BODY(op, ch1, ch2)                                       \
     do {                                                                     \
         scm_ichar_t val1, val2;                                              \
@@ -178,7 +180,6 @@ scm_p_char_ci_greater_equalp(ScmObj ch1, ScmObj ch2)
     CHAR_CI_CMP_BODY(>=, ch1, ch2);
 }
 
-#undef CHAR_CMP_BODY
 #undef CHAR_CI_CMP_BODY
 
 SCM_EXPORT ScmObj
@@ -256,6 +257,14 @@ scm_p_char2integer(ScmObj ch)
     return MAKE_INT(SCM_CHAR_VALUE(ch));
 }
 
+/*
+ * R6RS: 9.13  Characters
+ *
+ * procedure:  (integer->char sv)
+ *
+ * Sv must be a Unicode scalar value, i.e. a non-negative exact integer in
+ * [0, #xD7FF] ∪ [#xE000, #x10FFFF].
+ */
 SCM_EXPORT ScmObj
 scm_p_integer2char(ScmObj n)
 {
@@ -266,11 +275,13 @@ scm_p_integer2char(ScmObj n)
 
     val = SCM_INT_VALUE(n);
 #if SCM_USE_MULTIBYTE_CHAR
-    if (!SCM_CHARCODEC_CHAR_LEN(scm_current_char_codec, val))
+    if ((SCM_CHARCODEC_CCS(scm_current_char_codec) == SCM_CCS_UNICODE
+         && !ICHAR_VALID_UNICODEP(val))
+        || !SCM_CHARCODEC_CHAR_LEN(scm_current_char_codec, val))
 #else
-    if (!ICHAR_ASCIIP(val))
+    if (!ICHAR_SINGLEBYTEP(val))  /* accepts ISO-8859-1 loosely */
 #endif
-        ERR("invalid char value: #x~MX", SCM_INT_VALUE(n));
+        ERR("invalid char value: #x~MX", val);
 
     return MAKE_CHAR((scm_ichar_t)val);
 }
@@ -284,9 +295,8 @@ scm_p_char_upcase(ScmObj ch)
     ENSURE_CHAR(ch);
 
     val = SCM_CHAR_VALUE(ch);
-    ch  = MAKE_CHAR(ICHAR_UPCASE(val));
 
-    return ch;
+    return MAKE_CHAR(ICHAR_UPCASE(val));
 }
 
 SCM_EXPORT ScmObj
@@ -298,7 +308,6 @@ scm_p_char_downcase(ScmObj ch)
     ENSURE_CHAR(ch);
 
     val = SCM_CHAR_VALUE(ch);
-    ch  = MAKE_CHAR(ICHAR_DOWNCASE(val));
 
-    return ch;
+    return MAKE_CHAR(ICHAR_DOWNCASE(val));
 }

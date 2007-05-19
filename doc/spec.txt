@@ -136,11 +136,44 @@ char-upcase) work correctly only in ASCII range. i.e. Neither Unicode
 processing specified in R6RS nor other non-Unicode multibyte character
 processing are supported in such procedures/predicates.
 
+Non-ASCII charcter acceptance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`integer->char` only accepts valid characters of current character codec. If
+no multibyte character codec is enabled on configuration, it accepts 0-255.
+
+If no multibyte character codec is enabled on configuration, character
+literal only covers ASCII.
+
+If UTF-8 codec is enabled and is the current codec, character literal covers
+all valid Unicode charcters.
+
+Whitespace charcters
+~~~~~~~~~~~~~~~~~~~~
+SigScheme treats vertical tab (0x0b) as a white space charcter although
+R5RS `char-whitespace?` does not cover it.
+
+----------------------------------------------------------------
+  R5RS: 6.3.4 Characters
+
+  The whitespace characters are space, tab, line feed, form feed, and
+  carriage return.
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+  R6RS Standard Libraries: 1.1  Characters
+
+  A character is whitespace if it is in one of the space, line, or
+  paragraph separator categories (Zs, Zl or Zp), or if is U+0009
+  (Horizontal tabulation), U+000A (Line feed), U+000B (Vertical
+  tabulation), U+000C (Form feed), or U+000D (Carriage return).
+----------------------------------------------------------------
+
 Case-insensitive character comparison
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SigScheme's case-insensitive comparison conforms to the foldcase'ed
-comparison described in SRFI-75 and SRFI-13, although R5RS does not specify
+comparison described in R6RS and SRFI-13, although R5RS does not specify
 comparison between alphabetic and non-alphabetic char.
 
 See the description in sigschemeinternal.h for further details.
@@ -581,6 +614,7 @@ Current R6RS characters status
   - Supports Unicode identifiers (but lacks character category validation)
   - Supports all named chars such as #\backspace, #\esc, and #\nul
   - Quoted-symbol by vertical bar (such as '|-symbol|) is not supported yet
+  - Invalidly accepts non-all-lower-case character names such as #\Tab and #TAB
 
 TODOs
 ^^^^^

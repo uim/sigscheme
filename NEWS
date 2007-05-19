@@ -11,7 +11,12 @@ Overview of changes from 0.7.x to 0.8.0
   - Make Shift_JIS encoding name (CES) and Unicode CCS names of the codec API
     proper
 
+  - Accept any non-ASCII singlebyte values on integer->char when
+    !SCM_USE_MULTIBYTE_CHAR
+
 * Fixes
+
+  - Fix invalid Unicode character acception on integer->char
 
 * Others
 

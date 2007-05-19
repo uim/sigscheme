@@ -462,10 +462,30 @@ SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
 /*=======================================
   Characters
 =======================================*/
+/* FIXME: support R6RS Unicode */
+
 /* accepts SCM_ICHAR_EOF */
 /* assumes ASCII */
-#define ICHAR_ASCIIP(c)      (0 <= (c) && (c) <= 127)
+#define ICHAR_ASCIIP(c)         (0 <= (c) && (c) <= 127)
+#define ICHAR_SINGLEBYTEP(c)    (0 <= (c) && (c) <= 255)
+#define ICHAR_VALID_UNICODEP(c) ((0 <= (c) && (c) <= 0xd7ff)                  \
+                                 || (0xe000 <= (c) && (c) <= 0x10ffff))
+
 #define ICHAR_CONTROLP(c)    ((0 <= (c) && (c) <= 31) || (c) == 127)
+/*
+ * SigScheme treats vertical tab (0x0b) as a white space charcter although
+ * R5RS char-whitespace? does not cover it.
+ *
+ * R5RS: 6.3.4 Characters
+ *   The whitespace characters are space, tab, line feed, form feed, and
+ *   carriage return.
+ *
+ * R6RS Standard Libraries: 1.1  Characters
+ *   A character is whitespace if it is in one of the space, line, or
+ *   paragraph separator categories (Zs, Zl or Zp), or if is U+0009
+ *   (Horizontal tabulation), U+000A (Line feed), U+000B (Vertical
+ *   tabulation), U+000C (Form feed), or U+000D (Carriage return).
+ */
 #define ICHAR_WHITESPACEP(c) ((c) == ' ' || ('\t' <= (c) && (c) <= '\r'))
 #define ICHAR_NUMERICP(c)    ('0' <= (c) && (c) <= '9')
 #define ICHAR_HEXA_NUMERICP(c) (ICHAR_NUMERICP(c)                            \
@@ -494,7 +514,6 @@ SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
  *     http://www.r6rs.org/document/lib-html/r6rs-lib-Z-H-3.html#node_sec_1.1
  *   - "Case mapping and case-folding" and "Comparison" section of SRFI-13
  */
-/* FIXME: support non-ASCII chars */
 #define ICHAR_DOWNCASE(c) (ICHAR_UPPER_CASEP(c) ? (c) + ('a' - 'A') : (c))
 #define ICHAR_UPCASE(c)   (ICHAR_LOWER_CASEP(c) ? (c) - ('a' - 'A') : (c))
 /* foldcase for case-insensitive character comparison is done by downcase as

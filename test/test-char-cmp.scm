@@ -39,7 +39,7 @@
 (define tn test-name)
 
 ;; SigScheme's case-insensitive comparison conforms to the foldcase'ed
-;; comparison described in SRFI-75 and SRFI-13, although R5RS does not specify
+;; comparison described in R6RS and SRFI-13, although R5RS does not specify
 ;; comparison between alphabetic and non-alphabetic char.
 ;;
 ;; This specification is needed to produce natural result on sort functions
@@ -52,7 +52,8 @@
 ;;
 ;; See also:
 ;;
-;;   - Description around 'char-foldcase' in SRFI-75
+;;   - Description around 'char-foldcase' in R6RS (R5.92) Standard Libraries
+;;     http://www.r6rs.org/document/lib-html/r6rs-lib-Z-H-3.html#node_sec_1.1
 ;;   - "Case mapping and case-folding" and "Comparison" section of SRFI-13
 
 ;; char=?

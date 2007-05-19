@@ -1,5 +1,4 @@
-#! /usr/bin/env sscm -C EUC-JP
-;; -*- buffer-file-coding-system: euc-jp -*-
+#! /usr/bin/env sscm -C UTF-8
 
 ;;  Filename : test-char.scm
 ;;  About    : unit test for R5RS char
@@ -44,6 +43,101 @@
 (define i->chlit
   (lambda (i)
     (obj->literal (integer->char i))))
+
+(tn "char?")
+(assert-eq? (tn) #f (char? #f))
+(assert-eq? (tn) #f (char? #t))
+(assert-eq? (tn) #f (char? '()))
+(if (provided? "sigscheme")
+    (begin
+      (assert-eq? (tn) #f (char? (eof)))
+      (assert-eq? (tn) #f (char? (undef)))))
+(assert-eq? (tn) #f (char? 0))
+(assert-eq? (tn) #f (char? 1))
+(assert-eq? (tn) #f (char? 3))
+(assert-eq? (tn) #f (char? -1))
+(assert-eq? (tn) #f (char? -3))
+(assert-eq? (tn) #f (char? 'symbol))
+(assert-eq? (tn) #f (char? 'SYMBOL))
+(assert-eq? (tn) #t (char? #\a))
+(assert-eq? (tn) #t (char? #\ÿ))
+(assert-eq? (tn) #t (char? #\あ))
+(assert-eq? (tn) #f (char? ""))
+(assert-eq? (tn) #f (char? " "))
+(assert-eq? (tn) #f (char? "a"))
+(assert-eq? (tn) #f (char? "A"))
+(assert-eq? (tn) #f (char? "aBc12!"))
+(assert-eq? (tn) #f (char? "あ"))
+(assert-eq? (tn) #f (char? "あ0イう12!"))
+(assert-eq? (tn) #f (char? +))
+(assert-eq? (tn) #f (char? (lambda () #t)))
+
+(tn "char-upcase")
+(assert-equal? (tn) #\x00     (char-upcase #\x00))
+(assert-equal? (tn) #\newline (char-upcase #\newline))
+(assert-equal? (tn) #\space   (char-upcase #\space))
+(assert-equal? (tn) #\x09     (char-upcase #\x09)) ;; horizontal tab  (#\tab)
+(assert-equal? (tn) #\x0b     (char-upcase #\x0b)) ;; vertical tab    (#\vtab)
+(assert-equal? (tn) #\x0c     (char-upcase #\x0c)) ;; form feed       (#\page)
+(assert-equal? (tn) #\x0d     (char-upcase #\x0d)) ;; carriage return (#\return)
+(assert-equal? (tn) #\!       (char-upcase #\!))
+(assert-equal? (tn) #\0       (char-upcase #\0))
+(assert-equal? (tn) #\9       (char-upcase #\9))
+(assert-equal? (tn) #\A       (char-upcase #\A))
+(assert-equal? (tn) #\B       (char-upcase #\B))
+(assert-equal? (tn) #\Z       (char-upcase #\Z))
+(assert-equal? (tn) #\_       (char-upcase #\_))
+(assert-equal? (tn) #\A       (char-upcase #\a))
+(assert-equal? (tn) #\B       (char-upcase #\b))
+(assert-equal? (tn) #\Z       (char-upcase #\z))
+(assert-equal? (tn) #\~       (char-upcase #\~))
+(assert-equal? (tn) #\x7f     (char-upcase #\x7f))
+(tn "char-upcase non-ASCII")
+;; SigScheme currently does not support char-upcase on non-ASCII charcters
+(assert-equal? (tn) #\xa0   (char-upcase #\xa0))   ;; U+00A0 NO-BREAK SPACE
+(assert-equal? (tn) #\xff   (char-upcase #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) #\x2028 (char-upcase #\x2028)) ;; U+2028 LINE SEPARATOR
+(assert-equal? (tn) #\x2029 (char-upcase #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
+(assert-equal? (tn) #\　    (char-upcase #\　))    ;; U+3000 IDEOGRAPHIC SPACE
+(assert-equal? (tn) #\あ    (char-upcase #\あ))    ;; U+3042 HIRAGANA LETTER A
+(assert-equal? (tn) #\！    (char-upcase #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
+(assert-equal? (tn) #\０    (char-upcase #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
+(assert-equal? (tn) #\Ａ    (char-upcase #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) #\ａ    (char-upcase #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
+
+(tn "char-downcase")
+(assert-equal? (tn) #\x00     (char-downcase #\x00))
+(assert-equal? (tn) #\newline (char-downcase #\newline))
+(assert-equal? (tn) #\space   (char-downcase #\space))
+(assert-equal? (tn) #\x09     (char-downcase #\x09)) ;; horizontal tab  (#\tab)
+(assert-equal? (tn) #\x0b     (char-downcase #\x0b)) ;; vertical tab    (#\vtab)
+(assert-equal? (tn) #\x0c     (char-downcase #\x0c)) ;; form feed       (#\page)
+(assert-equal? (tn) #\x0d     (char-downcase #\x0d)) ;; carriage return (#\return)
+(assert-equal? (tn) #\!       (char-downcase #\!))
+(assert-equal? (tn) #\0       (char-downcase #\0))
+(assert-equal? (tn) #\9       (char-downcase #\9))
+(assert-equal? (tn) #\a       (char-downcase #\A))
+(assert-equal? (tn) #\b       (char-downcase #\B))
+(assert-equal? (tn) #\z       (char-downcase #\Z))
+(assert-equal? (tn) #\_       (char-downcase #\_))
+(assert-equal? (tn) #\a       (char-downcase #\a))
+(assert-equal? (tn) #\b       (char-downcase #\b))
+(assert-equal? (tn) #\z       (char-downcase #\z))
+(assert-equal? (tn) #\~       (char-downcase #\~))
+(assert-equal? (tn) #\x7f     (char-downcase #\x7f))
+(tn "char-downcase non-ASCII")
+;; SigScheme currently does not support char-downcase on non-ASCII charcters
+(assert-equal? (tn) #\xa0   (char-downcase #\xa0))   ;; U+00A0 NO-BREAK SPACE
+(assert-equal? (tn) #\xff   (char-downcase #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) #\x2028 (char-downcase #\x2028)) ;; U+2028 LINE SEPARATOR
+(assert-equal? (tn) #\x2029 (char-downcase #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
+(assert-equal? (tn) #\　    (char-downcase #\　))    ;; U+3000 IDEOGRAPHIC SPACE
+(assert-equal? (tn) #\あ    (char-downcase #\あ))    ;; U+3042 HIRAGANA LETTER A
+(assert-equal? (tn) #\！    (char-downcase #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
+(assert-equal? (tn) #\０    (char-downcase #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
+(assert-equal? (tn) #\Ａ    (char-downcase #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) #\ａ    (char-downcase #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
+
 
 ;; invalid character literal
 (tn "invalid char literal")
@@ -92,19 +186,6 @@
 (assert-true (tn) (char? (string-read "#\\x0a0")))
 (assert-true (tn) (char? (string-read "#\\xa00")))
 
-;; check char?
-(assert-true "alphabet char" (char? #\a))
-(assert-true "space 1"       (char? #\space))
-(assert-true "space 2"       (char? #\ ))
-(assert-true "tab"           (char? #\	))
-(assert-true "newline 2"     (char? #\newline))
-(assert-true "newline 2"     (char? #\
-))
-(assert-true "hiragana char" (char? #\��))
-(assert-true "( char"        (char? #\())
-(assert-true ") char"        (char? #\)))
-(assert-true "\\ char"       (char? #\\))
-
 (tn "R5RS named chars case-insensitivity")
 (assert-equal? (tn) #\newline (integer->char 10))
 (assert-equal? (tn) #\Newline (integer->char 10))
@@ -144,6 +225,22 @@
 (assert-equal? (tn) "#\\esc"     (obj->literal #\x1b))  ;; 27
 (assert-equal? (tn) "#\\space"   (obj->literal #\x20))  ;; 32
 (assert-equal? (tn) "#\\delete"  (obj->literal #\x7f))  ;; 127
+
+(tn "R6RS named chars case-sensitivity")
+;; FIXME: SigScheme is currently not conforming to the case-sensitivity of
+;; R6RS character names. These tests must be failed in R6RS character
+;; processing.
+(assert-equal? (tn) #\NUL       #\x00)  ;; 0
+(assert-equal? (tn) #\ALARM     #\x07)  ;; 7
+(assert-equal? (tn) #\BACKSPACE #\x08)  ;; 8
+(assert-equal? (tn) #\TAB       #\x09)  ;; 9
+(assert-equal? (tn) #\NEWLINE   #\x0a)  ;; 10
+(assert-equal? (tn) #\VTAB      #\x0b)  ;; 11
+(assert-equal? (tn) #\PAGE      #\x0c)  ;; 12
+(assert-equal? (tn) #\RETURN    #\x0d)  ;; 13
+(assert-equal? (tn) #\ESC       #\x1b)  ;; 27
+(assert-equal? (tn) #\SPACE     #\x20)  ;; 32
+(assert-equal? (tn) #\DELETE    #\x7f)  ;; 127
 
 (tn "char literal")
 (assert-equal? (tn) "#\\nul"       (obj->literal #\nul))       ;; 0
@@ -796,6 +893,152 @@
 (assert-equal? (tn) (integer->char 126) #\x7E)  ;; 126
 (assert-equal? (tn) (integer->char 127) #\x7F)  ;; 127
 
+;; char->integer
+;; NOTE: #\x0e -style character is defined in R6RS(SRFI-75)
+(tn "char->integer")
+(assert-equal? (tn)   0 (char->integer #\nul))        ;; 0
+(assert-equal? (tn)   1 (char->integer #\x01))        ;; 1
+(assert-equal? (tn)   1 (char->integer #\x1))         ;; 1
+(assert-equal? (tn)   2 (char->integer #\x02))        ;; 2
+(assert-equal? (tn)   3 (char->integer #\x03))        ;; 3
+(assert-equal? (tn)   4 (char->integer #\x04))        ;; 4
+(assert-equal? (tn)   5 (char->integer #\x05))        ;; 5
+(assert-equal? (tn)   6 (char->integer #\x06))        ;; 6
+(assert-equal? (tn)   7 (char->integer #\alarm))      ;; 7
+(assert-equal? (tn)   8 (char->integer #\backspace))  ;; 8
+(assert-equal? (tn)   9 (char->integer #\tab))        ;; 9
+(assert-equal? (tn)  10 (char->integer #\newline))    ;; 10
+(assert-equal? (tn)  11 (char->integer #\vtab))       ;; 11
+(assert-equal? (tn)  12 (char->integer #\page))       ;; 12
+(assert-equal? (tn)  13 (char->integer #\return))     ;; 13
+(assert-equal? (tn)  14 (char->integer #\x0e))        ;; 14
+(assert-equal? (tn)  15 (char->integer #\x0f))        ;; 15
+(assert-equal? (tn)  15 (char->integer #\xf))         ;; 15
+(assert-equal? (tn)  16 (char->integer #\x10))        ;; 16
+(assert-equal? (tn)  17 (char->integer #\x11))        ;; 17
+(assert-equal? (tn)  18 (char->integer #\x12))        ;; 18
+(assert-equal? (tn)  19 (char->integer #\x13))        ;; 19
+(assert-equal? (tn)  20 (char->integer #\x14))        ;; 20
+(assert-equal? (tn)  21 (char->integer #\x15))        ;; 21
+(assert-equal? (tn)  22 (char->integer #\x16))        ;; 22
+(assert-equal? (tn)  23 (char->integer #\x17))        ;; 23
+(assert-equal? (tn)  24 (char->integer #\x18))        ;; 24
+(assert-equal? (tn)  25 (char->integer #\x19))        ;; 25
+(assert-equal? (tn)  26 (char->integer #\x1a))        ;; 26
+(assert-equal? (tn)  27 (char->integer #\esc))        ;; 27
+(assert-equal? (tn)  28 (char->integer #\x1c))        ;; 28
+(assert-equal? (tn)  29 (char->integer #\x1d))        ;; 29
+(assert-equal? (tn)  30 (char->integer #\x1e))        ;; 30
+(assert-equal? (tn)  31 (char->integer #\x1f))        ;; 31
+(assert-equal? (tn)  31 (char->integer #\x01f))       ;; 31
+(assert-equal? (tn)  32 (char->integer #\space))      ;; 32
+(assert-equal? (tn)  33 (char->integer #\!))          ;; 33
+(assert-equal? (tn)  34 (char->integer #\"))          ;; 34
+(assert-equal? (tn)  35 (char->integer #\#))          ;; 35
+(assert-equal? (tn)  36 (char->integer #\$))          ;; 36
+(assert-equal? (tn)  37 (char->integer #\%))          ;; 37
+(assert-equal? (tn)  38 (char->integer #\&))          ;; 38
+(assert-equal? (tn)  39 (char->integer #\'))          ;; 39
+(assert-equal? (tn)  40 (char->integer #\())          ;; 40
+(assert-equal? (tn)  41 (char->integer #\)))          ;; 41
+(assert-equal? (tn)  42 (char->integer #\*))          ;; 42
+(assert-equal? (tn)  43 (char->integer #\+))          ;; 43
+(assert-equal? (tn)  44 (char->integer #\,))          ;; 44
+(assert-equal? (tn)  45 (char->integer #\-))          ;; 45
+(assert-equal? (tn)  46 (char->integer #\.))          ;; 46
+(assert-equal? (tn)  47 (char->integer #\/))          ;; 47
+(assert-equal? (tn)  48 (char->integer #\0))          ;; 48
+(assert-equal? (tn)  49 (char->integer #\1))          ;; 49
+(assert-equal? (tn)  50 (char->integer #\2))          ;; 50
+(assert-equal? (tn)  51 (char->integer #\3))          ;; 51
+(assert-equal? (tn)  52 (char->integer #\4))          ;; 52
+(assert-equal? (tn)  53 (char->integer #\5))          ;; 53
+(assert-equal? (tn)  54 (char->integer #\6))          ;; 54
+(assert-equal? (tn)  55 (char->integer #\7))          ;; 55
+(assert-equal? (tn)  56 (char->integer #\8))          ;; 56
+(assert-equal? (tn)  57 (char->integer #\9))          ;; 57
+(assert-equal? (tn)  58 (char->integer #\:))          ;; 58
+(assert-equal? (tn)  59 (char->integer #\;))          ;; 59
+(assert-equal? (tn)  60 (char->integer #\<))          ;; 60
+(assert-equal? (tn)  61 (char->integer #\=))          ;; 61
+(assert-equal? (tn)  62 (char->integer #\>))          ;; 62
+(assert-equal? (tn)  63 (char->integer #\?))          ;; 63
+(assert-equal? (tn)  64 (char->integer #\@))          ;; 64
+(assert-equal? (tn)  65 (char->integer #\A))          ;; 65
+(assert-equal? (tn)  66 (char->integer #\B))          ;; 66
+(assert-equal? (tn)  67 (char->integer #\C))          ;; 67
+(assert-equal? (tn)  68 (char->integer #\D))          ;; 68
+(assert-equal? (tn)  69 (char->integer #\E))          ;; 69
+(assert-equal? (tn)  70 (char->integer #\F))          ;; 70
+(assert-equal? (tn)  71 (char->integer #\G))          ;; 71
+(assert-equal? (tn)  72 (char->integer #\H))          ;; 72
+(assert-equal? (tn)  73 (char->integer #\I))          ;; 73
+(assert-equal? (tn)  74 (char->integer #\J))          ;; 74
+(assert-equal? (tn)  75 (char->integer #\K))          ;; 75
+(assert-equal? (tn)  76 (char->integer #\L))          ;; 76
+(assert-equal? (tn)  77 (char->integer #\M))          ;; 77
+(assert-equal? (tn)  78 (char->integer #\N))          ;; 78
+(assert-equal? (tn)  79 (char->integer #\O))          ;; 79
+(assert-equal? (tn)  80 (char->integer #\P))          ;; 80
+(assert-equal? (tn)  81 (char->integer #\Q))          ;; 81
+(assert-equal? (tn)  82 (char->integer #\R))          ;; 82
+(assert-equal? (tn)  83 (char->integer #\S))          ;; 83
+(assert-equal? (tn)  84 (char->integer #\T))          ;; 84
+(assert-equal? (tn)  85 (char->integer #\U))          ;; 85
+(assert-equal? (tn)  86 (char->integer #\V))          ;; 86
+(assert-equal? (tn)  87 (char->integer #\W))          ;; 87
+(assert-equal? (tn)  88 (char->integer #\X))          ;; 88
+(assert-equal? (tn)  89 (char->integer #\Y))          ;; 89
+(assert-equal? (tn)  90 (char->integer #\Z))          ;; 90
+(assert-equal? (tn)  91 (char->integer #\[))          ;; 91
+(assert-equal? (tn)  92 (char->integer #\\))          ;; 92
+(assert-equal? (tn)  93 (char->integer #\]))          ;; 93
+(assert-equal? (tn)  94 (char->integer #\^))          ;; 94
+(assert-equal? (tn)  95 (char->integer #\_))          ;; 95
+(assert-equal? (tn)  96 (char->integer #\`))          ;; 96
+(assert-equal? (tn)  97 (char->integer #\a))          ;; 97
+(assert-equal? (tn)  98 (char->integer #\b))          ;; 98
+(assert-equal? (tn)  99 (char->integer #\c))          ;; 99
+(assert-equal? (tn) 100 (char->integer #\d))          ;; 100
+(assert-equal? (tn) 101 (char->integer #\e))          ;; 101
+(assert-equal? (tn) 102 (char->integer #\f))          ;; 102
+(assert-equal? (tn) 103 (char->integer #\g))          ;; 103
+(assert-equal? (tn) 104 (char->integer #\h))          ;; 104
+(assert-equal? (tn) 105 (char->integer #\i))          ;; 105
+(assert-equal? (tn) 106 (char->integer #\j))          ;; 106
+(assert-equal? (tn) 107 (char->integer #\k))          ;; 107
+(assert-equal? (tn) 108 (char->integer #\l))          ;; 108
+(assert-equal? (tn) 109 (char->integer #\m))          ;; 109
+(assert-equal? (tn) 110 (char->integer #\n))          ;; 110
+(assert-equal? (tn) 111 (char->integer #\o))          ;; 111
+(assert-equal? (tn) 112 (char->integer #\p))          ;; 112
+(assert-equal? (tn) 113 (char->integer #\q))          ;; 113
+(assert-equal? (tn) 114 (char->integer #\r))          ;; 114
+(assert-equal? (tn) 115 (char->integer #\s))          ;; 115
+(assert-equal? (tn) 116 (char->integer #\t))          ;; 116
+(assert-equal? (tn) 117 (char->integer #\u))          ;; 117
+(assert-equal? (tn) 118 (char->integer #\v))          ;; 118
+(assert-equal? (tn) 119 (char->integer #\w))          ;; 119
+(assert-equal? (tn) 120 (char->integer #\x))          ;; 120
+(assert-equal? (tn) 121 (char->integer #\y))          ;; 121
+(assert-equal? (tn) 122 (char->integer #\z))          ;; 122
+(assert-equal? (tn) 123 (char->integer #\{))          ;; 123
+(assert-equal? (tn) 124 (char->integer #\|))          ;; 124
+(assert-equal? (tn) 125 (char->integer #\}))          ;; 125
+(assert-equal? (tn) 126 (char->integer #\~))          ;; 126
+(assert-equal? (tn) 127 (char->integer #\delete))     ;; 127
+(tn "char->integer non-ASCII")
+(assert-equal? (tn) #xa0   (char->integer #\xa0))   ;; NO-BREAK SPACE
+(assert-equal? (tn) #xff   (char->integer #\xff))   ;; LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) #x2028 (char->integer #\x2028)) ;; LINE SEPARATOR
+(assert-equal? (tn) #x2029 (char->integer #\x2029)) ;; PARAGRAPH SEPARATOR
+(assert-equal? (tn) #x3000 (char->integer #\　))    ;; IDEOGRAPHIC SPACE
+(assert-equal? (tn) #x3042 (char->integer #\あ))    ;; HIRAGANA LETTER A
+(assert-equal? (tn) #xff01 (char->integer #\！))    ;; FULLWIDTH EXCLAMATION MARK
+(assert-equal? (tn) #xff10 (char->integer #\０))    ;; FULLWIDTH DIGIT ZERO
+(assert-equal? (tn) #xff21 (char->integer #\Ａ))    ;; FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) #xff41 (char->integer #\ａ))    ;; FULLWIDTH LATIN SMALL LETTER A
+
 ;; integer->char
 ;; NOTE: #\x0e -style character is defined in R6RS(SRFI-75)
 (tn "integer->char")
@@ -930,6 +1173,26 @@
 (assert-equal? (tn) #\}         (integer->char 125))  ;; 125
 (assert-equal? (tn) #\~         (integer->char 126))  ;; 126
 (assert-equal? (tn) #\delete    (integer->char 127))  ;; 127
+(tn "integer->char non-ASCII")
+(assert-equal? (tn) #\xa0   (integer->char #xa0))   ;; NO-BREAK SPACE
+(assert-equal? (tn) #\xff   (integer->char #xff))   ;; LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) #\x2028 (integer->char #x2028)) ;; LINE SEPARATOR
+(assert-equal? (tn) #\x2029 (integer->char #x2029)) ;; PARAGRAPH SEPARATOR
+(assert-equal? (tn) #\　    (integer->char #x3000)) ;; IDEOGRAPHIC SPACE
+(assert-equal? (tn) #\あ    (integer->char #x3042)) ;; HIRAGANA LETTER A
+(assert-equal? (tn) #\！    (integer->char #xff01)) ;; FULLWIDTH EXCLAMATION MARK
+(assert-equal? (tn) #\０    (integer->char #xff10)) ;; FULLWIDTH DIGIT ZERO
+(assert-equal? (tn) #\Ａ    (integer->char #xff21)) ;; FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) #\ａ    (integer->char #xff41)) ;; FULLWIDTH LATIN SMALL LETTER A
+(tn "integer->char invalid Unicode charcters")
+(assert-error  (tn) (lambda () (integer->char -1)))
+(assert-true   (tn) (char?     (integer->char 0)))         ;; valid
+(assert-true   (tn) (char?     (integer->char #xd7ff)))    ;; valid
+(assert-error  (tn) (lambda () (integer->char #xd800)))
+(assert-error  (tn) (lambda () (integer->char #xdfff)))
+(assert-true   (tn) (char?     (integer->char #xe000)))    ;; valid
+(assert-true   (tn) (char?     (integer->char #x10ffff)))  ;; valid
+(assert-error  (tn) (lambda () (integer->char #x110000)))
 
 (tn "integer->char (string form)")
 (assert-equal? (tn) "#\\nul"       (i->chlit 0))    ;; 0
@@ -1060,5 +1323,13 @@
 (assert-equal? (tn) "#\\}"         (i->chlit 125))  ;; 125
 (assert-equal? (tn) "#\\~"         (i->chlit 126))  ;; 126
 (assert-equal? (tn) "#\\delete"    (i->chlit 127))  ;; 127
+(tn "integer->char non-ASCII (string form)")
+(assert-equal? (tn) "#\\ÿ"         (i->chlit #xff))   ;; LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) "#\\　"        (i->chlit #x3000)) ;; IDEOGRAPHIC SPACE
+(assert-equal? (tn) "#\\あ"        (i->chlit #x3042)) ;; HIRAGANA LETTER A
+(assert-equal? (tn) "#\\！"        (i->chlit #xff01)) ;; FULLWIDTH EXCLAMATION MARK
+(assert-equal? (tn) "#\\０"        (i->chlit #xff10)) ;; FULLWIDTH DIGIT ZERO
+(assert-equal? (tn) "#\\Ａ"        (i->chlit #xff21)) ;; FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) "#\\ａ"        (i->chlit #xff41)) ;; FULLWIDTH LATIN SMALL LETTER A
 
 (total-report)

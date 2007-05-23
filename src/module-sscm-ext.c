@@ -139,30 +139,6 @@ scm_p_pair_mutablep(ScmObj kons)
     return MAKE_BOOL(SCM_CONS_MUTABLEP(kons));
 }
 
-#if SCM_USE_STRING
-SCM_EXPORT ScmObj
-scm_p_string_mutablep(ScmObj str)
-{
-    DECLARE_FUNCTION("%string-mutable?", procedure_fixed_1);
-
-    ENSURE_STRING(str);
-
-    return MAKE_BOOL(SCM_STRING_MUTABLEP(str));
-}
-#endif /* SCM_USE_STRING */
-
-#if SCM_USE_VECTOR
-SCM_EXPORT ScmObj
-scm_p_vector_mutablep(ScmObj vec)
-{
-    DECLARE_FUNCTION("%vector-mutable?", procedure_fixed_1);
-
-    ENSURE_VECTOR(vec);
-
-    return MAKE_BOOL(SCM_VECTOR_MUTABLEP(vec));
-}
-#endif /* SCM_USE_VECTOR */
-
 /* R6RS (R5.91RS) compatible */
 SCM_EXPORT ScmObj
 scm_p_fixnum_width(void)

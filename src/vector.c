@@ -211,3 +211,16 @@ scm_p_vector_fillx(ScmObj vec, ScmObj fill)
 
     return vec;
 }
+
+/* This procedure should rightfully be written in module-sscm-ext.c, but since
+ * SigScheme's function table generator isn't supporting #if -surrounded
+ * procedure, it packed into this file. */
+SCM_EXPORT ScmObj
+scm_p_vector_mutablep(ScmObj vec)
+{
+    DECLARE_FUNCTION("%vector-mutable?", procedure_fixed_1);
+
+    ENSURE_VECTOR(vec);
+
+    return MAKE_BOOL(SCM_VECTOR_MUTABLEP(vec));
+}

@@ -596,3 +596,16 @@ scm_p_string_fillx(ScmObj str, ScmObj ch)
 
     return SCM_UNDEF;
 }
+
+/* This procedure should rightfully be written in module-sscm-ext.c, but since
+ * SigScheme's function table generator isn't supporting #if -surrounded
+ * procedure, it packed into this file. */
+SCM_EXPORT ScmObj
+scm_p_string_mutablep(ScmObj str)
+{
+    DECLARE_FUNCTION("%string-mutable?", procedure_fixed_1);
+
+    ENSURE_STRING(str);
+
+    return MAKE_BOOL(SCM_STRING_MUTABLEP(str));
+}

@@ -72,6 +72,27 @@
 (assert-eq? (tn) #f (char? +))
 (assert-eq? (tn) #f (char? (lambda () #t)))
 
+;; syntactic keywords should not be appeared as operand
+(if sigscheme?
+    (begin
+      ;; pure syntactic keyword
+      (assert-error (tn) (lambda () (char? else)))
+      ;; expression keyword
+      (assert-error (tn) (lambda () (char? do)))))
+
+(call-with-current-continuation
+ (lambda (k)
+   (assert-eq? (tn) #f (char? k))))
+(assert-eq? (tn) #f (char? (current-output-port)))
+(assert-eq? (tn) #f (char? '(#t . #t)))
+(assert-eq? (tn) #f (char? (cons #t #t)))
+(assert-eq? (tn) #f (char? '(0 1 2)))
+(assert-eq? (tn) #f (char? (list 0 1 2)))
+(assert-eq? (tn) #f (char? '#()))
+(assert-eq? (tn) #f (char? (vector)))
+(assert-eq? (tn) #f (char? '#(0 1 2)))
+(assert-eq? (tn) #f (char? (vector 0 1 2)))
+
 (tn "char-upcase")
 (assert-equal? (tn) #\x00     (char-upcase #\x00))
 (assert-equal? (tn) #\newline (char-upcase #\newline))

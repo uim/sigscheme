@@ -107,13 +107,6 @@
 (assert-eq? (tn) #f (string? (vector)))
 (assert-eq? (tn) #f (string? '#(0 1 2)))
 (assert-eq? (tn) #f (string? (vector 0 1 2)))
-(tn "string? immutable")
-(assert-true (tn) (string? ""))
-(assert-true (tn) (string? "abcde"))
-(assert-true (tn) (string? (symbol->string 'foo)))
-(tn "string? mutable")
-(assert-true (tn) (string? (cp "")))
-(assert-true (tn) (string? (cp "abcde")))
 
 (tn "string-length invalid objects")
 (assert-error  (tn) (lambda () (string-length #t)))

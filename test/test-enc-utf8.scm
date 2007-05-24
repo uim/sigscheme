@@ -50,10 +50,9 @@
 (assert-equal? "string-ref 1" #\歩  (string-ref "歯hi歩ﾍ歩" 3))
 (assert-equal? "make-string 1" "歩歩歩歩歩"   (make-string 5 #\歩))
 (assert-equal? "string-copy 1"     "金銀香"   (string-copy "金銀香"))
-(assert-equal? "string-set! 1"     "金桂玉"   (string-set!
-                                               (string-copy "金桂と")
-                                               2
-                                               #\玉))
+(assert-equal? "string-set! 1"     "金桂玉"   (let ((s (string-copy "金桂と")))
+                                                (string-set! s 2 #\玉)
+                                                s))
 
 
 (define str1 "あﾋャah暴\\暴n!☆錳◎!")

@@ -70,10 +70,9 @@
 						  (define str (string-copy "ai¤¦eo"))
 						  (string-set! str 2 #\u)
 						  str)))
-(assert-equal? "string-set! 1"     "¶â·Ë¶Ì"   (string-set!
-                                               (string-copy "¶â·Ë¤È")
-                                               2
-                                               #\¶Ì))
+(assert-equal? "string-set! 1"     "¶â·Ë¶Ì"   (let ((s (string-copy "¶â·Ë¤È")))
+                                                (string-set! s 2 #\¶Ì)
+                                                s))
 
 
 ;; string-length

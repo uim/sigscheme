@@ -51,10 +51,9 @@
 (assert-equal? "string-ref 1" #\ï‡  (string-ref "éïhiï‡Õï‡" 3))
 (assert-equal? "make-string 1" "ï‡ï‡ï‡ï‡ï‡"   (make-string 5 #\ï‡))
 (assert-equal? "string-copy 1"     "ã‡ã‚çÅ"   (string-copy "ã‡ã‚çÅ"))
-(assert-equal? "string-set! 1"     "ã‡åjã "   (string-set!
-                                               (string-copy "ã‡åjÇ∆")
-                                               2
-                                               #\ã ))
+(assert-equal? "string-set! 1"     "ã‡åjã "   (let ((s (string-copy "ã‡åjÇ∆")))
+                                                (string-set! s 2 #\ã )
+                                                s))
 
 
 

@@ -57,10 +57,9 @@
 
 (assert-equal? "make-string 1" " ‚ ‚ ‚ ‚ ‚"   (make-string 5 #\ ‚))
 (assert-equal? "string-copy 1"     "∂‚∂‰π·"   (string-copy "∂‚∂‰π·"))
-(assert-equal? "string-set! 1"     "∂‚∑À∂Ã"   (string-set!
-                                               (string-copy "∂‚∑À§»")
-                                               2
-                                               #\∂Ã))
+(assert-equal? "string-set! 1"     "∂‚∑À∂Ã"   (let ((s (string-copy "∂‚∑À§»")))
+                                                (string-set! s 2 #\∂Ã)
+                                                s))
 
 (define str1 "§¢•„ahÀΩ\\ÀΩn!°˘°˝!")
 (define str1-list '(#\§¢ #\•„ #\a #\h #\ÀΩ #\\ #\ÀΩ #\n #\! #\°˘ #\°˝ #\!))

@@ -64,7 +64,10 @@
 (test "string-set!" "いろZにほ" (lambda () (string-set! x 2 #\Z) x))
 
 (test "string-fill!" "のののののの"
-      (lambda () (string-fill! (string-copy "000000") #\の)))
+      (lambda ()
+        (let ((s (string-copy "000000")))
+          (string-fill! s #\の)
+          s)))
 ;; SRFI-13
 ;;(test "string-fill!" "000ののの"
 ;;      (lambda () (string-fill! (string-copy "000000") #\の 3)))

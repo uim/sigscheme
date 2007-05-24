@@ -957,6 +957,24 @@
       (assert-error (tn) (lambda () (list->string '(#\a #x00))))
       (assert-error (tn) (lambda () (list->string '(#x00 #\a))))
       (assert-error (tn) (lambda () (list->string '(#\a #x00 #\a))))))
+(tn "list->string improper lists")
+(assert-error (tn) (lambda () (list->string '(#\あ #\a #\う . #\b))))
+;; circular lists
+(define clst1 (list #\a))
+(set-cdr! clst1 clst1)
+(define clst2 (list #\a #\b))
+(set-cdr! (list-tail clst2 1) clst2)
+(define clst3 (list #\a #\b #\c))
+(set-cdr! (list-tail clst3 2) clst3)
+(define clst4 (list #\a #\b #\c #\d))
+(set-cdr! (list-tail clst4 3) clst4)
+(if (and sigscheme?
+         (provided? "strict-argcheck"))
+    (begin
+      (assert-error (tn) (lambda () (list->string clst1)))
+      (assert-error (tn) (lambda () (list->string clst2)))
+      (assert-error (tn) (lambda () (list->string clst3)))
+      (assert-error (tn) (lambda () (list->string clst4)))))
 
 (tn "string-fill! immutable")
 (assert-error  (tn) (lambda ()           (string-fill! "" #\z)))

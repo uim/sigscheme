@@ -96,7 +96,7 @@ scm_p_make_string(ScmObj length, ScmObj args)
     if (len == 0)
         return MAKE_STRING_COPYING("", 0);
     if (len < 0)
-        ERR_OBJ("length must be a positive integer", length);
+        ERR_OBJ("length must be a non-negative integer", length);
 
     /* extract filler */
     if (NULLP(args)) {
@@ -503,7 +503,13 @@ scm_p_list2string(ScmObj lst)
 #if SCM_USE_MULTIBYTE_CHAR
     ENSURE_STATELESS_CODEC(scm_current_char_codec);
 #endif
+#if SCM_STRICT_ARGCHECK
+    len = scm_length(lst);
+    if (!SCM_LISTLEN_PROPERP(len))
+        ERR_OBJ("proper list required but got", lst);
+#else
     ENSURE_LIST(lst);
+#endif
 
     if (NULLP(lst))
         return MAKE_STRING_COPYING("", 0);

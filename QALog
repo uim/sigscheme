@@ -839,12 +839,12 @@ corner case tests: yamaken@r3903
 file:              char.c
 category:          r5rs
 spec by eyes:      yamaken@r4550
-spec by tests:     yamaken@r4550
+spec by tests:     yamaken@r4550, yamaken@r4563
 general review:    yamaken@r4550
 64-bit by eyes:    yamaken@r4550
 64-bit by tests:   
 coding style:      yamaken@r4550
-normal case tests: yamaken@r4550
+normal case tests: yamaken@r4550, yamaken@r4563
 corner case tests: 
 
 file:              string.c
@@ -860,8 +860,8 @@ corner case tests: yamaken@r3911
 
 file:              string-procedure.c
 category:          r5rs
-spec by eyes:      yamaken@r4552
-spec by tests:     yamaken@r4552
+spec by eyes:      yamaken@r4552, yamaken@r4564
+spec by tests:     yamaken@r4552, yamaken@r4564
 general review:    yamaken@r4552
 64-bit by eyes:    yamaken@r4552
 64-bit by tests:   

@@ -50,7 +50,8 @@
 /*=======================================
   File Local Type Definitions
 =======================================*/
-struct module_info {
+/* Since Solaris is having struct module_info, 'scm_' prefix is mandatory. */
+struct scm_module_info {
     const char *name;
     void (*initializer)(void);
     void (*finalizer)(void);
@@ -69,7 +70,7 @@ SCM_GLOBAL_VARS_END(static_module);
 #define l_provided_modules SCM_GLOBAL_VAR(static_module, l_provided_modules)
 SCM_DEFINE_STATIC_VARS(static_module);
 
-static const struct module_info module_info_table[] = {
+static const struct scm_module_info module_info_table[] = {
 #if SCM_USE_SSCM_EXTENSIONS
     {"sscm-ext", scm_initialize_sscm_extensions, NULL},
 #endif
@@ -112,16 +113,16 @@ static const struct module_info module_info_table[] = {
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static const struct module_info *lookup_module_info(const char *feature);
+static const struct scm_module_info *lookup_module_info(const char *feature);
 static void *scm_use_internal(const char *feature);
 
 /*=======================================
   Function Definitions
 =======================================*/
-static const struct module_info *
+static const struct scm_module_info *
 lookup_module_info(const char *feature)
 {
-    const struct module_info *mod;
+    const struct scm_module_info *mod;
 
     for (mod = module_info_table; mod->name; mod++) {
         if (strcmp(feature, mod->name) == 0)
@@ -143,7 +144,7 @@ scm_init_module(void)
 SCM_EXPORT void
 scm_fin_module(void)
 {
-    const struct module_info *mod;
+    const struct scm_module_info *mod;
     const char *c_mod_name;
     ScmObj mod_name;
 
@@ -204,7 +205,7 @@ scm_use_internal(const char *feature)
 SCM_EXPORT ScmObj
 scm_s_use(ScmObj feature, ScmObj env)
 {
-    const struct module_info *mod;
+    const struct scm_module_info *mod;
     ScmObj feature_str;
     const char *c_feature_str;
     DECLARE_FUNCTION("use", syntax_fixed_1);

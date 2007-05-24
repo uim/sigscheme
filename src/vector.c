@@ -81,7 +81,7 @@ scm_p_make_vector(ScmObj scm_len, ScmObj args)
 
     len = SCM_INT_VALUE(scm_len);
     if (len < 0)
-        ERR_OBJ("length must be a positive integer", scm_len);
+        ERR_OBJ("length must be a non-negative integer", scm_len);
 
     vec = scm_malloc(sizeof(ScmObj) * len);
     if (NULLP(args)) {
@@ -209,7 +209,7 @@ scm_p_vector_fillx(ScmObj vec, ScmObj fill)
     for (i = 0; i < len; i++)
         v[i] = fill;
 
-    return vec;
+    return SCM_UNDEF;
 }
 
 /* This procedure should rightfully be written in module-sscm-ext.c, but since

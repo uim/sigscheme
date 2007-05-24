@@ -20,7 +20,8 @@ Overview of changes from 0.7.x to 0.8.0
   - Replace implicit filler value ' ' for make-string with '?' to avoid wrong
     assumption by user
 
-  - make-string and string-fill! now returns SCM_UNDEF instead of the str
+  - make-string, string-fill! and vector-fill! now returns SCM_UNDEF instead of
+    the modified object
 
 * Fixes
 

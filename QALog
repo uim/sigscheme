@@ -268,7 +268,7 @@ yyyy yyy r5rs qquote.c
          srfi module-srfi1.c
          srfi module-srfi2.c
 yyyy yyy srfi module-srfi6.c
-         srfi module-srfi8.c
+yyyy yyy srfi module-srfi8.c
 yyyy yy  srfi module-srfi23.c
 yyyy yyy srfi module-srfi28.c
 yyyy yyy srfi module-srfi34.c
@@ -948,14 +948,14 @@ corner case tests: yamaken@r3992
 
 file:              module-srfi8.c
 category:          srfi
-spec by eyes:      
-spec by tests:     
-general review:    
-64-bit by eyes:    
+spec by eyes:      yamaken@r4572
+spec by tests:     yamaken@r4572
+general review:    yamaken@r4572
+64-bit by eyes:    yamaken@r4572
 64-bit by tests:   
-coding style:      
-normal case tests: 
-corner case tests: 
+coding style:      yamaken@r4572
+normal case tests: yamaken@r4572
+corner case tests: yamaken@r4572
 
 file:              module-srfi23.c
 category:          srfi
@@ -1081,6 +1081,10 @@ corner case tests:
 
 Log
 ---
+2007-05-29  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * module-srfi8.c
+          - QA done @r4572 with test-srfi8.scm
+
 2007-05-25  YamaKen <yamaken AT bp.iij4u.or.jp>
         * vector.c
           - QA done @r4562 with test-vector.scm

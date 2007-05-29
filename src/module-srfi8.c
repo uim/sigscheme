@@ -105,7 +105,7 @@ scm_s_srfi8_receive(ScmObj formals, ScmObj expr, ScmObj body,
     }
 
     if (!scm_valid_environment_extension_lengthp(formals_len, actuals_len))
-        ERR_OBJ("unmatched number of args for multiple values", actuals);
+        ERR_OBJ("unmatched number of values for the formals", actuals);
     eval_state->env = env = scm_extend_environment(formals, actuals, env);
 
     return scm_s_body(body, eval_state);

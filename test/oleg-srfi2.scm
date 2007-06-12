@@ -1,3 +1,18 @@
+;; Ported from http://pobox.com/~oleg/ftp/Scheme/vland.scm
+
+;; License terms:
+;;
+;; http://pobox.com/~oleg/ftp/
+;;
+;; "Unless specified otherwise, all the code and the documentation on this site
+;; is in public domain."
+
+;; ChangeLog
+;;
+;; 2007-06-13 yamaken    Copied from "vland.scm,v 2.0 2002/06/28" and adapted
+;;                       to SigScheme
+
+
 ; 		A special form and-let*
 ;	           Validation code
 ;
@@ -146,45 +161,32 @@
 ; echo '(module test (include "myenv-bigloo.scm") (include "srfi-12.scm") 
 ;        (include "vland.scm"))' | bigloo -i --
 
+(load "./test/unittest.scm")
 
-(cout nl "Validating AND-LET*..." nl nl)
+(use srfi-2)
 
-(cond-expand
- (gambit
-  (define interaction-environment (lambda () #f)))
- (else #f))
+(if (not (provided? "srfi-2"))
+    (test-skip "SRFI-2 is not enabled"))
 
-;---- Unit test harness
+(define tn test-name)
 
-		; make sure that the 'FORM' gave upon evaluation the
-		; EXPECTED-RESULT
-(define (expect form expected-result)
-  (display "evaluating ")
-  (write form)
-  (let ((real-result (eval form (interaction-environment))))
-    (if (equal? real-result expected-result)
-	(cout "... gave the expected result: " real-result nl)
-	(error "... returned: " real-result
-	       " which differs from the expected result: " expected-result)
-	)))
+(define expect
+  (lambda (form expected-result)
+    (assert-equal? (tn)
+                   expected-result
+                   (eval form (interaction-environment)))))
 
-		; Check to see that 'form' has indeed a wrong syntax
-(define (must-be-a-syntax-error form)
-  (display "evaluating ")
-  (write form)
-  (if
-   (not
-    (handle-exceptions
-     exc
-     (begin (cout "caught an expected exception: " exc nl)
-       #t)
-     (eval form (interaction-environment))
-     #f))
-   (error "The above form should have generated a syntax error.")))
+(define must-be-a-syntax-error
+  (lambda (form)
+    (assert-error (tn)
+                  (lambda ()
+                    (eval form (interaction-environment))))))
+
 
 ;--- Test cases
 
 ; No claws
+(tn "and-let* no claws")
 (expect  '(and-let* () 1) 1)
 (expect  '(and-let* () 1 2) 2)
 (expect  '(and-let* () ) #t)
@@ -193,6 +195,7 @@
 (must-be-a-syntax-error '(and-let* #f) )
 
 ; One claw, no body
+(tn "and-let* one claw, no body")
 (expect '(let ((x #f)) (and-let* (x))) #f)
 (expect '(let ((x 1)) (and-let* (x))) 1)
 (expect '(let ((x 1)) (and-let* ( (x) ))) 1)
@@ -202,6 +205,7 @@
 (must-be-a-syntax-error '(and-let* ( #f (x 1))) )
 
 ; two claws, no body
+(tn "and-let* two claws, no body")
 (expect '(and-let* ( (#f) (x 1)) ) #f)
 (must-be-a-syntax-error '(and-let* (2 (x 1))) )
 (expect '(and-let* ( (2) (x 1)) ) 1)
@@ -210,6 +214,7 @@
 (expect '(and-let* ( (x 1) (x)) ) 1)
 
 ; two claws, body
+(tn "and-let* two claws, body")
 (expect '(let ((x #f)) (and-let* (x) x)) #f)
 (expect '(let ((x "")) (and-let* (x) x)) "")
 (expect '(let ((x "")) (and-let* (x)  )) "")
@@ -235,37 +240,4 @@
 (expect  '(let ((x #f)) (and-let* (x (y (- x 1)) ((positive? y))) (/ x y))) #f)
 (expect  '(let ((x 3)) (and-let* (x (y (- x 1)) ((positive? y))) (/ x y))) (/ 3 2))
 
-
-(cond-expand
- (gambit
-  (cout nl "Printing out the re-written and-let* expression" nl)
-  (let
-      ((a-definition
-	'(define (bbb) 
-	   (and-let* ((my-list (compute-list)) a-condition
-		      ((not (null? my-list)))
-		      (my-list-tail (cdr my-list)))
-		     (do-something my-list-tail)))))
-    (cout "The result of compiling of"  nl
-	  (lambda () (pp a-definition)) nl "is the following" nl)
-    (eval a-definition)
-    (pp bbb)
-    ))
- (bigloo
-  (cout nl "Printing out the re-written and-let* expression" nl)
-  (let
-      ((a-definition
-	'(define (bbb) 
-	   (and-let* ((my-list (compute-list)) a-condition
-		      ((not (null? my-list)))
-		      (my-list-tail (cdr my-list)))
-		     (do-something my-list-tail)))))
-    (cout "The result of compiling of"  nl
-	  (lambda () (pp a-definition)) nl "is the following:" nl
-	  (lambda () (pp (expand a-definition)))
-	  nl)
-    ))
- (else
-  #f))
-
-(cout nl "All tests passed" nl)
+(total-report)

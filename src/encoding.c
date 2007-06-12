@@ -1051,5 +1051,7 @@ unibyte_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
         return NULL;
 #endif
     *dst++ = ch;
+    *dst = '\0';
+
     return dst;
 }

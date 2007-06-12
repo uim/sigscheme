@@ -475,7 +475,7 @@ corner case tests:
 
 file:              encoding.c
 category:          base
-spec by eyes:      yamaken@r4527
+spec by eyes:      yamaken@r4527, yamaken@r4585
 spec by tests:     
 general review:    yamaken@r4527
 64-bit by eyes:    yamaken@r4527

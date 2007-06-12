@@ -1,3 +1,5 @@
+#! /usr/bin/env sscm -C UTF-8
+
 ;;  Filename : test-misc.scm
 ;;  About    : unit tests for miscellaneous procedures
 ;;

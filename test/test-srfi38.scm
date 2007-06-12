@@ -41,6 +41,11 @@
 
 (define tn test-name)
 
+(if (not (symbol-bound? 'cadddr))
+    (define cadddr
+      (lambda (lst)
+        (caddr (cdr lst)))))
+
 (tn "write/ss short-name alias")
 (if sigscheme?
     (begin

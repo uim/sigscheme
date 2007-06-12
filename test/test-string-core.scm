@@ -1,3 +1,5 @@
+#! /usr/bin/env sscm -C UTF-8
+
 ;;  Filename : test-string-core.scm
 ;;  About    : unit test for core procedures of R5RS string
 ;;

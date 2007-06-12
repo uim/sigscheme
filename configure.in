@@ -541,14 +541,9 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
 
     # R6RS features
     case "$enable_conf" in
-      full|dev)
+      full|dev|uim)
         use_r6rs_named_chars=yes
         use_r6rs_chars=yes
-        ;;
-      uim)
-        use_r6rs_named_chars=yes
-        # FIXME: enable without conflicting with singlebyte_as_default
-        use_r6rs_chars=no
         ;;
       r5rs|small|siod)
         use_r6rs_named_chars=no
@@ -709,7 +704,7 @@ srfi34: continuation srfi23
 srfi38: writer
 srfi60: int
 r6rs_named_chars: char
-r6rs_chars: char utf8 reader r6rs_named_chars utf8_as_default
+r6rs_chars: char utf8 reader r6rs_named_chars
 
 compat_siod: sscm_extensions srfi60 eval_c_string
 compat_siod_bugs: compat_siod

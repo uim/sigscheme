@@ -1,3 +1,5 @@
+#! /usr/bin/env sscm -C UTF-8
+
 ;;  Filename : test-number-pred.scm
 ;;  About    : unit tests for number predicates
 ;;

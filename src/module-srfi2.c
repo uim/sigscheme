@@ -82,7 +82,7 @@ scm_s_srfi2_and_letstar(ScmObj claws, ScmObj body, ScmEvalState *eval_state)
       <claw>  ::=  (<variable> <expression>) | (<expression>)
                    | <bound-variable>
     =======================================================================*/
-    if (CONSP(claws)) {
+    val = SCM_TRUE;
         FOR_EACH (claw, claws) {
             if (CONSP(claw)) {
                 if (NULLP(CDR(claw))) {
@@ -116,15 +116,18 @@ scm_s_srfi2_and_letstar(ScmObj claws, ScmObj body, ScmEvalState *eval_state)
         }
         if (!NULLP(claws))
             goto err;
-    } else if (NULLP(claws)) {
-        env = scm_extend_environment(SCM_NULL, SCM_NULL, env);
-    } else {
-        goto err;
-    }
 
     eval_state->env = env;
 
-    return scm_s_body(body, eval_state);
+    /* SRFI-2 Formal (Denotational) Semantics:
+     *   eval[ (AND-LET* (CLAW) ), env] = eval_claw[ CLAW, env ]
+     *   eval[ (AND-LET* () ), env] = #t                           */
+    if (NULLP(body)) {
+        eval_state->ret_type = SCM_VALTYPE_AS_IS;
+        return val;
+    } else {
+        return scm_s_body(body, eval_state);
+    }
 
  err:
     ERR_OBJ("invalid claws form", claws);

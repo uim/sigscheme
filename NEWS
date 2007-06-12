@@ -29,6 +29,8 @@ Overview of changes from 0.7.x to 0.8.0
 
   - Fix unexpected memory exhaustion on negative length on make-string
 
+  - Fix body-less forms rejection on SRFI-2 and-let* such as (and-let* ())
+
 * Others
 
 

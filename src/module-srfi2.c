@@ -83,39 +83,39 @@ scm_s_srfi2_and_letstar(ScmObj claws, ScmObj body, ScmEvalState *eval_state)
                    | <bound-variable>
     =======================================================================*/
     val = SCM_TRUE;
-        FOR_EACH (claw, claws) {
-            if (CONSP(claw)) {
-                if (NULLP(CDR(claw))) {
-                    /* (<expression>) */
-                    exp = CAR(claw);
-                    val = EVAL(exp, env);
-                    CHECK_VALID_EVALED_VALUE(val);
-                } else if (IDENTIFIERP(CAR(claw))) {
-                    /* (<variable> <expression>) */
-                    if (!LIST_2_P(claw))
-                        goto err;
-                    var = CAR(claw);
-                    exp = CADR(claw);
-                    val = EVAL(exp, env);
-                    CHECK_VALID_EVALED_VALUE(val);
-                    env = scm_extend_environment(LIST_1(var), LIST_1(val), env);
-                } else {
-                    goto err;
-                }
-            } else if (IDENTIFIERP(claw)) {
-                /* <bound-variable> */
-                val = EVAL(claw, env);
+    FOR_EACH (claw, claws) {
+        if (CONSP(claw)) {
+            if (NULLP(CDR(claw))) {
+                /* (<expression>) */
+                exp = CAR(claw);
+                val = EVAL(exp, env);
                 CHECK_VALID_EVALED_VALUE(val);
+            } else if (IDENTIFIERP(CAR(claw))) {
+                /* (<variable> <expression>) */
+                if (!LIST_2_P(claw))
+                    goto err;
+                var = CAR(claw);
+                exp = CADR(claw);
+                val = EVAL(exp, env);
+                CHECK_VALID_EVALED_VALUE(val);
+                env = scm_extend_environment(LIST_1(var), LIST_1(val), env);
             } else {
                 goto err;
             }
-            if (FALSEP(val)) {
-                eval_state->ret_type = SCM_VALTYPE_AS_IS;
-                return SCM_FALSE;
-            }
-        }
-        if (!NULLP(claws))
+        } else if (IDENTIFIERP(claw)) {
+            /* <bound-variable> */
+            val = EVAL(claw, env);
+            CHECK_VALID_EVALED_VALUE(val);
+        } else {
             goto err;
+        }
+        if (FALSEP(val)) {
+            eval_state->ret_type = SCM_VALTYPE_AS_IS;
+            return SCM_FALSE;
+        }
+    }
+    if (!NULLP(claws))
+        goto err;
 
     eval_state->env = env;
 

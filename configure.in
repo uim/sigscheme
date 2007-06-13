@@ -374,9 +374,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_strict_null_form=no
         use_strict_vector_form=yes
         use_strict_argcheck=yes
-        # FIXME: fix load-action.scm and enable this
-        #use_strict_toplevel_definitions=yes
-        use_strict_toplevel_definitions=no
+        use_strict_toplevel_definitions=yes
         use_internal_definitions=yes
         ;;
       small|siod)
@@ -534,7 +532,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=yes
-        use_compat_siod_bugs=yes
+        use_compat_siod_bugs=no
         use_eval_c_string=yes
         ;;
     esac

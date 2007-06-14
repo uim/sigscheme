@@ -1,26 +1,8 @@
 ==============================================================================
 Requirements and critical bugs:
 
-* (yamaken) Confirm R5RS and SRFI conformance for each function implementation
-  - Complete 'r5rs' and 'srfi' categories of QALog
-
-* Fix all side-effective expression in macros
-  - All files except for operations-srfi1.c, storage-compact.h and
-    test-compact.c are checked once. But since considerable amount of codes are
-    added or modified, we should recheck all file
-
-* Inhibit a mutation on string constants as described in "3.4 Storage model" of
-  R5RS
-  - Write both immutable and mutable case tests for all procedures that accepts
-    a string
-
-* (yamaken) Revise SRFI-75 into R6RS
-  - Wait for stabilized specs
-  - Write test
-
-* (yamaken) Add integer->char and char->integer procedures with multibyte
-  support
-  - Write test
+* Support SRFI-1
+  - Import http://www.math.grin.edu/~stone/srfi/srfi-1-tests.ss
 
 * grep "FIXME" and fix them
 
@@ -36,10 +18,6 @@ Extensions: (not required for now)
 * Complete SLIB support
   - Make the slib.scm installable
   - Fill some variables with configure (slib.scm.in)
-
-* Complete operations-srfi1.c and make it production quality if considerable
-  benefit exists against SLIB version of SRFI-1 implementation
-  - Import http://www.math.grin.edu/~stone/srfi/srfi-1-tests.ss
 
 * Make Symbian OS and BREW support working (patches are welcome)
 

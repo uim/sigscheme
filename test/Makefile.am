@@ -11,6 +11,7 @@ sscm_tests = \
         test-begin.scm \
         test-bool.scm \
         test-char-cmp.scm \
+        test-char-pred.scm \
         test-continuation.scm \
         test-define.scm \
         test-define-internal.scm \
@@ -52,6 +53,7 @@ sscm_tests = \
         test-string-cmp.scm \
         test-string-core.scm \
         test-string-null.scm \
+        test-string-proc.scm \
         test-string.scm \
         test-symbol.scm \
         test-syntax-rules.scm \
@@ -101,7 +103,8 @@ imported_tests = \
         bigloo-quote.scm \
         bigloo-vector.scm \
         gauche-euc-jp.scm \
-        gauche-primsyn.scm
+        gauche-primsyn.scm \
+        oleg-srfi2.scm
 
 EXTRA_DIST += $(sscm_tests) $(imported_tests)
 

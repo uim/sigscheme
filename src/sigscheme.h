@@ -1673,42 +1673,12 @@ SCM_EXPORT void   scm_set_verbose_level(long level);
 
 /* module-srfi1.c */
 #if SCM_USE_SRFI1
-SCM_EXPORT ScmObj scm_p_srfi1_xcons(ScmObj a, ScmObj b);
-SCM_EXPORT ScmObj scm_p_srfi1_consstar(ScmObj args);
-SCM_EXPORT ScmObj scm_p_srfi1_make_list(ScmObj length, ScmObj args);
-SCM_EXPORT ScmObj scm_p_srfi1_list_tabulate(ScmObj _n, ScmObj args);
-SCM_EXPORT ScmObj scm_p_srfi1_list_copy(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_circular_list(ScmObj args);
-SCM_EXPORT ScmObj scm_p_srfi1_iota(ScmObj scm_count, ScmObj args);
 SCM_EXPORT ScmObj scm_p_srfi1_proper_listp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_srfi1_circular_listp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_srfi1_dotted_listp(ScmObj obj);
-SCM_EXPORT ScmObj scm_p_srfi1_not_pairp(ScmObj obj);
-SCM_EXPORT ScmObj scm_p_srfi1_null_listp(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_listequal(ScmObj eqproc, ScmObj args);
-SCM_EXPORT ScmObj scm_p_srfi1_first(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_second(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_third(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_fourth(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_fifth(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_sixth(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_seventh(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_eighth(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_ninth(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_tenth(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_carpluscdr(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_take(ScmObj lst, ScmObj scm_idx);
 SCM_EXPORT ScmObj scm_p_srfi1_drop(ScmObj lst, ScmObj scm_idx);
-SCM_EXPORT ScmObj scm_p_srfi1_take_right(ScmObj lst, ScmObj scm_elem);
-SCM_EXPORT ScmObj scm_p_srfi1_drop_right(ScmObj lst, ScmObj scm_elem);
-SCM_EXPORT ScmObj scm_p_srfi1_takex(ScmObj lst, ScmObj scm_idx);
-SCM_EXPORT ScmObj scm_p_srfi1_drop_rightx(ScmObj lst, ScmObj scm_idx);
-SCM_EXPORT ScmObj scm_p_srfi1_split_at(ScmObj lst, ScmObj idx);
-SCM_EXPORT ScmObj scm_p_srfi1_split_atx(ScmObj lst, ScmObj idx);
-SCM_EXPORT ScmObj scm_p_srfi1_last(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_srfi1_last_pair(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_srfi1_lengthplus(ScmObj lst);
-SCM_EXPORT ScmObj scm_p_srfi1_concatenate(ScmObj args);
 #endif /* SCM_USE_SRFI1 */
 
 /* module-srfi2.c */

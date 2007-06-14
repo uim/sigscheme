@@ -43,6 +43,9 @@
 
 #include <config.h>
 
+#include "sigscheme.h"
+#include "sigschemeinternal.h"
+
 /*=======================================
   File Local Macro Definitions
 =======================================*/
@@ -59,7 +62,6 @@
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static ScmObj compare_list(ScmObj eqproc, ScmObj lst1, ScmObj lst2);
 
 /*=======================================
   Function Definitions
@@ -100,17 +102,19 @@ scm_p_srfi1_dotted_listp(ScmObj obj)
 /*===========================================================================
   Selectors
 ===========================================================================*/
+/* SRFI1: drop returns all but the first i elements of list x.
+ * x may be any value -- a proper, circular, or dotted list. */
 SCM_EXPORT ScmObj
 scm_p_srfi1_drop(ScmObj lst, ScmObj scm_idx)
 {
-    ScmObj ret = lst;
-    scm_int_t idx = 0;
-    scm_int_t i;
+    ScmObj ret;
+    scm_int_t idx, i;
     DECLARE_FUNCTION("drop", procedure_fixed_2);
 
     ENSURE_INT(scm_idx);
 
     idx = SCM_INT_VALUE(scm_idx);
+    ret = lst;
     for (i = 0; i < idx; i++) {
         if (!CONSP(ret))
             ERR_OBJ("illegal index is specified for", lst);
@@ -121,14 +125,14 @@ scm_p_srfi1_drop(ScmObj lst, ScmObj scm_idx)
     return ret;
 }
 
+/* SRFI-1: last-pair returns the last pair in the non-empty, finite list
+ * pair. */
 SCM_EXPORT ScmObj
 scm_p_srfi1_last_pair(ScmObj lst)
 {
     DECLARE_FUNCTION("last-pair", procedure_fixed_1);
 
-    /* sanity check */
-    if (NULLP(lst))
-        ERR_OBJ("non-empty, proper list is required but got", lst);
+    ENSURE_CONS(lst);
 
     for (; CONSP(CDR(lst)); lst = CDR(lst))
         ;
@@ -153,4 +157,27 @@ scm_p_srfi1_lengthplus(ScmObj lst)
         ERR_OBJ("proper or circular list required but got", lst);
 
     return (SCM_LISTLEN_PROPERP(len)) ? MAKE_INT(len) : SCM_FALSE;
+}
+
+/*===========================================================================
+  Searching
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_srfi1_find_tail(ScmObj pred, ScmObj lst)
+{
+    ScmObj tail, elm, rest, found;
+    DECLARE_FUNCTION("find-tail", procedure_fixed_2);
+
+    ENSURE_PROCEDURE(pred);
+
+    rest = lst;
+    FOR_EACH_PAIR (tail, rest) {
+        elm = CAR(tail);
+        found = scm_call(pred, LIST_1(elm));
+        if (TRUEP(found))
+            return tail;
+    }
+    CHECK_PROPER_LIST_TERMINATION(rest, lst);
+
+    return SCM_FALSE;
 }

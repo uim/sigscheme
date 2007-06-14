@@ -1679,6 +1679,7 @@ SCM_EXPORT ScmObj scm_p_srfi1_dotted_listp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_srfi1_drop(ScmObj lst, ScmObj scm_idx);
 SCM_EXPORT ScmObj scm_p_srfi1_last_pair(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_srfi1_lengthplus(ScmObj lst);
+SCM_EXPORT ScmObj scm_p_srfi1_find_tail(ScmObj pred, ScmObj lst);
 #endif /* SCM_USE_SRFI1 */
 
 /* module-srfi2.c */

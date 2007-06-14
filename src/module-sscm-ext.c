@@ -48,6 +48,8 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
+#define ERRMSG_INVALID_BINDINGS    "invalid bindings form"
+#define ERRMSG_INVALID_BINDING     "invalid binding form"
 
 /*=======================================
   File Local Type Definitions
@@ -330,4 +332,68 @@ scm_p_exit(ScmObj args)
 
     scm_finalize();
     exit(status);
+}
+
+/* Conforms to the specification and the behavior of Gauche 0.8.8.
+ * http://gauche.sourceforge.jp/doc/gauche-refe_82.html */
+SCM_EXPORT ScmObj
+scm_s_let_optionalsstar(ScmObj args, ScmObj bindings, ScmObj body,
+                        ScmEvalState *eval_state)
+{
+    ScmObj env, var, val, exp, binding;
+    DECLARE_FUNCTION("let-optionals*", syntax_variadic_tailrec_2);
+
+    env = eval_state->env;
+
+    args = EVAL(args, env);
+    ENSURE_LIST(args);
+
+    /*=======================================================================
+      (let-optionals* <restargs> (<binding spec>*) <body>)
+      (let-optionals* <restargs> (<binding spec>+ . <restvar>) <body>)
+      (let-optionals* <restargs> <restvar> <body>)  ;; Gauche 0.8.8
+
+      <binding spec> --> (<variable> <expression>)
+            | <variable>
+      <restvar> --> <variable>
+      <body> --> <definition>* <sequence>
+      <definition> --> (define <variable> <expression>)
+            | (define (<variable> <def formals>) <body>)
+            | (begin <definition>*)
+      <sequence> --> <command>* <expression>
+      <command> --> <expression>
+    =======================================================================*/
+
+    FOR_EACH (binding, bindings) {
+        if (LIST_2_P(binding)) {
+            var = CAR(binding);
+            exp = CADR(binding);
+        } else {
+            var = binding;
+            exp = SCM_UNDEF;
+        }
+        if (!IDENTIFIERP(var))
+            ERR_OBJ(ERRMSG_INVALID_BINDING, binding);
+
+        if (NULLP(args)) {
+            /* the second element is only evaluated when there are not enough
+             * arguments */
+            val = EVAL(exp, env);
+            CHECK_VALID_EVALED_VALUE(val);
+        } else {
+            val = POP(args);
+        }
+
+        /* extend env for each variable */
+        env = scm_extend_environment(LIST_1(var), LIST_1(val), env);
+    }
+    if (IDENTIFIERP(bindings)) {
+        var = bindings;
+        env = scm_extend_environment(LIST_1(var), LIST_1(args), env);
+    } else if (!NULLP(bindings)) {
+        ERR_OBJ(ERRMSG_INVALID_BINDINGS, bindings);
+    }
+
+    eval_state->env = env;
+    return scm_s_body(body, eval_state);
 }

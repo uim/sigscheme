@@ -3,6 +3,9 @@ Overview of changes from 0.7.x to 0.8.0
 
 * New features
 
+  - New syntax let-optionals* compatible with Gauche for optional argument
+    processing
+
   - New debugging procedures %pair-mutable?, %string-mutable?,
     %vector-mutable?
 

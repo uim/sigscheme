@@ -1653,6 +1653,9 @@ SCM_EXPORT ScmObj scm_p_provide(ScmObj feature);
 SCM_EXPORT ScmObj scm_p_providedp(ScmObj feature);
 SCM_EXPORT ScmObj scm_p_lengthstar(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_exit(ScmObj args) SCM_NORETURN;
+SCM_EXPORT ScmObj scm_s_let_optionalsstar(ScmObj args,
+                                          ScmObj bindings, ScmObj body,
+                                          ScmEvalState *eval_state);
 #endif /* SCM_USE_SSCM_EXTENSIONS */
 
 /* module-siod.c */

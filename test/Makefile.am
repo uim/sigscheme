@@ -50,6 +50,7 @@ sscm_tests = \
         test-srfi38.scm \
         test-srfi48.scm \
         test-srfi60.scm \
+        test-sscm-ext.scm \
         test-string-cmp.scm \
         test-string-core.scm \
         test-string-null.scm \
@@ -103,6 +104,7 @@ imported_tests = \
         bigloo-quote.scm \
         bigloo-vector.scm \
         gauche-euc-jp.scm \
+        gauche-let-optionals.scm \
         gauche-primsyn.scm \
         oleg-srfi2.scm
 

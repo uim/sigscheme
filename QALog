@@ -1025,7 +1025,7 @@ corner case tests: yamaken@r3944
 
 file:              module-sscm-ext.c
 category:          opt
-spec by eyes:      yamaken@r4020, yamaken@r4182
+spec by eyes:      yamaken@r4020, yamaken@r4182, yamaken@r4606
 spec by tests:     
 general review:    yamaken@r4020
 64-bit by eyes:    yamaken@r4020
@@ -1081,6 +1081,11 @@ corner case tests:
 
 Log
 ---
+2007-06-16  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * module-sscm-ext.c
+          - QA done again @r4606 for newly added let-optionals* with
+            test-sscm-ext.scm and gauche-let-optionals.scm
+
 2007-06-15  YamaKen <yamaken AT bp.iij4u.or.jp>
         * eval.c
         * continuation.c

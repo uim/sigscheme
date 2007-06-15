@@ -74,7 +74,9 @@ scm_initialize_srfi1(void)
     scm_define_alias("srfi-1:member", "member");
     scm_define_alias("srfi-1:assoc",  "assoc");
 
-    /* SigScheme's map is in-order and faster than srfi-1.scm */
+    /* SigScheme's map is faster than srfi-1.scm, in-order and accepts unequal
+     * length arguments */
+    scm_define_alias("srfi-1:map",   "map");
     scm_define_alias("map-in-order", "r5rs:map");
     scm_define_alias("map",          "r5rs:map");
 

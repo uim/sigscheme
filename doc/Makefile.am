@@ -6,8 +6,11 @@ ASCIIDOC_HTMLS = \
 
 EXTRA_DIST =
 
+# Suppress installing documents on combined-source configuration
+if USE_LIBSSCM
 dist_doc_DATA  = $(TXTS)
 dist_html_DATA = $(ASCIIDOC_HTMLS)
+endif
 
 MAINTAINERCLEANFILES = $(ASCIIDOC_HTMLS)
 

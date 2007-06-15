@@ -255,6 +255,23 @@ AX_CHECK_PAGE_ALIGNED_MALLOC
 # Optional packages #
 #####################
 
+AC_ARG_WITH(master-pkg,
+            AS_HELP_STRING([--with-master-pkg@<:@=NAME@:>@],
+                           [specify alternative package name for pkgdatadir.
+                            @<:@default=sigscheme@:>@]))
+
+case "${with_master_pkg:=no}" in
+  no|yes)
+    SSCM_MASTER_PKG="sigscheme"
+  ;;
+  *)
+    SSCM_MASTER_PKG="${with_master_pkg}"
+  ;;
+esac
+
+AC_SUBST(SSCM_MASTER_PKG)
+AM_CONDITIONAL(WITH_MASTER_PKG, [test "x$with_master_pkg" != xno])
+
 AC_ARG_WITH(libgcroots,
             AS_HELP_STRING([--with-libgcroots@<:@=WHICH@:>@],
                            [use alternative libgcroots instead of
@@ -982,7 +999,7 @@ fi
 #
 # System directories
 #
-scmlibdir='$(pkgdatadir)/lib'
+scmlibdir='${pkgdatadir}/lib'
 AC_SUBST(scmlibdir)
 SSCM_DEFS='-DPKGDATADIR="\"$(pkgdatadir)\"" -DSCMLIBDIR="\"$(scmlibdir)\""'
 AC_SUBST(SSCM_DEFS)

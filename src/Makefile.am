@@ -210,18 +210,23 @@ EXTRA_DIST += dllentry.c
 # See "Built sources" section of automake info.
 BUILT_SOURCES = $(BUILT_DIST)
 
+# Suppress installing headers on combined-source configuration
+if USE_LIBSSCM
 nodist_pkginclude_HEADERS = config.h
 pkginclude_HEADERS = config-old.h scmint.h global.h sigscheme.h
+endif
 
 libsscm_sources = \
         alloc.c storage.c storage-gc.c \
         error.c symbol.c env.c eval.c \
 	syntax.c procedure.c list.c \
         sigschemeinternal.h module.c sigscheme.c
+if USE_LIBSSCM
 if USE_STORAGE_COMPACT
   pkginclude_HEADERS += storage-common.h storage-compact.h
 else
   pkginclude_HEADERS += storage-common.h storage-fatty.h
+endif
 endif
 if USE_CONTINUATION
   libsscm_sources += continuation.c
@@ -232,11 +237,15 @@ if USE_PORT
         scmport-file.h scmport-file.c \
         scmport-basechar.c
 if USE_MULTIBYTE_CHAR
+if USE_LIBSSCM
   pkginclude_HEADERS += encoding.h
+endif
   libsscm_sources    += encoding-config.h encoding.c \
                         scmport-mbchar.h scmport-mbchar.c
 else
+if USE_LIBSSCM
   pkginclude_HEADERS += encoding-dummy.h
+endif
   libsscm_sources    += scmport-sbchar.h scmport-sbchar.c
 endif
 endif

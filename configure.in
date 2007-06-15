@@ -984,6 +984,8 @@ fi
 #
 scmlibdir='$(pkgdatadir)/lib'
 AC_SUBST(scmlibdir)
+SSCM_DEFS='-DPKGDATADIR="\"$(pkgdatadir)\"" -DSCMLIBDIR="\"$(scmlibdir)\""'
+AC_SUBST(SSCM_DEFS)
 
 ###############################
 # Output configuration result #
@@ -1004,6 +1006,7 @@ AH_BOTTOM([
 
 AC_CONFIG_FILES([sigscheme.pc
                  libgcroots.mk
+                 sigscheme.mk
                  Makefile
                  doc/Makefile
                  m4/Makefile

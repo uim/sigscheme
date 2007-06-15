@@ -1,7 +1,6 @@
 include libtool-version.mk
 include $(top_builddir)/libgcroots.mk
-
-DEFS += -DPKGDATADIR="\"$(pkgdatadir)\"" -DSCMLIBDIR="\"$(scmlibdir)\""
+include $(top_builddir)/sigscheme.mk
 
 if USE_LIBSSCM
 lib_LTLIBRARIES = libsscm.la

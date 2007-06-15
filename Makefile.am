@@ -24,8 +24,10 @@ EXTRA_DIST = \
         compare-scm.sh runbench.sh runtest.sh runtest-tail-rec.sh \
         make-report.sh make-dist.sh
 
+if USE_LIBSSCM
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = sigscheme.pc
+endif
 
 $(pkgconfig_DATA): config.status
 

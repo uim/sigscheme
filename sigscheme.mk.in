@@ -1,5 +1,4 @@
-sscm_datadir = @datadir@
-sscm_scmlibdir = @scmlibdir@
+scmlibdir = @scmlibdir@
 
 # Provides absolute directories to make being usable from superordinate
 # packages such as uim.

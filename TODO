@@ -2,6 +2,7 @@
 Requirements and critical bugs:
 
 * Support SRFI-1
+  - Write tests
   - Import http://www.math.grin.edu/~stone/srfi/srfi-1-tests.ss
 
 * grep "FIXME" and fix them

@@ -69,6 +69,16 @@
 SCM_EXPORT void
 scm_initialize_srfi1(void)
 {
+    scm_require(SCMLIBDIR "/srfi-1.scm");
+
+    scm_define_alias("srfi-1:member", "member");
+    scm_define_alias("srfi-1:assoc",  "assoc");
+
+    /* SigScheme's map is in-order and faster than srfi-1.scm */
+    scm_define_alias("map-in-order", "r5rs:map");
+    scm_define_alias("map",          "r5rs:map");
+
+    /* overwrite Scheme procedures with efficient C implementations */
     scm_register_funcs(scm_functable_srfi1);
 }
 

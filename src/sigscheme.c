@@ -317,6 +317,12 @@ scm_initialize_internal(void *dummy)
     scm_register_funcs(scm_functable_r5rs_deep_cadrs);
 #endif
 
+    /* for distinction from SRFI-1 versions */
+    scm_define_alias("r5rs:map",      "map");
+    scm_define_alias("r5rs:for-each", "for-each");
+    scm_define_alias("r5rs:member",   "member");
+    scm_define_alias("r5rs:assoc",    "assoc");
+
 #if SCM_USE_SSCM_EXTENSIONS
     scm_use("sscm-ext");
 #endif

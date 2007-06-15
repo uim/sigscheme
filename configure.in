@@ -464,7 +464,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
     # SRFIs and SigScheme-specific extensions
     case "$enable_conf" in
       full|r5rs|dev)
-        use_srfi1=no
+        use_srfi1=yes
         use_srfi2=yes
         use_srfi6=yes
         use_srfi8=yes
@@ -518,7 +518,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=yes
         ;;
       uim)
-        use_srfi1=no
+        use_srfi1=yes
         use_srfi2=yes
         use_srfi6=yes
         use_srfi8=yes
@@ -628,7 +628,7 @@ AX_FEATURE_ARG_Y(writer,         [R5RS 'write' and 'display'])
 AX_FEATURE_ARG_Y(load,           [R5RS 'load'])
 
 # SRFIs
-AX_FEATURE_ARG_N(srfi1,          [SRFI-1 list library (broken)])
+AX_FEATURE_ARG_Y(srfi1,          [SRFI-1 list library])
 AX_FEATURE_ARG_Y(srfi2,          [SRFI-2 'and-let*'])
 AX_FEATURE_ARG_Y(srfi6,          [SRFI-6 basic string ports])
 AX_FEATURE_ARG_Y(srfi8,          [SRFI-8 'receive'])
@@ -695,8 +695,9 @@ string_procedure: string char
 reader: port
 writer: port raw_c_format
 load: port reader
-sscm_extensions: 
+sscm_extensions: load
 eval_c_string: reader srfi6
+srfi1: continuation deep_cadrs load sscm_extensions srfi8 srfi23
 srfi6: port string
 srfi34: continuation srfi23
 srfi38: writer
@@ -977,6 +978,12 @@ if test "x$use_debug" = xyes; then
 else
   CFLAGS="$CFLAGS -DNDEBUG"
 fi
+
+#
+# System directories
+#
+scmlibdir='$(pkgdatadir)/lib'
+AC_SUBST(scmlibdir)
 
 ###############################
 # Output configuration result #

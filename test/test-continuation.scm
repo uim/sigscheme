@@ -142,4 +142,69 @@
     (assert-true   (tn) ((call/cc (lambda (c) c))
                          procedure?)))
 
+(tn "call/cc multiple values continuation")
+(assert-equal? (tn)
+               '()
+               (call-with-values
+                   (lambda ()
+                     (call/cc (lambda (k) (k))))
+                 (lambda args
+                   args)))
+(assert-error  (tn)
+               (lambda ()
+                 (call-with-values
+                     (lambda ()
+                       (call/cc (lambda (k) (k 0))))
+                   (lambda ()
+                     #t))))
+(assert-error  (tn)
+               (lambda ()
+                 (call-with-values
+                     (lambda ()
+                       (call/cc (lambda (k) (k 0))))
+                   (lambda (x y)
+                     #t))))
+(assert-error  (tn)
+               (lambda ()
+                 (call/cc (lambda (k) (k)))))
+
+(assert-equal? (tn)
+               '(0 1 2)
+               (call-with-values
+                   (lambda ()
+                     (call/cc (lambda (k) (k 0 1 2))))
+                 (lambda args
+                   args)))
+(assert-error  (tn)
+               (lambda ()
+                 (call-with-values
+                     (lambda ()
+                       (call/cc (lambda (k) (k 0 1 2))))
+                   (lambda ()
+                     #t))))
+(assert-error  (tn)
+               (lambda ()
+                 (call-with-values
+                     (lambda ()
+                       (call/cc (lambda (k) (k 0 1 2))))
+                   (lambda (x)
+                     #t))))
+(assert-error  (tn)
+               (lambda ()
+                 (call-with-values
+                     (lambda ()
+                       (call/cc (lambda (k) (k 0 1 2))))
+                   (lambda (x y)
+                     #t))))
+(assert-error  (tn)
+               (lambda ()
+                 (call-with-values
+                     (lambda ()
+                       (call/cc (lambda (k) (k 0 1 2))))
+                   (lambda (x y z a)
+                     #t))))
+(assert-error  (tn)
+               (lambda ()
+                 (call/cc (lambda (k) (k 0 1 2)))))
+
 (total-report)

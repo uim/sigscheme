@@ -327,9 +327,6 @@ scm_call_continuation(ScmObj cont, ScmObj ret)
 #endif
         )
     {
-        if (VALUEPACKETP(ret))
-            ERR_OBJ("continuations take exactly one value but got", ret);
-
         /* Don't refer cont because it may already be invalidated by
          * continuation_stack_unwind(). */
         exit_dynamic_extent(frame->dyn_ext);

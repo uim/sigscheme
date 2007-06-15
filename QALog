@@ -673,25 +673,25 @@ corner case tests:
 
 file:              continuation.c
 category:          core
-spec by eyes:      yamaken@r3880, yamaken@r4138
-spec by tests:     yamaken@r3880, yamaken@r4076
+spec by eyes:      yamaken@r3880, yamaken@r4138, yamaken@r4603
+spec by tests:     yamaken@r3880, yamaken@r4076, yamaken@r4603
 general review:    yamaken@r3880
 64-bit by eyes:    yamaken@r3880
 64-bit by tests:   
 coding style:      yamaken@r3880
-normal case tests: yamaken@r3880
-corner case tests: yamaken@r3880
+normal case tests: yamaken@r3880, yamaken@r4603
+corner case tests: yamaken@r3880, yamaken@r4603
 
 file:              eval.c
 category:          core
-spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299
-spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103
+spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299, yamaken@r4603
+spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103, yamaken@r4603
 general review:    yamaken@r3865
 64-bit by eyes:    yamaken@r3865
 64-bit by tests:   
 coding style:      yamaken@r3866
-normal case tests: yamaken@r3865, yamaken@r4103
-corner case tests: yamaken@r3865, yamaken@r4103
+normal case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603
+corner case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603
 
 file:              module.c
 category:          core
@@ -1081,6 +1081,12 @@ corner case tests:
 
 Log
 ---
+2007-06-15  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * eval.c
+        * continuation.c
+          - Fix the case continuation takes multiple values
+          - QA done again @r4603 with test-continuation.scm
+
 2007-06-13  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi2.c
           - QA done @r4583 with test-srfi2.scm and oleg-srfi2.scm

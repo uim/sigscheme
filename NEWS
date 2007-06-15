@@ -30,6 +30,9 @@ Overview of changes from 0.7.x to 0.8.0
 
   - [CRITICAL] Fix unterminated string generation on singlebyte character codec
 
+  - [R5RS] Fix multiple values inacceptance of call-with-values continuation
+    such as (receive (x y) (call/cc (lambda (k) (k 0 1))))
+
   - [R6RS] Fix invalid Unicode character acception on integer->char
 
   - Fix unexpected memory exhaustion on negative length on make-string

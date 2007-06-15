@@ -140,13 +140,18 @@ call_continuation(ScmObj cont, ScmObj args, ScmEvalState *eval_state,
                   enum ScmValueType need_eval)
 {
     ScmObj ret;
+    scm_int_t args_len;
     DECLARE_INTERNAL_FUNCTION("call_continuation");
 
-    if (!LIST_1_P(args))
-        ERR_OBJ("continuation takes exactly one argument but got", args);
-    ret = CAR(args);
-    if (need_eval)
-        ret = EVAL(ret, eval_state->env);
+    /* (receive (x y) (call/cc (lambda (k) (k 0 1)))) */
+    if (LIST_1_P(args)) {
+        ret = CAR(args);
+        if (need_eval)
+            ret = EVAL(ret, eval_state->env);
+    } else {
+        ret = (need_eval) ? map_eval(args, &args_len, eval_state->env) : args;
+        ret = SCM_MAKE_VALUEPACKET(ret);
+    }
     scm_call_continuation(cont, ret);
     /* NOTREACHED */
 }

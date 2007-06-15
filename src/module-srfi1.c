@@ -71,14 +71,21 @@ scm_initialize_srfi1(void)
 {
     scm_require(SCMLIBDIR "/srfi-1.scm");
 
-    scm_define_alias("srfi-1:member", "member");
-    scm_define_alias("srfi-1:assoc",  "assoc");
+    scm_define_alias("srfi-1:map",      "map");
+    scm_define_alias("srfi-1:for-each", "for-each");
+    scm_define_alias("srfi-1:member",   "member");
+    scm_define_alias("srfi-1:assoc",    "assoc");
 
-    /* SigScheme's map is faster than srfi-1.scm, in-order and accepts unequal
-     * length arguments */
-    scm_define_alias("srfi-1:map",   "map");
+#if 0
+    /* Although SigScheme's map is faster than srfi-1.scm and in-order, it is
+     * not conforming to SRFI-1 specification since it rejects unequal length
+     * arguments. If you need to use the efficient C version of map and
+     * for-each, evaluate (define map r5rs:map) and (define for-each
+     * r5rs:for-each) in your code after (use srfi-1). */
     scm_define_alias("map-in-order", "r5rs:map");
     scm_define_alias("map",          "r5rs:map");
+    scm_define_alias("for-each",     "r5rs:for-each");
+#endif
 
     /* overwrite Scheme procedures with efficient C implementations */
     scm_register_funcs(scm_functable_srfi1);

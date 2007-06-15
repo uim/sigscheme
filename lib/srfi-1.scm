@@ -13,6 +13,7 @@
 ;; 2007-06-15 yamaken   Imported from
 ;;                      http://srfi.schemers.org/srfi-1/srfi-1-reference.scm
 ;;                      and adapted to SigScheme
+;; 2007-06-15 yamaken   Add for-each
 
 
 ;;; This is a library of list- and pair-processing functions. I wrote it after
@@ -1029,6 +1030,12 @@
 ;;; We extend MAP to handle arguments of unequal length.
 (define map map-in-order)	
 
+;; Added by yamaken 2007-06-15
+(define for-each
+  (let ((srfi-1:map map-in-order))  ;; preserve the implementation
+    (lambda args
+      (apply srfi-1:map args)
+      #f)))
 
 ;;; filter, remove, partition
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

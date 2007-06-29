@@ -108,6 +108,9 @@ imported_tests = \
         gauche-primsyn.scm \
         oleg-srfi2.scm
 
+# Not included to the distribution since its original license is unknown.
+#imported_tests += stone-srfi1.scm
+
 EXTRA_DIST += $(sscm_tests) $(imported_tests)
 
 TESTS_ENVIRONMENT = $(SH) $(top_builddir)/test/run-singletest.sh

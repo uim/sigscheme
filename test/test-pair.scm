@@ -313,7 +313,7 @@
       (assert-equal? "cddddr" 15 (cddddr tree))))
 
 (if (and (provided? "sigscheme")
-         (provided? "compat-siod"))
+         (provided? "siod-bugs"))
     (begin
       (assert-equal? "caar empty list"   '() (caar '()))
       (assert-equal? "cadr empty list"   '() (cadr '()))

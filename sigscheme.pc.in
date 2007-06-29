@@ -1,6 +1,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
+scmlibdir=@scmlibdir@
 includedir=@includedir@
 
 sscm_storage=@use_storage@
@@ -46,8 +47,8 @@ sscm_srfi34=@use_srfi34@
 sscm_srfi38=@use_srfi38@
 sscm_srfi48=@use_srfi48@
 sscm_srfi60=@use_srfi60@
-sscm_srfi75=@use_srfi75@
-sscm_srfi75_named_chars=@use_srfi75_named_chars@
+sscm_r6rs_chars=@use_r6rs_chars@
+sscm_r6rs_named_chars=@use_r6rs_named_chars@
 sscm_extensions=@use_sscm_extensions@
 sscm_format_extension=@use_sscm_format_extension@
 sscm_compat_siod=@use_compat_siod@

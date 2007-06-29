@@ -17,7 +17,7 @@ run_test () {
 }
 
 echo "[ Run single ported tests ]"
-for test in test/test-r4rs.scm #test/r5rs_pitfall_sscm.scm
+for test in test/test-r4rs.scm test/oleg-srfi2.scm #test/r5rs_pitfall_sscm.scm
 do
   run_test $test
 done

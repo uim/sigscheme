@@ -651,7 +651,7 @@ corner case tests:
 
 file:              env.c
 category:          core
-spec by eyes:      yamaken@r3946
+spec by eyes:      yamaken@r3946, yamaken@r4613
 spec by tests:     
 general review:    yamaken@r3946
 64-bit by eyes:    yamaken@r3946
@@ -1081,6 +1081,10 @@ corner case tests:
 
 Log
 ---
+2007-06-30  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * env.c
+          - QA done again @r4613 with test-misc.scm
+
 2007-06-16  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-sscm-ext.c
           - QA done again @r4606 for newly added let-optionals* with

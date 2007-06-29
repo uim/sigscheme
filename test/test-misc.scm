@@ -89,5 +89,14 @@
 (assert-eq? (tn) #f (procedure? '#(0 1 2)))
 (assert-eq? (tn) #f (procedure? (vector 0 1 2)))
 
+(tn "Optional argument modification")
+;; Dotted
+(assert-equal? (tn)
+               '(a . #t)
+               ((lambda args (set-cdr! args #t) args) 'a 'b 'c))
+;; Circular
+(assert-equal? (tn)
+               'a
+               (caddr ((lambda args (set-cdr! args args) args) 'a 'b)))
 
 (total-report)

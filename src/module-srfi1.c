@@ -184,19 +184,19 @@ scm_p_srfi1_lengthplus(ScmObj lst)
 SCM_EXPORT ScmObj
 scm_p_srfi1_find_tail(ScmObj pred, ScmObj lst)
 {
-    ScmObj tail, elm, rest, found;
+    ScmObj tail, elm, found, term;
     DECLARE_FUNCTION("find-tail", procedure_fixed_2);
 
     ENSURE_PROCEDURE(pred);
 
-    rest = lst;
-    FOR_EACH_PAIR (tail, rest) {
+    FOR_EACH_PAIR (tail, lst) {
         elm = CAR(tail);
         found = scm_call(pred, LIST_1(elm));
         if (TRUEP(found))
             return tail;
     }
-    CHECK_PROPER_LIST_TERMINATION(rest, lst);
+    term = CONSP(tail) ? CDR(tail) : tail;
+    CHECK_PROPER_LIST_TERMINATION(term, lst);
 
     return SCM_FALSE;
 }

@@ -14,6 +14,7 @@
 ;;                      http://srfi.schemers.org/srfi-1/srfi-1-reference.scm
 ;;                      and adapted to SigScheme
 ;; 2007-06-15 yamaken   Add for-each
+;; 2007-06-30 yamaken   Fix broken arguments receiving of delete-duplicates!
 
 
 ;;; This is a library of list- and pair-processing functions. I wrote it after
@@ -1274,7 +1275,7 @@
 		 (new-tail (recur (delete x tail elt=))))
 	    (if (eq? tail new-tail) lis (cons x new-tail)))))))
 
-(define (delete-duplicates! lis maybe-=)
+(define (delete-duplicates! lis . maybe-=)
   (let ((elt= (:optional maybe-= equal?)))
     (check-arg procedure? elt= delete-duplicates!)
     (let recur ((lis lis))

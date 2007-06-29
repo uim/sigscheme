@@ -10,11 +10,13 @@
 
 ;; ChangeLog
 ;;
-;; 2007-06-15 yamaken   Imported from
-;;                      http://srfi.schemers.org/srfi-1/srfi-1-reference.scm
-;;                      and adapted to SigScheme
-;; 2007-06-15 yamaken   Add for-each
-;; 2007-06-30 yamaken   Fix broken arguments receiving of delete-duplicates!
+;; 2007-06-15 yamaken   - Imported from
+;;                        http://srfi.schemers.org/srfi-1/srfi-1-reference.scm
+;;                        and adapted to SigScheme
+;;                      - Add for-each
+;; 2007-06-30 yamaken   - Fix broken arguments receiving of delete-duplicates!
+;;                      - Fix broken lset-difference call of lset-xor and
+;;                        lset-xor! (as like as Scheme48)
 
 
 ;;; This is a library of list- and pair-processing functions. I wrote it after
@@ -225,10 +227,11 @@
 (use srfi-8)
 (use srfi-23)
 
-;;(define (check-arg pred val caller)
-;;  (let lp ((val val))
-;;    (if (pred val) val (lp (error "Bad argument" val pred caller)))))
-(define (check-arg pred val caller) #f)
+(define (check-arg pred val caller)
+  (let lp ((val val))
+    (if (pred val) val (lp (error "Bad argument" val pred caller)))))
+;; If you need efficiency, define this once SRFI-1 has been enabled.
+;;(define (check-arg . args) #f)
 
 (define :optional
   (lambda (opt default)
@@ -1579,7 +1582,7 @@
 	    ;; Compute a-b and a^b, then compute b-(a^b) and
 	    ;; cons it onto the front of a-b.
 	    (receive (a-b a-int-b)   (lset-diff+intersection = a b)
-	      (cond ((null? a-b)     (lset-difference b a =))
+	      (cond ((null? a-b)     (lset-difference = b a))
 		    ((null? a-int-b) (append b a))
 		    (else (fold (lambda (xb ans)
 				  (if (member xb a-int-b =) ans (cons xb ans)))
@@ -1601,7 +1604,7 @@
 	    ;; Compute a-b and a^b, then compute b-(a^b) and
 	    ;; cons it onto the front of a-b.
 	    (receive (a-b a-int-b)   (lset-diff+intersection! = a b)
-	      (cond ((null? a-b)     (lset-difference! b a =))
+	      (cond ((null? a-b)     (lset-difference! = b a))
 		    ((null? a-int-b) (append! b a))
 		    (else (pair-fold (lambda (b-pair ans)
 				       (if (member (car b-pair) a-int-b =) ans

@@ -229,4 +229,17 @@
 (assert-equal? "concatenate test 8" '(a b c d) (concatenate '((a b) (c d))))
 (assert-equal? "concatenate test 9" '(a b c d e f) (concatenate '((a b) (c d) (e f))))
 
+(tn "lset-xor")
+;; To test the bug of the original srfi-1-reference.scm
+(assert-equal? (tn)
+               '("d")
+               (lset-xor equal? '("a" "b" "c") '("d" "c" "a" "b")))
+
+(tn "lset-xor!")
+;; To test the bug of the original srfi-1-reference.scm
+(assert-equal? (tn)
+               '("d")
+               (lset-xor equal? (list "a" "b" "c") (list "d" "c" "a" "b")))
+
+
 (total-report)

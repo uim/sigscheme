@@ -1673,10 +1673,8 @@ SCM_EXPORT void   scm_set_verbose_level(long level);
 
 /* module-srfi1.c */
 #if SCM_USE_SRFI1
-SCM_EXPORT ScmObj scm_p_srfi1_proper_listp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_srfi1_circular_listp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_srfi1_dotted_listp(ScmObj obj);
-SCM_EXPORT ScmObj scm_p_srfi1_drop(ScmObj lst, ScmObj scm_idx);
 SCM_EXPORT ScmObj scm_p_srfi1_last_pair(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_srfi1_lengthplus(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_srfi1_find_tail(ScmObj pred, ScmObj lst);

@@ -87,21 +87,17 @@ scm_initialize_srfi1(void)
     scm_define_alias("for-each",     "r5rs:for-each");
 #endif
 
-    /* overwrite Scheme procedures with efficient C implementations */
+    /* Overwrite Scheme procedures with efficient C implementations. */
     scm_register_funcs(scm_functable_srfi1);
+
+    scm_define_alias("proper-list?", "list?");
+    /* SigScheme's list-tail satisfies the specification of drop. */
+    scm_define_alias("drop",         "list-tail");
 }
 
 /*===========================================================================
   Predicates
 ===========================================================================*/
-SCM_EXPORT ScmObj
-scm_p_srfi1_proper_listp(ScmObj obj)
-{
-    DECLARE_FUNCTION("proper-list?", procedure_fixed_1);
-
-    return MAKE_BOOL(PROPER_LISTP(obj));
-}
-
 SCM_EXPORT ScmObj
 scm_p_srfi1_circular_listp(ScmObj obj)
 {
@@ -121,39 +117,17 @@ scm_p_srfi1_dotted_listp(ScmObj obj)
 /*===========================================================================
   Selectors
 ===========================================================================*/
-/* SRFI1: drop returns all but the first i elements of list x.
- * x may be any value -- a proper, circular, or dotted list. */
-SCM_EXPORT ScmObj
-scm_p_srfi1_drop(ScmObj lst, ScmObj scm_idx)
-{
-    ScmObj ret;
-    scm_int_t idx, i;
-    DECLARE_FUNCTION("drop", procedure_fixed_2);
-
-    ENSURE_INT(scm_idx);
-
-    idx = SCM_INT_VALUE(scm_idx);
-    ret = lst;
-    for (i = 0; i < idx; i++) {
-        if (!CONSP(ret))
-            ERR_OBJ("illegal index is specified for", lst);
-
-        ret = CDR(ret);
-    }
-
-    return ret;
-}
-
 /* SRFI-1: last-pair returns the last pair in the non-empty, finite list
  * pair. */
 SCM_EXPORT ScmObj
 scm_p_srfi1_last_pair(ScmObj lst)
 {
+    ScmObj next;
     DECLARE_FUNCTION("last-pair", procedure_fixed_1);
 
     ENSURE_CONS(lst);
 
-    for (; CONSP(CDR(lst)); lst = CDR(lst))
+    for (; next = CDR(lst), CONSP(next); lst = next)
         ;
 
     return lst;
@@ -169,22 +143,28 @@ scm_p_srfi1_lengthplus(ScmObj lst)
     DECLARE_FUNCTION("length+", procedure_fixed_1);
 
     len = scm_length(lst);
-    /* although SRFI-1 does not specify the behavior for dotted list
-     * explicitly, the description indicates that dotted list is treated as
-     * same as R5RS 'length' procedure. So produce an error here. */
-    if (SCM_LISTLEN_DOTTEDP(len))
-        ERR_OBJ("proper or circular list required but got", lst);
-
-    return (SCM_LISTLEN_PROPERP(len)) ? MAKE_INT(len) : SCM_FALSE;
+    /* Although the behavior on dotted list is not defined in SRFI-1 itself,
+     * the reference implementation returns its length. So SigScheme followed
+     * it. */
+    if (SCM_LISTLEN_PROPERP(len))
+        return MAKE_INT(len);
+    else if (SCM_LISTLEN_DOTTEDP(len))
+        return MAKE_INT(SCM_LISTLEN_DOTTED(len));
+    else /* if (SCM_LISTLEN_CIRCULARP(len)) */
+        return SCM_FALSE;
 }
 
 /*===========================================================================
   Searching
 ===========================================================================*/
+/* Although the behavior on null list is not explicitly defined in SRFI-1
+ * itself, the reference implementation returns #f So SigScheme followed it.
+ * Although the behavior on dotted list is not defined in SRFI-1 itself, the
+ * reference implementation returns the last pair. So SigScheme followed it. */
 SCM_EXPORT ScmObj
 scm_p_srfi1_find_tail(ScmObj pred, ScmObj lst)
 {
-    ScmObj tail, elm, found, term;
+    ScmObj tail, elm, found;
     DECLARE_FUNCTION("find-tail", procedure_fixed_2);
 
     ENSURE_PROCEDURE(pred);
@@ -195,8 +175,7 @@ scm_p_srfi1_find_tail(ScmObj pred, ScmObj lst)
         if (TRUEP(found))
             return tail;
     }
-    term = CONSP(tail) ? CDR(tail) : tail;
-    CHECK_PROPER_LIST_TERMINATION(term, lst);
+    CHECK_PROPER_LIST_TERMINATION(tail, lst);
 
     return SCM_FALSE;
 }

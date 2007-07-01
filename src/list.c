@@ -374,6 +374,11 @@ scm_list_tail(ScmObj lst, scm_int_t k)
     return lst;
 }
 
+/* Since this procedure is also used as SRFI-1 'drop', following specification
+ * must also be satisfied.
+ *
+ * SRFI-1: drop returns all but the first i elements of list x.
+ * x may be any value -- a proper, circular, or dotted list. */
 SCM_EXPORT ScmObj
 scm_p_list_tail(ScmObj lst, ScmObj k)
 {

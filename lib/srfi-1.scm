@@ -17,6 +17,7 @@
 ;; 2007-06-30 yamaken   - Fix broken arguments receiving of delete-duplicates!
 ;;                      - Fix broken lset-difference call of lset-xor and
 ;;                        lset-xor! (as like as Scheme48)
+;; 2007-07-01 yamaken   - Fix broken comparison of list= on 3 or more lists
 
 
 ;;; This is a library of list- and pair-processing functions. I wrote it after
@@ -429,13 +430,13 @@
 		  (others (cdr others)))
 	      (if (eq? list-a list-b)	; EQ? => LIST=
 		  (lp1 list-b others)
-		  (let lp2 ((list-a list-a) (list-b list-b))
-		    (if (null-list? list-a)
-			(and (null-list? list-b)
+		  (let lp2 ((tail-a list-a) (tail-b list-b))
+		    (if (null-list? tail-a)
+			(and (null-list? tail-b)
 			     (lp1 list-b others))
-			(and (not (null-list? list-b))
-			     (= (car list-a) (car list-b))
-			     (lp2 (cdr list-a) (cdr list-b)))))))))))
+			(and (not (null-list? tail-b))
+			     (= (car tail-a) (car tail-b))
+			     (lp2 (cdr tail-a) (cdr tail-b)))))))))))
 			
 
 

@@ -89,6 +89,142 @@
 ;; Constructors
 ;;
 
+(tn "xcons")
+(assert-equal? (tn) (cons elm1 elm0)      (xcons elm0 elm1))
+(assert-eq?    (tn) elm1             (car (xcons elm0 elm1)))
+(assert-eq?    (tn) elm0             (cdr (xcons elm0 elm1)))
+
+(tn "cons* invalid forms")
+(assert-error  (tn) (lambda () (cons*)))
+(tn "cons*")
+(assert-eq?    (tn) elm0                         (cons* elm0))
+(assert-equal? (tn) (cons elm0 elm1)             (cons* elm0 elm1))
+(assert-equal? (tn) (cons elm0 (cons elm1 elm2)) (cons* elm0 elm1 elm2))
+(assert-equal? (tn) lst                        (cons* elm0 elm1 elm2 cdr3))
+(assert-false  (tn) (eq? lst                   (cons* elm0 elm1 elm2 cdr3)))
+(assert-false  (tn) (eq? cdr2 (my-list-tail    (cons* elm0 elm1 elm2 cdr3) 2)))
+(assert-true   (tn) (eq? cdr3 (my-list-tail    (cons* elm0 elm1 elm2 cdr3) 3)))
+(assert-equal? (tn) '(1 2 3 4 5 6)               (cons* 1 2 3 '(4 5 6)))
+(tn "cons* SRFI-1 examples")
+(assert-equal? (tn) '(1 2 3 . 4) (cons* 1 2 3 4))
+(assert-equal? (tn) 1            (cons* 1))
+
+(tn "make-list invalid forms")
+(assert-error  (tn) (lambda () (make-list #t)))
+(assert-error  (tn) (lambda () (make-list -1)))
+(assert-error  (tn) (lambda () (make-list 0 #t #t)))
+(tn "make-list")
+(define fill (if sigscheme?
+                 (undef)
+                 (error "filler value of make-list is unknown")))
+(assert-equal? (tn) '()                        (make-list 0))
+(assert-equal? (tn) (list fill)                (make-list 1))
+(assert-equal? (tn) (list fill fill)           (make-list 2))
+(assert-equal? (tn) (list fill fill fill)      (make-list 3))
+(assert-equal? (tn) (list fill fill fill fill) (make-list 4))
+(assert-equal? (tn) '()                        (make-list 0 elm0))
+(assert-equal? (tn) (list elm0)                (make-list 1 elm0))
+(assert-equal? (tn) (list elm0 elm0)           (make-list 2 elm0))
+(assert-equal? (tn) (list elm0 elm0 elm0)      (make-list 3 elm0))
+(assert-equal? (tn) (list elm0 elm0 elm0 elm0) (make-list 4 elm0))
+
+(tn "list-tabulate invalid forms")
+(assert-error  (tn) (lambda () (list-tabulate 0)))
+(assert-error  (tn) (lambda () (list-tabulate 0 number->string #t)))
+(assert-error  (tn) (lambda () (list-tabulate 0 #t #t)))
+(assert-error  (tn) (lambda () (list-tabulate 1 string->number)))
+(tn "list-tabulate")
+(assert-equal? (tn) '()                (list-tabulate 0 number->string))
+(assert-equal? (tn) '("0")             (list-tabulate 1 number->string))
+(assert-equal? (tn) '("0" "1")         (list-tabulate 2 number->string))
+(assert-equal? (tn) '("0" "1" "2")     (list-tabulate 3 number->string))
+(assert-equal? (tn) '("0" "1" "2" "3") (list-tabulate 4 number->string))
+(tn "list-tabulate SRFI-1 examples")
+(assert-equal? (tn) '(0 1 2 3) (list-tabulate 4 values))
+
+(tn "list-copy invalid forms")
+(assert-error  (tn) (lambda () (list-copy)))
+(tn "list-copy")
+(assert-equal? (tn) lst (list-copy lst))
+(assert-false  (tn) (eq? lst (list-copy lst)))
+(assert-false  (tn) (eq? (my-list-tail lst             1)
+                         (my-list-tail (list-copy lst) 1)))
+(assert-false  (tn) (eq? (my-list-tail lst             2)
+                         (my-list-tail (list-copy lst) 2)))
+(assert-false  (tn) (eq? (my-list-tail lst             9)
+                         (my-list-tail (list-copy lst) 9)))
+;; null terminator
+(assert-true   (tn) (eq? (my-list-tail lst             10)
+                         (my-list-tail (list-copy lst) 10)))
+
+(tn "circular-list invalid forms")
+(assert-error  (tn) (lambda () (circular-list)))
+(tn "circular-list length 1")
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0) 0)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0) 1)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0) 2)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0) 3)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0) 4)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0) 5)))
+(tn "circular-list length 2")
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0 elm1) 0)))
+(assert-eq?    (tn) elm1 (car (my-list-tail (circular-list elm0 elm1) 1)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0 elm1) 2)))
+(assert-eq?    (tn) elm1 (car (my-list-tail (circular-list elm0 elm1) 3)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0 elm1) 4)))
+(assert-eq?    (tn) elm1 (car (my-list-tail (circular-list elm0 elm1) 5)))
+(tn "circular-list length 3")
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0 elm1 elm2) 0)))
+(assert-eq?    (tn) elm1 (car (my-list-tail (circular-list elm0 elm1 elm2) 1)))
+(assert-eq?    (tn) elm2 (car (my-list-tail (circular-list elm0 elm1 elm2) 2)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0 elm1 elm2) 3)))
+(assert-eq?    (tn) elm1 (car (my-list-tail (circular-list elm0 elm1 elm2) 4)))
+(assert-eq?    (tn) elm2 (car (my-list-tail (circular-list elm0 elm1 elm2) 5)))
+(assert-eq?    (tn) elm0 (car (my-list-tail (circular-list elm0 elm1 elm2) 6)))
+
+(tn "iota invalid forms")
+(assert-error  (tn) (lambda ()    (iota)))
+(assert-error  (tn) (lambda ()    (iota -1)))
+(assert-error  (tn) (lambda ()    (iota -1 0 1)))
+(assert-error  (tn) (lambda ()    (iota -1 0 1)))
+(assert-error  (tn) (lambda ()    (iota 0 0 0 0)))
+(assert-error  (tn) (lambda ()    (iota 1 0 0 0)))
+(tn "iota count only")
+(assert-equal? (tn) '()           (iota 0))
+(assert-equal? (tn) '(0)          (iota 1))
+(assert-equal? (tn) '(0 1)        (iota 2))
+(assert-equal? (tn) '(0 1 2)      (iota 3))
+(assert-equal? (tn) '(0 1 2 3)    (iota 4))
+(tn "iota count and start")
+(assert-equal? (tn) '()           (iota 0 2))
+(assert-equal? (tn) '(2)          (iota 1 2))
+(assert-equal? (tn) '(2 3)        (iota 2 2))
+(assert-equal? (tn) '(2 3 4)      (iota 3 2))
+(assert-equal? (tn) '(2 3 4 5)    (iota 4 2))
+;; nagative start
+(assert-equal? (tn) '()           (iota 0 -2))
+(assert-equal? (tn) '(-2)         (iota 1 -2))
+(assert-equal? (tn) '(-2 -1)      (iota 2 -2))
+(assert-equal? (tn) '(-2 -1 0)    (iota 3 -2))
+(assert-equal? (tn) '(-2 -1 0 1)  (iota 4 -2))
+(tn "iota count, start and step")
+(assert-equal? (tn) '()           (iota 0 2 3))
+(assert-equal? (tn) '(2)          (iota 1 2 3))
+(assert-equal? (tn) '(2 5)        (iota 2 2 3))
+(assert-equal? (tn) '(2 5 8)      (iota 3 2 3))
+(assert-equal? (tn) '(2 5 8 11)   (iota 4 2 3))
+;; negative step
+(assert-equal? (tn) '()           (iota 0 2 -3))
+(assert-equal? (tn) '(2)          (iota 1 2 -3))
+(assert-equal? (tn) '(2 -1)       (iota 2 2 -3))
+(assert-equal? (tn) '(2 -1 -4)    (iota 3 2 -3))
+(assert-equal? (tn) '(2 -1 -4 -7) (iota 4 2 -3))
+;; zero step
+(assert-equal? (tn) '()           (iota 0 2 0))
+(assert-equal? (tn) '(2)          (iota 1 2 0))
+(assert-equal? (tn) '(2 2)        (iota 2 2 0))
+(assert-equal? (tn) '(2 2 2)      (iota 3 2 0))
+(assert-equal? (tn) '(2 2 2 2)    (iota 4 2 0))
 
 ;;
 ;; Predicates
@@ -301,10 +437,138 @@
 (assert-eq? (tn) #t (dotted-list? '#(0 1 2)))
 (assert-eq? (tn) #t (dotted-list? (vector 0 1 2)))
 
+;; null-list?
+(tn "null-list? proper list")
+(assert-eq?    (tn) #t (null-list? '()))
+(assert-eq?    (tn) #f (null-list? '(1)))
+(assert-eq?    (tn) #f (null-list? '(1 2)))
+(assert-eq?    (tn) #f (null-list? '(1 2 3)))
+(assert-eq?    (tn) #f (null-list? '(1 2 3 4)))
+;; SRFI-1: List is a proper or circular list. It is an error to pass this
+;; procedure a value which is not a proper or circular list.
+(tn "null-list? dotted list")
+(if sigscheme?
+    (begin
+      ;; SigScheme (SRFI-1 reference implementation) specific behavior
+      (assert-error  (tn) (lambda () (null-list? 1)))
+      (assert-eq?    (tn) #f         (null-list? '(1 . 2)))
+      (assert-eq?    (tn) #f         (null-list? '(1 2 . 3)))
+      (assert-eq?    (tn) #f         (null-list? '(1 2 3 . 4)))
+      (assert-eq?    (tn) #f         (null-list? '(1 2 3 4 . 5)))))
+(tn "null-list? circular list")
+(assert-eq?    (tn) #f (null-list? clst1))
+(assert-eq?    (tn) #f (null-list? clst2))
+(assert-eq?    (tn) #f (null-list? clst3))
+(assert-eq?    (tn) #f (null-list? clst4))
+
+;; not-pair?
+(tn "not-pair? proper list")
+(assert-eq?    (tn) #t (not-pair? '()))
+(assert-eq?    (tn) #f (not-pair? '(1)))
+(assert-eq?    (tn) #f (not-pair? '(1 2)))
+(assert-eq?    (tn) #f (not-pair? '(1 2 3)))
+(assert-eq?    (tn) #f (not-pair? '(1 2 3 4)))
+(tn "not-pair? dotted list")
+(assert-eq?    (tn) #t (not-pair? 1))
+(assert-eq?    (tn) #f (not-pair? '(1 . 2)))
+(assert-eq?    (tn) #f (not-pair? '(1 2 . 3)))
+(assert-eq?    (tn) #f (not-pair? '(1 2 3 . 4)))
+(assert-eq?    (tn) #f (not-pair? '(1 2 3 4 . 5)))
+(tn "not-pair? circular list")
+(assert-eq?    (tn) #f (not-pair? clst1))
+(assert-eq?    (tn) #f (not-pair? clst2))
+(assert-eq?    (tn) #f (not-pair? clst3))
+(assert-eq?    (tn) #f (not-pair? clst4))
+(tn "not-pair? all kind of Scheme objects")
+(assert-eq? (tn) #t (not-pair? #f))
+(assert-eq? (tn) #t (not-pair? #t))
+(assert-eq? (tn) #t (not-pair? '()))
+(if sigscheme?
+    (begin
+      (assert-eq? (tn) #t (not-pair? (eof)))
+      (assert-eq? (tn) #t (not-pair? (undef)))))
+(assert-eq? (tn) #t (not-pair? 0))
+(assert-eq? (tn) #t (not-pair? 1))
+(assert-eq? (tn) #t (not-pair? 3))
+(assert-eq? (tn) #t (not-pair? -1))
+(assert-eq? (tn) #t (not-pair? -3))
+(assert-eq? (tn) #t (not-pair? 'symbol))
+(assert-eq? (tn) #t (not-pair? 'SYMBOL))
+(assert-eq? (tn) #t (not-pair? #\a))
+(assert-eq? (tn) #t (not-pair? #\あ))
+(assert-eq? (tn) #t (not-pair? ""))
+(assert-eq? (tn) #t (not-pair? " "))
+(assert-eq? (tn) #t (not-pair? "a"))
+(assert-eq? (tn) #t (not-pair? "A"))
+(assert-eq? (tn) #t (not-pair? "aBc12!"))
+(assert-eq? (tn) #t (not-pair? "あ"))
+(assert-eq? (tn) #t (not-pair? "あ0イう12!"))
+(assert-eq? (tn) #t (not-pair? +))
+(assert-eq? (tn) #t (not-pair? (lambda () #t)))
+
+;; syntactic keywords should not be appeared as operand
+(if sigscheme?
+    (begin
+      ;; pure syntactic keyword
+      (assert-error (tn) (lambda () (not-pair? else)))
+      ;; expression keyword
+      (assert-error (tn) (lambda () (not-pair? do)))))
+
+(call-with-current-continuation
+ (lambda (k)
+   (assert-eq? (tn) #t (not-pair? k))))
+(assert-eq? (tn) #t (not-pair? (current-output-port)))
+(assert-eq? (tn) #f (not-pair? '(#t . #t)))
+(assert-eq? (tn) #f (not-pair? (cons #t #t)))
+(assert-eq? (tn) #f (not-pair? '(0 1 2)))
+(assert-eq? (tn) #f (not-pair? (list 0 1 2)))
+(assert-eq? (tn) #t (not-pair? '#()))
+(assert-eq? (tn) #t (not-pair? (vector)))
+(assert-eq? (tn) #t (not-pair? '#(0 1 2)))
+(assert-eq? (tn) #t (not-pair? (vector 0 1 2)))
+
+;; list=
+
 
 ;;
 ;; Selectors
 ;;
+
+(tn "first")
+(assert-eq? (tn) elm0 (first   lst))
+(tn "second")
+(assert-eq? (tn) elm1 (second  lst))
+(tn "third")
+(assert-eq? (tn) elm2 (third   lst))
+(tn "fourth")
+(assert-eq? (tn) elm3 (fourth  lst))
+(tn "fifth")
+(assert-eq? (tn) elm4 (fifth   lst))
+(tn "sixth")
+(assert-eq? (tn) elm5 (sixth   lst))
+(tn "seventh")
+(assert-eq? (tn) elm6 (seventh lst))
+(tn "eighth")
+(assert-eq? (tn) elm7 (eighth  lst))
+(tn "ninth")
+(assert-eq? (tn) elm8 (ninth   lst))
+(tn "tenth")
+(assert-eq? (tn) elm9 (tenth   lst))
+
+(tn "car+cdr")
+(assert-true (tn) (call-with-values
+                      (lambda () (car+cdr (cons elm0 elm1)))
+                    (lambda (kar kdr)
+                      (and (eq? kar elm0)
+                           (eq? kdr elm1)))))
+
+;; take
+(tn "take")
+;; SRFI-1: If the argument is a list of non-zero length, take is guaranteed to
+;; return a freshly-allocated list, even in the case where the entire list is
+;; taken, e.g. (take lis (length lis)).
+(assert-false  (tn) (eq?    lst (take lst (length lst))))
+(assert-true   (tn) (equal? lst (take lst (length lst))))
 
 ;; drop
 ;;
@@ -469,6 +733,21 @@
 (assert-equal? (tn) '(c d e) (drop '(a b c d e) 2))
 (assert-equal? (tn) '(3 . d) (drop '(1 2 3 . d) 2))
 (assert-equal? (tn) 'd       (drop '(1 2 3 . d) 3))
+
+;; last
+;;
+;; SRFI-1: last returns the last element of the non-empty, finite list pair.
+(tn "last invalid forms")
+(assert-error  (tn) (lambda () (last '())))
+(assert-error  (tn) (lambda () (last 1)))
+(tn "last")
+(assert-eq?    (tn) elm9       (last lst))
+(assert-eq?    (tn) elm9       (last cdr7))
+(assert-eq?    (tn) elm9       (last cdr8))
+(assert-eq?    (tn) elm9       (last cdr9))
+(assert-equal? (tn) 1          (last '(1 . 2)))
+(assert-equal? (tn) 2          (last '(1 2 . 3)))
+(assert-equal? (tn) 3          (last '(1 2 3 . 4)))
 
 ;; last-pair
 ;;

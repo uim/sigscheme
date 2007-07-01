@@ -41,6 +41,7 @@ sscm_tests = \
         test-pair.scm \
         test-quote.scm \
         test-srfi1.scm \
+        test-srfi1-another.scm \
         test-srfi2.scm \
         test-srfi6.scm \
         test-srfi8.scm \

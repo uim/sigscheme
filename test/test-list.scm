@@ -38,10 +38,10 @@
 
 (define tn test-name)
 
-(define elm0 (lambda () #f))
-(define elm1 (lambda () #f))
-(define elm2 (lambda () #f))
-(define elm3 (lambda () #f))
+(define elm0 (list #t))
+(define elm1 (list #t))
+(define elm2 (list #t))
+(define elm3 (list #t))
 (define nil  '())
 (define cdr3 (cons elm3 nil))
 (define cdr2 (cons elm2 cdr3))
@@ -342,7 +342,7 @@
       (assert-equal? (tn) 2 (length* '(1 2)))
       (assert-equal? (tn) 3 (length* '(1 2 3)))
       (assert-equal? (tn) 4 (length* '(1 2 3 4)))
-      (tn "length* improper list")
+      (tn "length* dotted list")
       (assert-equal? (tn) -1 (length* 1))
       (assert-equal? (tn) -2 (length* '(1 . 2)))
       (assert-equal? (tn) -3 (length* '(1 2 . 3)))

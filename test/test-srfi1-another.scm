@@ -53,16 +53,16 @@
         (my-list-tail (cdr x) (- k 1)))))
 
 ;; unique objects
-(define elm0 (list #t))
-(define elm1 (list #t))
-(define elm2 (list #t))
-(define elm3 (list #t))
-(define elm4 (list #t))
-(define elm5 (list #t))
-(define elm6 (list #t))
-(define elm7 (list #t))
-(define elm8 (list #t))
-(define elm9 (list #t))
+(define elm0 (list 0))
+(define elm1 (list 1))
+(define elm2 (list 2))
+(define elm3 (list 3))
+(define elm4 (list 4))
+(define elm5 (list 5))
+(define elm6 (list 6))
+(define elm7 (list 7))
+(define elm8 (list 8))
+(define elm9 (list 9))
 ;; sublists
 (define cdr9 (cons elm9 '()))
 (define cdr8 (cons elm8 cdr9))
@@ -865,6 +865,13 @@
 (assert-equal? (tn) '(3 . d) (drop '(1 2 3 . d) 2))
 (assert-equal? (tn) 'd       (drop '(1 2 3 . d) 3))
 
+;; take-right
+;; drop-right
+;; take!
+;; drop-right!
+;; split-at
+;; split-at!
+
 ;; last
 ;;
 ;; SRFI-1: last returns the last element of the non-empty, finite list pair.
@@ -923,6 +930,151 @@
 (assert-eq?    (tn) #f (length+ clst3))
 (assert-eq?    (tn) #f (length+ clst4))
 
+;; append!
+(tn "append!")
+(assert-equal? (tn) '()            (append!))
+(assert-equal? (tn) '()            (append! '()))
+(assert-equal? (tn) '()            (append! '() '()))
+(assert-equal? (tn) '()            (append! '() '() '()))
+(assert-equal? (tn) '(a)           (append! (list 'a) '() '()))
+(assert-equal? (tn) '(a)           (append! '() (list 'a) '()))
+(assert-equal? (tn) '(a)           (append! '() '() '(a)))
+(assert-equal? (tn) 'a             (append! 'a))
+(assert-equal? (tn) '(a . b)       (append! '(a . b)))
+(assert-equal? (tn) '(a . b)       (append! '() '() '(a . b)))
+(assert-equal? (tn) '(1 2 3 a . b) (append! (list 1) (list 2 3) '(a . b)))
+(assert-equal? (tn) 7              (append! (+ 3 4)))
+(assert-equal? (tn) '(+ 3 4)       (append! '(+ 3 4)))
+(assert-equal? (tn) '(a b)         (append! '(a b)))
+(assert-equal? (tn) '(c d e a b)   (append! (list 'c) (list 'd 'e) '(a b)))
+;; The reference implementation does not cause error on non-tail dotted list.
+;;(assert-error  (tn) (lambda () (append! 'a 'b)))
+;;(assert-error  (tn) (lambda () (append! 'a '(b))))
+;;(assert-error  (tn) (lambda () (append! 'a '())))
+;;(assert-error  (tn) (lambda () (append! (cons 'a 'b) '())))
+;;(assert-error  (tn) (lambda () (append! '() (cons 'a  'b) '())))
+(tn "append! shared tail")
+;; SRFI-1: The last argument is never altered; the result list shares structure
+;; with this parameter.
+(assert-equal? (tn)
+               (list 1 2 3 elm8 elm9)
+               (append! (list 1) (list 2 3) cdr8))
+(assert-eq?    (tn)
+               cdr8
+               (my-list-tail (append! (list 1) (list 2 3) cdr8) 3))
+
+;; concatenate
+(tn "concatenate invalid forms")
+(assert-error  (tn) (lambda ()     (concatenate)))
+(assert-error  (tn) (lambda ()     (concatenate #t)))
+(tn "concatenate")
+(assert-equal? (tn) '()            (concatenate '()))
+(assert-equal? (tn) '()            (concatenate '(())))
+(assert-equal? (tn) '()            (concatenate '(() ())))
+(assert-equal? (tn) '()            (concatenate '(() () ())))
+(assert-equal? (tn) '(a)           (concatenate '((a) () ())))
+(assert-equal? (tn) '(a)           (concatenate '(() (a) ())))
+(assert-equal? (tn) '(a)           (concatenate '(() () (a))))
+(assert-equal? (tn) 'a             (concatenate '(a)))
+(assert-equal? (tn) '(a . b)       (concatenate '((a . b))))
+(assert-equal? (tn) '(a . b)       (concatenate '(() () (a . b))))
+(assert-equal? (tn) '(1 2 3 a . b) (concatenate '((1) (2 3) (a . b))))
+(assert-equal? (tn) 7              (concatenate (list (+ 3 4))))
+(assert-equal? (tn) '(+ 3 4)       (concatenate '((+ 3 4))))
+(assert-equal? (tn) '(a b)         (concatenate '((a b))))
+(assert-equal? (tn) '(c d e a b)   (concatenate '((c) (d e) (a b))))
+
+;; concatenate!
+(tn "concatenate! invalid forms")
+(assert-error  (tn) (lambda ()     (concatenate!)))
+(assert-error  (tn) (lambda ()     (concatenate! #t)))
+(tn "concatenate!")
+(assert-equal? (tn) '()            (concatenate! '()))
+(assert-equal? (tn) '()            (concatenate! (list '())))
+(assert-equal? (tn) '()            (concatenate! (list '() '())))
+(assert-equal? (tn) '()            (concatenate! (list '() '() '())))
+(assert-equal? (tn) '(a)           (concatenate! (list (list 'a) '() '())))
+(assert-equal? (tn) '(a)           (concatenate! (list '() (list 'a) '())))
+(assert-equal? (tn) '(a)           (concatenate! (list '() '() '(a))))
+(assert-equal? (tn) 'a             (concatenate! '(a)))
+(assert-equal? (tn) '(a . b)       (concatenate! '((a . b))))
+(assert-equal? (tn) '(a . b)       (concatenate! (list '() '() '(a . b))))
+(assert-equal? (tn) '(1 2 3 a . b) (concatenate! (list (list 1) (list 2 3) '(a . b))))
+(assert-equal? (tn) 7              (concatenate! (list (+ 3 4))))
+(assert-equal? (tn) '(+ 3 4)       (concatenate! '((+ 3 4))))
+(assert-equal? (tn) '(a b)         (concatenate! '((a b))))
+(assert-equal? (tn) '(c d e a b)   (concatenate! (list (list 'c) (list 'd 'e) '(a b))))
+
+;; reverse!
+
+;;append-reverse
+(tn "append-reverse invalid forms")
+(assert-error  (tn) (lambda ()     (append-reverse #t       '())))
+(tn "append-reverse")
+(assert-equal? (tn) '()            (append-reverse '()      '()))
+(assert-equal? (tn) '(3 2 1)       (append-reverse '(1 2 3) '()))
+(assert-equal? (tn) '(3 2 1 4 5 6) (append-reverse '(1 2 3) '(4 5 6)))
+(assert-equal? (tn) '(4 5 6)       (append-reverse '()      '(4 5 6)))
+(assert-equal? (tn) '(3 2 1 . #t)  (append-reverse '(1 2 3) #t))
+(assert-equal? (tn) #t             (append-reverse '()      #t))
+
+;; append-reverse!
+;;
+;; SRFI-1: it is allowed, but not required, to alter rev-head's cons cells to
+;; construct the result.
+(tn "append-reverse! invalid forms")
+(assert-error  (tn) (lambda ()     (append-reverse! #t           '())))
+(tn "append-reverse!")
+(assert-equal? (tn) '()            (append-reverse! '()          '()))
+(assert-equal? (tn) '(3 2 1)       (append-reverse! (list 1 2 3) '()))
+(assert-equal? (tn) '(3 2 1 4 5 6) (append-reverse! (list 1 2 3) '(4 5 6)))
+(assert-equal? (tn) '(4 5 6)       (append-reverse! '()          '(4 5 6)))
+(assert-equal? (tn) '(3 2 1 . #t)  (append-reverse! (list 1 2 3) #t))
+(assert-equal? (tn) #t             (append-reverse! '()          #t))
+
+;; zip
+(tn "zip invalid forms")
+(assert-error  (tn) (lambda ()     (zip)))
+(tn "zip single list")
+(assert-equal? (tn) '()            (zip '()))
+(assert-equal? (tn) '((1))         (zip '(1)))
+(assert-equal? (tn) '((1) (2))     (zip '(1 2)))
+(assert-equal? (tn) '((1) (2) (3)) (zip '(1 2 3)))
+(tn "zip 3 lists")
+(assert-equal? (tn) '()                        (zip '() '() '()))
+(assert-equal? (tn) '((1 4 7))                 (zip '(1) '(4) '(7)))
+(assert-equal? (tn) '((1 4 7) (2 5 8))         (zip '(1 2) '(4 5) '(7 8)))
+(assert-equal? (tn) '((1 4 7) (2 5 8) (3 6 9)) (zip '(1 2 3) '(4 5 6) '(7 8 9)))
+(tn "zip 3 lists unequal length")
+(assert-equal? (tn) '()                (zip '()  '(4) '(7)))
+(assert-equal? (tn) '()                (zip '(1) '()  '(7)))
+(assert-equal? (tn) '()                (zip '(1) '(4) '()))
+(assert-equal? (tn) '((1 4 7))         (zip '(1)   '(4 5) '(7 8)))
+(assert-equal? (tn) '((1 4 7))         (zip '(1 2) '(4)   '(7 8)))
+(assert-equal? (tn) '((1 4 7))         (zip '(1 2) '(4 5) '(7)))
+(assert-equal? (tn) '((1 4 7) (2 5 8)) (zip '(1 2)   '(4 5 6) '(7 8 9)))
+(assert-equal? (tn) '((1 4 7) (2 5 8)) (zip '(1 2 3) '(4 5)   '(7 8 9)))
+(assert-equal? (tn) '((1 4 7) (2 5 8)) (zip '(1 2 3) '(4 5 6) '(7 8)))
+(tn "zip SRFI-1 examples")
+(assert-equal? (tn)
+               '((one 1 odd) (two 2 even) (three 3 odd))
+               (zip '(one two three) 
+                    '(1 2 3)
+                    '(odd even odd even odd even odd even)))
+(assert-equal? (tn)
+               '((1) (2) (3))
+               (zip '(1 2 3)))
+;; SRFI-1: At least one of the argument lists must be finite.
+(assert-equal? (tn)
+               '((3 #f) (1 #t) (4 #f) (1 #t))
+               (zip '(3 1 4 1) (circular-list #f #t)))
+
+;; unzip1
+;; unzip2
+;; unzip3
+;; unzip4
+;; unzip5
+;; count
 
 ;;
 ;; Fold, unfold & map
@@ -992,6 +1144,10 @@
                '(c 3 b 2 a 1)
                (fold cons* '() '(a b c) '(1 2 3 4 5)))
 
+;; fold-right
+;; pair-fold
+;; pair-fold-right
+
 ;; reduce
 (tn "reduce invalid forms")
 (assert-error  (tn) (lambda () (reduce cons)))
@@ -1015,6 +1171,8 @@
 (tn "reduce SRFI-1 examples")
 ;; Take the max of a list of non-negative integers.
 (assert-equal? (tn) 43       (reduce max 0 '(0 7 8 8 43 -4)))
+
+;; reduce-right
 
 ;; unfold
 (tn "unfold invalid forms")
@@ -1063,6 +1221,131 @@
                      (tail '(4 5 6)))
                  (unfold null-list? car cdr head 
                          (lambda (x) tail))))
+
+;; unfold-right
+;; map
+;; for-each
+
+;; append-map
+(tn "append-map invalid forms")
+(assert-error  (tn) (lambda () (append-map values)))
+(assert-error  (tn) (lambda () (append-map #\a '())))
+(assert-error  (tn) (lambda () (append-map values '#())))
+(assert-error  (tn) (lambda () (append-map list '(1) '#(2))))
+(tn "append-map single list")
+(assert-equal? (tn)
+               '()
+               (append-map values '()))
+(assert-equal? (tn)
+               '(1 2 3 4 5 6 7)
+               (append-map values '((1) (2 3) (4) (5 6 7))))
+(assert-equal? (tn)
+               '(1 3 2 4 7 6 5)
+               (append-map reverse '((1) (2 3) (4) (5 6 7))))
+(tn "append-map 3 lists")
+(assert-equal? (tn)
+               '()
+               (append-map list '() '() '()))
+(assert-equal? (tn)
+               '(1 4 7 2 5 8 3 6 9)
+               (append-map list '(1 2 3) '(4 5 6) '(7 8 9)))
+(tn "append-map 3 lists unequal length")
+(assert-equal? (tn)
+               '(1 4 7 2 5 8)
+               (append-map list '(1 2)   '(4 5 6) '(7 8 9)))
+(assert-equal? (tn)
+               '(1 4 7 2 5 8)
+               (append-map list '(1 2 3) '(4 5)   '(7 8 9)))
+(assert-equal? (tn)
+               '(1 4 7 2 5 8)
+               (append-map list '(1 2 3) '(4 5 6) '(7 8)))
+(assert-equal? (tn)
+               '()
+               (append-map list '()      '(4 5 6) '(7 8 9)))
+(assert-equal? (tn)
+               '()
+               (append-map list '(1 2 3) '()      '(7 8 9)))
+(assert-equal? (tn)
+               '()
+               (append-map list '(1 2 3) '(4 5 6) '()))
+(tn "append-map 3 lists with circular list")
+;; SRFI-1: At least one of the list arguments must be finite.
+(assert-equal? (tn)
+               '(1 4 7 2 5 8 1 6 9)
+               (append-map list clst2    '(4 5 6) '(7 8 9)))
+(assert-equal? (tn)
+               '(1 1 7 2 2 8 3 1 9)
+               (append-map list '(1 2 3) clst2    '(7 8 9)))
+(assert-equal? (tn)
+               '(1 4 1 2 5 2 3 6 1)
+               (append-map list '(1 2 3) '(4 5 6) clst2))
+(tn "append-map SRFI-1 examples")
+(assert-equal? (tn)
+               '(1 -1 3 -3 8 -8)
+               (append-map (lambda (x) (list x (- x))) '(1 3 8)))
+
+;; append-map!
+(tn "append-map! invalid forms")
+(assert-error  (tn) (lambda () (append-map! values)))
+(assert-error  (tn) (lambda () (append-map! #\a '())))
+(assert-error  (tn) (lambda () (append-map! values '#())))
+(assert-error  (tn) (lambda () (append-map! list '(1) '#(2))))
+(tn "append-map! single list")
+(assert-equal? (tn)
+               '()
+               (append-map! values '()))
+(assert-equal? (tn)
+               '(1 2 3 4 5 6 7)
+               (append-map! values
+                            (list (list 1) (list 2 3) (list 4) (list 5 6 7))))
+(assert-equal? (tn)
+               '(1 3 2 4 7 6 5)
+               (append-map! reverse '((1) (2 3) (4) (5 6 7))))
+(tn "append-map! 3 lists")
+(assert-equal? (tn)
+               '()
+               (append-map! list '() '() '()))
+(assert-equal? (tn)
+               '(1 4 7 2 5 8 3 6 9)
+               (append-map! list '(1 2 3) '(4 5 6) '(7 8 9)))
+(tn "append-map! 3 lists unequal length")
+(assert-equal? (tn)
+               '(1 4 7 2 5 8)
+               (append-map! list '(1 2)   '(4 5 6) '(7 8 9)))
+(assert-equal? (tn)
+               '(1 4 7 2 5 8)
+               (append-map! list '(1 2 3) '(4 5)   '(7 8 9)))
+(assert-equal? (tn)
+               '(1 4 7 2 5 8)
+               (append-map! list '(1 2 3) '(4 5 6) '(7 8)))
+(assert-equal? (tn)
+               '()
+               (append-map! list '()      '(4 5 6) '(7 8 9)))
+(assert-equal? (tn)
+               '()
+               (append-map! list '(1 2 3) '()      '(7 8 9)))
+(assert-equal? (tn)
+               '()
+               (append-map! list '(1 2 3) '(4 5 6) '()))
+(tn "append-map! 3 lists with circular list")
+;; SRFI-1: At least one of the list arguments must be finite.
+(assert-equal? (tn)
+               '(1 4 7 2 5 8 1 6 9)
+               (append-map! list clst2    '(4 5 6) '(7 8 9)))
+(assert-equal? (tn)
+               '(1 1 7 2 2 8 3 1 9)
+               (append-map! list '(1 2 3) clst2    '(7 8 9)))
+(assert-equal? (tn)
+               '(1 4 1 2 5 2 3 6 1)
+               (append-map! list '(1 2 3) '(4 5 6) clst2))
+(tn "append-map! SRFI-1 examples")
+(assert-equal? (tn)
+               '(1 -1 3 -3 8 -8)
+               (append-map! (lambda (x) (list x (- x))) '(1 3 8)))
+
+;; map!
+;; map-in-order
+;; pair-for-each
 
 ;; filter-map
 (tn "filter-map invalid forms")
@@ -1191,6 +1474,8 @@
 (tn "filter SRFI-1 examples")
 (assert-equal? (tn) '(0 8 8 -4)    (filter even? '(0 7 8 8 43 -4)))
 
+;; partition
+
 ;; remove
 (tn "remove invalid forms")
 (assert-error  (tn) (lambda ()       (remove #\a     '(1 2))))
@@ -1204,6 +1489,10 @@
 (assert-equal? (tn) '(0 7 8 8 43 -4) (remove pair?   '(0 7 8 8 43 -4)))
 (tn "remove SRFI-1 examples")
 (assert-equal? (tn) '(7 43)          (remove even?   '(0 7 8 8 43 -4)))
+
+;; filter!
+;; partition!
+;; remove!
 
 
 ;;
@@ -1367,6 +1656,300 @@
                                    (= x 1)))
                             clst4)))
 
+;; take-while
+;; take-while!
+;; drop-while
+;; span
+;; span!
+;; break
+;; break!
+
+;; any
+(tn "any invalid forms")
+(assert-error  (tn) (lambda ()      (any +)))
+(assert-error  (tn) (lambda ()      (any + '#())))
+(assert-error  (tn) (lambda ()      (any + '(1) '#(2))))
+(assert-error  (tn) (lambda ()      (any #\a '(1))))
+(tn "any single list")
+(assert-equal? (tn) #f              (any +     '()))
+(assert-equal? (tn) #f              (any even? '()))
+(assert-equal? (tn) 2               (any +     '(2 4 6 8)))
+(assert-equal? (tn) #f              (any odd?  '(2 4 6 8)))
+(assert-equal? (tn) #t              (any odd?  '(3 2 4 6 8)))
+(assert-equal? (tn) #t              (any odd?  '(2 4 3 6 8)))
+(assert-equal? (tn) #t              (any odd?  '(2 4 6 8 3)))
+(tn "any 3 lists")
+(assert-equal? (tn) #f              (any +     '() '() '()))
+(assert-equal? (tn) 12              (any +
+                                         '(2 4 6 8)
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) 17              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (odd? sum)
+                                                  sum)))
+                                         '(2 4 6 8)
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) #f              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (odd? sum)
+                                                  sum)))
+                                         '(2 4 6 8)
+                                         '(1 4 5 8)
+                                         '(9 10 11 12)))
+(tn "any 3 lists unequal length")
+(assert-equal? (tn) 22              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 20 sum)
+                                                  sum)))
+                                         '(2 4 6)
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) 22              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 20 sum)
+                                                  sum)))
+                                         '(2 4 6 8)
+                                         '(1 3 5)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) 22              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 20 sum)
+                                                  sum)))
+                                         '(2 4 6 8)
+                                         '(1 3 5 7)
+                                         '(9 10 11)))
+(assert-equal? (tn) #f              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 25 sum)
+                                                  sum)))
+                                         '(2 4 6)
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) #f              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 25 sum)
+                                                  sum)))
+                                         '(2 4 6 8)
+                                         '(1 3 5)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) #f              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 25 sum)
+                                                  sum)))
+                                         '(2 4 6 8)
+                                         '(1 3 5 7)
+                                         '(9 10 11)))
+(assert-equal? (tn) #f              (any +
+                                         '()
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) #f              (any +
+                                         '(2 4 6 8)
+                                         '()
+                                         '(9 10 11 12)))
+(assert-equal? (tn) #f              (any +
+                                         '(2 4 6 8)
+                                         '(1 3 5 7)
+                                         '()))
+(tn "any 3 lists with circular list")
+(assert-equal? (tn) 11              (any +
+                                         clst2
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(assert-equal? (tn) 21              (any (lambda args
+                                           (let ((sum (apply + args)))
+                                             (and (< 20 sum)
+                                                  sum)))
+                                         clst2
+                                         '(1 3 5 7)
+                                         '(9 10 11 12)))
+(tn "any 3 SRFI-1 examples")
+;;(assert-eq?    (tn) #t (any integer? '(a 3 b 2.7)))
+(assert-eq?    (tn) #t (any integer? '(a 3 b #\2)))
+;;(assert-eq?    (tn) #f (any integer? '(a 3.1 b 2.7)))
+(assert-eq?    (tn) #f (any integer? '(a #\3 b #\2)))
+(assert-eq?    (tn) #t (any < '(3 1 4 1 5)
+                              '(2 7 1 8 2)))
+
+;; every
+(tn "every invalid forms")
+(assert-error  (tn) (lambda ()      (every +)))
+(assert-error  (tn) (lambda ()      (every + '#())))
+(assert-error  (tn) (lambda ()      (every + '(1) '#(2))))
+(assert-error  (tn) (lambda ()      (every #\a '(1))))
+(tn "every single list")
+(assert-equal? (tn) #t              (every +     '()))
+(assert-equal? (tn) #t              (every even? '()))
+(assert-equal? (tn) 8               (every +     '(2 4 6 8)))
+(assert-equal? (tn) #t              (every even? '(2 4 6 8)))
+(assert-equal? (tn) #f              (every even? '(3 2 4 6 8)))
+(assert-equal? (tn) #f              (every even? '(2 4 3 6 8)))
+(assert-equal? (tn) #f              (every even? '(2 4 6 8 3)))
+(tn "every 3 lists")
+(assert-equal? (tn) #t              (every +     '() '() '()))
+(assert-equal? (tn) 27              (every +
+                                           '(2 4 6 8)
+                                           '(1 3 5 7)
+                                           '(9 10 11 12)))
+(assert-equal? (tn) #f              (every (lambda args
+                                             (let ((sum (apply + args)))
+                                             (and (even? sum)
+                                                  sum)))
+                                           '(2 4 6 8)
+                                           '(1 3 5 7)
+                                           '(9 10 11 12)))
+(assert-equal? (tn) 28              (every (lambda args
+                                             (let ((sum (apply + args)))
+                                             (and (even? sum)
+                                                  sum)))
+                                           '(2 4 6 8)
+                                           '(1 4 5 8)
+                                           '(9 10 11 12)))
+(tn "every 3 lists unequal length")
+(assert-equal? (tn) 22              (every +
+                                           '(2 4 6)
+                                           '(1 3 5 7)
+                                           '(9 10 11 12)))
+(assert-equal? (tn) 22              (every +
+                                           '(2 4 6 8)
+                                           '(1 3 5)
+                                           '(9 10 11 12)))
+(assert-equal? (tn) 22              (every +
+                                           '(2 4 6 8)
+                                           '(1 3 5 7)
+                                           '(9 10 11)))
+(assert-equal? (tn) #t              (every +
+                                           '()
+                                           '(1 3 5 7)
+                                           '(9 10 11 12)))
+(assert-equal? (tn) #t              (every +
+                                           '(2 4 6 8)
+                                           '()
+                                           '(9 10 11 12)))
+(assert-equal? (tn) #t              (every +
+                                           '(2 4 6 8)
+                                           '(1 3 5 7)
+                                           '()))
+(tn "every 3 lists with circular list")
+(assert-equal? (tn) 21              (every +
+                                           clst2
+                                           '(1 3 5 7)
+                                           '(9 10 11 12)))
+
+;; list-index
+(tn "list-index invalid forms")
+(assert-error  (tn) (lambda () (list-index even?)))
+(assert-error  (tn) (lambda () (list-index even? '#())))
+(assert-error  (tn) (lambda () (list-index #\a   '(1))))
+(assert-error  (tn) (lambda () (list-index +     '(1) '#(2))))
+(tn "list-index single list")
+(assert-false  (tn)    (list-index even? '()))
+(assert-false  (tn)    (list-index even? '(1)))
+(assert-equal? (tn) 1  (list-index even? '(1 2)))
+(assert-equal? (tn) 1  (list-index even? '(1 2 3)))
+(assert-false  (tn)    (list-index odd?  '(2 4 6 8)))
+(assert-equal? (tn) 0  (list-index odd?  '(3 2 4 6 8)))
+(assert-equal? (tn) 2  (list-index odd?  '(2 4 3 6 8)))
+(assert-equal? (tn) 4  (list-index odd?  '(2 4 6 8 3)))
+(tn "list-index 3 lists")
+(assert-false  (tn)    (list-index +     '() '() '()))
+(assert-equal? (tn) 0  (list-index +
+                                   '(2 4 6 8)
+                                   '(1 3 5 7)
+                                   '(9 10 11 12)))
+(assert-equal? (tn) 1  (list-index (lambda args
+                                     (let ((sum (apply + args)))
+                                       (and (odd? sum)
+                                            sum)))
+                                   '(2 4 6 8)
+                                   '(1 3 5 7)
+                                   '(9 10 11 12)))
+(assert-equal? (tn) #f (list-index (lambda args
+                                     (let ((sum (apply + args)))
+                                       (and (odd? sum)
+                                            sum)))
+                                   '(2 4 6 8)
+                                   '(1 4 5 8)
+                                   '(9 10 11 12)))
+(tn "list-index 3 lists unequal length")
+(assert-equal? (tn) 2               (list-index (lambda args
+                                                  (let ((sum (apply + args)))
+                                                    (and (< 20 sum)
+                                                         sum)))
+                                                '(2 4 6)
+                                                '(1 3 5 7)
+                                                '(9 10 11 12)))
+(assert-equal? (tn) 2               (list-index (lambda args
+                                                  (let ((sum (apply + args)))
+                                                    (and (< 20 sum)
+                                                         sum)))
+                                                '(2 4 6 8)
+                                                '(1 3 5)
+                                                '(9 10 11 12)))
+(assert-equal? (tn) 2               (list-index (lambda args
+                                                  (let ((sum (apply + args)))
+                                                    (and (< 20 sum)
+                                                         sum)))
+                                                '(2 4 6 8)
+                                                '(1 3 5 7)
+                                                '(9 10 11)))
+(assert-equal? (tn) #f              (list-index (lambda args
+                                                  (let ((sum (apply + args)))
+                                                    (and (< 25 sum)
+                                                         sum)))
+                                                '(2 4 6)
+                                                '(1 3 5 7)
+                                                '(9 10 11 12)))
+(assert-equal? (tn) #f              (list-index (lambda args
+                                                  (let ((sum (apply + args)))
+                                                    (and (< 25 sum)
+                                                         sum)))
+                                                '(2 4 6 8)
+                                                '(1 3 5)
+                                                '(9 10 11 12)))
+(assert-equal? (tn) #f              (list-index (lambda args
+                                                  (let ((sum (apply + args)))
+                                                    (and (< 25 sum)
+                                                         sum)))
+                                                '(2 4 6 8)
+                                                '(1 3 5 7)
+                                                '(9 10 11)))
+(assert-equal? (tn) #f              (list-index +
+                                                '()
+                                                '(1 3 5 7)
+                                                '(9 10 11 12)))
+(assert-equal? (tn) #f              (list-index +
+                                                '(2 4 6 8)
+                                                '()
+                                                '(9 10 11 12)))
+(assert-equal? (tn) #f              (list-index +
+                                                '(2 4 6 8)
+                                                '(1 3 5 7)
+                                                '()))
+(tn "list-index SRFI-1 examples")
+(assert-equal? (tn) 2  (list-index even? '(3 1 4 1 5 9)))
+(assert-equal? (tn) 1  (list-index < '(3 1 4 1 5 9 2 5 6) '(2 7 1 8 2)))
+(assert-equal? (tn) #f (list-index = '(3 1 4 1 5 9 2 5 6) '(2 7 1 8 2)))
+
+;; member
+(tn "member invalid forms")
+(assert-error  (tn) (lambda () (member 1)))
+(assert-error  (tn) (lambda () (member 1 '#(1))))
+(assert-error  (tn) (lambda () (member 1 '(1) #\a)))
+(assert-error  (tn) (lambda () (member 1 '(1) = '())))
+(tn "member")
+(assert-eq?    (tn) #f         (member 1                '()))
+(assert-eq?    (tn) #f         (member 1                '() eq?))
+(assert-eq?    (tn) #f         (member 1                '() equal?))
+(assert-eq?    (tn) cdr3       (member elm3             lst))
+(assert-eq?    (tn) cdr3       (member elm3             lst eq?))
+(assert-eq?    (tn) cdr3       (member elm3             lst equal?))
+(assert-eq?    (tn) cdr3       (member (list-copy elm3) lst))
+(assert-false  (tn)            (member (list-copy elm3) lst eq?))
+(assert-eq?    (tn) cdr3       (member (list-copy elm3) lst equal?))
+
 
 ;;
 ;; Deleting
@@ -1394,15 +1977,86 @@
 (tn "delete SRFI-1 examples")
 (assert-equal? (tn) '(0 -4)          (delete 5 '(0 7 8 8 43 -4) <))
 
+;; delete!
+(tn "delete! invalid forms")
+(assert-error  (tn) (lambda ()       (delete! 1)))
+(assert-error  (tn) (lambda ()       (delete! 1 (vector 1))))
+(assert-error  (tn) (lambda ()       (delete! 1 (list 1) #\a)))
+(assert-error  (tn) (lambda ()       (delete! 1 (list 1) = '())))
+(tn "delete!")
+(assert-equal? (tn) '()              (delete! 1    '()))
+(assert-equal? (tn) '()              (delete! 1    '() eq?))
+(assert-equal? (tn) '()              (delete! 1    '() equal?))
+(assert-equal? (tn) (list cdr0 cdr2) (delete! cdr1 (list cdr0 cdr1 cdr2)))
+(assert-equal? (tn) (list cdr0 cdr2) (delete! cdr1 (list cdr0 cdr1 cdr2) eq?))
+(assert-equal? (tn) (list cdr0 cdr2) (delete! cdr1 (list cdr0 cdr1 cdr2) equal?))
+(assert-equal? (tn) (list cdr0 cdr2)      (delete! (list-copy cdr1)
+                                                   (list cdr0 cdr1 cdr2)))
+(assert-equal? (tn) (list cdr0 cdr1 cdr2) (delete! (list-copy cdr1)
+                                                   (list cdr0 cdr1 cdr2) eq?))
+(assert-equal? (tn) (list cdr0 cdr2)      (delete! (list-copy cdr1)
+                                                   (list cdr0 cdr1 cdr2) equal?))
+(tn "delete! SRFI-1 examples")
+(assert-equal? (tn) '(0 -4)          (delete! 5 (list 0 7 8 8 43 -4) <))
+
+;; delete-duplicates
+;; delete-duplicates!
+
 
 ;;
 ;; Association lists
 ;;
 
-;; alist-delete
 (define alist-s '(("b" . 2) ("a" . 1) ("d" . 4) ("b" . 5) ("c" . 3)))
 (define alist-n '((1 . a) (5 . e) (6 . f) (2 . b) (4 . d) (3 . c)
                   (4 . d) (3 . c) (7 . g) (6 . f) (5 . e) (7 . g)))
+
+;; assoc
+(tn "assoc (SRFI-1 extended) invalid forms")
+(assert-error  (tn) (lambda () (assoc "a" alist-s #\a)))
+(assert-error  (tn) (lambda () (assoc "a" alist-s string=? values)))
+(tn "assoc (SRFI-1 extended)")
+(assert-equal? (tn) '("b" . 2) (assoc "b" alist-s))
+(assert-equal? (tn) '("a" . 1) (assoc "a" alist-s))
+(assert-equal? (tn) '("d" . 4) (assoc "d" alist-s))
+(assert-equal? (tn) '("c" . 3) (assoc "c" alist-s))
+(assert-false  (tn)            (assoc "A" alist-s))
+(assert-equal? (tn) '("b" . 2) (assoc "b" alist-s string=?))
+(assert-equal? (tn) '("a" . 1) (assoc "a" alist-s string=?))
+(assert-equal? (tn) '("d" . 4) (assoc "d" alist-s string=?))
+(assert-equal? (tn) '("c" . 3) (assoc "c" alist-s string=?))
+(assert-false  (tn)            (assoc "A" alist-s string=?))
+
+;; alist-cons
+(tn "alist-cons")
+(assert-equal? (tn) '(("A" . 1))              (alist-cons "A" 1 '()))
+(assert-equal? (tn) (cons '("A" . 1) alist-s) (alist-cons "A" 1 alist-s))
+(assert-eq?    (tn) alist-s              (cdr (alist-cons "A" 1 alist-s)))
+
+;; alist-copy
+(tn "alist-copy")
+(assert-equal? (tn) '()     (alist-copy '()))
+(assert-equal? (tn) alist-s (alist-copy alist-s))
+(assert-false  (tn) (eq?      (list-ref alist-s              0)
+                              (list-ref (alist-copy alist-s) 0)))
+(assert-true   (tn) (eq? (car (list-ref alist-s              0))
+                         (car (list-ref (alist-copy alist-s) 0))))
+(assert-true   (tn) (eq? (cdr (list-ref alist-s              0))
+                         (cdr (list-ref (alist-copy alist-s) 0))))
+(assert-false  (tn) (eq?      (list-ref alist-s              1)
+                              (list-ref (alist-copy alist-s) 1)))
+(assert-true   (tn) (eq? (car (list-ref alist-s              1))
+                         (car (list-ref (alist-copy alist-s) 1))))
+(assert-true   (tn) (eq? (cdr (list-ref alist-s              1))
+                         (cdr (list-ref (alist-copy alist-s) 1))))
+(assert-false  (tn) (eq?      (list-ref alist-s              2)
+                              (list-ref (alist-copy alist-s) 2)))
+(assert-true   (tn) (eq? (car (list-ref alist-s              2))
+                         (car (list-ref (alist-copy alist-s) 2))))
+(assert-true   (tn) (eq? (cdr (list-ref alist-s              2))
+                         (cdr (list-ref (alist-copy alist-s) 2))))
+
+;; alist-delete
 (tn "alist-delete invalid forms")
 (assert-error  (tn) (lambda () (alist-delete "A" '#())))
 (assert-error  (tn) (lambda () (alist-delete "A" '(("a" . 1)) #\a)))
@@ -1440,10 +2094,62 @@
                  (4 . d) (3 . c) (5 . e))
                (alist-delete 5 alist-n <))
 
+;; alist-delete!
+(tn "alist-delete! invalid forms")
+(assert-error  (tn) (lambda () (alist-delete! "A" (vector))))
+(assert-error  (tn) (lambda () (alist-delete! "A" (list (cons "a" 1)) #\a)))
+(assert-error  (tn) (lambda () (alist-delete! #\a (list (cons "a" 1)) string=?)))
+(tn "alist-delete!")
+(assert-equal? (tn) '() (alist-delete! "A" '()))
+(assert-equal? (tn) '() (alist-delete! "A" '() string=?))
+(assert-equal? (tn)
+               '(("b" . 2) ("a" . 1) ("d" . 4) ("b" . 5) ("c" . 3))
+               (alist-delete! "A" (alist-copy alist-s)))
+(assert-equal? (tn)
+               '(("b" . 2) ("d" . 4) ("b" . 5) ("c" . 3))
+               (alist-delete! "a" (alist-copy alist-s)))
+(assert-equal? (tn)
+               '(("a" . 1) ("d" . 4) ("c" . 3))
+               (alist-delete! "b" (alist-copy alist-s)))
+(assert-equal? (tn)
+               '(("a" . 1) ("d" . 4) ("c" . 3))
+               (alist-delete! "b" (alist-copy alist-s) string=?))
+(assert-equal? (tn)
+               '((1 . a) (5 . e) (6 . f) (2 . b) (4 . d) (3 . c)
+                 (4 . d) (3 . c) (7 . g) (6 . f) (5 . e) (7 . g))
+               (alist-delete! -1 (alist-copy alist-n)))
+(assert-equal? (tn)
+               '((1 . a) (5 . e) (2 . b) (4 . d) (3 . c)
+                 (4 . d) (3 . c) (7 . g) (5 . e) (7 . g))
+               (alist-delete! 6 (alist-copy alist-n)))
+(assert-equal? (tn)
+               '((1 . a) (5 . e) (2 . b) (4 . d) (3 . c)
+                 (4 . d) (3 . c) (7 . g) (5 . e) (7 . g))
+               (alist-delete! 6 (alist-copy alist-n) =))
+(tn "alist-delete! SRFI-1 examples")
+(assert-equal? (tn)
+               '((1 . a) (5 . e) (2 . b) (4 . d) (3 . c)
+                 (4 . d) (3 . c) (5 . e))
+               (alist-delete! 5 (alist-copy alist-n) <))
+
 
 ;;
 ;; Set operations on lists
 ;;
+
+;; lset<=
+;; lset=
+;; lset-adjoin
+;; lset-union
+;; lset-intersection
+;; lset-difference
+;; lset-xor
+;; lset-diff+intersection
+;; lset-union!
+;; lset-intersection!
+;; lset-difference!
+;; lset-xor!
+;; lset-diff+intersection!
 
 
 (total-report)

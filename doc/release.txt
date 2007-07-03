@@ -6,8 +6,8 @@ Acknowledgement
 
 A part of this document is based on
 http://lists.freedesktop.org/archives/uim/2005-November/001381.html[Release
-Manual for uim (draft)] contributed to http://uim.freedesktop.org/[uim project]
-by Jeroen Ruigrok van der Werven. Thank you for cooperation.
+Manual for uim (draft)] contributed to http://code.google.com/p/uim/[uim
+project] by Jeroen Ruigrok van der Werven. Thank you for cooperation.
 
 
 Versioning scheme
@@ -69,15 +69,15 @@ Tagging
 A release must be tagged for development management.
 
 ----------------------------------------------------------------
-$ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/sigscheme-trunk \
-                svn+ssh://svn.freedesktop.org/svn/uim/tags/sigscheme-x.y.z
+$ svn cp -r33xx https://uim.googlecode.com/svn/sigscheme-trunk \
+                https://uim.googlecode.com/svn/tags/sigscheme-x.y.z
 ----------------------------------------------------------------
 
 If the release is a snapshot, tag as follows:
 
 ----------------------------------------------------------------
-$ svn cp -r33xx svn+ssh://svn.freedesktop.org/svn/uim/sigscheme-trunk \
-                svn+ssh://svn.freedesktop.org/svn/uim/tags/sigscheme-snapshot-YYYYMMDD
+$ svn cp -r33xx https://uim.googlecode.com/svn/sigscheme-trunk \
+                https://uim.googlecode.com/svn/tags/sigscheme-snapshot-YYYYMMDD
 ----------------------------------------------------------------
 
 Packaging
@@ -85,7 +85,7 @@ Packaging
 
 ----------------------------------------------------------------
 $ cd /tmp
-$ svn export http://anonsvn.freedesktop.org/svn/uim/tags/sigscheme-x.y.z
+$ svn export http://uim.googlecode.com/svn/tags/sigscheme-x.y.z
 $ cd sigscheme-x.y.z
 $ ./make-dist.sh
 ----------------------------------------------------------------
@@ -101,8 +101,66 @@ sigscheme-x.y.z.sum
 Publishing and announcements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Place sigscheme-x.y.z.tar.{gz,bz2} to http://uim.freedesktop.org/releases/
+Upload the file by the official uploading script:
 
-# Place sigscheme-x.y.z.tar.{gz,bz2} to http://uim.freedesktop.org/releases/
+  http://code.google.com/p/support/wiki/ScriptedUploads
 
-FIXME
+Don't forget adding appropriate tags as follows.
+
+Final release:
+----------------------------------------------------------------
+  googlecode-upload.py -u yamakenz -p sigscheme \
+                       -s 'SigScheme 0.8.0' -l 'Stable Featured' \
+                       sigscheme-1.5.0.tar.bz2
+----------------------------------------------------------------
+
+Alpha or beta release:
+----------------------------------------------------------------
+  googlecode-upload.py -u yamakenz -p sigscheme \
+                       -s 'SigScheme 0.8.0-alpha' -l 'Unstable' \
+                       sigscheme-1.5.0-alpha.tar.bz2
+----------------------------------------------------------------
+
+Snapshot release:
+----------------------------------------------------------------
+  googlecode-upload.py -u yamakenz -p sigscheme \
+                       -s 'SigScheme trunk-snapshot20070703' -l 'Snapshot' \
+                       sigscheme-trunk-snapshot20070703.tar.bz2
+----------------------------------------------------------------
+
+And untag 'Featured' from previous final release files by the web
+interface.
+
+Then update the web pages.
+
+   http://code.google.com/p/sigscheme/
+   http://code.google.com/p/sigscheme/wiki/SigScheme
+   http://code.google.com/p/sigscheme/wiki/Download
+
+Update 'SigScheme' page first and copy it into the project description
+(homepage).
+
+<obsolete>
+The checksums of the files must not directly be written into the
+anyone-rewritable wikipage, to prevent spoofings. It should be a link to the
+release announce which contain the checksum information.
+</obsolete>
+
+And send a message to {sigscheme-ja,uim-en,uim-ja}@googlegroups.com
+
+----------------------------------------------------------------
+   <write announcement here>
+   
+     http://code.google.com/p/sigscheme/wiki/Download
+
+   MD5 (sigscheme-0.8.0-example.tar.gz) = cff14a6ad95a6a1303b527a86d27bff4
+   MD5 (sigscheme-0.8.0-example.tar.bz2) = b2e96af101a0c51df697990f6311f6f2
+   SHA1 (sigscheme-0.8.0-example.tar.gz) = 3f152c4aa77a3a44d9f74800a8b9d8d3b6c16771
+   SHA1 (sigscheme-0.8.0-example.tar.bz2) = c870c3e8585ce8e4200fe3247021802d922781c6
+
+   <append RELNOTE here>
+----------------------------------------------------------------
+
+Update Freshmeat entry at last.
+
+   http://freshmeat.net/projects/sigscheme/

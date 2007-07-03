@@ -1,4 +1,4 @@
-##### http://websvn.freedesktop.org/uim/branches/r5rs/sigscheme/m4/ax_feature_configurator.m4
+##### http://uim.googlecode.com/svn/sigscheme-trunk/m4/ax_feature_configurator.m4
 #
 # SYNOPSIS
 #
@@ -9,16 +9,16 @@
 #   A dependency-based feature configurator.
 #
 #   This macro suite is still under development. See
-#   http://websvn.freedesktop.org/uim/branches/r5rs/sigscheme/configure.in
+#   http://uim.googlecode.com/svn/sigscheme-trunk/configure.in
 #   as a working example.
 #
 # LAST MODIFICATION
 #
-#   2006-12-18
+#   2007-07-03
 #
 # COPYLEFT
 #
-#   Copyright (c) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
+#   Copyright (c) 2006-2007 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
 #
 #   Copying and distribution of this file, with or without
 #   modification, are permitted in any medium without royalty provided

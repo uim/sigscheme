@@ -7,7 +7,7 @@ What's SigScheme
 SigScheme is a R5RS Scheme interpreter for embedded use.
 
   Homepage:
-    http://uim.freedesktop.org/wiki/SigScheme
+    http://code.google.com/p/sigscheme/
 
 
 About This Release
@@ -46,7 +46,7 @@ Please report us if you find a problem. And if you have a time, run
 'make-report.sh' and send us the result regardless of PASSed or FAILed. It
 greatly helps the development, especially for non-PC platforms.
 
-Mailinglist: uim@freedesktop.org
+Mailinglist: sigscheme-ja@googlegroups.com
 
 
 What's New

@@ -2,7 +2,7 @@
  *  Filename : test-gc-protect.c
  *  About    : garbage collector protection test
  *
- *  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+ *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

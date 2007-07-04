@@ -2,7 +2,7 @@
 ;;  About    : unit test for SRFI-28
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

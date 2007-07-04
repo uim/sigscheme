@@ -3,7 +3,7 @@
 ;;  Filename : test-string-proc.scm
 ;;  About    : unit test for R5RS string procedures
 ;;
-;;  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

@@ -3,7 +3,7 @@
  *  About    : scheme object representation and accessor test
  *
  *  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
- *  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+ *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

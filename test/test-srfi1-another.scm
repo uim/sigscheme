@@ -3,7 +3,7 @@
 ;;  Filename : test-srfi1-another.scm
 ;;  About    : unit test for SRFI-1 (another version)
 ;;
-;;  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

@@ -3,7 +3,7 @@
  *  About    : Efficiency evaluation for immediate constant values (temporary)
  *
  *  Copyright (C) 2005-2006 YamaKen
- *  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+ *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

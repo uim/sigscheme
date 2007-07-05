@@ -1,5 +1,5 @@
-;;  Filename : test-srfi1.scm
-;;  About    : unit test for SRFI-1
+;;  Filename : test-srfi1-obsolete.scm
+;;  About    : unit test for SRFI-1 (obsolete version)
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
 ;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
@@ -203,18 +203,6 @@
 (assert-equal? "concatenate test 7" '(a b) (concatenate '((a b))))
 (assert-equal? "concatenate test 8" '(a b c d) (concatenate '((a b) (c d))))
 (assert-equal? "concatenate test 9" '(a b c d e f) (concatenate '((a b) (c d) (e f))))
-
-(tn "lset-xor")
-;; To test the bug of the original srfi-1-reference.scm
-(assert-equal? (tn)
-               '("d")
-               (lset-xor equal? '("a" "b" "c") '("d" "c" "a" "b")))
-
-(tn "lset-xor!")
-;; To test the bug of the original srfi-1-reference.scm
-(assert-equal? (tn)
-               '("d")
-               (lset-xor equal? (list "a" "b" "c") (list "d" "c" "a" "b")))
 
 
 (total-report)

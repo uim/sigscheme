@@ -40,8 +40,8 @@ sscm_tests = \
         test-obsolete.scm \
         test-pair.scm \
         test-quote.scm \
-        test-srfi1.scm \
         test-srfi1-another.scm \
+        test-srfi1-obsolete.scm \
         test-srfi2.scm \
         test-srfi6.scm \
         test-srfi8.scm \

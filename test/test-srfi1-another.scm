@@ -2493,12 +2493,26 @@
 ;; lset-union
 ;; lset-intersection
 ;; lset-difference
+
 ;; lset-xor
+(tn "lset-xor")
+;; To test the bug of the original srfi-1-reference.scm
+(assert-equal? (tn)
+               '("d")
+               (lset-xor equal? '("a" "b" "c") '("d" "c" "a" "b")))
+
 ;; lset-diff+intersection
 ;; lset-union!
 ;; lset-intersection!
 ;; lset-difference!
+
 ;; lset-xor!
+(tn "lset-xor!")
+;; To test the bug of the original srfi-1-reference.scm
+(assert-equal? (tn)
+               '("d")
+               (lset-xor equal? (list "a" "b" "c") (list "d" "c" "a" "b")))
+
 ;; lset-diff+intersection!
 
 

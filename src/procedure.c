@@ -43,7 +43,7 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
-#define ERRMSG_UNEVEN_MAP_ARGS "uneven-length lists are passed as arguments"
+#define ERRMSG_UNEVEN_MAP_ARGS "unequal-length lists are passed as arguments"
 
 /*=======================================
   File Local Type Definitions
@@ -58,8 +58,6 @@ SCM_DEFINE_EXPORTED_VARS(procedure);
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static ScmObj map_single_arg(ScmObj proc, ScmObj lst);
-static ScmObj map_multiple_args(ScmObj proc, ScmObj lsts);
 
 /*=======================================
   Function Definitions
@@ -283,14 +281,14 @@ scm_p_map(ScmObj proc, ScmObj args)
 
     /* fast path for single arg case */
     if (NULLP(CDR(args)))
-        return map_single_arg(proc, CAR(args));
+        return scm_map_single_arg(proc, CAR(args));
 
     /* multiple args case */
-    return map_multiple_args(proc, args);
+    return scm_map_multiple_args(proc, args, scm_false);
 }
 
-static ScmObj
-map_single_arg(ScmObj proc, ScmObj lst)
+SCM_EXPORT ScmObj
+scm_map_single_arg(ScmObj proc, ScmObj lst)
 {
     ScmQueue q;
     ScmObj elm, ret;
@@ -307,8 +305,8 @@ map_single_arg(ScmObj proc, ScmObj lst)
     return ret;
 }
 
-static ScmObj
-map_multiple_args(ScmObj proc, ScmObj lsts)
+SCM_EXPORT ScmObj
+scm_map_multiple_args(ScmObj proc, ScmObj lsts, scm_bool allow_uneven_lists)
 {
     ScmQueue retq, argq;
     ScmObj ret, elm, map_args, rest_lsts, lst;
@@ -338,6 +336,7 @@ map_multiple_args(ScmObj proc, ScmObj lsts)
 
  finish:
 #if SCM_STRICT_ARGCHECK
+    if (!allow_uneven_lists) {
     /* R5RS: 6.4 Control features
      * > If more than one list is given, then they must all be the same length.
      * SigScheme rejects such user-error explicitly. */
@@ -348,6 +347,7 @@ map_multiple_args(ScmObj proc, ScmObj lsts)
             ERR(ERRMSG_UNEVEN_MAP_ARGS);
     }
     NO_MORE_ARG(lsts);
+    }
 #endif
 
     return ret;

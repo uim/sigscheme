@@ -735,6 +735,11 @@ SCM_EXPORT void scm_macro_bad_scope(ScmObj sym);
 /* error.c */
 SCM_EXPORT void scm_init_error(void);
 
+/* procedure.c */
+SCM_EXPORT ScmObj scm_map_single_arg(ScmObj proc, ScmObj lst);
+SCM_EXPORT ScmObj scm_map_multiple_args(ScmObj proc, ScmObj lsts,
+                                        scm_bool allow_uneven_lists);
+
 /* list.c */
 SCM_EXPORT scm_int_t scm_finite_length(ScmObj lst);
 

@@ -71,17 +71,14 @@ scm_initialize_srfi1(void)
 {
     scm_require(SCMLIBDIR "/srfi-1.scm");
 
-    scm_define_alias("srfi-1:map",      "map");
     scm_define_alias("srfi-1:for-each", "for-each");
     scm_define_alias("srfi-1:member",   "member");
     scm_define_alias("srfi-1:assoc",    "assoc");
 
 #if 0
-    /* Although SigScheme's map is faster than srfi-1.scm and in-order, it is
-     * not conforming to SRFI-1 specification since it rejects unequal length
-     * arguments. If you need to use the efficient C version of map and
-     * for-each, evaluate (define map r5rs:map) and (define for-each
-     * r5rs:for-each) in your code after (use srfi-1). */
+    /* Although SigScheme's R5RS map is faster than srfi-1.scm and in-order, it
+     * is not conforming to SRFI-1 specification since it rejects unequal
+     * length arguments. */
     scm_define_alias("map-in-order", "r5rs:map");
     scm_define_alias("map",          "r5rs:map");
     scm_define_alias("for-each",     "r5rs:for-each");
@@ -89,6 +86,9 @@ scm_initialize_srfi1(void)
 
     /* Overwrite Scheme procedures with efficient C implementations. */
     scm_register_funcs(scm_functable_srfi1);
+
+    scm_define_alias("srfi-1:map",   "map-in-order");
+    scm_define_alias("map",          "map-in-order");
 
     scm_define_alias("proper-list?", "list?");
     /* SigScheme's list-tail satisfies the specification of drop. */
@@ -152,6 +152,25 @@ scm_p_srfi1_lengthplus(ScmObj lst)
         return MAKE_INT(SCM_LISTLEN_DOTTED(len));
     else /* if (SCM_LISTLEN_CIRCULARP(len)) */
         return SCM_FALSE;
+}
+
+/*===========================================================================
+  Fold, unfold & map
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_srfi1_map_in_order(ScmObj proc, ScmObj args)
+{
+    DECLARE_FUNCTION("map-in-order", procedure_variadic_1);
+
+    if (NULLP(args))
+        ERR("wrong number of arguments");
+
+    /* fast path for single arg case */
+    if (NULLP(CDR(args)))
+        return scm_map_single_arg(proc, CAR(args));
+
+    /* multiple args case */
+    return scm_map_multiple_args(proc, args, scm_true);
 }
 
 /*===========================================================================

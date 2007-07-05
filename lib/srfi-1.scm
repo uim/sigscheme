@@ -1037,10 +1037,9 @@
 
 ;; Added by yamaken 2007-06-15
 (define for-each
-  (let ((srfi-1:map map-in-order))  ;; preserve the implementation
-    (lambda args
-      (apply srfi-1:map args)
-      #f)))
+  (lambda args
+    (apply map-in-order args)
+    #f))
 
 ;;; filter, remove, partition
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

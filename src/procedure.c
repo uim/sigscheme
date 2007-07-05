@@ -337,16 +337,16 @@ scm_map_multiple_args(ScmObj proc, ScmObj lsts, scm_bool allow_uneven_lists)
  finish:
 #if SCM_STRICT_ARGCHECK
     if (!allow_uneven_lists) {
-    /* R5RS: 6.4 Control features
-     * > If more than one list is given, then they must all be the same length.
-     * SigScheme rejects such user-error explicitly. */
-    if (!EQ(lsts, rest_lsts))
-        ERR(ERRMSG_UNEVEN_MAP_ARGS);
-    FOR_EACH (lst, lsts) {
-        if (!NULLP(lst))
+        /* R5RS: 6.4 Control features
+         * > If more than one list is given, then they must all be the same
+         * length.  SigScheme rejects such user-error explicitly. */
+        if (!EQ(lsts, rest_lsts))
             ERR(ERRMSG_UNEVEN_MAP_ARGS);
-    }
-    NO_MORE_ARG(lsts);
+        FOR_EACH (lst, lsts) {
+            if (!NULLP(lst))
+                ERR(ERRMSG_UNEVEN_MAP_ARGS);
+        }
+        NO_MORE_ARG(lsts);
     }
 #endif
 

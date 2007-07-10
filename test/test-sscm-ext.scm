@@ -57,6 +57,30 @@
 (assert-equal? (tn) "UTF-8"      (%%set-current-char-codec! "UTF-8"))
 (assert-equal? (tn) "UTF-8"      (%%current-char-codec))
 
+;; sigscheme-init.scm
+(tn "with-char-codec")
+(assert-equal? (tn) "UTF-8"      (%%current-char-codec))
+(assert-equal? (tn) "ISO-8859-1" (with-char-codec "ISO-8859-1"
+                                   (lambda ()
+                                     (%%current-char-codec))))
+(assert-equal? (tn) "UTF-8"      (with-char-codec "UTF-8"
+                                   (lambda ()
+                                     (%%current-char-codec))))
+(assert-equal? (tn) "UTF-8"      (begin
+                                   (guard (err
+                                           (else #f))
+                                     (with-char-codec "ISO-8859-1"
+                                       (lambda ()
+                                         (error "error in the thunk"))))
+                                   (%%current-char-codec)))
+(assert-equal? (tn) "UTF-8"      (begin
+                                   (call-with-current-continuation
+                                    (lambda (k)
+                                      (with-char-codec "ISO-8859-1"
+                                        (lambda ()
+                                          (k #f)))))
+                                   (%%current-char-codec)))
+
 (tn "let-optionals* invalid forms")
 (assert-error  (tn) (lambda () (let-optionals* '() ())))
 (assert-error  (tn) (lambda () (let-optionals* #(0) () #t)))

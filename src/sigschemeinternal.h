@@ -267,6 +267,9 @@ extern "C" {
 #define SCM_LISTLEN_ENCODE_CIRCULAR(len) (SCM_INT_T_MIN)
 #define SCM_LISTLEN_ENCODE_ERROR         SCM_LISTLEN_ENCODE_CIRCULAR
 
+/* only string literal is allowed for the arg 'file' */
+#define SCM_PREPEND_SCMLIBDIR(file) (SCMLIBDIR "/" file)
+
 /*=======================================
   Utils for Procedure Implementation
 =======================================*/

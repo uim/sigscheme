@@ -57,10 +57,6 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
-#define ERRMSG_UNSUPPORTED_ENCODING "unsupported encoding"
-#define ERRMSG_CODEC_SW_NOT_SUPPORTED                                        \
-    "character encoding switching is not supported on this build"
-
 #if !SCM_USE_CONTINUATION
 #define scm_p_call_with_current_continuation NULL
 #define scm_p_dynamic_wind                   NULL

@@ -6,6 +6,9 @@ Overview of changes from 0.7.x to 0.8.0
   - New syntax let-optionals* compatible with Gauche for optional argument
     processing
 
+  - New character codec procedures %%current-char-codec and
+    %%set-current-char-codec!
+
   - New debugging procedures %pair-mutable?, %string-mutable?,
     %vector-mutable?
 

@@ -42,6 +42,21 @@
 (define tn test-name)
 (define ud (undef))
 
+(tn "%%current-char-codec")
+(assert-equal? (tn) "UTF-8"      (%%current-char-codec))
+
+(tn "%%set-current-char-codec!")
+(assert-error  (tn) (lambda ()   (%%set-current-char-codec! "")))
+(assert-error  (tn) (lambda ()   (%%set-current-char-codec! "UTF-32")))
+(assert-equal? (tn) "UTF-8"      (%%set-current-char-codec! "UTF-8"))
+(assert-equal? (tn) "UTF-8"      (%%current-char-codec))
+(assert-equal? (tn) "ISO-8859-1" (%%set-current-char-codec! "ISO-8859-1"))
+(assert-equal? (tn) "ISO-8859-1" (%%current-char-codec))
+(assert-error  (tn) (lambda ()   (%%set-current-char-codec! "UTF-32")))
+(assert-equal? (tn) "ISO-8859-1" (%%current-char-codec))
+(assert-equal? (tn) "UTF-8"      (%%set-current-char-codec! "UTF-8"))
+(assert-equal? (tn) "UTF-8"      (%%current-char-codec))
+
 (tn "let-optionals* invalid forms")
 (assert-error  (tn) (lambda () (let-optionals* '() ())))
 (assert-error  (tn) (lambda () (let-optionals* #(0) () #t)))

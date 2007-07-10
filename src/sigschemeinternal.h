@@ -196,6 +196,9 @@ extern "C" {
     "proper list required for function call but got"
 #define SCM_ERRMSG_NULL_IN_STRING                                            \
     "null character in a middle of string is not enabled"
+#define ERRMSG_UNSUPPORTED_ENCODING "unsupported encoding"
+#define ERRMSG_CODEC_SW_NOT_SUPPORTED                                        \
+    "character encoding switching is not supported on this build"
 
 #if SCM_STRICT_TOPLEVEL_DEFINITIONS
 /* FIXME: temporary hack. SCM_EOF is only used as an unique ID. */

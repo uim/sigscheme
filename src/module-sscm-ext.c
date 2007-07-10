@@ -118,6 +118,41 @@ scm_p_current_environment(ScmEvalState *eval_state)
 }
 
 SCM_EXPORT ScmObj
+scm_p_current_char_codec(void)
+{
+    const char *encoding;
+    DECLARE_FUNCTION("%%current-char-codec", procedure_fixed_0);
+
+#if SCM_USE_MULTIBYTE_CHAR
+    encoding = SCM_CHARCODEC_ENCODING(scm_current_char_codec);
+#else
+    encoding = "ISO-8859-1";
+#endif
+
+    return CONST_STRING(encoding);
+}
+
+SCM_EXPORT ScmObj
+scm_p_set_current_char_codecx(ScmObj encoding)
+{
+    ScmCharCodec *codec;    
+    DECLARE_FUNCTION("%%set-current-char-codec!", procedure_fixed_1);
+
+    ENSURE_STRING(encoding);
+
+#if SCM_USE_MULTIBYTE_CHAR
+    codec = scm_mb_find_codec(SCM_STRING_STR(encoding));
+    if (!codec)
+        ERR_OBJ(ERRMSG_UNSUPPORTED_ENCODING, encoding);
+    scm_current_char_codec = codec;
+#else
+    ERR(ERRMSG_CODEC_SW_NOT_SUPPORTED);
+#endif
+
+    return scm_p_current_char_codec();
+}
+
+SCM_EXPORT ScmObj
 scm_p_prealloc_heaps(ScmObj n)
 {
     DECLARE_FUNCTION("%%prealloc-heaps", procedure_fixed_1);

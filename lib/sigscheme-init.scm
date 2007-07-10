@@ -49,3 +49,15 @@
      (lambda ()
        (%%set-current-char-codec! codec)
        (thunk)))))
+
+;; Preserve original C implementation.
+(define %%load load)
+
+;; Recover original char codec when an error is occurred on loading.
+(define load
+  (if (provided? "multibyte-char")
+      (lambda (file)
+        (%with-guarded-char-codec
+         (lambda ()
+           (%%load file))))
+      %%load))

@@ -338,8 +338,10 @@ scm_initialize_internal(void *dummy)
     if (SCM_PTR_BITS == 64)
         scm_provide(CONST_STRING("64bit-addr"));
 
+#if SCM_USE_LOAD
     /* Load additional procedures written in Scheme */
-    scm_require(SCM_PREPEND_SCMLIBDIR("sigscheme-init.scm"));
+    scm_load(SCM_PREPEND_SCMLIBDIR("sigscheme-init.scm"));
+#endif
 
     return NULL;
 }

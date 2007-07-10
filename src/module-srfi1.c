@@ -69,7 +69,7 @@
 SCM_EXPORT void
 scm_initialize_srfi1(void)
 {
-    scm_require(SCM_PREPEND_SCMLIBDIR("srfi-1.scm"));
+    scm_load(SCM_PREPEND_SCMLIBDIR("srfi-1.scm"));
 
     scm_define_alias("srfi-1:for-each", "for-each");
     scm_define_alias("srfi-1:member",   "member");

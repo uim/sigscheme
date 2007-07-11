@@ -277,7 +277,8 @@ scm_p_integer2char(ScmObj n)
 #if SCM_USE_MULTIBYTE_CHAR
     if ((SCM_CHARCODEC_CCS(scm_current_char_codec) == SCM_CCS_UNICODE
          && !ICHAR_VALID_UNICODEP(val))
-        || !SCM_CHARCODEC_CHAR_LEN(scm_current_char_codec, val))
+        || (!SCM_CHARCODEC_CHAR_LEN(scm_current_char_codec, val)
+            && val != 0))  /* NUL is a valid char */
 #else
     if (!ICHAR_SINGLEBYTEP(val))  /* accepts ISO-8859-1 loosely */
 #endif

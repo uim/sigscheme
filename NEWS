@@ -16,8 +16,8 @@ Overview of changes from 0.7.x to 0.8.0
   - New character codec procedures %%current-char-codec,
     %%set-current-char-codec! and with-char-codec
 
-  - New debugging procedures %pair-mutable?, %string-mutable?,
-    %vector-mutable?
+  - New debugging procedures %%pair-mutable?, %%string-mutable?,
+    %%vector-mutable?
 
 * Specification changes
 

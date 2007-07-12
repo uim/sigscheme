@@ -42,6 +42,16 @@
 
 (define tn test-name)
 
+(define vector-mutable?
+  (if sigscheme?
+      %%vector-mutable?
+      (lambda (v) #t)))
+
+(define pair-mutable?
+  (if sigscheme?
+      %%pair-mutable?
+      (lambda (kons) #t)))
+
 ;;
 ;; vector?
 ;;
@@ -130,14 +140,14 @@
 (tn "make-vector mutability")
 (if sigscheme?
     (begin
-      (assert-true   (tn) (%vector-mutable? (make-vector 0)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 1)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 2)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 3)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 0 #t)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 1 #t)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 2 #t)))
-      (assert-true   (tn) (%vector-mutable? (make-vector 3 #t)))))
+      (assert-true   (tn) (vector-mutable? (make-vector 0)))
+      (assert-true   (tn) (vector-mutable? (make-vector 1)))
+      (assert-true   (tn) (vector-mutable? (make-vector 2)))
+      (assert-true   (tn) (vector-mutable? (make-vector 3)))
+      (assert-true   (tn) (vector-mutable? (make-vector 0 #t)))
+      (assert-true   (tn) (vector-mutable? (make-vector 1 #t)))
+      (assert-true   (tn) (vector-mutable? (make-vector 2 #t)))
+      (assert-true   (tn) (vector-mutable? (make-vector 3 #t)))))
 
 ;;
 ;; vector
@@ -158,9 +168,9 @@
 (tn "vector mutability")
 (if sigscheme?
     (begin
-      (assert-true   (tn) (%vector-mutable? (vector)))
-      (assert-true   (tn) (%vector-mutable? (vector 'a)))
-      (assert-true   (tn) (%vector-mutable? (vector 'a 'b 'c 'd)))))
+      (assert-true   (tn) (vector-mutable? (vector)))
+      (assert-true   (tn) (vector-mutable? (vector 'a)))
+      (assert-true   (tn) (vector-mutable? (vector 'a 'b 'c 'd)))))
 
 ;;
 ;; vector-length
@@ -194,8 +204,8 @@
 (define immv5 '#(e0 e1 e2 e3 e4))
 (if sigscheme?
     (begin
-      (assert-true   (tn) (not (%vector-mutable? immv1)))
-      (assert-true   (tn) (not (%vector-mutable? immv5)))))
+      (assert-true   (tn) (not (vector-mutable? immv1)))
+      (assert-true   (tn) (not (vector-mutable? immv5)))))
 (assert-error  (tn) (lambda () (vector-ref '#() -1)))
 (assert-error  (tn) (lambda () (vector-ref '#()  0)))
 (assert-error  (tn) (lambda () (vector-ref '#()  1)))
@@ -220,8 +230,8 @@
 (define mutv5 (vector e0 e1 e2 e3 e4))
 (if sigscheme?
     (begin
-      (assert-true   (tn) (%vector-mutable? mutv1))
-      (assert-true   (tn) (%vector-mutable? mutv5))))
+      (assert-true   (tn) (vector-mutable? mutv1))
+      (assert-true   (tn) (vector-mutable? mutv5))))
 (assert-error  (tn) (lambda () (vector-ref (vector) -1)))
 (assert-error  (tn) (lambda () (vector-ref (vector)  0)))
 (assert-error  (tn) (lambda () (vector-ref (vector)  1)))
@@ -258,7 +268,7 @@
 (if sigscheme?
     (assert-true   (tn) (let ((v (vector e0)))
                           (vector-set! v 0 x)
-                          (%vector-mutable? v))))
+                          (vector-mutable? v))))
 
 ;; length 0
 (assert-error  (tn) (lambda ()  (vector-set! (vector) -1 x)))
@@ -365,13 +375,13 @@
 (tn "vector->list mutability")
 (if sigscheme?
     (begin
-      (assert-true   (tn) (%pair-mutable? (vector->list '#(a))))
-      (assert-true   (tn) (%pair-mutable? (vector->list '#(a b))))
-      (assert-true   (tn) (%pair-mutable? (vector->list '#(a b c))))
+      (assert-true   (tn) (pair-mutable? (vector->list '#(a))))
+      (assert-true   (tn) (pair-mutable? (vector->list '#(a b))))
+      (assert-true   (tn) (pair-mutable? (vector->list '#(a b c))))
 
-      (assert-true   (tn) (%pair-mutable? (vector->list (vector 'a))))
-      (assert-true   (tn) (%pair-mutable? (vector->list (vector 'a 'b))))
-      (assert-true   (tn) (%pair-mutable? (vector->list (vector 'a 'b 'c))))))
+      (assert-true   (tn) (pair-mutable? (vector->list (vector 'a))))
+      (assert-true   (tn) (pair-mutable? (vector->list (vector 'a 'b))))
+      (assert-true   (tn) (pair-mutable? (vector->list (vector 'a 'b 'c))))))
 
 ;;
 ;; list->vector
@@ -428,14 +438,14 @@
 (tn "list->vector mutability")
 (if sigscheme?
     (begin
-      (assert-true   (tn) (%vector-mutable? (list->vector '())))
-      (assert-true   (tn) (%vector-mutable? (list->vector '(a))))
-      (assert-true   (tn) (%vector-mutable? (list->vector '(a b))))
-      (assert-true   (tn) (%vector-mutable? (list->vector '(a b c))))
+      (assert-true   (tn) (vector-mutable? (list->vector '())))
+      (assert-true   (tn) (vector-mutable? (list->vector '(a))))
+      (assert-true   (tn) (vector-mutable? (list->vector '(a b))))
+      (assert-true   (tn) (vector-mutable? (list->vector '(a b c))))
 
-      (assert-true   (tn) (%vector-mutable? (list->vector (list 'a))))
-      (assert-true   (tn) (%vector-mutable? (list->vector (list 'a 'b))))
-      (assert-true   (tn) (%vector-mutable? (list->vector (list 'a 'b 'c))))))
+      (assert-true   (tn) (vector-mutable? (list->vector (list 'a))))
+      (assert-true   (tn) (vector-mutable? (list->vector (list 'a 'b))))
+      (assert-true   (tn) (vector-mutable? (list->vector (list 'a 'b 'c))))))
 
 ;;
 ;; vector-fill!

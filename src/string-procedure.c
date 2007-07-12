@@ -609,7 +609,7 @@ scm_p_string_fillx(ScmObj str, ScmObj ch)
 SCM_EXPORT ScmObj
 scm_p_string_mutablep(ScmObj str)
 {
-    DECLARE_FUNCTION("%string-mutable?", procedure_fixed_1);
+    DECLARE_FUNCTION("%%string-mutable?", procedure_fixed_1);
 
     ENSURE_STRING(str);
 

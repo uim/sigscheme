@@ -177,7 +177,7 @@ scm_p_prealloc_heaps(ScmObj n)
 SCM_EXPORT ScmObj
 scm_p_pair_mutablep(ScmObj kons)
 {
-    DECLARE_FUNCTION("%pair-mutable?", procedure_fixed_1);
+    DECLARE_FUNCTION("%%pair-mutable?", procedure_fixed_1);
 
     ENSURE_CONS(kons);
 

@@ -45,12 +45,12 @@
 
 (define mutable?
   (if sigscheme?
-      %string-mutable?
+      %%string-mutable?
       (lambda (s) #t)))
 
 (define pair-mutable?
   (if sigscheme?
-      %pair-mutable?
+      %%pair-mutable?
       (lambda (kons) #t)))
 
 ;;

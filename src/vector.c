@@ -218,7 +218,7 @@ scm_p_vector_fillx(ScmObj vec, ScmObj fill)
 SCM_EXPORT ScmObj
 scm_p_vector_mutablep(ScmObj vec)
 {
-    DECLARE_FUNCTION("%vector-mutable?", procedure_fixed_1);
+    DECLARE_FUNCTION("%%vector-mutable?", procedure_fixed_1);
 
     ENSURE_VECTOR(vec);
 

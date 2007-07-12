@@ -3,8 +3,15 @@ Overview of changes from 0.7.x to 0.8.0
 
 * New features
 
+  - SRFI-1 List Library
+
+  - SRFI-55 require-extension
+
   - New syntax let-optionals* compatible with Gauche for optional argument
     processing
+
+  - %%require-module and scm_require_module(). 'use' and scm_use() have been
+    deprecated and will be removed in SigScheme 0.9
 
   - New character codec procedures %%current-char-codec,
     %%set-current-char-codec! and with-char-codec

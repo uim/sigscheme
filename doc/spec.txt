@@ -428,10 +428,29 @@ SRFI conformance
 SRFI-1  List Library
 ~~~~~~~~~~~~~~~~~~~~
 
-Although a C implementation `module-srfi1.c` is existing, it is still broken
-and should not use for production codes. To get SRFI-1 working with SigScheme,
-use SLIB version of the library (will be made available after some
-preparations).
+Fully supported.
+
+It is based on the reference implementation of SRFI-1. Some procedures are
+replaced with efficient C implementation. And bugs in `delete-duplicates!`,
+`lset-xor`, `lset-xor!` and `list=` of the reference implementation are fixed.
+
+
+SRFI-2 AND-LET*
+~~~~~~~~~~~~~~~
+
+Fully supported.
+
+
+SRFI-6 Basic String Ports
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
+
+
+SRFI-8 receive
+~~~~~~~~~~~~~~
+
+Fully supported.
 
 
 SRFI-22 Running Scheme Scripts on Unix
@@ -452,6 +471,8 @@ procedure invocation is not supported (yet).
 
 SRFI-23 Error Reporting Mechanism
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
 
 If srfi-34 is provided, the `error` procedure throws a SigScheme-specific error
 object in cooperate with "SRFI-34 Exception Handling for Programs". Otherwise
@@ -484,14 +505,22 @@ distinguish the error objects from ordinary lists, use SigScheme-specific
 SRFI-28 Basic Format Strings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SigScheme fully supports SRFI-28. A directive-less tilde at end of a format
-string causes an error as same as the reference implementation of SRFI-28.
+Fully supported.
+
+A directive-less tilde at end of a format string causes an error as same as the
+reference implementation of SRFI-28.
 
 .SigScheme
 ================================================================
   (format "~")   ==> error
   (format "a~")  ==> error
 ================================================================
+
+SRFI-34 Exception Handling for Programs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
+
 
 SRFI-38 External Representation for Data with Shared Structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -515,7 +544,7 @@ The shared index starts with #1 (not #0).
 SRFI-48 Intermediate Format Strings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SigScheme fully supports SRFI-48.
+Fully supported.
 
 The 'd' part of '~w,dF' directive is acceptable, but completely ignored on
 output format. Since SigScheme only supports integer currently, number is
@@ -549,6 +578,12 @@ to the reference implementation of SRFI-28.
   (format "~")   ==> error
   (format "a~")  ==> error
 ================================================================
+
+
+SRFI-55 require-extension
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
 
 
 SRFI-60 Integer as Bits

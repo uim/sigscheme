@@ -274,6 +274,7 @@ yyyy yyy srfi module-srfi28.c
 yyyy yyy srfi module-srfi34.c
 yyyy yyy srfi module-srfi38.c
 yyyy yyy srfi module-srfi48.c
+yyyy yy  srfi module-srfi55.c
 yyyyyyyy srfi module-srfi60.c
 y yy y   opt module-sscm-ext.c
 y yy y   opt module-siod.c
@@ -1012,6 +1013,17 @@ coding style:      yamaken@r4052
 normal case tests: yamaken@r4052
 corner case tests: yamaken@r4052
 
+file:              module-srfi55.c
+category:          srfi
+spec by eyes:      yamaken@r4713
+spec by tests:     yamaken@r4713
+general review:    yamaken@r4713
+64-bit by eyes:    yamaken@r4713
+64-bit by tests:
+coding style:      yamaken@r4713
+normal case tests: yamaken@r4713
+corner case tests:
+
 file:              module-srfi60.c
 category:          srfi
 spec by eyes:      yamaken@r3944
@@ -1081,6 +1093,11 @@ corner case tests:
 
 Log
 ---
+2007-07-13  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * module-srfi55.c
+        * srfi-55.scm
+          - QA done @r4713 with test-srfi55.scm
+
 2007-07-01  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi1.c
           - QA done @r4643 with test-srfi1-another.scm, test-srfi1.scm and

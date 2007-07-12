@@ -1250,8 +1250,12 @@ SCM_EXPORT ScmObj scm_eval_c_string(const char *exp);
 /* module.c */
 SCM_EXPORT void scm_provide(ScmObj feature);
 SCM_EXPORT scm_bool scm_providedp(ScmObj feature);
+#if 1  /* 'use' is deprecated and will be removed in SigScheme 0.9 */
 SCM_EXPORT scm_bool scm_use(const char *feature);
 SCM_EXPORT ScmObj scm_s_use(ScmObj feature, ScmObj env);
+#endif
+SCM_EXPORT scm_bool scm_require_module(const char *name);
+SCM_EXPORT ScmObj scm_p_require_module(ScmObj name);
 SCM_EXPORT ScmObj scm_register_func(const char *name, ScmFuncType func,
                                     enum ScmFuncTypeCode type);
 SCM_EXPORT void scm_register_funcs(const struct scm_func_registration_info *table);
@@ -1642,6 +1646,7 @@ SCM_EXPORT ScmObj scm_format(ScmObj port, enum ScmFormatCapability fcap,
 #if SCM_USE_SSCM_EXTENSIONS
 SCM_EXPORT void scm_require(const char *filename);
 SCM_EXPORT ScmObj scm_p_symbol_boundp(ScmObj sym, ScmObj rest);
+SCM_EXPORT ScmObj scm_p_scmlibdir(void);
 SCM_EXPORT ScmObj scm_p_current_environment(ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_p_current_char_codec(void);
 SCM_EXPORT ScmObj scm_p_set_current_char_codecx(ScmObj encoding);
@@ -1731,6 +1736,11 @@ SCM_EXPORT ScmObj scm_p_srfi38_write_with_shared_structure(ScmObj obj,
 #if SCM_USE_SRFI48
 SCM_EXPORT ScmObj scm_p_srfi48_format(ScmObj fmt_or_port, ScmObj rest);
 SCM_EXPORT ScmObj scm_p_formatplus(ScmObj fmt_or_port, ScmObj rest);
+#endif
+
+/* module-srfi55.c */
+#if SCM_USE_SRFI55
+SCM_EXPORT ScmObj scm_s_srfi55_require_extension(ScmObj clauses, ScmObj env);
 #endif
 
 /* module-srfi60.c */

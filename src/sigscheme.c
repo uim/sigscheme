@@ -343,6 +343,11 @@ scm_initialize_internal(void *dummy)
     scm_load(SCM_PREPEND_SCMLIBDIR("sigscheme-init.scm"));
 #endif
 
+    /* require-extension is enabled by default */
+#if SCM_USE_SRFI55
+    scm_require_module("srfi-55");
+#endif
+
     return NULL;
 }
 

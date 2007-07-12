@@ -101,6 +101,9 @@ static const struct scm_module_info module_info_table[] = {
 #if SCM_USE_SRFI48
     {"srfi-48", scm_initialize_srfi48, NULL},
 #endif
+#if SCM_USE_SRFI55
+    {"srfi-55", scm_initialize_srfi55, NULL},
+#endif
 #if SCM_USE_SRFI60
     {"srfi-60", scm_initialize_srfi60, NULL},
 #endif
@@ -115,6 +118,7 @@ static const struct scm_module_info module_info_table[] = {
 =======================================*/
 static const struct scm_module_info *lookup_module_info(const char *feature);
 static void *scm_use_internal(const char *feature);
+static void *scm_require_module_internal(const char *name);
 
 /*=======================================
   Function Definitions
@@ -173,6 +177,7 @@ scm_providedp(ScmObj feature)
     return TRUEP(scm_p_member(feature, l_features));
 }
 
+#if 1  /* 'use' is deprecated and will be removed in SigScheme 0.9 */
 SCM_EXPORT scm_bool
 scm_use(const char *feature)
 {
@@ -190,34 +195,56 @@ scm_use_internal(const char *feature)
     return (void *)(uintptr_t)TRUEP(ok);
 }
 
-/*
- * TODO:
- * - Make the interface and semantics of 'use' similar to other Scheme
- *   implementations such as Gauche. This is important to make *.scm file
- *   portable
- * - Make a *.scm file loadable via this interface (if necessary to make
- *   similar to other Scheme implementations), and make consistent with
- *   'require'
- * - Make the 'module' concept similar to other Scheme implementations and R6RS
- * - Make the module_info_table dynamically registerable for dynamic loadable
- *   objects (if necessary)
- */
 SCM_EXPORT ScmObj
 scm_s_use(ScmObj feature, ScmObj env)
 {
-    const struct scm_module_info *mod;
-    ScmObj feature_str;
     const char *c_feature_str;
     DECLARE_FUNCTION("use", syntax_fixed_1);
 
     ENSURE_SYMBOL(feature);
 
     c_feature_str = SCM_SYMBOL_NAME(feature);
-    if ((mod = lookup_module_info(c_feature_str))) {
-        feature_str = CONST_STRING(c_feature_str);
-        if (!scm_providedp(feature_str)) {
+    return scm_p_require_module(CONST_STRING(c_feature_str));
+}
+#endif  /* deprecated */
+
+SCM_EXPORT scm_bool
+scm_require_module(const char *name)
+{
+    return scm_call_with_gc_ready_stack((ScmGCGateFunc)scm_require_module_internal, (void *)name) ? scm_true : scm_false;
+}
+
+static void *
+scm_require_module_internal(const char *name)
+{
+    ScmObj ok;
+
+    SCM_ASSERT(name);
+
+    ok = scm_p_require_module(CONST_STRING(name));
+    return (void *)(uintptr_t)TRUEP(ok);
+}
+
+/*
+ * TODO:
+ * - Make the 'module' concept similar to other Scheme implementations and R6RS
+ * - Make the module_info_table dynamically registerable for dynamic loadable
+ *   objects (if necessary)
+ */
+SCM_EXPORT ScmObj
+scm_p_require_module(ScmObj name)
+{
+    const struct scm_module_info *mod;
+    const char *c_name;
+    DECLARE_FUNCTION("%%require-module", procedure_fixed_1);
+
+    ENSURE_STRING(name);
+
+    c_name = SCM_STRING_STR(name);
+    if ((mod = lookup_module_info(c_name))) {
+        if (!scm_providedp(name)) {
             (*mod->initializer)();
-            scm_provide(feature_str);
+            scm_provide(name);
         }
         return SCM_TRUE;
     }

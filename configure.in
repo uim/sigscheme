@@ -491,6 +491,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi34=yes
         use_srfi38=yes
         use_srfi48=yes
+        use_srfi55=yes
         use_srfi60=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
@@ -509,6 +510,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi34=no
         use_srfi38=no
         use_srfi48=no
+        use_srfi55=no
         use_srfi60=no
         use_sscm_extensions=no
         use_sscm_format_extension=no
@@ -527,6 +529,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi34=no
         use_srfi38=no
         use_srfi48=no
+        use_srfi55=no
         use_srfi60=no
         use_sscm_extensions=yes
         use_sscm_format_extension=no
@@ -545,6 +548,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi34=yes
         use_srfi38=yes
         use_srfi48=yes
+        use_srfi55=yes
         use_srfi60=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
@@ -655,6 +659,7 @@ AX_FEATURE_ARG_Y(srfi28,         [SRFI-28 'format'])
 AX_FEATURE_ARG_Y(srfi34,         [SRFI-34 exception handling for programs])
 AX_FEATURE_ARG_Y(srfi38,         [SRFI-38 'write/ss' ('read/ss' is not provided)])
 AX_FEATURE_ARG_Y(srfi48,         [SRFI-48 'format' (superset of SRFI-28)])
+AX_FEATURE_ARG_Y(srfi55,         [SRFI-55 'require-extension'])
 AX_FEATURE_ARG_Y(srfi60,         [SRFI-60 integers as bits (partial)])
 
 # R6RS features (preliminary)
@@ -711,13 +716,14 @@ string_procedures: string_procedure
 string_procedure: string char
 reader: port
 writer: port raw_c_format
-load: port reader
+load: port reader string
 sscm_extensions: load
 eval_c_string: reader srfi6
 srfi1: continuation deep_cadrs load sscm_extensions srfi8 srfi23
 srfi6: port string
 srfi34: continuation srfi23
 srfi38: writer
+srfi55: load sscm_extensions
 srfi60: int
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
@@ -870,6 +876,7 @@ AX_FEATURE_DEFINE(srfi28)
 AX_FEATURE_DEFINE(srfi34)
 AX_FEATURE_DEFINE(srfi38)
 AX_FEATURE_DEFINE(srfi48)
+AX_FEATURE_DEFINE(srfi55)
 AX_FEATURE_DEFINE(srfi60)
 
 # R6RS features (preliminary)
@@ -945,6 +952,7 @@ AC_SUBST(use_srfi28)
 AC_SUBST(use_srfi34)
 AC_SUBST(use_srfi38)
 AC_SUBST(use_srfi48)
+AC_SUBST(use_srfi55)
 AC_SUBST(use_srfi60)
 AC_SUBST(use_r6rs_chars)
 AC_SUBST(use_r6rs_named_chars)
@@ -1098,6 +1106,7 @@ SRFI-28: $use_srfi28
 SRFI-34: $use_srfi34
 SRFI-38: $use_srfi38
 SRFI-48: $use_srfi48
+SRFI-55: $use_srfi55
 SRFI-60: $use_srfi60
 
 [R6RS features (preliminary)]

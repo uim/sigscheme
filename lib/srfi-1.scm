@@ -1036,10 +1036,11 @@
 (define map map-in-order)	
 
 ;; Added by yamaken 2007-06-15
+(define %srfi-1:undefined (for-each values '()))
 (define for-each
   (lambda args
     (apply map-in-order args)
-    #f))
+    %srfi-1:undefined))
 
 ;;; filter, remove, partition
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

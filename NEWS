@@ -7,6 +7,8 @@ Overview of changes from 0.7.x to 0.8.0
 
   - SRFI-55 require-extension
 
+  - SRFI-95 Sorting and Merging
+
   - New syntax let-optionals* compatible with Gauche for optional argument
     processing
 

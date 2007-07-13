@@ -15,7 +15,26 @@
 ;;; per element.
 ;;; jaffer: 2007-01-29: Final SRFI-95.
 
-(require 'array)
+;;; Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+
+;; ChangeLog
+;;
+;; 2007-07-13 yamaken   - Imported from SLIB CVS HEAD (revision 1.14)
+;;                        http://cvs.savannah.gnu.org/viewvc/*checkout*/slib/slib/sort.scm?revision=1.14
+;;                        and adapted to SigScheme
+
+
+;;(require 'array)
+
+;; For SigScheme
+(define array?
+  (if (symbol-bound? 'array?)
+      (symbol-value 'array)
+      (lambda (x) #f)))
+(define identity
+  (if (symbol-bound? 'identity)
+      (symbol-value 'identity)
+      (lambda (x) x)))
 
 ;;; (sorted? sequence less?)
 ;;; is true when sequence is a list (x0 x1 ... xm) or a vector #(x0 ... xm)

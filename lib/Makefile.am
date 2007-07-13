@@ -1,6 +1,6 @@
 EXTRA_DIST = slib.scm
 
-dist_scmlib_DATA = sigscheme-init.scm srfi-1.scm srfi-55.scm
+dist_scmlib_DATA = sigscheme-init.scm srfi-1.scm srfi-55.scm srfi-95.scm
 
 # Install into master package's pkgdatadir if --with-master-pkg is specified
 # e.g.)

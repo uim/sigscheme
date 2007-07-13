@@ -18,6 +18,7 @@
 ;;                      - Fix broken lset-difference call of lset-xor and
 ;;                        lset-xor! (as like as Scheme48)
 ;; 2007-07-01 yamaken   - Fix broken comparison of list= on 3 or more lists
+;; 2007-07-13 yamaken   - Change default value for make-list to #<undef>
 
 
 ;;; This is a library of list- and pair-processing functions. I wrote it after
@@ -228,6 +229,8 @@
 (use srfi-8)
 (use srfi-23)
 
+(define %srfi-1:undefined (for-each values '()))
+
 (define (check-arg pred val caller)
   (let lp ((val val))
     (if (pred val) val (lp (error "Bad argument" val pred caller)))))
@@ -259,7 +262,7 @@
 
 (define (make-list len . maybe-elt)
   (check-arg (lambda (n) (and (integer? n) (>= n 0))) len make-list)
-  (let ((elt (cond ((null? maybe-elt) #f) ; Default value
+  (let ((elt (cond ((null? maybe-elt) %srfi-1:undefined) ; Default value
 		   ((null? (cdr maybe-elt)) (car maybe-elt))
 		   (else (error "Too many arguments to MAKE-LIST"
 				(cons len maybe-elt))))))
@@ -1036,7 +1039,6 @@
 (define map map-in-order)	
 
 ;; Added by yamaken 2007-06-15
-(define %srfi-1:undefined (for-each values '()))
 (define for-each
   (lambda args
     (apply map-in-order args)

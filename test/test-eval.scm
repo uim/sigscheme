@@ -199,9 +199,11 @@
                             (eval '(+ 1 2)
                                   '(((x y) . (4 6 . 8))))))
       ;; dotted actuals #3
-      (assert-error  (tn) (lambda ()
-                            (eval '(+ 1 2)
-                                  '(((x . y) . (4 6 . 8))))))
+      ;; This pattern has been allowd when let-optionals* is introduced.
+      (assert-equal? (tn)
+                     '(4 (6 . 8))
+                     (eval '(list x y)
+                           '(((x . y) . (4 6 . 8)))))
       ;; not a symbol in formals
       (assert-error  (tn) (lambda ()
                             (eval '(+ 1 2)
@@ -212,9 +214,11 @@
                                   '(((x) . 4)
                                     ((y) . 6)))))
       ;; not a list as both formals and actuals
-      (assert-error  (tn) (lambda ()
-                            (eval '(+ 1 2)
-                                  '((x . 4)
-                                    (y . 6)))))))
+      ;; This pattern has been allowd when let-optionals* is introduced.
+      (assert-equal? (tn)
+                     '(4 6)
+                     (eval '(list x y)
+                           '((x . 4)
+                             (y . 6))))))
 
 (total-report)

@@ -35,10 +35,10 @@
 
 (define tn test-name)
 
-(define elm0 (list #t))
-(define elm1 (list #t))
-(define elm2 (list #t))
-(define elm3 (list #t))
+(define elm0 (lambda () 0))
+(define elm1 (lambda () 1))
+(define elm2 (lambda () 2))
+(define elm3 (lambda () 3))
 (define nil  '())
 (define cdr3 (cons (cons elm3 3) nil))
 (define cdr2 (cons (cons elm2 2) cdr3))

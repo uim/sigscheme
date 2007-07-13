@@ -1,11 +1,6 @@
 ==============================================================================
 Requirements and critical bugs:
 
-* Make lib/ files loadable before install
-  - sscm --sys-load-path $PWD/lib
-  - scm_set_system_load_path()
-  - Rename %%scmlibdir -> %%sys-load-path
-
 * grep "FIXME" and fix them
 
 ==============================================================================

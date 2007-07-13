@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SSCM=src/sscm
+SSCM="src/sscm --system-load-path $PWD/lib"
 
 for bench in bench/bench-*.scm
 do

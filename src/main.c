@@ -219,11 +219,8 @@ main(int argc, char **argv)
     const char *filename;
     char **rest_argv;
 
-    /* must be done before scm_initialize() */
-    rest_argv = scm_interpret_argv(argv);
+    rest_argv = scm_initialize(NULL, (const char *const *)argv);
     filename = rest_argv[0];
-
-    scm_initialize(NULL);
 
     /* Explicitly allow current directory-relative path. The sscm command is
      * supposed to neither setuid'ed nor setgid'ed. So the privilege escalation

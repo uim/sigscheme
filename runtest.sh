@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SSCM=src/sscm
+SSCM="src/sscm --system-load-path $PWD/lib"
 
 if test "x$1" != "x"; then
   while test "$#" -ne 0; do

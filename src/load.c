@@ -73,10 +73,11 @@
 
 SCM_GLOBAL_VARS_BEGIN(static_load);
 #define static
-static char *l_scm_lib_path;
+static char *l_scm_lib_path, *l_scm_system_load_path;
 #undef static
 SCM_GLOBAL_VARS_END(static_load);
-#define l_scm_lib_path SCM_GLOBAL_VAR(static_load, l_scm_lib_path)
+#define l_scm_lib_path         SCM_GLOBAL_VAR(static_load, l_scm_lib_path)
+#define l_scm_system_load_path SCM_GLOBAL_VAR(static_load, l_scm_system_load_path)
 SCM_DEFINE_STATIC_VARS(static_load);
 
 /*=======================================
@@ -105,6 +106,9 @@ SCM_EXPORT void
 scm_fin_load(void)
 {
     free(l_scm_lib_path);
+    free(l_scm_system_load_path);
+
+    l_scm_system_load_path = NULL;
 
     SCM_GLOBAL_VARS_FIN(static_load);
 }
@@ -133,6 +137,40 @@ scm_p_load_path(void)
     DECLARE_FUNCTION("load-path", procedure_fixed_0);
 
     return CONST_STRING(l_scm_lib_path);
+}
+
+SCM_EXPORT void
+scm_load_system_file(const char *file)
+{
+    ScmObj path;
+    DECLARE_INTERNAL_FUNCTION("scm_load_system_file");
+
+    path = scm_p_string_append(LIST_3(scm_p_system_load_path(),
+                                      CONST_STRING("/"),
+                                      CONST_STRING(file)));
+    scm_p_load(path);
+}
+
+SCM_EXPORT void
+scm_set_system_load_path(const char *path)
+{
+    DECLARE_INTERNAL_FUNCTION("scm_set_system_load_path");
+
+    if (!ABSOLUTE_PATHP(path))
+        ERR("library path must be absolute but got: ~S", path);
+
+    free(l_scm_system_load_path);
+    l_scm_system_load_path = (path) ? scm_strdup(path) : NULL;
+}
+
+SCM_EXPORT ScmObj
+scm_p_system_load_path(void)
+{
+    const char *path;
+    DECLARE_FUNCTION("%%system-load-path", procedure_fixed_0);
+
+    path = (l_scm_system_load_path) ? l_scm_system_load_path : SCMLIBDIR;
+    return CONST_STRING(path);
 }
 
 /*===========================================================================

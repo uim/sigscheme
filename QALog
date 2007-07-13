@@ -707,7 +707,7 @@ corner case tests:
 
 file:              sigscheme.c
 category:          core
-spec by eyes:      yamaken@r4017, yamaken@r4019, yamaken@r4066, yamaken@r4152, yamaken@r4182, yamaken@r4543
+spec by eyes:      yamaken@r4017, yamaken@r4019, yamaken@r4066, yamaken@r4152, yamaken@r4182, yamaken@r4543, yamaken@r4722
 spec by tests:     
 general review:    yamaken@r4017
 64-bit by eyes:    yamaken@r4017
@@ -751,7 +751,7 @@ corner case tests:
 
 file:              load.c
 category:          semicore
-spec by eyes:      yamaken@r4017, yamaken@r4182, yamaken@r4541
+spec by eyes:      yamaken@r4017, yamaken@r4182, yamaken@r4541, yamaken@r4722
 spec by tests:     
 general review:    yamaken@r4017
 64-bit by eyes:    yamaken@r4017
@@ -1097,6 +1097,11 @@ Log
         * module-srfi55.c
         * srfi-55.scm
           - QA done @r4713 with test-srfi55.scm
+
+        * load.c
+        * sigscheme.c
+          - system load-path related functions are added, and 2nd arg is added
+            to scm_initialize(). Checked by eyes and tests
 
 2007-07-01  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi1.c

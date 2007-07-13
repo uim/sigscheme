@@ -74,7 +74,7 @@ scm_initialize_srfi55(void)
     l_sym_require_extension = scm_intern("%require-extension");
 
     scm_require_module("sscm-ext");  /* for 'provided?' and 'provide' */
-    scm_load(SCM_PREPEND_SCMLIBDIR("srfi-55.scm"));
+    scm_load_system_file("srfi-55.scm");
 }
 
 SCM_EXPORT ScmObj

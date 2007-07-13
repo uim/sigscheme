@@ -184,10 +184,11 @@ static const char *const builtin_features[] = {
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static void *scm_initialize_internal(void *dummy);
+static char **scm_initialize_internal(const char *const *argv);
 #if SCM_USE_EVAL_C_STRING
 static void *scm_eval_c_string_internal(const char *exp);
 #endif
+static void argv_err(char **argv, const char *err_msg);
 
 /*=======================================
   Function Definitions
@@ -198,23 +199,30 @@ static void *scm_eval_c_string_internal(const char *exp);
  * @param storage_conf Storage configuration parameters. NULL instructs
  *                     default.
  */
-SCM_EXPORT void
-scm_initialize(const ScmStorageConf *storage_conf)
+SCM_EXPORT char **
+scm_initialize(const ScmStorageConf *storage_conf, const char *const *argv)
 {
+    char **rest_argv;
+
     SCM_AGGREGATED_GLOBAL_VARS_INIT();
 
     scm_encoding_init();
     scm_init_storage(storage_conf);
 
-    scm_call_with_gc_ready_stack(scm_initialize_internal, NULL);
+    rest_argv = scm_call_with_gc_ready_stack((ScmGCGateFunc)scm_initialize_internal, (void *)argv);
 
     l_scm_initialized = scm_true;
+
+    return rest_argv;
 }
 
-static void *
-scm_initialize_internal(void *dummy)
+static char **
+scm_initialize_internal(const char *const *argv)
 {
     const char *const *feature;
+    char **rest_argv;
+
+    rest_argv = (char **)argv;
 
     /* size constraints */
     /* FIXME: check at compile-time */
@@ -242,9 +250,6 @@ scm_initialize_internal(void *dummy)
     scm_set_debug_categories(SCM_DBG_ERRMSG | SCM_DBG_BACKTRACE
                              | scm_predefined_debug_categories());
 
-#if SCM_USE_PORT
-    scm_init_port();
-#endif
 #if SCM_USE_WRITER
     scm_init_writer();
 #endif
@@ -338,9 +343,17 @@ scm_initialize_internal(void *dummy)
     if (SCM_PTR_BITS == 64)
         scm_provide(CONST_STRING("64bit-addr"));
 
+    if (argv)
+        rest_argv = scm_interpret_argv((char **)argv);  /* safe cast */
+
+#if SCM_USE_PORT
+    /* To apply -C <encoding> option for scm_{in,out,err} ports, this
+     * invocation is placed after scm_interpret_argv() */
+    scm_init_port();
+#endif
 #if SCM_USE_LOAD
     /* Load additional procedures written in Scheme */
-    scm_load(SCM_PREPEND_SCMLIBDIR("sigscheme-init.scm"));
+    scm_load_system_file("sigscheme-init.scm");
 #endif
 
     /* require-extension is enabled by default */
@@ -348,7 +361,7 @@ scm_initialize_internal(void *dummy)
     scm_require_module("srfi-55");
 #endif
 
-    return NULL;
+    return rest_argv;
 }
 
 SCM_EXPORT void
@@ -391,20 +404,36 @@ scm_eval_c_string_internal(const char *exp)
 }
 #endif /* SCM_USE_EVAL_C_STRING */
 
+static void
+argv_err(char **argv, const char *err_msg)
+{
+    DECLARE_INTERNAL_FUNCTION("scm_interpret_argv");
+
+    if (l_scm_initialized) {
+        scm_free_argv(argv);
+        ERR(err_msg);
+    } else {
+        fputs(SCM_ERR_HEADER, stderr);
+        fputs(err_msg, stderr);
+        fputs("\n", stderr);
+        exit(EXIT_FAILURE);
+    }
+}
+
 /* TODO: parse properly */
 /* don't access ScmObj if (!l_scm_initialized) */
 SCM_EXPORT char **
 scm_interpret_argv(char **argv)
 {
     char **argp, **rest;
-    const char *encoding;
+    const char *encoding, *sys_load_path;
 #if SCM_USE_MULTIBYTE_CHAR
     ScmCharCodec *specified_codec;
     ScmObj err_obj;
 #endif
     DECLARE_INTERNAL_FUNCTION("scm_interpret_argv");
 
-    encoding = NULL;
+    encoding = sys_load_path = NULL;
     argp = &argv[0];
     if (strcmp(argv[0], "/usr/bin/env") == 0)
         argp++;
@@ -416,19 +445,18 @@ scm_interpret_argv(char **argv)
         if ((*argp)[0] != '-')
             break;  /* script name appeared */
 
-        /* character encoding */
         if (strcmp(*argp, "-C") == 0) {
+            /* character encoding */
             encoding = *++argp;
-            if (!encoding) {
-                if (l_scm_initialized) {
-                    scm_free_argv(argv);
-                    ERR("no encoding name specified");
-                } else {
-                    fputs(SCM_ERR_HEADER "no encoding name specified\n",
-                          stderr);
-                    exit(EXIT_FAILURE);
-                }
-            }
+            if (!encoding)
+                argv_err(argv, "no encoding name specified");
+        } else if (strcmp(*argp, "--system-load-path") == 0) {
+            /* system load path */
+            sys_load_path = *++argp;
+            if (!sys_load_path)
+                argv_err(argv, "no system load path specified");
+        } else {
+            argv_err(argv, "invalid option");
         }
     }
     rest = argp;
@@ -451,14 +479,12 @@ scm_interpret_argv(char **argv)
         }
         scm_current_char_codec = specified_codec;
 #else
-        if (l_scm_initialized) {
-            scm_free_argv(argv);
-            PLAIN_ERR(ERRMSG_CODEC_SW_NOT_SUPPORTED);
-        } else {
-            fprintf(stderr, SCM_ERR_HEADER ERRMSG_CODEC_SW_NOT_SUPPORTED "\n");
-            exit(EXIT_FAILURE);
-        }
+        argv_err(argv, ERRMSG_CODEC_SW_NOT_SUPPORTED);
 #endif
+    }
+
+    if (sys_load_path) {
+        scm_set_system_load_path(sys_load_path);
     }
 
     return rest;

@@ -15,6 +15,9 @@ Overview of changes from 0.7.x to 0.8.0
   - %%require-module and scm_require_module(). 'use' and scm_use() have been
     deprecated and will be removed in SigScheme 0.9
 
+  - System-installed libraries written in Scheme are introduced. And to manage
+    them, scm_set_system_load_path() and %%system-load-path have been added
+
   - New character codec procedures %%current-char-codec,
     %%set-current-char-codec! and with-char-codec
 
@@ -39,6 +42,9 @@ Overview of changes from 0.7.x to 0.8.0
 
   - make-string, string-fill! and vector-fill! now returns SCM_UNDEF instead of
     the modified object
+
+  - Second argument argv is added to scm_initialize() and thus incompatible
+    with 0.7.x.
 
 * Fixes
 

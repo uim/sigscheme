@@ -15,7 +15,7 @@
   (lambda (ext-id)
     (or (provided? ext-id)
         (let* ((file (string-append ext-id ".scm"))
-               (path (string-append (%%scmlibdir) "/" file)))
+               (path (string-append (%%system-load-path) "/" file)))
           (load path)
           (provide ext-id)))))
 

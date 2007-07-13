@@ -1241,7 +1241,8 @@ SCM_DECLARE_EXPORTED_VARS(syntax);
    SigScheme: Core Functions
 ===========================================================================*/
 /* sigscheme.c */
-SCM_EXPORT void scm_initialize(const ScmStorageConf *storage_conf);
+SCM_EXPORT char **scm_initialize(const ScmStorageConf *storage_conf,
+                                 const char *const *argv);
 SCM_EXPORT void scm_finalize(void);
 #if SCM_USE_EVAL_C_STRING
 SCM_EXPORT ScmObj scm_eval_c_string(const char *exp);
@@ -1624,8 +1625,10 @@ SCM_EXPORT ScmObj scm_p_display(ScmObj obj, ScmObj args);
 /* load.c */
 #if SCM_USE_LOAD
 SCM_EXPORT void scm_set_lib_path(const char *path);
+SCM_EXPORT void scm_set_system_load_path(const char *path);
 SCM_EXPORT void scm_load(const char *filename);
 SCM_EXPORT ScmObj scm_p_load_path(void);
+SCM_EXPORT ScmObj scm_p_system_load_path(void);
 SCM_EXPORT ScmObj scm_p_load(ScmObj filename);
 #endif /* SCM_USE_LOAD */
 
@@ -1647,7 +1650,6 @@ SCM_EXPORT ScmObj scm_format(ScmObj port, enum ScmFormatCapability fcap,
 SCM_EXPORT void scm_require(const char *filename);
 SCM_EXPORT ScmObj scm_p_symbol_boundp(ScmObj sym, ScmObj rest);
 SCM_EXPORT ScmObj scm_p_sscm_version(void);
-SCM_EXPORT ScmObj scm_p_scmlibdir(void);
 SCM_EXPORT ScmObj scm_p_current_environment(ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_p_current_char_codec(void);
 SCM_EXPORT ScmObj scm_p_set_current_char_codecx(ScmObj encoding);

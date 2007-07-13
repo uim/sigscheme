@@ -116,14 +116,6 @@ scm_p_sscm_version(void)
 }
 
 SCM_EXPORT ScmObj
-scm_p_scmlibdir(void)
-{
-    DECLARE_FUNCTION("%%scmlibdir", procedure_fixed_0);
-
-    return CONST_STRING(SCMLIBDIR);
-}
-
-SCM_EXPORT ScmObj
 scm_p_current_environment(ScmEvalState *eval_state)
 {
     DECLARE_FUNCTION("%%current-environment", procedure_fixed_tailrec_0);

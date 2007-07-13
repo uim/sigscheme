@@ -42,6 +42,9 @@
 (define tn test-name)
 (define ud (undef))
 
+(tn "sscm-version")
+(assert-equal? (tn) "0.8.0"      (sscm-version))
+
 (tn "%%current-char-codec")
 (assert-equal? (tn) "UTF-8"      (%%current-char-codec))
 

@@ -108,6 +108,14 @@ scm_p_symbol_boundp(ScmObj sym, ScmObj rest)
 }
 
 SCM_EXPORT ScmObj
+scm_p_sscm_version(void)
+{
+    DECLARE_FUNCTION("sscm-version", procedure_fixed_0);
+
+    return CONST_STRING(PACKAGE_VERSION);
+}
+
+SCM_EXPORT ScmObj
 scm_p_scmlibdir(void)
 {
     DECLARE_FUNCTION("%%scmlibdir", procedure_fixed_0);

@@ -19,6 +19,8 @@ Overview of changes from 0.7.x to 0.8.0
   - New debugging procedures %%pair-mutable?, %%string-mutable?,
     %%vector-mutable?
 
+  - New procedure sscm-version for version information
+
 * Specification changes
 
   - SRFI-75 characters have been turned into R6RS (R5.92RS) characters

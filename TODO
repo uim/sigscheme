@@ -1,9 +1,10 @@
 ==============================================================================
 Requirements and critical bugs:
 
-* Support SRFI-1
-  - Write tests
-  - Fix list= bug
+* Make lib/ files loadable before install
+  - sscm --sys-load-path $PWD/lib
+  - scm_set_system_load_path()
+  - Rename %%scmlibdir -> %%sys-load-path
 
 * grep "FIXME" and fix them
 

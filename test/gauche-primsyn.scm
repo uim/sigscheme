@@ -36,7 +36,8 @@
 ;;;
 
 (load "./test/unittest-gauche.scm")
-(use srfi-8)
+
+(require-extension (srfi 8))
 
 ;;----------------------------------------------------------------
 ;(test-section "contitionals")

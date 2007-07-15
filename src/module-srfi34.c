@@ -150,7 +150,7 @@ scm_initialize_srfi34(void)
 
     SCM_GLOBAL_VARS_INIT(static_srfi34);
 
-    scm_use("srfi-23");
+    scm_require_module("srfi-23");
 
     /* protect global variables: assumes that all ScmObj of the global vars
      * instance is aligned */

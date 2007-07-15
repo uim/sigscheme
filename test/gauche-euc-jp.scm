@@ -137,7 +137,7 @@
 ;              (string-pointer-substring sp :after #t))))
 
 ;;-------------------------------------------------------------------
-;(use srfi-13)
+;(require-extension (srfi 13))
 
 ;(test "string-every" #t (lambda () (string-every #\あ "")))
 ;(test "string-every" #t (lambda () (string-every #\あ "ああああ")))
@@ -179,7 +179,7 @@
 ;(test "string-pad" "パディング" (lambda () (string-pad-right "パディングス" 5 #\■)))
 
 ;;-------------------------------------------------------------------
-;(use srfi-14)
+;(require-extension (srfi 14))
 
 ;(test "char-set" #t
 ;      (lambda () (char-set= (char-set #\あ #\い #\う #\え #\お)

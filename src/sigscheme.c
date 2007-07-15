@@ -325,10 +325,10 @@ scm_initialize_internal(const char *const *argv)
     scm_define_alias("r5rs:assoc",    "assoc");
 
 #if SCM_USE_SSCM_EXTENSIONS
-    scm_use("sscm-ext");
+    scm_require_module("sscm-ext");
 #endif
 #if SCM_USE_EVAL_C_STRING
-    scm_use("srfi-6");
+    scm_require_module("srfi-6");
 #endif
 
     /*=======================================================================

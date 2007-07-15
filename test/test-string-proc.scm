@@ -32,7 +32,7 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(use sscm-ext)
+(require-extension (sscm-ext))
 
 (load "./test/unittest.scm")
 

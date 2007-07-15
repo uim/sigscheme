@@ -45,8 +45,7 @@
 ;;
 ;; $ (ulimit -s 128 && ulimit -d 2048 && gosh -I. test/test-tail-rec.scm || echo 'exploded')
 
-(use srfi-8)
-(use srfi-34)
+(require-extension (srfi 8 23 34))
 
 (load "./test/unittest.scm")
 

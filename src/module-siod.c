@@ -115,10 +115,10 @@ scm_initialize_siod(void)
 
     scm_register_funcs(scm_functable_siod);
 
-    scm_use("sscm-ext");
+    scm_require_module("sscm-ext");
     scm_define_alias("the-environment", "%%current-environment");
 
-    scm_use("srfi-60");
+    scm_require_module("srfi-60");
     scm_define_alias("bit-and", "logand");
     scm_define_alias("bit-or",  "logior");
     scm_define_alias("bit-xor", "logxor");

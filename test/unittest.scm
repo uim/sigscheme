@@ -40,7 +40,7 @@
 ;;
 ;;(cond-expand
 ;; (sigscheme
-;;  (use srfi-34))
+;;  (%%require-module "srfi-34"))
 ;; (else #t))
 
 (define *test-track-progress* #f)  ;; for locationg SEGV point
@@ -177,14 +177,16 @@
 
 (define obj->literal
   (lambda (obj)
-    (use srfi-6)
+    ;; To allow --disable-srfi55, don't use require-extension here.
+    (%%require-module "srfi-6")
     (let ((port (open-output-string)))
       (write obj port)
       (get-output-string port))))
 
 (define string-read
   (lambda (str)
-    (use srfi-6)
+    ;; To allow --disable-srfi55, don't use require-extension here.
+    (%%require-module "srfi-6")
     (let ((port (open-input-string str)))
       (read port))))
 

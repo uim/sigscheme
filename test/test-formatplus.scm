@@ -35,7 +35,7 @@
 
 (load "./test/unittest.scm")
 
-(use srfi-48)
+(require-extension (srfi 48))
 
 (if (not (symbol-bound? 'format+))
     (test-skip "format+ is not enabled"))

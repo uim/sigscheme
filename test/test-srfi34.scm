@@ -33,8 +33,7 @@
 
 (load "./test/unittest.scm")
 
-(use srfi-8)
-(use srfi-34)
+(require-extension (srfi 8 34))
 
 (if (not (provided? "srfi-34"))
     (test-skip "SRFI-34 is not enabled"))

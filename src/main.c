@@ -236,7 +236,7 @@ main(int argc, char **argv)
     scm_set_lib_path(sscm.lib_path);
 
 #if SCM_USE_SRFI34
-    scm_use("srfi-34");
+    scm_require_module("srfi-34");
 #endif
 
 #if SCM_COMPAT_SIOD

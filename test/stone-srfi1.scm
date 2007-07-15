@@ -18,7 +18,7 @@
 ;;                        http://www.math.grin.edu/~stone/srfi/srfi-1-tests.ss
 ;;                        and adapted to SigScheme and final SRFI-1
 
-(use srfi-1)
+(require-extension (srfi 1))
 (load "./test/unittest.scm")
 
 (define *test-track-progress* #f)

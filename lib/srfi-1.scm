@@ -226,8 +226,7 @@
 ;;; SigScheme adaptation
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use srfi-8)
-(use srfi-23)
+(require-extension (srfi 8 23))
 
 (define %srfi-1:undefined (for-each values '()))
 

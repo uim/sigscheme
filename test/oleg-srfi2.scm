@@ -163,7 +163,7 @@
 
 (load "./test/unittest.scm")
 
-(use srfi-2)
+(require-extension (srfi 2))
 
 (if (not (provided? "srfi-2"))
     (test-skip "SRFI-2 is not enabled"))

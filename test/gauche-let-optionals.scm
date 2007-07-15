@@ -33,7 +33,7 @@
 ;;                       to SigScheme and add some tests
 ;;                       http://gauche.cvs.sourceforge.net/*checkout*/gauche/Gauche/test/procedure.scm
 
-(use sscm-ext)
+(require-extension (sscm-ext))
 
 (load "./test/unittest-gauche.scm")
 

@@ -335,7 +335,7 @@
 
 (if sigscheme?
     (begin
-      (use sscm)
+      (require-extension (sscm-ext))
       (tn "length* proper list")
       (assert-equal? (tn) 0 (length* '()))
       (assert-equal? (tn) 1 (length* '(1)))

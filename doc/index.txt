@@ -7,6 +7,7 @@ For users
 
   - link:design.html[Design of SigScheme]
   - link:spec.html[Specifications of SigScheme]
+  - link:multibyte.html[Multibyte character processing in SigScheme]
 
 For developers
 --------------

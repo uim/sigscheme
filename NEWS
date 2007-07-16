@@ -64,6 +64,9 @@ Overview of changes from 0.7.x to 0.8.0
 
 * Others
 
+  - New document multibyte.txt about multibyte character processing has been
+    added
+
 
 Overview of changes from 0.7.3 to 0.7.4
 ==

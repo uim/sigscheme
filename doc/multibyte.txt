@@ -1,0 +1,246 @@
+Multibyte character processing in SigScheme
+===========================================
+
+
+Overview
+--------
+
+SigScheme's multibyte character handling interface is basically based on R6RS
+Unicode character handlings. See also "R6RS conformance" section and
+"Characters" subsection of "R5RS conformance" of link:spec.html[Specifications
+of SigScheme].
+
+In addition to R6RS Unicode character handlings, SigScheme supports EUC-JP,
+EUC-CN, EUC-KR and Shift_JIS character encoding schemes and they can be used
+simultaneously. But no character encoding conversion method such as iconv is
+provided at now.
+
+
+Current character codec
+-----------------------
+
+On SigScheme, characters and strings are processed in accordance with the
+parameter *current character codec*. Its initial value is specified by
+`--enable-default-encoding` option of the configure script and defaults to
+UTF-8. So characters and strings in SigScheme are treated as UTF-8 by default.
+
+The value of current character codec can be checked by `%%current-char-codec`
+procedure of SigScheme extension.
+
+----------------------------------------------------------------
+sscm> (require-extension (sscm-ext))
+sscm> (%%current-char-codec)
+"UTF-8"
+----------------------------------------------------------------
+
+To specify another encoding as default character codec, pass `-C` option to
+`sscm` command as follows, or specify it in the second argument of
+`scm_initialize()`.
+
+----------------------------------------------------------------
+$ sscm -C ISO-8859-1
+$ sscm -C UTF-8
+$ sscm -C EUC-JP
+$ sscm -C EUC-CN
+$ sscm -C EUC-KR
+$ sscm -C Shift_JIS
+----------------------------------------------------------------
+
+`provided?` predicate can be used to know whether an encoding is enabled by the
+configuration or not.
+
+----------------------------------------------------------------
+(provided? "utf8")
+(provided? "eucjp")
+(provided? "euccn")
+(provided? "euckr")
+(provided? "sjis")
+----------------------------------------------------------------
+
+The `ISO-8859-1` encoding is used as generic singlebyte character encoding and
+accepts any character represented in integer range 0-255, and always provided
+regardless of configuration.
+
+Use `with-char-codec` procedure to switch to another encoding temporarily.
+
+----------------------------------------------------------------
+(define euc-A (with-char-codec "EUC-JP" (lambda () (integer->char #xa4a2))))
+----------------------------------------------------------------
+
+See also "Ports" section of this document for current character codec switching
+on I/O.
+
+
+Characters
+----------
+
+When the reader is working on an UTF-8 port:
+----------------------------------------------------------------
+#\あ     ==> #\あ  ;; U+3042 HIRAGANA LETTER A
+#\x3042  ==> #\あ  ;; U+3042 HIRAGANA LETTER A
+----------------------------------------------------------------
+
+Conversion between character and integer is performed based on the value of
+`%%current-char-codec`. When `%%current-char-codec` is "UTF-8", integer value
+of an Unicode character corresponds to the Unicode code point.
+
+When `%%current-char-codec` is "UTF-8":
+----------------------------------------------------------------
+(integer->char #x3042)  ==> #\あ   ;; U+3042 HIRAGANA LETTER A
+(char->integer #\あ)    ==> 12354  ;; #x3042
+----------------------------------------------------------------
+
+If an integer value is invalid for the current codec, an error is caused.
+
+----------------------------------------------------------------
+(with-char-codec "UTF-8"      (lambda () (integer->char #x3042)))  ==> #\あ
+(with-char-codec "ISO-8859-1" (lambda () (integer->char #x3042)))  ==> error
+----------------------------------------------------------------
+
+Since a character in SigScheme is internally represented as an integer value
+marked with character-object tag without any character encoding information,
+user is responsible to manage the character encoding scheme of each character
+object.
+
+And no character encoding conversion is performed on integer<->char conversion
+regaradless of `%%current-char-codec`.
+
+----------------------------------------------------------------
+;; U+3042 HIRAGANA LETTER A in Unicode
+(define ucs-A    (with-char-codec "UTF-8"  (lambda () (integer->char #x3042))))
+
+;; HIRAGANA LETTER A in EUC-JP
+(define eucjp-A  (with-char-codec "EUC-JP" (lambda () (integer->char #xa4a2))))
+
+(eqv? ucs-A eucjp-A)  ==> #f
+
+;; no conversion is performed
+(with-char-codec "UTF-8"
+  (lambda () (char->integer eucjp-A)))  ==> 42146  ;; U+A4A2 YI RADICAL ZUP
+----------------------------------------------------------------
+
+
+Strings
+-------
+
+When both reader's port and `%%current-char-codec` is UTF-8:
+----------------------------------------------------------------
+"\x3042;a\x3044;"        ==> "あaい"
+(string->list "あaい")   ==> (#\あ #\a #\い)
+(string-length "あaい")  ==> 3
+----------------------------------------------------------------
+
+A string in SigScheme is internally represented as a C string with its logical
+character length without character encoding information. User is responsible to
+manage the character encoding scheme of each string object. Though strings have
+no encoding information, they have logical character length counted in
+`%%current-char-codec` on its object creation. So processing a string in
+another encoding such as UTF-8 string as byte string cannot fully be performed.
+
+----------------------------------------------------------------
+;; U+3042 HIRAGANA LETTER A, with string length 1 counted in UTF-8
+(define utf8-A "あ")
+
+;; string length is not re-counted even if %%current-char-codec is changed
+(with-char-codec "UTF-8"      (lambda () (string-length utf8-A)))  ==> 1
+(with-char-codec "ISO-8859-1" (lambda () (string-length utf8-A)))  ==> 1
+
+;; character reference of string is based on %%current-char-codec
+(with-char-codec "UTF-8"      (lambda () (string-ref utf8-A 0)))  ==> #\あ
+(with-char-codec "ISO-8859-1" (lambda () (string-ref utf8-A 0)))  ==> #\ã
+
+;; character reference that exceeds logical length is an error even if its
+;; physical length is enough
+(with-char-codec "UTF-8"      (lambda () (string-ref utf8-A 1)))  ==> error
+(with-char-codec "ISO-8859-1" (lambda () (string-ref utf8-A 1)))  ==> error
+----------------------------------------------------------------
+
+
+Identifiers
+-----------
+
+Any Unicode characters can be used as identifiers in Scheme as R6RS allows.
+
+----------------------------------------------------------------
+'Français-symbole
+'日本語シンボル
+(define ひらがな->カタカナ (lambda (イ . ロ) ...))
+----------------------------------------------------------------
+
+But since SigScheme's Unicode handling is incomplete, all non-ASCII Unicode
+characters are treated as ordinary letter. Though it allows using any
+whitespace characters and punctuations as identifier, it should not be done.
+
+Non-ASCII identifier in SigScheme is only allowed for Unicode. In other words,
+allowed only if the reading port is UTF-8. This limitation is intended to avoid
+character identity problem between different character encodings. For example,
+WAVE DASH and FULLWIDTH TILDE may be altered to another unexpectedly if the
+source code is converted to/from non-Unicode Japanese encoding. Inhibiting
+non-Unicode identifiers is the simplest way to avoid such problems.
+
+To use Unicode identifiers, prepend following line to the source code. See also
+"Ports" section to understand its mechanism.
+
+----------------------------------------------------------------
+# /usr/bin/env sscm -C UTF-8
+----------------------------------------------------------------
+
+
+Ports
+-----
+
+- Each port is associated with a single character encoding when it is open
+
+----------------------------------------------------------------
+sscm> (current-input-port)
+#<iport mb UTF-8 file stdin>
+----------------------------------------------------------------
+
+- The encoding of a port is not switched to another once it is open (NOTE: a C extension that operates on low level port can alter it)
+
+- The encoding of a port is determined by `%%current-char-codec` on its opening
+
+----------------------------------------------------------------
+$ sscm -C UTF-8
+sscm> (%%current-char-codec)
+"UTF-8"
+
+sscm> (open-output-file "/tmp/sigscheme.tmp")
+#<oport mb UTF-8 file /tmp/sigscheme.tmp>
+
+sscm> (with-char-codec "ISO-8859-1"
+        (lambda () (open-output-file "/tmp/sigscheme.tmp")))
+#<oport mb ISO-8859-1 file /tmp/sigscheme.tmp>
+----------------------------------------------------------------
+
+- `%%current-char-codec` does not affect already open ports
+
+----------------------------------------------------------------
+sscm> (current-input-port)
+#<iport mb UTF-8 file stdin>
+
+sscm> (with-char-codec "ISO-8859-1"
+        (lambda ()
+          (list (%%current-char-codec) (current-input-port))))
+("ISO-8859-1" #<iport mb UTF-8 file stdin>)
+----------------------------------------------------------------
+
+- Characters output to a port is encoded to a byte stream according to the port's own character encoding regardless of `%%current-char-codec` value
+
+----------------------------------------------------------------
+$ sscm -C ISO-8859-1
+sscm> (current-output-port)
+#<oport mb ISO-8859-1 file stdout>
+
+sscm> (with-char-codec "UTF-8" (lambda () (write #\x3042)))
+Error: ScmMultibyteCharPort: invalid character
+----------------------------------------------------------------
+
+To specify per-file character encoding, prepend following line into the
+file. The `load` procedure detects this line and temporarily switches
+`%%current-char-codec` and the encoding of the reading port until read all
+expressions from the file.
+
+----------------------------------------------------------------
+#! /usr/bin/env sscm -C UTF-8
+----------------------------------------------------------------

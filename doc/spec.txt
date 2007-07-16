@@ -641,6 +641,9 @@ Fully supported.
 It is just the reference implementation of SRFI-95 (sort.scm of SLIB).
 
 
+R6RS conformance
+----------------
+
 R6RS characters
 ~~~~~~~~~~~~~~~
 

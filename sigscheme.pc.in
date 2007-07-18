@@ -46,6 +46,7 @@ sscm_srfi28=@use_srfi28@
 sscm_srfi34=@use_srfi34@
 sscm_srfi38=@use_srfi38@
 sscm_srfi48=@use_srfi48@
+sscm_srfi55=@use_srfi55@
 sscm_srfi60=@use_srfi60@
 sscm_r6rs_chars=@use_r6rs_chars@
 sscm_r6rs_named_chars=@use_r6rs_named_chars@

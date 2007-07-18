@@ -1,5 +1,16 @@
 ==============================================================================
-Requirements and critical bugs:
+High priority tasks:
+
+* (0.9) Efficient macro
+  - Introduce compilation phase (see "Macros" subsection of spec.txt)
+  - Make macro expansion performed on compilation phase
+  - Make runtime syntax sugars interpretation into macro expansions on
+    compilation phase (such as internal definition or implicit lambda on
+    define)
+  - Validate as production quality
+
+* (0.9) Provide a record type
+  - Evaluate SRFI-9 and R6RS records
 
 * grep "FIXME" and fix them
 
@@ -22,16 +33,6 @@ Extensions: (not required for now)
 
 * Introduce dynamic environment for internal use
   - Fix continuation-unsafe current-{input,output}-port handling with it
-  - Replace Scm_current_char_codec handling with it
-
-* Dynamic encoding switching for a conversion between string and char list,
-  based on a SRFI or de facto standard API
-  - Evaluate ces API of Gauche
-  - Consider dynamic environment
-
-* Implement a record type
-  - Evaluate SRFI-9 and SRFI-76
-  - Make a comparison with uim's define-record
 
 * Implement numbers other than integer
   - Define SAL accessors considering SRFI-50 and other implementations
@@ -58,6 +59,8 @@ Performance improvements:
 
 ==============================================================================
 Properness improvements: (not required for now)
+
+* Update test-r4rs.scm to CVS HEAD of SCM
 
 * Import http://sisc.sourceforge.net/r5rs_pitfall.scm
   - Fix hygienic-macro incapability of module_srfi34.c to catch errors into

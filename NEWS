@@ -3,19 +3,19 @@ Overview of changes from 0.7.x to 0.8.0
 
 * New features
 
-  - R5RS promises (delay and force)
-
-  - SRFI-1 List Library
+  - SRFI-1 List Library (full featured)
 
   - SRFI-55 require-extension
 
   - SRFI-95 Sorting and Merging
 
+  - R5RS promises (delay and force)
+
   - New syntax let-optionals* compatible with Gauche for optional argument
     processing
 
   - %%require-module and scm_require_module(). 'use' and scm_use() have been
-    deprecated and will be removed in SigScheme 0.9
+    deprecated and will be removed in SigScheme 0.9.0
 
   - System-installed libraries written in Scheme are introduced. And to manage
     them, scm_set_system_load_path() and %%system-load-path have been added
@@ -30,8 +30,8 @@ Overview of changes from 0.7.x to 0.8.0
 
 * Specification changes
 
-  - SRFI-75 characters have been turned into R6RS (R5.92RS) characters
-    completely, including configuration names
+  - SRFI-75 characters have been turned into R6RS (R5.92RS) characters,
+    including configuration names
 
   - Make Shift_JIS encoding name (CES) and Unicode CCS names of the codec API
     proper
@@ -55,6 +55,8 @@ Overview of changes from 0.7.x to 0.8.0
   - [R5RS] Fix multiple values inacceptance of call-with-values continuation
     such as (receive (x y) (call/cc (lambda (k) (k 0 1))))
 
+  - [R5RS] Fix error on (integer->char 0) on non-Unicode codecs
+
   - [R6RS] Fix invalid Unicode character acception on integer->char
 
   - Fix unexpected memory exhaustion on negative length on make-string
@@ -68,6 +70,17 @@ Overview of changes from 0.7.x to 0.8.0
 
   - New document multibyte.txt about multibyte character processing has been
     added
+
+  - Code validation for R5RS characters, all R5RS string procedures, R5RS
+    vectors, SRFI-2, SRFI-8 and Multibyte character processing have been done
+    and now can be used for production codes
+
+  - SRFI-1 List Library is partially validated, but expected as usable quality.
+    Though C part is fully validated, the Scheme part imported from the
+    reference implementation of SRFI-1 is not fully validated. See
+    test/test-srfi1-another.scm for validation status. The procedures that not
+    validated only have header comment such as ";; delete-duplicates" in the
+    file.
 
 
 Overview of changes from 0.7.3 to 0.7.4

@@ -55,6 +55,34 @@ engine itself works well and can be expected as R5RS-conformant, its
 integration into SigScheme is not fully validated yet. It is likely having a
 problem on identifier references.
 
+In addition to the validity problem, there is an architectural inefficiency.
+Since SigScheme had been started as macro-less naive system, it lacks the
+concept 'compilation'. So current SigScheme implementation adopted runtime
+macro expansion. A macro form is kept untransformed in program, and expanded
+immediately before each evaluation. For example, following code causes macro
+expansion on each `map-caddr` call.
+
+.Macro expansion inefficiency
+----------------------------------------------------------------
+(define-syntax compose-internal
+  (syntax-rules ()
+    ((compose-internal f x)     (f x))
+    ((compose-internal f g ...) (f (compose-internal g ...)))))
+
+(define-syntax compose
+  (syntax-rules ()
+    ((compose)         values)
+    ((compose f)       f)
+    ((compose f g ...) (lambda (x) (compose-internal f g ... x)))))
+
+(define map-caddr
+  (lambda (lst)
+    (map (compose car cdr cdr) lst)))
+----------------------------------------------------------------
+
+Since it is considerably inefficient in many cases, keep in mind the expansion
+cost. The inefficiency problem is expected to be resolved in SigScheme 0.9.0.
+
 Numbers
 ~~~~~~~
 

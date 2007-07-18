@@ -1,10 +1,16 @@
-SigScheme 0.7.4 Release Note
+SigScheme 0.8.0 Release Note
 ============================
 
 What's SigScheme
 ----------------
 
 SigScheme is a R5RS Scheme interpreter for embedded use.
+
+It features small footprint (64KB in library form on the 'small' configuration)
+like SIOD and TinyScheme, low memory consumption (2-words per cons cell),
+multibyte characters handling (UTF-8, EUCs and Shift_JIS) and more.
+
+It is mainly developed to replace the Scheme interpreter of uim.
 
   Homepage:
     http://code.google.com/p/sigscheme/
@@ -13,32 +19,25 @@ SigScheme is a R5RS Scheme interpreter for embedded use.
 About This Release
 ------------------
 
-This distribution of SigScheme 0.7.4 is latest stable release of the
-software. And this release has been adopted by uim 1.4.0, the primary
+This distribution of SigScheme 0.8.0 is latest stable release of the
+software. And this release will be adopted by uim 1.5.0, the primary
 application of SigScheme.
 
-As declared in 0.6.1 release, the main goal of 0.7.x series is to acquire
-stability and standards conformance. Though many parts have been validated
-against the standards, reviewed, tested and fixed, following parts are not done
-yet. Please keep in mind that using these features involves standards
-conformity and/or stability problems.
+This release aimed to acquire many useful features such as SRFI-1 (see "What's
+New" section), and to complete code validations for most part of
+SigScheme. Following features that left unvalidated in 0.7.x series have been
+validated and now can be used for production codes.
 
   - R5RS characters
-  - Some string procedures of R5RS
-  - Multibyte character encodings
-  - R5RS Vectors
+  - All string procedures of R5RS
+  - R5RS vectors
   - SRFI-2
   - SRFI-8
+  - Multibyte character processing
 
-And the hygienic macros feature is still likely having a problem. See
-doc/spec.txt for details.
-
-  - R5RS hygienic macros
-
-And finally, these features are completely broken and not usable yet.
-
-  - R5RS promises
-  - SRFI-1
+But R5RS hygienic macros feature is still likely having a reliability problem,
+and also contains architectural inefficiency. See "Macros" subsection of
+doc/spec.txt for details. It is expected to be resolved in 0.9.0.
 
 See the file 'QALog' for further information about the quality assurance state.
 
@@ -52,39 +51,12 @@ Mailinglist: sigscheme-ja@googlegroups.com
 What's New
 ----------
 
-  - New %%prealloc-heaps procedure for memory consumptive applications
-
-
-What's New in 0.7.3
--------------------
-
-  - [CRITICAL] Fix broken libgcroots compilation on SPARC and IA-64 (NIIBE
-    Yutaka)
-
-
-What's New in 0.7.2
--------------------
-
-  - [CRITICAL] Fix broken libgcroots (Etsushi)
-
-  - Fix distribution making procedure
-
-  - Fix '-no-cpp-precomp' warning on gcc
-
-  - Change To: mail address of make-report.sh which does not have size
-    limitation
-
-
-What's New in 0.7.1
--------------------
-
-  - Fix 17 R5RS-conformance bugs and 4 SRFI-conformance bugs
-
-  - Fix 8 critical, 13 major and 12 minor bugs
-
-  - All particular language features and behaviors have become configurable via
-    --enable and --disable options of the configure script, with automated
-    feature dependencies resolution and conflict detection
+  - SRFI-1 List Library (full-featured)
+  - SRFI-55 require-extension
+  - SRFI-95 Sorting and Merging
+  - R5RS promises (delay and force)
+  - let-optionals* for optional argument processing
+  - Character codec handling procedures
 
 See 'NEWS' for the fully detailed changes.
 
@@ -92,7 +64,7 @@ See 'NEWS' for the fully detailed changes.
 Notes for Packagers and System Integrators
 ------------------------------------------
 
-  - libgcroots has been developed and bundled in this release. Since it is
+  - libgcroots has been updated and bundled in this release. Since it is
     installed as a separated library independent of libsscm, please create its
     own package, and make SigScheme package depending on it with
     "--with-libgcroots=installed"
@@ -103,12 +75,3 @@ Notes for Packagers and System Integrators
 
   - The options "--enable-debug" and/or "--enable-backtrace" make SigScheme
     quite heavy. Please keep them unspecified for normal library
-
-
-Thanks
-------
-
-Hans-J. Boehm and all authors of Boehm GC for the useful codes.
-
-Tanaka Akira for letting me realize about the GC problem through the
-presentation at Binary 2.0 Conference 2006.

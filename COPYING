@@ -59,6 +59,24 @@ provided the above notices are retained, and a notice that the code was
 modified is included with the above copyright notice.
 -----------------------------------------------------------------------------
 
+lib/srfi-1.scm is covered by:
+-----------------------------------------------------------------------------
+;;; Copyright (c) 1998, 1999 by Olin Shivers. You may do as you please with
+;;; this code as long as you do not remove this copyright notice or
+;;; hold me liable for its use. Please send bug reports to shivers@ai.mit.edu.
+;;;     -Olin
+
+;;; Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+-----------------------------------------------------------------------------
+
+
+lib/srfi-95.scm is covered by:
+-----------------------------------------------------------------------------
+;;; Author : Richard A. O'Keefe (based on Prolog code by D.H.D.Warren)
+;;;
+;;; This code is in the public domain.
+-----------------------------------------------------------------------------
+
 
 test/gauche-*.scm and some part of src/read.c and src/list.c are covered by:
 -----------------------------------------------------------------------------
@@ -165,4 +183,15 @@ test/test-r4rs.scm is licensed under GPL2:
 ;;; William Clinger and Jonathan Rees, editors.
 ;;; Revised^4 Report on the Algorithmic Language Scheme
 ;;; and the IEEE specification.
+-----------------------------------------------------------------------------
+
+
+test/oleg-srfi2.scm is covered by:
+-----------------------------------------------------------------------------
+;; License terms:
+;;
+;; http://pobox.com/~oleg/ftp/
+;;
+;; "Unless specified otherwise, all the code and the documentation on this site
+;; is in public domain."
 -----------------------------------------------------------------------------

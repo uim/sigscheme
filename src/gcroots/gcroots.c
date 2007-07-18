@@ -93,6 +93,8 @@ GCROOTS_init(GCROOTS_context_alloc_proc allocator, GCROOTS_mark_proc marker,
 SCM_EXPORT void
 GCROOTS_fin(GCROOTS_context *ctx)
 {
+    assert(ctx);
+
     /* Nothing to do for this implementation. Caller must free ctx. */
 }
 
@@ -103,6 +105,9 @@ GCROOTS_call_with_gc_ready_stack(GCROOTS_context *ctx,
     void *ret;
     void *stack_top; /* approx */
     volatile GCROOTS_user_proc anti_inline_proc;
+
+    assert(ctx);
+    assert(proc);
 
     if (!ctx->stack_base)
         ctx->stack_base = &stack_top;
@@ -125,6 +130,8 @@ GCROOTS_mark(GCROOTS_context *ctx)
     jmp_buf env;
 #endif
     void (*volatile anti_inline_mark_internal)(GCROOTS_context *);
+
+    assert(ctx);
 
     if (ctx->stack_base) {
 #if HAVE_GETCONTEXT

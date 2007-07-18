@@ -111,14 +111,14 @@ Final release:
 ----------------------------------------------------------------
   googlecode-upload.py -u yamakenz -p sigscheme \
                        -s 'SigScheme 0.8.0' -l 'Stable Featured' \
-                       sigscheme-1.5.0.tar.bz2
+                       sigscheme-0.8.0.tar.bz2
 ----------------------------------------------------------------
 
 Alpha or beta release:
 ----------------------------------------------------------------
   googlecode-upload.py -u yamakenz -p sigscheme \
                        -s 'SigScheme 0.8.0-alpha' -l 'Unstable' \
-                       sigscheme-1.5.0-alpha.tar.bz2
+                       sigscheme-0.8.0-alpha.tar.bz2
 ----------------------------------------------------------------
 
 Snapshot release:

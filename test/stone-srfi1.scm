@@ -17,6 +17,7 @@
 ;; 2007-06-30 yamaken   - Imported from
 ;;                        http://www.math.grin.edu/~stone/srfi/srfi-1-tests.ss
 ;;                        and adapted to SigScheme and final SRFI-1
+;; 2007-07-18 yamaken   - Disable (make-list 5) ==> (#f #f #f #f #f)
 
 (require-extension (srfi 1))
 (load "./test/unittest.scm")
@@ -224,9 +225,13 @@
   (make-list 0)
   null?)
 
-(test 'make-list:default-element
-  (make-list 5)
-  (lambda (result) (equal? result '(#f #f #f #f #f))))
+;; Disabled by YamaKen 2007-07-18
+;; SRFI-1: If the fill argument is not given, the elements of the list may be
+;; arbitrary values.
+;;
+;;(test 'make-list:default-element
+;;  (make-list 5)
+;;  (lambda (result) (equal? result '(#f #f #f #f #f))))
 
 (test 'make-list:fill-element
   (make-list 7 'Circinus)

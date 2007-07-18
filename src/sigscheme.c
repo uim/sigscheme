@@ -77,9 +77,6 @@
 #if SCM_USE_QUASIQUOTE
 #include "functable-r5rs-qquote.c"
 #endif
-#if SCM_USE_PROMISE
-#include "functable-r5rs-promise.c"
-#endif
 #if SCM_USE_NUMBER
 #include "functable-r5rs-number.c"
 #endif
@@ -287,7 +284,7 @@ scm_initialize_internal(const char *const *argv)
     scm_init_macro();
 #endif
 #if SCM_USE_PROMISE
-    scm_register_funcs(scm_functable_r5rs_promise);
+    scm_init_promise();
 #endif
 
     /* R5RS Procedures */

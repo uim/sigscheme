@@ -738,6 +738,9 @@ SCM_EXPORT void scm_macro_bad_scope(ScmObj sym);
 /* error.c */
 SCM_EXPORT void scm_init_error(void);
 
+/* promise.c */
+SCM_EXPORT void scm_init_promise(void);
+
 /* procedure.c */
 SCM_EXPORT ScmObj scm_map_single_arg(ScmObj proc, ScmObj lst);
 SCM_EXPORT ScmObj scm_map_multiple_args(ScmObj proc, ScmObj lsts,

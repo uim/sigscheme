@@ -3,6 +3,8 @@ Overview of changes from 0.7.x to 0.8.0
 
 * New features
 
+  - R5RS promises (delay and force)
+
   - SRFI-1 List Library
 
   - SRFI-55 require-extension

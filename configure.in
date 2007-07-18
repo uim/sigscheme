@@ -463,7 +463,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_continuation=yes
         use_quasiquote=yes
         use_hygienic_macro=no
-        use_promise=no
+        use_promise=yes
         use_int=yes
         use_numeric_io=yes
         use_char=yes
@@ -631,7 +631,7 @@ AX_FEATURE_ARG_Y(internal-definitions, [R5RS internal definitions])
 AX_FEATURE_ARG_Y(continuation,   [R5RS continuation])
 AX_FEATURE_ARG_Y(quasiquote,     [R5RS quasiquotation])
 AX_FEATURE_ARG_N(hygienic-macro, [R5RS hygienic macros (experimental)])
-AX_FEATURE_ARG_N(promise,        [R5RS promise (not implemented yet)])
+AX_FEATURE_ARG_Y(promise,        [R5RS promise])
 AX_FEATURE_VAR_N(number,         [R5RS numbers])
 AX_FEATURE_ARG_Y(int,            [R5RS integer numbers])
 AX_FEATURE_VAR_N(rational,       [R5RS rational numbers (not implemented yet)])

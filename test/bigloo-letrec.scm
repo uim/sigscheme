@@ -81,7 +81,9 @@
 (define (test-letrec)
    (test "letrec" ((test1 1) "TOTO") 'TOTO1)
    (test "letrec" (foo 10) 'done)
-   (test "delay"  (procedure? (letrec ((foo (delay foo))) (force foo))) #t))
+   ;; implementation-dependent test  -- YamaKen 2007-07-18
+   ;;(test "delay"  (procedure? (letrec ((foo (delay foo))) (force foo))) #t)
+   )
 
 (test-letrec)
 

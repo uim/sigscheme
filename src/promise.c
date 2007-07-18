@@ -41,6 +41,7 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
+#define PROMISE_FORCEDP(p) (!EQ(CAR(p), l_tag_unforced))
 
 /*=======================================
   File Local Type Definitions
@@ -49,6 +50,15 @@
 /*=======================================
   Variable Definitions
 =======================================*/
+#include "functable-r5rs-promise.c"
+
+SCM_GLOBAL_VARS_BEGIN(static_promise);
+#define static
+static ScmObj l_tag_unforced;
+#undef static
+SCM_GLOBAL_VARS_END(static_promise);
+#define l_tag_unforced SCM_GLOBAL_VAR(static_promise, l_tag_unforced)
+SCM_DEFINE_STATIC_VARS(static_promise);
 
 /*=======================================
   File Local Function Declarations
@@ -57,15 +67,32 @@
 /*=======================================
   Function Definitions
 =======================================*/
+SCM_EXPORT void
+scm_init_promise(void)
+{
+    SCM_GLOBAL_VARS_INIT(static_promise);
+
+    scm_register_funcs(scm_functable_r5rs_promise);
+
+    /* Use a pair as the unique tag. The symbol %%unforced-promise is only for
+     * human-readability. */
+    scm_gc_protect_with_init(&l_tag_unforced,
+                             LIST_1(scm_intern("%%unforced-promise")));
+}
+
 /*===========================================================================
   R5RS : 4.2 Derived expression types : 4.2.5 Delayed evaluation
 ===========================================================================*/
 SCM_EXPORT ScmObj
 scm_s_delay(ScmObj exp, ScmObj env)
 {
+    ScmObj proc;
     DECLARE_FUNCTION("delay", syntax_fixed_1);
 
-    ERR("not implemented yet");
+    proc = scm_s_lambda(SCM_NULL, LIST_1(exp), env);
+
+    /* (result . proc) */
+    return CONS(l_tag_unforced, proc);
 }
 
 /*===========================================================================
@@ -74,7 +101,25 @@ scm_s_delay(ScmObj exp, ScmObj env)
 SCM_EXPORT ScmObj
 scm_p_force(ScmObj promise)
 {
+    ScmObj proc, result;
     DECLARE_FUNCTION("force", procedure_fixed_1);
 
-    ERR("not implemented yet");
+    ENSURE_CONS(promise);
+
+    proc = CDR(promise);
+    ENSURE_PROCEDURE(proc);
+
+    if (PROMISE_FORCEDP(promise))
+        return CAR(promise);
+
+    /* R5RS:
+     *   Rationale: A promise may refer to its own value, as in the last
+     *   example above. Forcing such a promise may cause the promise to be
+     *   forced a second time before the value of the first force has been
+     *   computed. This complicates the definition of `make-promise'. */
+    result = scm_call(proc, SCM_NULL);
+    if (PROMISE_FORCEDP(promise))
+        return CAR(promise);
+    SET_CAR(promise, result);
+    return result;
 }

@@ -367,6 +367,16 @@ apprication could disable it.
   7
 ================================================================
 
+Promises
+~~~~~~~~
+
+SigScheme only supports explicit forcing. And passing non-promise objects to
+force is an error.
+
+----------------------------------------------------------------
+  (+ (delay (* 3 7)) 13)            ==>  error
+----------------------------------------------------------------
+
 Syntaxes/procedures not implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -408,12 +418,6 @@ Numbers
   - *procedure:* angle z
   - *procedure:* exact->inexact z
   - *procedure:* inexact->exact z
-
-Promises
-^^^^^^^^
-
-  - *library syntax:* delay <expression>
-  - *library procedure:* force promise
 
 System interface
 ^^^^^^^^^^^^^^^^

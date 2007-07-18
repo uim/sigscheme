@@ -264,7 +264,7 @@ yyyy yy  r5rs string-procedure.c
 yyyy yyy r5rs vector.c
 yyyy yyy r5rs qquote.c
          r5rs macro.c
-         r5rs promise.c
+yyyy yy  r5rs promise.c
 yyyy yyy srfi module-srfi1.c
 yyyy yyy srfi module-srfi2.c
 yyyy yyy srfi module-srfi6.c
@@ -905,13 +905,13 @@ corner case tests:
 
 file:              promise.c
 category:          r5rs
-spec by eyes:      
-spec by tests:     
-general review:    
-64-bit by eyes:    
+spec by eyes:      yamaken@r4740
+spec by tests:     yamaken@r4740
+general review:    yamaken@r4740
+64-bit by eyes:    yamaken@r4740
 64-bit by tests:   
-coding style:      
-normal case tests: 
+coding style:      yamaken@r4740
+normal case tests: yamaken@r4740
 corner case tests: 
 
 file:              module-srfi1.c
@@ -1097,6 +1097,9 @@ Log
         * gcroots.h
         * gcroots.c
           - QA done again @r4734
+
+        * promise.c
+          - QA done @r4740
 
 2007-07-13  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi55.c

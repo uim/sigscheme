@@ -1270,6 +1270,7 @@
 (newline)
 (display "(test-cont) (test-sc4) (test-delay)")
 (newline)
+(test-delay)
 "last item in file"
 
 (total-report)

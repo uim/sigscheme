@@ -44,15 +44,16 @@ extern "C" {
 #endif
 
 #define GCROOTS_VERSION_MAJOR      (0)
-#define GCROOTS_VERSION_MINOR      (1)
-#define GCROOTS_VERSION_PATCHLEVEL (1)
-#define GCROOTS_API_REVISION       (0)
+#define GCROOTS_VERSION_MINOR      (2)
+#define GCROOTS_VERSION_PATCHLEVEL (0)
+#define GCROOTS_API_REVISION       (1)
 
 #define GCROOTS_VERSION_REQUIRE(major, minor, patchlevel)                    \
   ((major) < GCROOTS_VERSION_MAJOR                                           \
    || ((major) == GCROOTS_VERSION_MAJOR && (minor) < GCROOTS_VERSION_MINOR)  \
    || ((major) == GCROOTS_VERSION_MAJOR && (minor) == GCROOTS_VERSION_MINOR  \
        && (patchlevel) <= GCROOTS_VERSION_PATCHLEVEL))
+
 
 typedef struct _GCROOTS_context GCROOTS_context;
 
@@ -61,7 +62,7 @@ typedef void (*GCROOTS_mark_proc)(void *start, void *end,
 typedef void *(*GCROOTS_user_proc)(void *arg);
 typedef void *(*GCROOTS_context_alloc_proc)(size_t ctx_size);
 
-
+/* may return NULL */
 SCM_EXPORT GCROOTS_context *GCROOTS_init(GCROOTS_context_alloc_proc allocator,
                                          GCROOTS_mark_proc marker,
                                          int scan_entire_system_stack);
@@ -72,6 +73,8 @@ SCM_EXPORT void *GCROOTS_call_with_gc_ready_stack(GCROOTS_context *ctx,
                                                   void *arg);
 SCM_EXPORT void GCROOTS_mark(GCROOTS_context *ctx);
 
+SCM_EXPORT int GCROOTS_is_protected_context(GCROOTS_context *ctx);
+SCM_EXPORT int GCROOTS_is_protected(GCROOTS_context *ctx, void *obj);
 
 #ifdef __cplusplus
 }

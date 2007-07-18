@@ -597,23 +597,23 @@ corner case tests:
 
 file:              gcroots.h
 category:          core
-spec by eyes:      yamaken@r4203
+spec by eyes:      yamaken@r4203, yamaken@r4734
 spec by tests:     
-general review:    yamaken@r4203
-64-bit by eyes:    yamaken@r4203
+general review:    yamaken@r4203, yamaken@r4734
+64-bit by eyes:    yamaken@r4203, yamaken@r4734
 64-bit by tests:   
-coding style:      yamaken@r4203
+coding style:      yamaken@r4203, yamaken@r4734
 normal case tests: yamaken@r4203
 corner case tests: 
 
 file:              gcroots.c
 category:          core
-spec by eyes:      yamaken@r4203
+spec by eyes:      yamaken@r4203, yamaken@r4734
 spec by tests:     
-general review:    yamaken@r4203
-64-bit by eyes:    yamaken@r4203
+general review:    yamaken@r4203, yamaken@r4734
+64-bit by eyes:    yamaken@r4203, yamaken@r4734
 64-bit by tests:   
-coding style:      yamaken@r4203
+coding style:      yamaken@r4203, yamaken@r4734
 normal case tests: yamaken@r4203
 corner case tests: 
 
@@ -1093,6 +1093,11 @@ corner case tests:
 
 Log
 ---
+2007-07-18  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * gcroots.h
+        * gcroots.c
+          - QA done again @r4734
+
 2007-07-13  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi55.c
         * srfi-55.scm

@@ -60,11 +60,21 @@ struct _GCROOTS_context {
 /*=======================================
   Variable Definitions
 =======================================*/
+SCM_GLOBAL_VARS_BEGIN(static_gcroots);
+#define static
+static void *l_findee;
+static int l_found;
+#undef static
+SCM_GLOBAL_VARS_END(static_gcroots);
+#define l_findee SCM_GLOBAL_VAR(static_gcroots, l_findee)
+#define l_found  SCM_GLOBAL_VAR(static_gcroots, l_found)
+SCM_DEFINE_STATIC_VARS(static_gcroots);
 
 /*=======================================
   File Local Function Declarations
 =======================================*/
 static void mark_internal(GCROOTS_context *ctx);
+static void find_obj(void *start, void *end, int is_certain, int is_aligned);
 
 /*=======================================
   Function Definitions
@@ -79,6 +89,8 @@ GCROOTS_init(GCROOTS_context_alloc_proc allocator, GCROOTS_mark_proc marker,
     SCM_ASSERT(marker);
     /* scan_entire_system_stack is not supported by this implementation */
     SCM_ASSERT(!scan_entire_system_stack);
+
+    SCM_GLOBAL_VARS_INIT(static_gcroots);
 
     ctx = (*allocator)(sizeof(GCROOTS_context));
     if (ctx) {
@@ -150,4 +162,51 @@ mark_internal(GCROOTS_context *ctx)
     void *stack_top; /* approx */
 
     (*ctx->mark)(ctx->stack_base, &stack_top, scm_false, scm_false);
+}
+
+int
+GCROOTS_is_protected_context(GCROOTS_context *ctx)
+{
+    assert(ctx);
+
+    return (ctx->stack_base) ? scm_true : scm_false;
+}
+
+int
+GCROOTS_is_protected(GCROOTS_context *ctx, void *obj)
+{
+    GCROOTS_context tmp_ctx;
+
+    assert(ctx);
+
+    if (!GCROOTS_is_protected_context(ctx))
+      return scm_false;
+
+    tmp_ctx = *ctx;
+    tmp_ctx.mark = find_obj; /* not actually a mark function */
+    l_findee = obj;
+    l_found = scm_false;
+    GCROOTS_mark(&tmp_ctx);
+
+    return l_found;
+}
+
+static void
+find_obj(void *start, void *end, int is_certain, int is_aligned)
+{
+    void **p;
+    int offset;
+
+    offset = 0;
+    do {
+        for (p = (void **)start + offset; p < (void **)end; p++) {
+            if (*p == l_findee) {
+                l_found = scm_true;
+                return;
+            }
+        }
+        offset += ALIGNOF_VOID_P;
+    } while (!is_aligned
+             && SIZEOF_VOID_P != ALIGNOF_VOID_P
+             && offset % SIZEOF_VOID_P);
 }

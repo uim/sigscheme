@@ -12,6 +12,9 @@ High priority tasks:
 * (0.9) Provide a record type
   - Evaluate SRFI-9 and R6RS records
 
+* (0.9) Introduce a standard unit testing framework
+  - SRFI-64 "A Scheme API for test suites"
+
 * grep "FIXME" and fix them
 
 ==============================================================================
@@ -73,9 +76,6 @@ Properness improvements: (not required for now)
   - Separate SigScheme-dependent part and generic part of test-c, and
     generalize the unit testing utils as usable for uim
   - Name 'the testing utils'
-
-* Make unittest.scm closer to SRFI-64 "A Scheme API for test suites" and
-  SRFI-73 "Lightweight testing" if reasonable
 
 ==============================================================================
 Logical simplifications:

@@ -66,10 +66,13 @@ Finally, update LIBGCROOTS_URL in `make-dist.sh`.
 Tagging
 ~~~~~~~
 
-A release must be tagged for development management.
+A release must be branched and tagged for development management.
 
 ----------------------------------------------------------------
 $ svn cp -r33xx https://uim.googlecode.com/svn/sigscheme-trunk \
+                https://uim.googlecode.com/svn/branches/sigscheme-x.y
+
+$ svn cp -r33xx https://uim.googlecode.com/svn/branches/sigscheme-x.y \
                 https://uim.googlecode.com/svn/tags/sigscheme-x.y.z
 ----------------------------------------------------------------
 

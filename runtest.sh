@@ -17,7 +17,13 @@ run_test () {
 }
 
 echo "[ Run single ported tests ]"
-for test in test/test-r4rs.scm test/oleg-srfi2.scm test/stone-srfi1.scm #test/r5rs_pitfall.scm
+for test in test/stone-srfi1.scm test/oleg-srfi2.scm #test/r5rs_pitfall.scm
+do
+  run_test $test
+done
+
+echo "[ Run tests ported from SCM]"
+for test in test/scm-*.scm
 do
   run_test $test
 done
@@ -35,7 +41,7 @@ do
 done
 
 echo "[ Run SigScheme tests ]"
-for test in `ls test/test-*.scm | egrep -v 'test-(tail-rec|r4rs)\.scm'`
+for test in `ls test/test-*.scm | egrep -v 'test-tail-rec\.scm'`
 do
   run_test $test
 done

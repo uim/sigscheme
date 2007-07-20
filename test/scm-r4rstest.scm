@@ -45,27 +45,63 @@
 
 ;;; send corrections or additions to agj @ alum.mit.edu
 
+
+;; ChangeLog
+;;
+;; 2007-07-20 yamaken   - Imported revision 1.47 of r4rstest.scm from
+;;                        http://cvs.savannah.gnu.org/viewvc/*checkout*/scm/scm/r4rstest.scm?revision=HEAD
+;;                        and adapted to SigScheme
+;;                      - Fix the literals '4.0' in test-inexact with 'f4.0'
+;;                      - Disable tests for case-insensitivity of identifiers
+;;                      - Disable tests for complex?, real?, rational?, exact?,
+;;                        inexact?, expt, gcd, lcm
+;;                      - Disable test progress printings
+;;                      - Disable type-matrix printings
+;;                      - Enable symbol? tests of (SECTION 6 4)
+;;                      - Enable (test-sc4) and (test-delay)
+
+
+(load "./test/unittest.scm")
+
+(define tn test-name)
+(define tn-section
+  (lambda (digits)
+    (let ((name (apply string-append
+                       (cons
+                        "section "
+                        (apply append
+                               (map (lambda (d)
+                                      (list (number->string d) "."))
+                                    digits))))))
+      (tn name))))
+
 (define cur-section '())(define errs '())
 (define SECTION (lambda args
-		  (display "SECTION") (write args) (newline)
-		  (set! cur-section args) #t))
+		  ;;(display "SECTION") (write args) (newline)
+		  (set! cur-section args)
+                  (tn-section args)
+                  #t))
 (define record-error (lambda (e) (set! errs (cons (list cur-section e) errs))))
 
 (define test
   (lambda (expect fun . args)
-    (write (cons fun args))
-    (display "  ==> ")
+    ;;(write (cons fun args))
+    ;;(display "  ==> ")
     ((lambda (res)
-      (write res)
-      (newline)
-      (cond ((not (equal? expect res))
-	     (record-error (list res expect (cons fun args)))
-	     (display " BUT EXPECTED ")
-	     (write expect)
-	     (newline)
-	     #f)
-	    (else #t)))
-     (if (procedure? fun) (apply fun args) (car args)))))
+       ;;(write res)
+       ;;(newline)
+       (let ((name (tn)))
+         (cond ((not (equal? expect res))
+                (record-error (list res expect (cons fun args)))
+                ;;(display " BUT EXPECTED ")
+                ;;(write expect)
+                ;;(newline)
+                (assert name name #f)
+                #f)
+               (else
+                (assert name name #t)
+                #t))))
+       (if (procedure? fun) (apply fun args) (car args)))))
 (define (report-errs)
   (newline)
   (if (null? errs) (display "Passed all tests")
@@ -88,19 +124,19 @@
   (list
    #t #f #\a '() 9739 '(test) record-error "test" "" 'test '#() '#(a b c) ))
 (define i 1)
-(for-each (lambda (x) (display (make-string i #\space))
-		  (set! i (+ 3 i))
-		  (write x)
-		  (newline))
-	  disjoint-type-functions)
-(define type-matrix
-  (map (lambda (x)
-	 (let ((t (map (lambda (f) (f x)) disjoint-type-functions)))
-	   (write t)
-	   (write x)
-	   (newline)
-	   t))
-       type-examples))
+;;SigScheme;;(for-each (lambda (x) (display (make-string i #\space))
+;;SigScheme;;		  (set! i (+ 3 i))
+;;SigScheme;;		  (write x)
+;;SigScheme;;		  (newline))
+;;SigScheme;;	  disjoint-type-functions)
+;;SigScheme;;(define type-matrix
+;;SigScheme;;  (map (lambda (x)
+;;SigScheme;;	 (let ((t (map (lambda (f) (f x)) disjoint-type-functions)))
+;;SigScheme;;	   (write t)
+;;SigScheme;;	   (write x)
+;;SigScheme;;	   (newline)
+;;SigScheme;;	   t))
+;;SigScheme;;       type-examples))
 (set! i 0)
 (define j 0)
 (for-each (lambda (x y)
@@ -439,21 +475,33 @@
 (test '((a)) assoc (list 'a) '(((a)) ((b)) ((c))))
 (test '(5 7) assv 5 '((2 3) (5 7) (11 13)))
 (SECTION 6 4)
-;(test #t symbol? 'foo)
+(test #t symbol? 'foo)
 (test #t symbol? (car '(a b)))
-;(test #f symbol? "bar")
-;(test #t symbol? 'nil)
-;(test #f symbol? '())
-;(test #f symbol? #f)
+(test #f symbol? "bar")
+(test #t symbol? 'nil)
+(test #f symbol? '())
+(test #f symbol? #f)
+
+;; SigScheme: DISABLED TESTS FOR CASE-INSENSITIVITY OF IDENTIFIERS
+;;
+;; Since SigScheme distinguishes letter case in indentifiers. Although R5RS
+;; specifies that case insensitivity as follows, it is hard to accept for the
+;; our application.
+;;
+;; 2. Lexical conventions
+;; Upper and lower case forms of a letter are never distinguished except within
+;; character and string constants. For example, `Foo' is the same identifier as
+;; `FOO', and #x1AB is the same number as #X1ab.
+
 ;;; But first, what case are symbols in?  Determine the standard case:
 (define char-standard-case char-upcase)
-(if (string=? (symbol->string 'A) "a")
-    (set! char-standard-case char-downcase))
-(test #t 'standard-case
-      (string=? (symbol->string 'a) (symbol->string 'A)))
-(test #t 'standard-case
-      (or (string=? (symbol->string 'a) "A")
-	  (string=? (symbol->string 'A) "a")))
+;;SigScheme;;(if (string=? (symbol->string 'A) "a")
+;;SigScheme;;    (set! char-standard-case char-downcase))
+;;SigScheme;;(test #t 'standard-case
+;;SigScheme;;      (string=? (symbol->string 'a) (symbol->string 'A)))
+;;SigScheme;;(test #t 'standard-case
+;;SigScheme;;      (or (string=? (symbol->string 'a) "A")
+;;SigScheme;;	  (string=? (symbol->string 'A) "a")))
 (define (str-copy s)
   (let ((v (make-string (string-length s))))
     (do ((i (- (string-length v) 1) (- i 1)))
@@ -465,10 +513,10 @@
        (sl (string-length s)))
       ((>= i sl) s)
       (string-set! s i (char-standard-case (string-ref s i)))))
-(test (string-standard-case "flying-fish") symbol->string 'flying-fish)
-(test (string-standard-case "martin") symbol->string 'Martin)
+;;SigScheme;;(test (string-standard-case "flying-fish") symbol->string 'flying-fish)
+;;SigScheme;;(test (string-standard-case "martin") symbol->string 'Martin)
 (test "Malvina" symbol->string (string->symbol "Malvina"))
-(test #t 'standard-case (eq? 'a 'A))
+;;SigScheme;;(test #t 'standard-case (eq? 'a 'A))
 
 (define x (string #\a #\b))
 (define y (string->symbol x))
@@ -477,36 +525,36 @@
 (test "ab" symbol->string y)
 (test y string->symbol "ab")
 
-(test #t eq? 'mISSISSIppi 'mississippi)
-(test #f 'string->symbol (eq? 'bitBlt (string->symbol "bitBlt")))
+;;SigScheme;;(test #t eq? 'mISSISSIppi 'mississippi)
+;;SigScheme;;(test #f 'string->symbol (eq? 'bitBlt (string->symbol "bitBlt")))
 (test 'JollyWog string->symbol (symbol->string 'JollyWog))
 
 (SECTION 6 5 5)
 (test #t number? 3)
-(test #t complex? 3)
-(test #t real? 3)
-(test #t rational? 3)
+;;SigScheme;;(test #t complex? 3)
+;;SigScheme;;(test #t real? 3)
+;;SigScheme;;(test #t rational? 3)
 (test #t integer? 3)
 
-(test #t exact? 3)
-(test #f inexact? 3)
+;;SigScheme;;(test #t exact? 3)
+;;SigScheme;;(test #f inexact? 3)
 
-(test 1 expt 0 0)
-(test 0 expt 0 1)
-(test 0 expt 0 256)
+;;SigScheme;;(test 1 expt 0 0)
+;;SigScheme;;(test 0 expt 0 1)
+;;SigScheme;;(test 0 expt 0 256)
 ;;(test 0 expt 0 -255)
-(test 1 expt -1 256)
-(test -1 expt -1 255)
-(test 1 expt -1 -256)
-(test -1 expt -1 -255)
-(test 1 expt 256 0)
-(test 1 expt -256 0)
-(test 256 expt 256 1)
-(test -256 expt -256 1)
-(test 8 expt 2 3)
-(test -8 expt -2 3)
-(test 9 expt 3 2)
-(test 9 expt -3 2)
+;;SigScheme;;(test 1 expt -1 256)
+;;SigScheme;;(test -1 expt -1 255)
+;;SigScheme;;(test 1 expt -1 -256)
+;;SigScheme;;(test -1 expt -1 -255)
+;;SigScheme;;(test 1 expt 256 0)
+;;SigScheme;;(test 1 expt -256 0)
+;;SigScheme;;(test 256 expt 256 1)
+;;SigScheme;;(test -256 expt -256 1)
+;;SigScheme;;(test 8 expt 2 3)
+;;SigScheme;;(test -8 expt -2 3)
+;;SigScheme;;(test 9 expt 3 2)
+;;SigScheme;;(test 9 expt -3 2)
 
 (test #t = 22 22 22)
 (test #t = 22 22)
@@ -580,12 +628,12 @@
 (test #t divtest 238 -9)
 (test #t divtest -238 -9)
 
-(test 4 gcd 0 4)
-(test 4 gcd -4 0)
-(test 4 gcd 32 -36)
-(test 0 gcd)
-(test 288 lcm 32 -36)
-(test 1 lcm)
+;;SigScheme;;(test 4 gcd 0 4)
+;;SigScheme;;(test 4 gcd -4 0)
+;;SigScheme;;(test 4 gcd 32 -36)
+;;SigScheme;;(test 0 gcd)
+;;SigScheme;;(test 288 lcm 32 -36)
+;;SigScheme;;(test 1 lcm)
 
 (SECTION 6 5 5)
 ;;; Implementations which don't allow division by 0 can have fragile
@@ -649,9 +697,9 @@
   (test #t 'max (inexact? (max f3.9 4)))
   (test f4.0 max f3.9 4)
   (test f4.0 exact->inexact 4)
-  (test f4.0 exact->inexact 4.0)
+  (test f4.0 exact->inexact f4.0)
   (test 4 inexact->exact 4)
-  (test 4 inexact->exact 4.0)
+  (test 4 inexact->exact f4.0)
   (test (- f4.0) round (- f4.5))
   (test (- f4.0) round (- f3.5))
   (test (- f4.0) round (- f3.9))
@@ -1304,4 +1352,10 @@
 (newline)
 (display "(test-cont) (test-sc4) (test-delay)")
 (newline)
+;;SigScheme;;(test-cont)
+(test-sc4)    ;;SigScheme;;
+(test-delay)  ;;SigScheme;;
+
+(total-report)  ;;SigScheme;;
+
 "last item in file"

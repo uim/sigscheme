@@ -96,7 +96,7 @@ EXTRA_DIST += test-tail-rec.scm
 
 # Imported foreign tests
 imported_tests = \
-        test-r4rs.scm \
+        scm-r4rstest.scm \
         bigloo-apply.scm \
         bigloo-bchar.scm \
         bigloo-bool.scm \

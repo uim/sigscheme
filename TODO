@@ -26,13 +26,14 @@ Low priority bugs:
 ==============================================================================
 Extensions: (not required for now)
 
+* Dynamically loadable binary module which allows user-written procedure
+
 * Complete SLIB support
+  - Resolve the conflict of 'require' and 'provided?' with SigScheme
   - Make the slib.scm installable
   - Fill some variables with configure (slib.scm.in)
 
 * Make Symbian OS and BREW support working (patches are welcome)
-
-* Dynamically loadable binary module which allows user-written procedure
 
 * Introduce dynamic environment for internal use
   - Fix continuation-unsafe current-{input,output}-port handling with it
@@ -62,8 +63,6 @@ Performance improvements:
 
 ==============================================================================
 Properness improvements: (not required for now)
-
-* Update test-r4rs.scm to CVS HEAD of SCM
 
 * Import http://sisc.sourceforge.net/r5rs_pitfall.scm
   - Fix hygienic-macro incapability of module_srfi34.c to catch errors into

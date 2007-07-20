@@ -48,6 +48,10 @@ Overview of changes from 0.7.x to 0.8.0
   - Second argument argv is added to scm_initialize() and thus incompatible
     with 0.7.x.
 
+  - [R5RS] R5RS hygienic macros is disabled by default in all configurations
+    but 'dev' since it has a considerable bug (such as infinite loop on
+    test-srfi1-another.scm)
+
 * Fixes
 
   - [CRITICAL] Fix unterminated string generation on singlebyte character codec

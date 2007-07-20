@@ -411,7 +411,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
       full|r5rs|dev)
         use_continuation=yes
         use_quasiquote=yes
-        use_hygienic_macro=yes
         use_promise=yes
         use_int=yes
         use_numeric_io=yes
@@ -428,7 +427,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
       small)
         use_continuation=no
         use_quasiquote=no
-        use_hygienic_macro=no
         use_promise=no
         use_int=yes
         use_numeric_io=yes
@@ -445,7 +443,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
       siod)
         use_continuation=no
         use_quasiquote=no
-        use_hygienic_macro=no
         use_promise=no
         use_int=yes
         use_numeric_io=yes
@@ -462,7 +459,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
       uim)
         use_continuation=yes
         use_quasiquote=yes
-        use_hygienic_macro=no
         use_promise=yes
         use_int=yes
         use_numeric_io=yes
@@ -475,6 +471,16 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_reader=yes
         use_writer=yes
         use_load=yes
+        ;;
+    esac
+
+    # experimental features
+    case "$enable_conf" in
+      dev)
+        use_hygienic_macro=yes
+        ;;
+      *)
+        use_hygienic_macro=no
         ;;
     esac
 

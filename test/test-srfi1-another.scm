@@ -1872,11 +1872,11 @@
 (assert-equal? (tn) 1            (find odd?  '(1 2 3 . 4)))
 (tn "find circular list")
 ;; Rotates the circular list as like as find-tail.
-(assert-eq?    (tn) 1 (find (lambda (x) (= x 1)) clst4))
-(assert-eq?    (tn) 2 (find (lambda (x) (= x 2)) clst4))
-(assert-eq?    (tn) 3 (find (lambda (x) (= x 3)) clst4))
-(assert-eq?    (tn) 4 (find (lambda (x) (= x 4)) clst4))
-(assert-eq?    (tn)
+(assert-equal? (tn) 1 (find (lambda (x) (= x 1)) clst4))
+(assert-equal? (tn) 2 (find (lambda (x) (= x 2)) clst4))
+(assert-equal? (tn) 3 (find (lambda (x) (= x 3)) clst4))
+(assert-equal? (tn) 4 (find (lambda (x) (= x 4)) clst4))
+(assert-equal? (tn)
                1
                (let ((cnt 2))
                  (find (lambda (x)
@@ -1885,7 +1885,7 @@
                               (and (zero? cnt)
                                    (= x 1)))
                             clst4)))
-(assert-eq?    (tn)
+(assert-equal? (tn)
                2
                (let ((cnt 2))
                  (find (lambda (x)
@@ -1894,7 +1894,7 @@
                               (and (zero? cnt)
                                    (= x 2)))
                             clst4)))
-(assert-eq?    (tn)
+(assert-equal? (tn)
                3
                (let ((cnt 2))
                  (find (lambda (x)
@@ -1903,7 +1903,7 @@
                               (and (zero? cnt)
                                    (= x 3)))
                             clst4)))
-(assert-eq?    (tn)
+(assert-equal? (tn)
                1
                (let ((cnt 3))
                  (find (lambda (x)
@@ -1912,7 +1912,7 @@
                               (and (zero? cnt)
                                    (= x 1)))
                             clst4)))
-(assert-eq?    (tn)
+(assert-equal? (tn)
                1
                (let ((cnt 4))
                  (find (lambda (x)

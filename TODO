@@ -2,6 +2,7 @@
 High priority tasks:
 
 * (0.9) Efficient macro
+  - Fix infinite loop on test-srfi1-another.scm
   - Introduce compilation phase (see "Macros" subsection of spec.txt)
   - Make macro expansion performed on compilation phase
   - Make runtime syntax sugars interpretation into macro expansions on

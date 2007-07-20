@@ -423,15 +423,15 @@
     "(assert-equal? (tn)  134217727 (string->number  \"134217727\"))")
    (string-eval
     "(assert-equal? (tn) -134217728 (string->number \"-134217728\"))")
-   (assert-error  (tn) (lambda () (string->number  "134217728")))
-   (assert-error  (tn) (lambda () (string->number "-134217729"))))
+   (assert-false (tn) (string->number  "134217728"))
+   (assert-false (tn) (string->number "-134217729")))
   ((32)
    (string-eval
     "(assert-equal? (tn)  2147483647 (string->number  \"2147483647\"))")
    (string-eval
     "(assert-equal? (tn) -2147483648 (string->number \"-2147483648\"))")
-   (assert-error  (tn) (lambda () (string->number   "2147483648")))
-   (assert-error  (tn) (lambda () (string->number  "-2147483649"))))
+   (assert-false (tn) (string->number   "2147483648"))
+   (assert-false (tn) (string->number  "-2147483649")))
   ((60)
    (string-eval
     "(assert-equal? (tn)
@@ -441,8 +441,8 @@
     "(assert-equal? (tn)
                     -576460752303423488
                     (string->number \"-576460752303423488\")))")
-   (assert-error  (tn) (lambda () (string->number  "576460752303423488")))
-   (assert-error  (tn) (lambda () (string->number "-576460752303423489"))))
+   (assert-false (tn) (string->number  "576460752303423488"))
+   (assert-false (tn) (string->number "-576460752303423489")))
   ((64)
    (string-eval
     "(assert-equal? (tn)
@@ -452,8 +452,8 @@
     "(assert-equal? (tn)
                     -9223372036854775808
                     (string->number \"-9223372036854775808\")))")
-   (assert-error  (tn) (lambda () (string->number  "9223372036854775808")))
-   (assert-error  (tn) (lambda () (string->number "-9223372036854775809"))))
+   (assert-false (tn) (string->number  "9223372036854775808"))
+   (assert-false (tn) (string->number "-9223372036854775809")))
   (else
    (assert-fail (tn) "unknown int bitwidth")))
 

@@ -63,6 +63,8 @@ Overview of changes from 0.7.x to 0.8.0
 
   - [SRFI-2] Fix body-less forms rejection on and-let* such as (and-let* ())
 
+  - [R5RS] Fix overflow error by a long number on string->number with #f
+
   - [R5RS] Fix invalid assertion on modifying optional arguments to a dotted or
     circular list (see test-misc.scm). This bug only appeared on --enable-debug
 

@@ -806,14 +806,14 @@ corner case tests: yamaken@r3943, yamaken@r4071
 
 file:              number-io.c
 category:          r5rs
-spec by eyes:      yamaken@r3943, yamaken@r4071
-spec by tests:     yamaken@r3943, yamaken@r4071
+spec by eyes:      yamaken@r3943, yamaken@r4071, yamaken@r4760
+spec by tests:     yamaken@r3943, yamaken@r4071, yamaken@r4760
 general review:    yamaken@r3943
 64-bit by eyes:    yamaken@r3943
 64-bit by tests:   yamaken@r4071
 coding style:      yamaken@r3943
-normal case tests: yamaken@r3943, yamaken@r4071
-corner case tests: yamaken@r3943, yamaken@r4071
+normal case tests: yamaken@r3943, yamaken@r4071, yamaken@r4760
+corner case tests: yamaken@r3943, yamaken@r4071, yamaken@r4760
 
 file:              list.c
 category:          r5rs
@@ -1093,6 +1093,10 @@ corner case tests:
 
 Log
 ---
+2007-07-21  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * number-io.c
+          - QA done again @r4760 for scm_string2number()
+
 2007-07-18  YamaKen <yamaken AT bp.iij4u.or.jp>
         * gcroots.h
         * gcroots.c

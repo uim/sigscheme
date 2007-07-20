@@ -227,8 +227,16 @@ scm_string2number(const char *str, int radix, scm_bool *err)
      *     converted value, if any. If no conversion could be performed, 0
      *     shall be returned and errno may be set to [EINVAL].
      */
-    if ((errno == ERANGE && !empty_strp) || INT_OUT_OF_RANGEP(n))
+    if ((errno == ERANGE && !empty_strp) || INT_OUT_OF_RANGEP(n)) {
+#if 0
         ERR(ERRMSG_FIXNUM_OVERFLOW ": ~S (radix ~D)", str, radix);
+#else
+        /* R5RS: If string is not a syntactically valid notation for a number,
+         *       then `string->number' returns #f.  */
+        *err = scm_true;
+        n = 0;
+#endif
+    }
 
     return n;
 }

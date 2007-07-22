@@ -1,3 +1,52 @@
+;; Copyright (C) Panu Kalliokoski (2005). All Rights Reserved.
+;; 
+;; Permission is hereby granted, free of charge, to any person obtaining a
+;; copy of this software and associated documentation files (the
+;; "Software"), to deal in the Software without restriction, including
+;; without limitation the rights to use, copy, modify, merge, publish,
+;; distribute, sublicense, and/or sell copies of the Software, and to
+;; permit persons to whom the Software is furnished to do so, subject to
+;; the following conditions:
+;; 
+;; The above copyright notice and this permission notice shall be included
+;; in all copies or substantial portions of the Software.
+;; 
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+;; OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+
+
+;; ChangeLog
+;;
+;; 2007-07-23 yamaken   - Imported from
+;;                        http://srfi.schemers.org/srfi-69/srfi-69.html
+;;                        and adapted to SigScheme
+
+
+;;
+;; SigScheme adaptation
+
+(require-extension (srfi 9 23))
+
+(define inexact? (lambda (x) #f))
+(define real?    inexact?)
+
+(define expt
+  (lambda (x y)
+    (let rec ((res 1)
+              (cnt y))
+      (if (zero? cnt)
+          res
+          (rec (* res x) (- cnt 1))))))
+
+;;
+;; Main implementation
+;;
+
 ;; This implementation relies on SRFI-9 for distinctness of the hash table
 ;; type, and on SRFI-23 for error reporting.  Otherwise, the implementation
 ;; is pure R5RS.
@@ -255,25 +304,3 @@
 
 (define (hash-table-values hash-table)
   (hash-table-fold hash-table (lambda (key val acc) (cons val acc)) '()))
-
-
-;; Copyright (C) Panu Kalliokoski (2005). All Rights Reserved.
-;; 
-;; Permission is hereby granted, free of charge, to any person obtaining a
-;; copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
-;; 
-;; The above copyright notice and this permission notice shall be included
-;; in all copies or substantial portions of the Software.
-;; 
-;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-;; OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 

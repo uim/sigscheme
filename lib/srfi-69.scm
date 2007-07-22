@@ -19,6 +19,11 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
+;; Latest sources:
+;;
+;; http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/_darcs/current/hash-srfi.ss
+;; http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/_darcs/current/test-hash.ss
+
 
 ;; ChangeLog
 ;;
@@ -29,6 +34,7 @@
 
 ;;
 ;; SigScheme adaptation
+;;
 
 (require-extension (srfi 9 23))
 

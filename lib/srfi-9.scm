@@ -1,3 +1,25 @@
+;; Copyright (C) Richard Kelsey (1999). All Rights Reserved.
+;; 
+;; Permission is hereby granted, free of charge, to any person obtaining
+;; a copy of this software and associated documentation files (the
+;; "Software"), to deal in the Software without restriction, including
+;; without limitation the rights to use, copy, modify, merge, publish,
+;; distribute, sublicense, and/or sell copies of the Software, and to
+;; permit persons to whom the Software is furnished to do so, subject to
+;; the following conditions:
+;; 
+;; The above copyright notice and this permission notice shall be
+;; included in all copies or substantial portions of the Software.
+;; 
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+;; LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 ;; This code is divided into three layers. In top-down order these are:
 ;; 
 ;;    1. Syntax definitions for DEFINE-RECORD-TYPE and an auxillary macro.
@@ -44,6 +66,65 @@
      (begin
        (define accessor (record-accessor type 'field-tag))
        (define modifier (record-modifier type 'field-tag))))))
+
+
+;;
+;; Records
+;;
+
+; This implements a record abstraction that is identical to vectors,
+; except that they are not vectors (VECTOR? returns false when given a
+; record and RECORD? returns false when given a vector).  The following
+; procedures are provided:
+;   (record? <value>)                -> <boolean>
+;   (make-record <size>)             -> <record>
+;   (record-ref <record> <index>)    -> <value>
+;   (record-set! <record> <index> <value>) -> <unspecific>
+;
+; These can implemented in R5RS Scheme as vectors with a distinguishing
+; value at index zero, providing VECTOR? is redefined to be a procedure
+; that returns false if its argument contains the distinguishing record
+; value.  EVAL is also redefined to use the new value of VECTOR?.
+
+; Define the marker and redefine VECTOR? and EVAL.
+
+(define record-marker (list 'record-marker))
+
+(define real-vector? vector?)
+
+(define (vector? x)
+  (and (real-vector? x)
+       (or (= 0 (vector-length x))
+	   (not (eq? (vector-ref x 0)
+		record-marker)))))
+
+; This won't work if ENV is the interaction environment and someone has
+; redefined LAMBDA there.
+
+(define eval
+  (let ((real-eval eval))
+    (lambda (exp env)
+      ((real-eval `(lambda (vector?) ,exp))
+       vector?))))
+
+; Definitions of the record procedures.
+
+(define (record? x)
+  (and (real-vector? x)
+       (< 0 (vector-length x))
+       (eq? (vector-ref x 0)
+            record-marker)))
+
+(define (make-record size)
+  (let ((new (make-vector (+ size 1))))
+    (vector-set! new 0 record-marker)
+    new))
+
+(define (record-ref record index)
+  (vector-ref record (+ index 1)))
+
+(define (record-set! record index value)
+  (vector-set! record (+ index 1) value))
 
 
 ;;
@@ -160,84 +241,3 @@
                     type))
           (record-set! thing index value)
           (error "modifier applied to bad value" type tag thing)))))
-
-
-;;
-;; Records
-;;
-
-; This implements a record abstraction that is identical to vectors,
-; except that they are not vectors (VECTOR? returns false when given a
-; record and RECORD? returns false when given a vector).  The following
-; procedures are provided:
-;   (record? <value>)                -> <boolean>
-;   (make-record <size>)             -> <record>
-;   (record-ref <record> <index>)    -> <value>
-;   (record-set! <record> <index> <value>) -> <unspecific>
-;
-; These can implemented in R5RS Scheme as vectors with a distinguishing
-; value at index zero, providing VECTOR? is redefined to be a procedure
-; that returns false if its argument contains the distinguishing record
-; value.  EVAL is also redefined to use the new value of VECTOR?.
-
-; Define the marker and redefine VECTOR? and EVAL.
-
-(define record-marker (list 'record-marker))
-
-(define real-vector? vector?)
-
-(define (vector? x)
-  (and (real-vector? x)
-       (or (= 0 (vector-length x))
-	   (not (eq? (vector-ref x 0)
-		record-marker)))))
-
-; This won't work if ENV is the interaction environment and someone has
-; redefined LAMBDA there.
-
-(define eval
-  (let ((real-eval eval))
-    (lambda (exp env)
-      ((real-eval `(lambda (vector?) ,exp))
-       vector?))))
-
-; Definitions of the record procedures.
-
-(define (record? x)
-  (and (real-vector? x)
-       (< 0 (vector-length x))
-       (eq? (vector-ref x 0)
-            record-marker)))
-
-(define (make-record size)
-  (let ((new (make-vector (+ size 1))))
-    (vector-set! new 0 record-marker)
-    new))
-
-(define (record-ref record index)
-  (vector-ref record (+ index 1)))
-
-(define (record-set! record index value)
-  (vector-set! record (+ index 1) value))
-
-
-;; Copyright (C) Richard Kelsey (1999). All Rights Reserved.
-;; 
-;; Permission is hereby granted, free of charge, to any person obtaining
-;; a copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
-;; 
-;; The above copyright notice and this permission notice shall be
-;; included in all copies or substantial portions of the Software.
-;; 
-;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-;; LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

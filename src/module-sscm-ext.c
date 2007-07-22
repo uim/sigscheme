@@ -112,7 +112,8 @@ scm_p_sscm_version(void)
 {
     DECLARE_FUNCTION("sscm-version", procedure_fixed_0);
 
-    return CONST_STRING(PACKAGE_VERSION);
+    /* PACKAGE_VERSION may be overridden by a master package such as uim. */
+    return CONST_STRING(SSCM_VERSION_STRING);
 }
 
 SCM_EXPORT ScmObj

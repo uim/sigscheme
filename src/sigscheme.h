@@ -65,6 +65,7 @@ extern "C" {
 /*=======================================
   Macro Definitions
 =======================================*/
+#define SSCM_VERSION_STRING     "0.8.0"
 #define SSCM_VERSION_MAJOR      (0)
 #define SSCM_VERSION_MINOR      (8)
 #define SSCM_VERSION_PATCHLEVEL (0)

@@ -163,13 +163,13 @@ typedef const char *format_string_t;
 #define FORMAT_STR_SKIP_CHAR(fmt) ((void)FORMAT_STR_READ(fmt))
 
 
-enum format_args_type {
+enum scm_format_args_type {
     ARG_VA_LIST,
     ARG_SCM_LIST
 };
 
-struct format_args {
-    enum format_args_type type;
+struct scm_format_args {
+    enum scm_format_args_type type;
     union {
         va_list *va;
         ScmObj *scm;
@@ -211,11 +211,11 @@ static scm_ichar_t format_raw_c_directive(ScmObj port,
 static scm_ichar_t format_directive(ScmObj port, scm_ichar_t last_ch,
                                     enum ScmFormatCapability fcap,
                                     format_string_t *fmt,
-                                    struct format_args args);
+                                    struct scm_format_args args);
 #endif
 static ScmObj format_internal(ScmObj port, enum ScmFormatCapability fcap,
                               const char *fmt,
-                              struct format_args args);
+                              struct scm_format_args args);
 
 /*=======================================
   Function Definitions
@@ -469,7 +469,7 @@ format_raw_c_directive(ScmObj port, format_string_t *fmt, va_list *args)
 static scm_ichar_t
 format_directive(ScmObj port, scm_ichar_t last_ch,
                  enum ScmFormatCapability fcap,
-                 format_string_t *fmt, struct format_args args)
+                 format_string_t *fmt, struct scm_format_args args)
 {
     const void *orig_pos;
     char directive;
@@ -653,7 +653,7 @@ format_directive(ScmObj port, scm_ichar_t last_ch,
 
 static ScmObj
 format_internal(ScmObj port, enum ScmFormatCapability fcap,
-                const char *fmt, struct format_args args)
+                const char *fmt, struct scm_format_args args)
 {
     scm_ichar_t c, last_c, handled;
     format_string_t cur;
@@ -720,7 +720,7 @@ SCM_EXPORT ScmObj
 scm_lformat(ScmObj port,
             enum ScmFormatCapability fcap, const char *fmt, ScmObj scm_args)
 {
-    struct format_args args;
+    struct scm_format_args args;
 
     args.type = ARG_SCM_LIST;
     args.lst.scm = &scm_args;
@@ -731,7 +731,7 @@ SCM_EXPORT ScmObj
 scm_vformat(ScmObj port,
             enum ScmFormatCapability fcap, const char *fmt, va_list c_args)
 {
-    struct format_args args;
+    struct scm_format_args args;
 
     args.type = ARG_VA_LIST;
 #if HAVE_REFERENCEABLE_PASSED_VA_LIST

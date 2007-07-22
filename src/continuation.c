@@ -47,13 +47,13 @@
   File Local Macro Definitions
 =======================================*/
 #define CONTINUATION_FRAME(cont)                                             \
-    ((struct continuation_frame *)SCM_CONTINUATION_OPAQUE(cont))
+    ((struct scm_continuation_frame *)SCM_CONTINUATION_OPAQUE(cont))
 #define CONTINUATION_SET_FRAME    SCM_CONTINUATION_SET_OPAQUE
 
 /*=======================================
   File Local Type Definitions
 =======================================*/
-struct continuation_frame {
+struct scm_continuation_frame {
     /*
      * - To hint appropriate alignment on stack, a ScmObj is listed first
      * - GC marking for these ScmObj are implicitly performed by stack scanning
@@ -264,7 +264,7 @@ SCM_EXPORT ScmObj
 scm_call_with_current_continuation(ScmObj proc, ScmEvalState *eval_state)
 {
     volatile ScmObj cont, ret;
-    struct continuation_frame cont_frame;
+    struct scm_continuation_frame cont_frame;
 
     cont_frame.dyn_ext = l_current_dynamic_extent;
     cont_frame.ret_val = SCM_UNDEF;
@@ -313,7 +313,7 @@ scm_call_with_current_continuation(ScmObj proc, ScmEvalState *eval_state)
 SCM_EXPORT void
 scm_call_continuation(ScmObj cont, ScmObj ret)
 {
-    struct continuation_frame *frame;
+    struct scm_continuation_frame *frame;
 #if SCM_NESTED_CONTINUATION_ONLY
     ScmObj dst;
 #endif

@@ -202,7 +202,7 @@
 /*=======================================
   File Local Type Definitions
 =======================================*/
-enum LexerState {
+enum ScmLexerState {
     LEX_ST_NORMAL,
     LEX_ST_COMMENT
 };

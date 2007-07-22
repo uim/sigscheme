@@ -1711,6 +1711,15 @@ SCM_EXPORT ScmObj scm_s_srfi8_receive(ScmObj formals, ScmObj expr, ScmObj body,
                                       ScmEvalState *eval_state);
 #endif
 
+/* module-srfi9.c */
+#if SCM_USE_SRFI9
+SCM_EXPORT ScmObj scm_s_srfi9_define_record_type(ScmObj type_name,
+                                                 ScmObj ctor_spec,
+                                                 ScmObj pred_name,
+                                                 ScmObj field_specs,
+                                                 ScmEvalState *eval_state);
+#endif
+
 /* module-srfi23.c */
 #if SCM_USE_SRFI23
 SCM_EXPORT ScmObj scm_p_srfi23_error(ScmObj reason, ScmObj args);

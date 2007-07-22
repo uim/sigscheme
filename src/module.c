@@ -86,6 +86,9 @@ static const struct scm_module_info module_info_table[] = {
 #if SCM_USE_SRFI8
     {"srfi-8", scm_initialize_srfi8, NULL},
 #endif
+#if SCM_USE_SRFI9
+    {"srfi-9", scm_initialize_srfi9, NULL},
+#endif
 #if SCM_USE_SRFI23
     {"srfi-23", scm_initialize_srfi23, NULL},
 #endif

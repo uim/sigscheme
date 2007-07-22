@@ -20,6 +20,13 @@
 ;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+;; ChangeLog
+;;
+;; 2007-07-23 yamaken   - Imported from
+;;                        http://srfi.schemers.org/srfi-9/srfi-9.html
+;;                        and adapted to SigScheme
+
+
 ;; This code is divided into three layers. In top-down order these are:
 ;; 
 ;;    1. Syntax definitions for DEFINE-RECORD-TYPE and an auxillary macro.
@@ -39,33 +46,33 @@
 
 ; Definition of DEFINE-RECORD-TYPE
 
-(define-syntax define-record-type
-  (syntax-rules ()
-    ((define-record-type type
-       (constructor constructor-tag ...)
-       predicate
-       (field-tag accessor . more) ...)
-     (begin
-       (define type
-         (make-record-type 'type '(field-tag ...)))
-       (define constructor
-         (record-constructor type '(constructor-tag ...)))
-       (define predicate
-         (record-predicate type))
-       (define-record-field type field-tag accessor . more)
-       ...))))
+;;(define-syntax define-record-type
+;;  (syntax-rules ()
+;;    ((define-record-type type
+;;       (constructor constructor-tag ...)
+;;       predicate
+;;       (field-tag accessor . more) ...)
+;;     (begin
+;;       (define type
+;;         (make-record-type 'type '(field-tag ...)))
+;;       (define constructor
+;;         (record-constructor type '(constructor-tag ...)))
+;;       (define predicate
+;;         (record-predicate type))
+;;       (define-record-field type field-tag accessor . more)
+;;       ...))))
 
 ; An auxilliary macro for define field accessors and modifiers.
 ; This is needed only because modifiers are optional.
 
-(define-syntax define-record-field
-  (syntax-rules ()
-    ((define-record-field type field-tag accessor)
-     (define accessor (record-accessor type 'field-tag)))
-    ((define-record-field type field-tag accessor modifier)
-     (begin
-       (define accessor (record-accessor type 'field-tag))
-       (define modifier (record-modifier type 'field-tag))))))
+;;(define-syntax define-record-field
+;;  (syntax-rules ()
+;;    ((define-record-field type field-tag accessor)
+;;     (define accessor (record-accessor type 'field-tag)))
+;;    ((define-record-field type field-tag accessor modifier)
+;;     (begin
+;;       (define accessor (record-accessor type 'field-tag))
+;;       (define modifier (record-modifier type 'field-tag))))))
 
 
 ;;

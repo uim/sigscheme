@@ -32,6 +32,7 @@ Features
   - SRFI-2  : AND-LET*: an AND with local bindings, a guarded LET* special form
   - SRFI-6  : Basic String Ports
   - SRFI-8  : receive: Binding to multiple values
+  - SRFI-9  : Defining Record Types
   - SRFI-22 : Running Scheme Scripts on Unix (partial)
   - SRFI-23 : Error Reporting Mechanism
   - SRFI-28 : Basic Format Strings

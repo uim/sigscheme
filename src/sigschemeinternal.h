@@ -816,6 +816,11 @@ SCM_EXPORT void scm_initialize_srfi6(void);
 SCM_EXPORT void scm_initialize_srfi8(void);
 #endif
 
+/* module-srfi9.c */
+#if SCM_USE_SRFI9
+SCM_EXPORT void scm_initialize_srfi9(void);
+#endif
+
 /* module-srfi23.c */
 #if SCM_USE_SRFI23
 SCM_EXPORT void scm_initialize_srfi23(void);

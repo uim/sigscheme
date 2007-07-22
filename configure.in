@@ -491,6 +491,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi2=yes
         use_srfi6=yes
         use_srfi8=yes
+        use_srfi9=yes
         use_srfi22=yes
         use_srfi23=yes
         use_srfi28=yes
@@ -510,6 +511,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi2=no
         use_srfi6=no
         use_srfi8=no
+        use_srfi9=no
         use_srfi22=no
         use_srfi23=no
         use_srfi28=no
@@ -529,6 +531,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi2=no
         use_srfi6=no
         use_srfi8=no
+        use_srfi9=no
         use_srfi22=no
         use_srfi23=no
         use_srfi28=no
@@ -548,6 +551,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi2=yes
         use_srfi6=yes
         use_srfi8=yes
+        use_srfi9=yes
         use_srfi22=yes
         use_srfi23=yes
         use_srfi28=yes
@@ -659,6 +663,7 @@ AX_FEATURE_ARG_Y(srfi1,          [SRFI-1 list library])
 AX_FEATURE_ARG_Y(srfi2,          [SRFI-2 'and-let*'])
 AX_FEATURE_ARG_Y(srfi6,          [SRFI-6 basic string ports])
 AX_FEATURE_ARG_Y(srfi8,          [SRFI-8 'receive'])
+AX_FEATURE_ARG_Y(srfi9,          [SRFI-9 defining record types])
 AX_FEATURE_ARG_Y(srfi22,         [SRFI-22 running scheme scripts on Unix (partial)])
 AX_FEATURE_ARG_Y(srfi23,         [SRFI-23 'error'])
 AX_FEATURE_ARG_Y(srfi28,         [SRFI-28 'format'])
@@ -727,6 +732,7 @@ sscm_extensions: load
 eval_c_string: reader srfi6
 srfi1: continuation deep_cadrs load sscm_extensions srfi8 srfi23
 srfi6: port string
+srfi9: load srfi23
 srfi34: continuation srfi23
 srfi38: writer
 srfi55: load sscm_extensions
@@ -876,6 +882,7 @@ AX_FEATURE_DEFINE(srfi1)
 AX_FEATURE_DEFINE(srfi2)
 AX_FEATURE_DEFINE(srfi6)
 AX_FEATURE_DEFINE(srfi8)
+AX_FEATURE_DEFINE(srfi9)
 AX_FEATURE_DEFINE(srfi22)
 AX_FEATURE_DEFINE(srfi23)
 AX_FEATURE_DEFINE(srfi28)
@@ -952,6 +959,7 @@ AC_SUBST(use_srfi1)
 AC_SUBST(use_srfi2)
 AC_SUBST(use_srfi6)
 AC_SUBST(use_srfi8)
+AC_SUBST(use_srfi9)
 AC_SUBST(use_srfi22)
 AC_SUBST(use_srfi23)
 AC_SUBST(use_srfi28)
@@ -1106,6 +1114,7 @@ SRFI-1:  $use_srfi1
 SRFI-2:  $use_srfi2
 SRFI-6:  $use_srfi6
 SRFI-8:  $use_srfi8
+SRFI-9:  $use_srfi9
 SRFI-22: $use_srfi22
 SRFI-23: $use_srfi23
 SRFI-28: $use_srfi28

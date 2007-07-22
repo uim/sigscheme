@@ -39,6 +39,7 @@ FUNC_TABLES = \
         functable-srfi2.c \
         functable-srfi6.c \
         functable-srfi8.c \
+        functable-srfi9.c \
         functable-srfi23.c \
         functable-srfi28.c \
         functable-srfi34.c \
@@ -101,6 +102,8 @@ functable-srfi6.c: module-srfi6.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi6" $<
 functable-srfi8.c: module-srfi8.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi8" $<
+functable-srfi9.c: module-srfi9.c $(BUILD_FUNCTBL_DEPS)
+	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi9" $<
 functable-srfi23.c: module-srfi23.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi23" $<
 functable-srfi28.c: module-srfi28.c $(BUILD_FUNCTBL_DEPS)
@@ -318,6 +321,9 @@ if USE_SRFI6
 endif
 if USE_SRFI8
   libsscm_sources += module-srfi8.c
+endif
+if USE_SRFI9
+  libsscm_sources += module-srfi9.c
 endif
 if USE_SRFI23
   libsscm_sources += module-srfi23.c

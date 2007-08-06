@@ -484,9 +484,9 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         ;;
     esac
 
-    # SRFIs and SigScheme-specific extensions
+    # SRFIs
     case "$enable_conf" in
-      full|r5rs|dev)
+      full|r5rs|dev|uim)
         use_srfi1=yes
         use_srfi2=yes
         use_srfi6=yes
@@ -500,6 +500,27 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi48=yes
         use_srfi55=yes
         use_srfi60=yes
+        ;;
+      small|siod)
+        use_srfi1=no
+        use_srfi2=no
+        use_srfi6=no
+        use_srfi8=no
+        use_srfi9=no
+        use_srfi22=no
+        use_srfi23=no
+        use_srfi28=no
+        use_srfi34=no
+        use_srfi38=no
+        use_srfi48=no
+        use_srfi55=no
+        use_srfi60=no
+        ;;
+    esac
+
+    # SigScheme-specific extensions
+    case "$enable_conf" in
+      full|r5rs|dev)
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=no
@@ -507,19 +528,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=yes
         ;;
       small)
-        use_srfi1=no
-        use_srfi2=no
-        use_srfi6=no
-        use_srfi8=no
-        use_srfi9=no
-        use_srfi22=no
-        use_srfi23=no
-        use_srfi28=no
-        use_srfi34=no
-        use_srfi38=no
-        use_srfi48=no
-        use_srfi55=no
-        use_srfi60=no
         use_sscm_extensions=no
         use_sscm_format_extension=no
         use_compat_siod=no
@@ -527,19 +535,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=no
         ;;
       siod)
-        use_srfi1=no
-        use_srfi2=no
-        use_srfi6=no
-        use_srfi8=no
-        use_srfi9=no
-        use_srfi22=no
-        use_srfi23=no
-        use_srfi28=no
-        use_srfi34=no
-        use_srfi38=no
-        use_srfi48=no
-        use_srfi55=no
-        use_srfi60=no
         use_sscm_extensions=yes
         use_sscm_format_extension=no
         use_compat_siod=yes
@@ -547,19 +542,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=yes
         ;;
       uim)
-        use_srfi1=yes
-        use_srfi2=yes
-        use_srfi6=yes
-        use_srfi8=yes
-        use_srfi9=yes
-        use_srfi22=yes
-        use_srfi23=yes
-        use_srfi28=yes
-        use_srfi34=yes
-        use_srfi38=yes
-        use_srfi48=yes
-        use_srfi55=yes
-        use_srfi60=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=yes

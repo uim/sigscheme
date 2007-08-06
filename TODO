@@ -36,9 +36,6 @@ Extensions: (not required for now)
 
 * Make Symbian OS and BREW support working (patches are welcome)
 
-* Introduce dynamic environment for internal use
-  - Fix continuation-unsafe current-{input,output}-port handling with it
-
 * Implement numbers other than integer
   - Define SAL accessors considering SRFI-50 and other implementations
   - Evaluate R6RS Arithmetic

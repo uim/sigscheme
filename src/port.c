@@ -259,41 +259,8 @@ scm_port_flush(ScmObj port)
 /*===========================================================================
   R5RS : 6.6 Input and Output : 6.6.1 Ports
 ===========================================================================*/
-SCM_EXPORT ScmObj
-scm_p_call_with_input_file(ScmObj filepath, ScmObj proc)
-{
-    ScmObj port, ret;
-    DECLARE_FUNCTION("call-with-input-file", procedure_fixed_2);
-
-    ENSURE_STRING(filepath);
-    ENSURE_PROCEDURE(proc);
-
-    port = scm_p_open_input_file(filepath);
-
-    ret = scm_call(proc, LIST_1(port));
-
-    scm_p_close_input_port(port);
-
-    return ret;
-}
-
-SCM_EXPORT ScmObj
-scm_p_call_with_output_file(ScmObj filepath, ScmObj proc)
-{
-    ScmObj port, ret;
-    DECLARE_FUNCTION("call-with-output-file", procedure_fixed_2);
-
-    ENSURE_STRING(filepath);
-    ENSURE_PROCEDURE(proc);
-
-    port = scm_p_open_output_file(filepath);
-
-    ret = scm_call(proc, LIST_1(port));
-
-    scm_p_close_output_port(port);
-
-    return ret;
-}
+/* call-with-input-file, call-with-output-file, with-input-from-file and
+ * with-output-to-file are implemented in lib/sigscheme-init.scm */
 
 SCM_EXPORT ScmObj
 scm_p_input_portp(ScmObj port)
@@ -379,48 +346,6 @@ scm_p_set_current_error_portx(ScmObj newport)
     scm_err = newport;
 
     return SCM_TRUE;
-}
-
-/* TODO: dynamic environment for scm_in (although R5RS does not require it) */
-SCM_EXPORT ScmObj
-scm_p_with_input_from_file(ScmObj filepath, ScmObj thunk)
-{
-    ScmObj saved_port, ret;
-    DECLARE_FUNCTION("with-input-from-file", procedure_fixed_2);
-
-    ENSURE_STRING(filepath);
-    ENSURE_PROCEDURE(thunk);
-
-    saved_port = scm_in;
-    scm_in = scm_p_open_input_file(filepath);
-
-    ret = scm_call(thunk, SCM_NULL);
-
-    scm_p_close_input_port(scm_in);
-    scm_in = saved_port;
-
-    return ret;
-}
-
-/* TODO: dynamic environment for scm_out (although R5RS does not require it) */
-SCM_EXPORT ScmObj
-scm_p_with_output_to_file(ScmObj filepath, ScmObj thunk)
-{
-    ScmObj saved_port, ret;
-    DECLARE_FUNCTION("with-output-to-file", procedure_fixed_2);
-
-    ENSURE_STRING(filepath);
-    ENSURE_PROCEDURE(thunk);
-
-    saved_port = scm_out;
-    scm_out = scm_p_open_output_file(filepath);
-
-    ret = scm_call(thunk, SCM_NULL);
-
-    scm_p_close_output_port(scm_out);
-    scm_out = saved_port;
-
-    return ret;
 }
 
 SCM_EXPORT ScmObj

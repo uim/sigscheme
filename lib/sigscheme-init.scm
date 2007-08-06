@@ -1,5 +1,5 @@
 ;;  Filename : sigscheme-init.scm
-;;  About    : Initialize file for SigScheme
+;;  About    : Initialization file for SigScheme
 ;;
 ;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
 ;;
@@ -61,3 +61,57 @@
          (lambda ()
            (%%load file))))
       %%load))
+
+;; R5RS
+(define call-with-input-file
+  (lambda (filename proc)
+    (let* ((port (open-input-file filename))
+           (res (proc port)))
+      (close-input-port port)
+      res)))
+
+;; R5RS
+(define call-with-output-file
+  (lambda (filename proc)
+    (let* ((port (open-output-file filename))
+           (res (proc port)))
+      (close-output-port port)
+      res)))
+
+;; R5RS
+(define with-input-from-file
+  (lambda (file thunk)
+    (let ((orig-port (current-input-port))
+          (thunk-port (current-input-port)))
+      (dynamic-wind
+          (lambda ()
+            (%%set-current-input-port! thunk-port))
+          (lambda ()
+            (let* ((port (open-input-file file))
+                   (res (begin
+                          (set! thunk-port port)
+                          (%%set-current-input-port! thunk-port)
+                          (thunk))))
+              (close-input-port port)
+              res))
+          (lambda ()
+            (%%set-current-input-port! orig-port))))))
+
+;; R5RS
+(define with-output-to-file
+  (lambda (file thunk)
+    (let ((orig-port (current-output-port))
+          (thunk-port (current-output-port)))
+      (dynamic-wind
+          (lambda ()
+            (%%set-current-output-port! thunk-port))
+          (lambda ()
+            (let* ((port (open-output-file file))
+                   (res (begin
+                          (set! thunk-port port)
+                          (%%set-current-output-port! thunk-port)
+                          (thunk))))
+              (close-output-port port)
+              res))
+          (lambda ()
+            (%%set-current-output-port! orig-port))))))

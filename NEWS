@@ -60,6 +60,11 @@ Overview of changes from 0.7.x to 0.8.0
     but 'dev' since it has a considerable bug (such as infinite loop on
     test-srfi1-another.scm)
 
+  - call-with-input-file, call-with-output-file, with-input-from-file and
+    with-output-to-file are re-implemented in lib/sigscheme-init.scm. The
+    standard current ports handling on with-input-from-file and
+    with-output-to-file are now continuation-safe by dynamic-wind
+
 * Fixes
 
   - [CRITICAL] Fix unterminated string generation on singlebyte character codec

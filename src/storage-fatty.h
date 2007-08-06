@@ -458,9 +458,11 @@ struct ScmCell_ {
     SCM_SAL_FREECELL_SET_FREESLOT((o), SCM_FALSE)
 
 #define SCM_ISAL_CELL_FREECELLP(c)     (SCM_FREECELLP(c))
+/* To avoid void-returning macro SCM_CELL_UNMARK(), SCM_ISAL_CELL_UNMARK() is
+ * directly used here. */
 #define SCM_ISAL_CELL_RECLAIM_CELL(c, next)                             \
     (SCM_ENTYPE((c), ScmFreeCell),                                      \
-     SCM_UNMARK(c),                                                     \
+     SCM_ISAL_CELL_UNMARK(c),                                           \
      SCM_FREECELL_SET_NEXT((c), (next)),                                \
      SCM_FREECELL_CLEAR_FREESLOT(c),                                    \
      (ScmObj)(c))

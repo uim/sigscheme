@@ -305,7 +305,11 @@ scm_gc_protectedp(ScmObj obj)
     }
     gc_sweep();
 
+#if SCM_USE_STORAGE_COMPACT
+    return !SCM_CELL_FREECELLP(SCM_UNTAG_PTR(obj));
+#else
     return !SCM_FREECELLP(obj);
+#endif
 }
 
 SCM_EXPORT void *
@@ -365,8 +369,8 @@ add_heap(void)
 
     /* link in order */
     for (cell = &heap[0]; cell < &heap[l_heap_size - 1]; cell++)
-        SCM_RECLAIM_CELL(cell, cell + 1);
-    SCM_RECLAIM_CELL(cell, l_freelist);
+        SCM_CELL_RECLAIM_CELL(cell, (ScmObj)(cell + 1));
+    SCM_CELL_RECLAIM_CELL(cell, l_freelist);
     /* assumes that (ScmCell *) can be being ScmObj */
     l_freelist = (ScmObj)heap;
 }
@@ -816,10 +820,11 @@ gc_sweep(void)
 
             if (SCM_MARKEDP(obj)) {
                 SCM_UNMARK(obj);
-            } else {
+            } else if (!SCM_CELL_FREECELLP(cell)) {
+                /* scm_gc_protectedp() causes GC sweep on heaps that contain
+                 * freecells. So !SCM_CELL_FREECELLP(cell) is required. */
                 free_cell(cell);
-                SCM_RECLAIM_CELL(cell, new_freelist);
-                new_freelist = (ScmObj)cell;
+                new_freelist = SCM_CELL_RECLAIM_CELL(cell, new_freelist);
                 n_collected++;
             }
         }

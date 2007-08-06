@@ -457,13 +457,13 @@ struct ScmCell_ {
 #define SCM_SAL_FREECELL_CLEAR_FREESLOT(o)                                   \
     SCM_SAL_FREECELL_SET_FREESLOT((o), SCM_FALSE)
 
-#define SCM_SAL_RECLAIM_CELL(cell, next)                                     \
-    do {                                                                     \
-        SCM_ENTYPE((cell), ScmFreeCell);                                     \
-        SCM_UNMARK(cell);                                                    \
-        SCM_FREECELL_SET_NEXT((cell), (next));                               \
-        SCM_FREECELL_CLEAR_FREESLOT(cell);                                   \
-    } while (/* CONSTCOND */ 0)
+#define SCM_ISAL_CELL_FREECELLP(c)     (SCM_FREECELLP(c))
+#define SCM_ISAL_CELL_RECLAIM_CELL(c, next)                             \
+    (SCM_ENTYPE((c), ScmFreeCell),                                      \
+     SCM_UNMARK(c),                                                     \
+     SCM_FREECELL_SET_NEXT((c), (next)),                                \
+     SCM_FREECELL_CLEAR_FREESLOT(c),                                    \
+     (ScmObj)(c))
 
 #define SCM_SAL_MARKEDP(o)   ((o)->attr.v.gcmark)
 #define SCM_SAL_UNMARKEDP(o) (!SCM_MARKEDP(o))

@@ -48,6 +48,24 @@
 #endif
 
 /*=======================================
+  Internal SAL
+=======================================*/
+#define SCM_CELL_FREECELLP(c)                                           \
+    SCM_TYPESAFE_MACRO(SCM_ISAL_CELL_FREECELLP,                         \
+                       int,                                             \
+                       (ScmCell *),                                     \
+                       (c))
+
+/* For optimized operation: Cleanup a destructed ScmCell *c to a freecell,
+ * chain it into freelist and returns ScmObj for c. */
+#define SCM_CELL_RECLAIM_CELL(c, next)                                  \
+    SCM_TYPESAFE_MACRO(SCM_ISAL_CELL_RECLAIM_CELL,                      \
+                       ScmObj,                                          \
+                       (ScmCell *, ScmObj),                             \
+                       ((c), (next)))
+
+
+/*=======================================
   Object Creators
 =======================================*/
 #if !SCM_SAL_HAS_IMMEDIATE_INT_ONLY

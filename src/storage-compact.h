@@ -258,10 +258,10 @@ typedef ScmObj (*ScmFuncType)();
 #define SCM_Y(o)        (SCM_PTR(o)->obj_y)
 #define SCM_SET_X(o, x) (SCM_X(o) = (x))
 #define SCM_SET_Y(o, y) (SCM_Y(o) = (y))
-#define SCM_INIT(o, x, y, ptag)                 \
-    (SCM_SET_X((o), (x)),                       \
-     SCM_SET_Y((o), (y)),                       \
-     (o) |= (ptag))
+#define SCM_INIT(o, x, y, ptag)                                         \
+    (SCM_SET_X(SCM_DROP_TAG(o), (x)),                                   \
+     SCM_SET_Y(SCM_DROP_TAG(o), (y)),                                   \
+     (o) = SCM_DROP_TAG(o) | (ptag))
 
 #define SCM_SAL_EQ(a, b) ((a) == (b))
 
@@ -905,21 +905,20 @@ SCM_MISC_DECLARE_TYPE(FARSYMBOL, L3(2, 5, 3),
 #endif /* SCM_USE_HYGIENIC_MACRO */
 
 
-/* Each argument except for SCM_SAL_FREECELLP() must be an untagged pointer to
- * a cell.
- *
- * TODO: If we assume, as we currently safely can, that the GC never
- * marks a free cell (GC takes place until all freecells are used up),
- * we can leave obj_y untouched.  That optimization, however, has to
- * be coordinated with storage-gc.c.
- */
+/* TODO: If we assume that the GC never marks a free cell (GC takes place until
+ * all freecells are used up), we can leave obj_y untouched.  That
+ * optimization, however, has to be coordinated with storage-gc.c. */
 #define SCM_MTAG_FREECELL         SCM_MAKE_MTAG_L2(7, 3)
-#define SCM_SAL_FREECELL_NEXT(o)  (SCM_X(o))
+#define SCM_SAL_FREECELL_NEXT(o)  (SCM_X(SCM_DROP_TAG(o)))
 #define SCM_SAL_FREECELLP(o)                                            \
     (!SCM_IMMP(o) && SCM_Y(SCM_DROP_TAG(o)) == SCM_MTAG_FREECELL)
-#define SCM_SAL_RECLAIM_CELL(o, next)                           \
-    (SCM_SET_X((o), (ScmObj)(next)), SCM_SET_Y((o), SCM_MTAG_FREECELL))
 
+#define SCM_ISAL_CELL_FREECELLP(c)                                      \
+    (SCM_Y(c) == SCM_MTAG_FREECELL)
+#define SCM_ISAL_CELL_RECLAIM_CELL(c, next)                             \
+    (SCM_SET_X((c), (SCM_NULLP(next) ? (next) : ((next) | SCM_PTAG_MISC))), \
+     SCM_SET_Y((c), SCM_MTAG_FREECELL),                                 \
+     ((ScmObj)(c) | SCM_PTAG_MISC))
 
 /* Typecode determination (slow but universally applicable). */
 SCM_EXPORT enum ScmObjType scm_type(ScmObj obj);

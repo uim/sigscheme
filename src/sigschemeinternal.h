@@ -236,10 +236,6 @@ extern "C" {
 #define SCM_FREECELL_SET_FREESLOT(o, v) SCM_SAL_FREECELL_SET_FREESLOT((o), (v))
 #define SCM_FREECELL_CLEAR_FREESLOT(o)  SCM_SAL_FREECELL_CLEAR_FREESLOT((o))
 
-/* For optimized operation: Cleanup a destructed ScmCell *cell to a freecell
- * and chain it into freelist. */
-#define SCM_RECLAIM_CELL(cell, next)    SCM_SAL_RECLAIM_CELL((cell), (next))
-
 #if 0
 /* for future cleanup */
 #define SCM_CELL_MARKEDP(cell)   SCM_SAL_CELL_MARKEDP(cell)

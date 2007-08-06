@@ -21,8 +21,8 @@
 
 ;; Latest sources:
 ;;
-;; http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/_darcs/current/hash-srfi.ss
-;; http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/_darcs/current/test-hash.ss
+;; http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/hash-srfi.ss
+;; http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/test-hash.ss
 
 
 ;; ChangeLog

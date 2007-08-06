@@ -15,7 +15,7 @@ Overview of changes from 0.7.x to 0.8.0
 
   - R5RS promises (delay and force)
 
-  - New syntax let-optionals* compatible with Gauche for optional argument
+  - New syntax let-optionals* compatible with Gauche, for optional argument
     processing
 
   - %%require-module and scm_require_module(). 'use' and scm_use() have been
@@ -62,6 +62,8 @@ Overview of changes from 0.7.x to 0.8.0
 
   - [R5RS] Fix multiple values inacceptance of call-with-values continuation
     such as (receive (x y) (call/cc (lambda (k) (k 0 1))))
+
+  - [SRFI-38] Fix broken execution by misinitialized internal hash table
 
   - [R5RS] Fix error on (integer->char 0) on non-Unicode codecs
 

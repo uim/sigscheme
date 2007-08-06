@@ -626,9 +626,11 @@ hash_grow(scm_hash_table *tab)
     new_size = old_size * 2;
     old_ents = tab->ents;
 
-    tab->ents = scm_calloc(new_size, sizeof(scm_hash_entry));
+    tab->ents = scm_malloc(new_size * sizeof(scm_hash_entry));
     tab->size = new_size;
     tab->used = 0;
+    for (i = 0; i < new_size; i++)
+        tab->ents[i].key = SCM_INVALID;
 
     for (i = 0; i < old_size; i++)
         hash_lookup(tab, old_ents[i].key, old_ents[i].datum, HASH_INSERT);
@@ -797,10 +799,9 @@ write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 
     ctx.next_index = 1;
     ctx.seen.size = 1 << 8; /* arbitrary initial size */
-    ctx.seen.ents = scm_calloc(ctx.seen.size, sizeof(scm_hash_entry));
-    for (i = 0; i < ctx.seen.size; i++) {
+    ctx.seen.ents = scm_malloc(ctx.seen.size * sizeof(scm_hash_entry));
+    for (i = 0; i < ctx.seen.size; i++)
         ctx.seen.ents[i].key = SCM_INVALID;
-    }
 
     write_ss_scan(obj, &ctx);
 

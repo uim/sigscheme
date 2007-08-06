@@ -740,10 +740,10 @@ corner case tests: yamaken@r4012, yamaken@r4533
 
 file:              write.c
 category:          semicore
-spec by eyes:      yamaken@r4041, yamaken@r4152, yamaken@r4543
+spec by eyes:      yamaken@r4041, yamaken@r4152, yamaken@r4543, yamaken@r4800
 spec by tests:     
 general review:    yamaken@r4041
-64-bit by eyes:    yamaken@r4041
+64-bit by eyes:    yamaken@r4041, yamaken@r4800
 64-bit by tests:   
 coding style:      yamaken@r4041
 normal case tests: 
@@ -1093,6 +1093,11 @@ corner case tests:
 
 Log
 ---
+2007-08-07  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * write.c
+          - Fix misinitialized hash table and QA done again @r4800 for hash
+            tables
+
 2007-07-21  YamaKen <yamaken AT bp.iij4u.or.jp>
         * number-io.c
           - QA done again @r4760 for scm_string2number()

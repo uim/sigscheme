@@ -465,10 +465,10 @@ struct ScmCell_ {
      SCM_FREECELL_CLEAR_FREESLOT(c),                                    \
      (ScmObj)(c))
 
-#define SCM_SAL_MARKEDP(o)   ((o)->attr.v.gcmark)
-#define SCM_SAL_UNMARKEDP(o) (!SCM_MARKEDP(o))
-#define SCM_SAL_MARK(o)      ((o)->attr.v.gcmark = scm_true)
-#define SCM_SAL_UNMARK(o)    ((o)->attr.v.gcmark = scm_false)
+#define SCM_ISAL_MARKEDP(o)      ((o)->attr.v.gcmark)
+#define SCM_ISAL_MARK(o)         ((o)->attr.v.gcmark = scm_true)
+#define SCM_ISAL_CELL_MARKEDP(c) ((c)->attr.v.gcmark)
+#define SCM_ISAL_CELL_UNMARK(c)  ((c)->attr.v.gcmark = scm_false)
 
 /*===========================================================================
   Abstract ScmObj Reference For Storage-Representation Independent Efficient

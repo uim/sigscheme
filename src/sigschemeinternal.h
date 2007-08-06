@@ -216,6 +216,7 @@ extern "C" {
 #define TRACE_FRAME_OBJ CAR
 #define TRACE_FRAME_ENV CDR
 
+/* TODO: Remove valuecons to increase simiplicity. */
 /* Extraction of a valuepacket is granted only for SigScheme-internals */
 #define SCM_VALUEPACKET_VALUES(o)    SCM_SAL_VALUEPACKET_VALUES(o)
 #if SCM_USE_VALUECONS
@@ -227,6 +228,8 @@ extern "C" {
     SCM_SAL_VALUEPACKET_SET_VALUES((o), (vals))
 #endif /* SCM_USE_VALUECONS */
 
+/* TODO: Remove the concept 'freecell object' from SAL and replace with
+ * ordinary cons cells with freecell-marker in storage-{compact,fatty}. */
 #define SCM_AS_FREECELL(o)              SCM_SAL_AS_FREECELL(o)
 
 #define SCM_FREECELLP(o)                SCM_SAL_FREECELLP(o)
@@ -235,19 +238,6 @@ extern "C" {
 #define SCM_FREECELL_SET_NEXT(o, next)  SCM_SAL_FREECELL_SET_NEXT((o), (next))
 #define SCM_FREECELL_SET_FREESLOT(o, v) SCM_SAL_FREECELL_SET_FREESLOT((o), (v))
 #define SCM_FREECELL_CLEAR_FREESLOT(o)  SCM_SAL_FREECELL_CLEAR_FREESLOT((o))
-
-#if 0
-/* for future cleanup */
-#define SCM_CELL_MARKEDP(cell)   SCM_SAL_CELL_MARKEDP(cell)
-#define SCM_CELL_UNMARKEDP(cell) SCM_SAL_CELL_UNMARKEDP(cell)
-#define SCM_CELL_MARK(cell)      SCM_SAL_CELL_MARK(cell)
-#define SCM_CELL_UNMARK(cell)    SCM_SAL_CELL_UNMARK(cell)
-#else
-#define SCM_MARKEDP(o)   SCM_SAL_MARKEDP(o)
-#define SCM_UNMARKEDP(o) SCM_SAL_UNMARKEDP(o)
-#define SCM_MARK(o)      SCM_SAL_MARK(o)
-#define SCM_UNMARK(o)    SCM_SAL_UNMARK(o)
-#endif
 
 #define EQVP(a, b)   (SCM_EQVP((a), (b)))
 #define EQUALP(a, b) (TRUEP(scm_p_equalp((a), (b))))

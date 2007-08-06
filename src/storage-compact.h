@@ -269,16 +269,16 @@ typedef ScmObj (*ScmFuncType)();
  * Garbage collection
  */
 
-#define SCM_SAL_MARK(o)                                                  \
-    SCM_SET_X(SCM_DROP_TAG(o),                                           \
+#define SCM_ISAL_MARKEDP(o)       (SCM_GCBIT(SCM_X(SCM_DROP_TAG(o)))    \
+                                   == SCM_GCBIT_MARKED)
+#define SCM_ISAL_MARK(o)                                                \
+    SCM_SET_X(SCM_DROP_TAG(o),                                          \
               SCM_DROP_GCBIT(SCM_X(SCM_DROP_TAG(o))) | SCM_GCBIT_MARKED)
 
+#define SCM_ISAL_CELL_MARKEDP(c)  (SCM_GCBIT(SCM_X(c)) == SCM_GCBIT_MARKED)
 /* O is always untagged, so no need to strip it. */
-#define SCM_SAL_UNMARK(o)                                               \
-    SCM_SET_X((o), SCM_DROP_GCBIT(SCM_X(o)) | SCM_GCBIT_UNMARKED)
-#define SCM_SAL_MARKEDP(o)   (SCM_GCBIT(SCM_X(SCM_DROP_TAG(o)))        \
-                              == SCM_GCBIT_MARKED)
-#define SCM_SAL_UNMARKEDP(o) (!SCM_GC_MARKEDP(o))
+#define SCM_ISAL_CELL_UNMARK(c)                                         \
+    SCM_SET_X((c), SCM_DROP_GCBIT(SCM_X(c)) | SCM_GCBIT_UNMARKED)
 
 /* See if O's tag and the content of the cell C it references are
  * consistent.  O must be a tagged ScmObj and SCM_DROP_TAG(O) == &C. */

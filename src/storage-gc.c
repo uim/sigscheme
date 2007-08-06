@@ -884,7 +884,7 @@ gc_sweep(void)
     size_t i, sum_collected, n_collected;
     ScmObjHeap heap;
     ScmCell *cell;
-    ScmObj obj, new_freelist;
+    ScmObj new_freelist;
 
     SCM_BEGIN_GC_SUBCONTEXT();
 
@@ -898,14 +898,8 @@ gc_sweep(void)
         heap = l_heaps[i];
 
         for (cell = &heap[0]; cell < &heap[l_heap_size]; cell++) {
-            /* FIXME: is this safe for SCM_USE_STORAGE_COMPACT? */
-            /* Yes, but it's probably cleaner to change SCM_MARKEDP()
-             * et al to SCM_CELL_MARKEDP() etc and take care of
-             * dereferencing in this file.  -- Jun Inoue */
-            obj = (ScmObj)cell;
-
-            if (SCM_MARKEDP(obj)) {
-                SCM_UNMARK(obj);
+            if (SCM_CELL_MARKEDP(cell)) {
+                SCM_CELL_UNMARK(cell);
             } else if (!SCM_CELL_FREECELLP(cell)) {
                 /* scm_gc_protectedp() causes GC sweep on heaps that contain
                  * freecells. So !SCM_CELL_FREECELLP(cell) is required. */

@@ -50,6 +50,27 @@
 /*=======================================
   Internal SAL
 =======================================*/
+/* for mark phase */
+#define SCM_MARKEDP(o)                                                  \
+    SCM_TYPESAFE_MACRO(SCM_ISAL_MARKEDP,                                \
+                       int,                                             \
+                       (ScmObj),                                        \
+                       (o))
+#define SCM_MARK(o)                                                     \
+    SCM_TYPESAFE_MACRO_VOID(SCM_ISAL_MARK,                              \
+                            (ScmObj),                                   \
+                            (o))
+
+/* for sweep phase */
+#define SCM_CELL_MARKEDP(c)                                             \
+    SCM_TYPESAFE_MACRO(SCM_ISAL_CELL_MARKEDP,                           \
+                       int,                                             \
+                       (ScmCell *),                                     \
+                       (c))
+#define SCM_CELL_UNMARK(c)                                              \
+    SCM_TYPESAFE_MACRO_VOID(SCM_ISAL_CELL_UNMARK,                       \
+                            (ScmCell *),                                \
+                            (c))
 #define SCM_CELL_FREECELLP(c)                                           \
     SCM_TYPESAFE_MACRO(SCM_ISAL_CELL_FREECELLP,                         \
                        int,                                             \

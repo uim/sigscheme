@@ -110,8 +110,9 @@ imported_tests = \
         gauche-primsyn.scm \
         oleg-srfi2.scm
 
-# Not included to the distribution since its original license is unknown.
+# Not included to the distribution since their original license is unknown.
 #imported_tests += stone-srfi1.scm
+#imported_tests += panu-srfi69.scm
 
 EXTRA_DIST += $(sscm_tests) $(imported_tests)
 

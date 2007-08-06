@@ -249,7 +249,7 @@ typedef ScmObj (*ScmFuncType)();
 
 #define SCM_UNTAGGEDP(o)     (!((o) & (SCM_GCBIT_MASK | SCM_PTAG_MASK)))
 
-#define SCM_UNTAG_PTR(o)     ((ScmCell *)SCM_DROP_TAG(o))
+#define SCM_UNTAG_PTR(o)     (SCM_PTR(SCM_DROP_TAG(o)))
 
 /* Raw accessors. */
 #define SCM_PTR(o)      (SCM_ASSERT(!((scm_uintobj_t)(o) % sizeof(ScmCell))), \

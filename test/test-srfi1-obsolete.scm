@@ -155,15 +155,17 @@
 (assert-equal? "drop-right test 3" '(1 2 3) (drop-right '(1 2 3 . d) 0))
 
 ; take!
-(assert-equal? "take! test 1" '(a b) (take! '(a b c d e) 2))
-(assert-equal? "take! test 2" '(1 2) (take! '(1 2 3 . d) 2))
-(assert-equal? "take! test 3" '(1 2 3) (take! '(1 2 3 . d) 3))
+;; Commented out invalid tests -- YamaKen 2007-08-07
+;;(assert-equal? "take! test 1" '(a b) (take! '(a b c d e) 2))
+;;(assert-equal? "take! test 2" '(1 2) (take! '(1 2 3 . d) 2))
+;;(assert-equal? "take! test 3" '(1 2 3) (take! '(1 2 3 . d) 3))
 (assert-equal? "take! test 4" '(1 3) (take! (circular-list 1 3 5) 8))
 
 ; drop-right!
-(assert-equal? "drop-right! test 1" '(a b c) (drop-right! '(a b c d e) 2))
-(assert-equal? "drop-right! test 2" '(1) (drop-right! '(1 2 3 . d) 2))
-(assert-equal? "drop-right! test 3" '(1 2 3) (drop-right! '(1 2 3 . d) 0))
+;; Commented out invalid tests -- YamaKen 2007-08-07
+;;(assert-equal? "drop-right! test 1" '(a b c) (drop-right! '(a b c d e) 2))
+;;(assert-equal? "drop-right! test 2" '(1) (drop-right! '(1 2 3 . d) 2))
+;;(assert-equal? "drop-right! test 3" '(1 2 3) (drop-right! '(1 2 3 . d) 0))
 
 ; split-at
 (receive (former latter)
@@ -172,10 +174,11 @@
 	 (assert-equal? "split-at test 2" '(4 5 6 7) latter))
 
 ; split-at!
-(receive (former latter)
-	 (split-at! '(1 2 3 4 5 6 7) 3)
-	 (assert-equal? "split-at! test 1" '(1 2 3) former)
-	 (assert-equal? "split-at! test 2" '(4 5 6 7) latter))
+;; Commented out invalid tests -- YamaKen 2007-08-07
+;;(receive (former latter)
+;;	 (split-at! '(1 2 3 4 5 6 7) 3)
+;;	 (assert-equal? "split-at! test 1" '(1 2 3) former)
+;;	 (assert-equal? "split-at! test 2" '(4 5 6 7) latter))
 
 ; last
 (assert-equal? "last test 1" 'a (last '(a)))

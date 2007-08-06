@@ -469,14 +469,14 @@
     (assert-equal? (tn) (undef) (vector-fill! (vector 0 1 2) x)))
 
 ;; length 0
-(assert-eq?    (tn) 0           (let ((v (vector)))
+(assert-equal? (tn) 0           (let ((v (vector)))
                                   (vector-fill!  v x)
                                   (vector-length v)))
 ;; length 1
 (assert-eq?    (tn) x           (let ((v (vector e0)))
                                   (vector-fill!  v x)
                                   (vector-ref    v 0)))
-(assert-eq?    (tn) 1           (let ((v (vector e0)))
+(assert-equal? (tn) 1           (let ((v (vector e0)))
                                   (vector-fill!  v x)
                                   (vector-length v)))
 ;; length 2
@@ -486,7 +486,7 @@
 (assert-eq?    (tn) x           (let ((v (vector e0 e1)))
                                   (vector-fill!  v x)
                                   (vector-ref    v 1)))
-(assert-eq?    (tn) 2           (let ((v (vector e0 e1)))
+(assert-equal? (tn) 2           (let ((v (vector e0 e1)))
                                   (vector-fill!  v x)
                                   (vector-length v)))
 ;; length 5
@@ -505,7 +505,7 @@
 (assert-eq?    (tn) x           (let ((v (vector e0 e1 e2 e3 e4)))
                                   (vector-fill!  v x)
                                   (vector-ref    v 4)))
-(assert-eq?    (tn) 5           (let ((v (vector e0 e1 e2 e3 e4)))
+(assert-equal? (tn) 5           (let ((v (vector e0 e1 e2 e3 e4)))
                                   (vector-fill!  v x)
                                   (vector-length v)))
 

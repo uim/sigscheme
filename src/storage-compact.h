@@ -916,7 +916,7 @@ SCM_MISC_DECLARE_TYPE(FARSYMBOL, L3(2, 5, 3),
 #define SCM_ISAL_CELL_FREECELLP(c)                                      \
     (SCM_Y(c) == SCM_MTAG_FREECELL)
 #define SCM_ISAL_CELL_RECLAIM_CELL(c, next)                             \
-    (SCM_SET_X((c), (SCM_NULLP(next) ? (next) : ((next) | SCM_PTAG_MISC))), \
+    (SCM_SET_X((c), (next)),                                            \
      SCM_SET_Y((c), SCM_MTAG_FREECELL),                                 \
      ((ScmObj)(c) | SCM_PTAG_MISC))
 

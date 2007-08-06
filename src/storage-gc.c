@@ -405,6 +405,7 @@ add_heap(void)
 {
     ScmObjHeap heap;
     ScmCell *cell;
+    ScmObj next;
 
     SCM_BEGIN_GC_SUBCONTEXT();
 
@@ -421,12 +422,11 @@ add_heap(void)
     if (&heap[0] < l_heaps_lowest)
         l_heaps_lowest = &heap[0];
 
-    /* link in order */
-    for (cell = &heap[0]; cell < &heap[l_heap_size - 1]; cell++)
-        SCM_CELL_RECLAIM_CELL(cell, (ScmObj)(cell + 1));
-    SCM_CELL_RECLAIM_CELL(cell, l_freelist);
-    /* FIXME: assumes that (ScmCell *) can be being ScmObj */
-    l_freelist = (ScmObj)heap;
+    /* link as address-increasing order */
+    next = l_freelist;
+    for (cell = &heap[l_heap_size - 1]; cell >= &heap[0]; cell--)
+        next = SCM_CELL_RECLAIM_CELL(cell, next);
+    l_freelist = next;
 
     SCM_END_GC_SUBCONTEXT();
 }

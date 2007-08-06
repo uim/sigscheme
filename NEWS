@@ -27,6 +27,10 @@ Overview of changes from 0.7.x to 0.8.0
   - New character codec procedures %%current-char-codec,
     %%set-current-char-codec! and with-char-codec
 
+  - New port handling procedures %%current-error-port,
+    %%set-current-input-port!, %%set-current-output-port!,
+    %%set-current-error-port!
+
   - New debugging procedures %%pair-mutable?, %%string-mutable?,
     %%vector-mutable?
 

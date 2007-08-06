@@ -331,6 +331,56 @@ scm_p_current_output_port(void)
     return scm_out;
 }
 
+SCM_EXPORT ScmObj
+scm_p_current_error_port(void)
+{
+    DECLARE_FUNCTION("%%current-error-port", procedure_fixed_0);
+
+    return scm_err;
+}
+
+SCM_EXPORT ScmObj
+scm_p_set_current_input_portx(ScmObj newport)
+{
+    DECLARE_FUNCTION("%%set-current-input-port!", procedure_fixed_1);
+
+    SCM_ENSURE_LIVE_PORT(newport);
+    if (!(SCM_PORT_FLAG(newport) & SCM_PORTFLAG_INPUT))
+        ERR_OBJ("input port required but got", newport);
+
+    scm_in = newport;
+
+    return SCM_TRUE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_set_current_output_portx(ScmObj newport)
+{
+    DECLARE_FUNCTION("%%set-current-output-port!", procedure_fixed_1);
+
+    SCM_ENSURE_LIVE_PORT(newport);
+    if (!(SCM_PORT_FLAG(newport) & SCM_PORTFLAG_OUTPUT))
+        ERR_OBJ("output port required but got", newport);
+
+    scm_out = newport;
+
+    return SCM_TRUE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_set_current_error_portx(ScmObj newport)
+{
+    DECLARE_FUNCTION("%%set-current-error-port!", procedure_fixed_1);
+
+    SCM_ENSURE_LIVE_PORT(newport);
+    if (!(SCM_PORT_FLAG(newport) & SCM_PORTFLAG_OUTPUT))
+        ERR_OBJ("output port required but got", newport);
+
+    scm_err = newport;
+
+    return SCM_TRUE;
+}
+
 /* TODO: dynamic environment for scm_in (although R5RS does not require it) */
 SCM_EXPORT ScmObj
 scm_p_with_input_from_file(ScmObj filepath, ScmObj thunk)

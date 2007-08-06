@@ -80,6 +80,15 @@ Properness improvements: (not required for now)
 ==============================================================================
 Logical simplifications:
 
+* Remove valuecons to increase simplicity
+
+* Remove the concept 'freecell' from SAL (turn it into ordinary list with
+  freecell maker)
+
+* Remove the concept 'ScmCell' from sigscheme.h
+
+* Add SCM_TYPESAFE_MACRO for all I?SAL macros
+
 * (not required for now) Encode argument type information into ScmFuncTypeCode
   to remove ENSURE_*() from each procedure implementation
 

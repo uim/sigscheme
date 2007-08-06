@@ -68,6 +68,15 @@
   File Local Macro Definitions
 =======================================*/
 #define SCMOBJ_ALIGNEDP(ptr) (!((uintptr_t)(ptr) % sizeof(ScmObj)))
+#if SCM_DEBUG
+#define SCM_BEGIN_GC_SUBCONTEXT() (scm_ensure_proper_freelist(l_freelist), \
+                                   ++l_gcing)
+#define SCM_END_GC_SUBCONTEXT()   (scm_ensure_proper_freelist(l_freelist), \
+                                   --l_gcing)
+#else /* not SCM_DEBUG */
+#define SCM_BEGIN_GC_SUBCONTEXT() SCM_EMPTY_EXPR
+#define SCM_END_GC_SUBCONTEXT()   SCM_EMPTY_EXPR
+#endif /* not SCM_DEBUG */
 
 /*=======================================
   File Local Type Definitions
@@ -93,6 +102,10 @@ static ScmObj l_freelist;
 static ScmObj **l_protected_vars;
 static size_t l_protected_vars_size, l_n_empty_protected_vars;
 static GCROOTS_context *l_gcroots_ctx;
+#if SCM_DEBUG
+static size_t l_gcing;
+static scm_bool l_allocating;
+#endif /* SCM_DEBUG */
 #undef static
 SCM_GLOBAL_VARS_END(static_gc);
 #define l_heap_size            SCM_GLOBAL_VAR(static_gc, l_heap_size)
@@ -108,6 +121,10 @@ SCM_GLOBAL_VARS_END(static_gc);
 #define l_n_empty_protected_vars                                             \
     SCM_GLOBAL_VAR(static_gc, l_n_empty_protected_vars)
 #define l_gcroots_ctx          SCM_GLOBAL_VAR(static_gc, l_gcroots_ctx)
+#if SCM_DEBUG
+#define l_gcing                SCM_GLOBAL_VAR(static_gc, l_gcing)
+#define l_allocating           SCM_GLOBAL_VAR(static_gc, l_allocating)
+#endif /* SCM_DEBUG */
 SCM_DEFINE_STATIC_VARS(static_gc);
 
 /*=======================================
@@ -139,13 +156,37 @@ static size_t gc_sweep(void);
 
 static void finalize_protected_var(void);
 
+#if SCM_DEBUG
+static void scm_ensure_proper_freelist(ScmObj flst);  /* FIXME */
+#endif
+
 /*=======================================
   Function Definitions
 =======================================*/
+#if SCM_DEBUG
+static void
+scm_ensure_proper_freelist(ScmObj flst)
+{
+    size_t len;
+    ScmObj c;
+
+    for (c = flst, len = 0; !SCM_NULLP(c); c = SCM_FREECELL_NEXT(c), len++) {
+        assert(SCM_FREECELLP(c));
+        assert(len <= SCM_INT_MAX);  /* not circular list */
+    }
+    SCM_ASSERT(SCM_NULLP(c));
+}
+#endif
+
 SCM_EXPORT void
 scm_init_gc(const ScmStorageConf *conf)
 {
     SCM_GLOBAL_VARS_INIT(static_gc);
+
+#if SCM_DEBUG
+    l_gcing = 0;
+    l_allocating = scm_false;
+#endif
 
     l_gcroots_ctx = GCROOTS_init(scm_malloc,
                                  (GCROOTS_mark_proc)gc_mark_locations,
@@ -171,11 +212,22 @@ scm_alloc_cell(void)
 {
     ScmObj ret;
 
+#if SCM_DEBUG
+    SCM_ASSERT(!l_gcing);
+    SCM_ASSERT(!l_allocating);
+    l_allocating = scm_true;
+#endif
+
     if (NULLP(l_freelist))
         gc_mark_and_sweep();
+    SCM_ASSERT(SCM_FREECELLP(l_freelist));
 
     ret = l_freelist;
     l_freelist = SCM_FREECELL_NEXT(l_freelist);
+
+#if SCM_DEBUG
+    l_allocating = scm_false;
+#endif
 
     return ret;
 }
@@ -354,6 +406,8 @@ add_heap(void)
     ScmObjHeap heap;
     ScmCell *cell;
 
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     if (l_n_heaps_max <= l_n_heaps)
         scm_fatal_error("heap exhausted");
 
@@ -371,8 +425,10 @@ add_heap(void)
     for (cell = &heap[0]; cell < &heap[l_heap_size - 1]; cell++)
         SCM_CELL_RECLAIM_CELL(cell, (ScmObj)(cell + 1));
     SCM_CELL_RECLAIM_CELL(cell, l_freelist);
-    /* assumes that (ScmCell *) can be being ScmObj */
+    /* FIXME: assumes that (ScmCell *) can be being ScmObj */
     l_freelist = (ScmObj)heap;
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 static void
@@ -396,6 +452,8 @@ gc_mark_and_sweep(void)
 {
     size_t n_collected;
 
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     CDBG((SCM_DBG_GC, "[ gc start ]"));
 
     gc_mark();
@@ -405,6 +463,8 @@ gc_mark_and_sweep(void)
         CDBG((SCM_DBG_GC, "enough number of free cells cannot be collected. allocating new heap."));
         add_heap();
     }
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 
@@ -604,6 +664,8 @@ gc_mark_protected_var(void)
 {
     ScmObj **slot;
 
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     if (l_protected_vars) {
         for (slot = l_protected_vars;
              slot < &l_protected_vars[l_protected_vars_size];
@@ -613,6 +675,8 @@ gc_mark_protected_var(void)
                 mark_obj(**slot);
         }
     }
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 /* mark a contiguous region such as stack */
@@ -621,12 +685,16 @@ gc_mark_locations_n(ScmObj *start, size_t n)
 {
     ScmObj *objp;
 
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     SCM_ASSERT(SCMOBJ_ALIGNEDP(start));
 
     for (objp = start; objp < &start[n]; objp++) {
         if (within_heapp(*objp))
             mark_obj(*objp);
     }
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 static void
@@ -634,10 +702,14 @@ gc_mark_definite_locations_n(ScmObj *start, size_t n)
 {
     ScmObj *objp;
 
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     SCM_ASSERT(SCMOBJ_ALIGNEDP(start));
 
     for (objp = start; objp < &start[n]; objp++)
         mark_obj(*objp);
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 static void
@@ -646,6 +718,8 @@ gc_mark_locations(ScmObj *start, ScmObj *end, int is_certain, int is_aligned)
     ScmObj *adjusted_start, *tmp;
     ptrdiff_t len;
     unsigned int offset;
+
+    SCM_BEGIN_GC_SUBCONTEXT();
 
     /* swap end and start if (end < start) */
     if (end < start) {
@@ -678,24 +752,34 @@ gc_mark_locations(ScmObj *start, ScmObj *end, int is_certain, int is_aligned)
         if (is_aligned)
             break;
     }
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 static void
 gc_mark(void)
 {
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     /* Mark stack and all machine-dependent contexts such as registers,
      * register windows (SPARC), register stack backing store (IA-64) etc. */
     GCROOTS_mark(l_gcroots_ctx);
 
     gc_mark_global_vars();
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 static void
 gc_mark_global_vars(void)
 {
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     gc_mark_protected_var();
     if (scm_symbol_hash)
         gc_mark_definite_locations_n(scm_symbol_hash, scm_symbol_hash_size);
+
+    SCM_END_GC_SUBCONTEXT();
 }
 
 static void
@@ -802,6 +886,8 @@ gc_sweep(void)
     ScmCell *cell;
     ScmObj obj, new_freelist;
 
+    SCM_BEGIN_GC_SUBCONTEXT();
+
     /* Because l_freelist may not be exhausted on an user-instructed GC, do not
      * assume that l_freelist is null here. -- YamaKen */
     new_freelist = l_freelist;
@@ -833,6 +919,8 @@ gc_sweep(void)
         CDBG((SCM_DBG_GC, "heap[~ZU] swept = ~ZU", i, n_collected));
     }
     l_freelist = new_freelist;
+
+    SCM_END_GC_SUBCONTEXT();
 
     return sum_collected;
 }

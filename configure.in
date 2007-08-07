@@ -500,6 +500,8 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi48=yes
         use_srfi55=yes
         use_srfi60=yes
+        use_srfi69=yes
+        use_srfi95=yes
         ;;
       small|siod)
         use_srfi1=no
@@ -515,6 +517,8 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi48=no
         use_srfi55=no
         use_srfi60=no
+        use_srfi69=no
+        use_srfi95=no
         ;;
     esac
 
@@ -654,6 +658,8 @@ AX_FEATURE_ARG_Y(srfi38,         [SRFI-38 'write/ss' ('read/ss' is not provided)
 AX_FEATURE_ARG_Y(srfi48,         [SRFI-48 'format' (superset of SRFI-28)])
 AX_FEATURE_ARG_Y(srfi55,         [SRFI-55 'require-extension'])
 AX_FEATURE_ARG_Y(srfi60,         [SRFI-60 integers as bits (partial)])
+AX_FEATURE_ARG_Y(srfi69,         [SRFI-69 basic hash tables])
+AX_FEATURE_ARG_Y(srfi95,         [SRFI-95 sorting and merging])
 
 # R6RS features (preliminary)
 AX_FEATURE_ARG_Y(r6rs-named-chars, [named characters of R6RS (preliminary)])
@@ -719,6 +725,8 @@ srfi34: continuation srfi23
 srfi38: writer
 srfi55: load sscm_extensions
 srfi60: int
+srfi69: load int string vector srfi9 srfi23
+srfi95: load int
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
 
@@ -763,6 +771,7 @@ conf_dev: warning_suppressor
 storage_fatty: valuecons const_list_literal const_vector_literal
 debug: accessor_assert strict_argcheck strict_encoding_check
 backtrace: srfi38
+srfi69: srfi38
 ])
 
 # Resolve weak dependencies required if and only if available
@@ -873,6 +882,8 @@ AX_FEATURE_DEFINE(srfi38)
 AX_FEATURE_DEFINE(srfi48)
 AX_FEATURE_DEFINE(srfi55)
 AX_FEATURE_DEFINE(srfi60)
+AX_FEATURE_DEFINE(srfi69)
+AX_FEATURE_DEFINE(srfi95)
 
 # R6RS features (preliminary)
 AX_FEATURE_DEFINE(r6rs_named_chars)
@@ -950,6 +961,8 @@ AC_SUBST(use_srfi38)
 AC_SUBST(use_srfi48)
 AC_SUBST(use_srfi55)
 AC_SUBST(use_srfi60)
+AC_SUBST(use_srfi69)
+AC_SUBST(use_srfi95)
 AC_SUBST(use_r6rs_chars)
 AC_SUBST(use_r6rs_named_chars)
 AC_SUBST(use_sscm_extensions)
@@ -1105,6 +1118,8 @@ SRFI-38: $use_srfi38
 SRFI-48: $use_srfi48
 SRFI-55: $use_srfi55
 SRFI-60: $use_srfi60
+SRFI-69: $use_srfi69
+SRFI-95: $use_srfi95
 
 [R6RS features (preliminary)]
 R6RS characters:  $use_r6rs_chars

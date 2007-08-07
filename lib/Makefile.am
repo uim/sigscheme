@@ -1,5 +1,19 @@
-dist_scmlib_DATA = sigscheme-init.scm \
-        srfi-1.scm srfi-9.scm srfi-55.scm srfi-69.scm srfi-95.scm
+dist_scmlib_DATA = sigscheme-init.scm
+if USE_SRFI1
+dist_scmlib_DATA += srfi-1.scm
+endif
+if USE_SRFI9
+dist_scmlib_DATA += srfi-9.scm
+endif
+if USE_SRFI55
+dist_scmlib_DATA += srfi-55.scm
+endif
+if USE_SRFI69
+dist_scmlib_DATA += srfi-69.scm
+endif
+if USE_SRFI95
+dist_scmlib_DATA += srfi-95.scm
+endif
 
 # Install into master package's pkgdatadir if --with-master-pkg is specified
 # e.g.)

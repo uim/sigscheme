@@ -485,6 +485,14 @@ SRFI-8 receive
 Fully supported.
 
 
+SRFI-9 Defining Record Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
+
+It is based on the reference implementation of SRFI-9.
+
+
 SRFI-22 Running Scheme Scripts on Unix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -664,6 +672,14 @@ And the others listed below are not.
     * *procedure:* integer->list k
     * *procedure:* list->integer list
     * *procedure:* booleans->integer bool1 ...
+
+SRFI-69 Basic hash tables
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
+
+It is just the reference implementation of SRFI-69. The hash functions are not
+yet optimized for SigScheme.
 
 SRFI-95 Sorting and Merging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

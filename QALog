@@ -174,11 +174,13 @@ Categorized File List
   * module-srfi2.c
   * module-srfi6.c
   * module-srfi8.c
+  * module-srfi9.c
   * module-srfi23.c
   * module-srfi28.c
   * module-srfi34.c
   * module-srfi38.c
   * module-srfi48.c
+  * module-srfi55.c
   * module-srfi60.c
 
 - Optional Features (opt)
@@ -269,6 +271,7 @@ yyyy yyy srfi module-srfi1.c
 yyyy yyy srfi module-srfi2.c
 yyyy yyy srfi module-srfi6.c
 yyyy yyy srfi module-srfi8.c
+y yy y   srfi module-srfi9.c
 yyyy yy  srfi module-srfi23.c
 yyyy yyy srfi module-srfi28.c
 yyyy yyy srfi module-srfi34.c
@@ -958,6 +961,17 @@ coding style:      yamaken@r4572
 normal case tests: yamaken@r4572
 corner case tests: yamaken@r4572
 
+file:              module-srfi9.c
+category:          srfi
+spec by eyes:      yamaken@r4810
+spec by tests:     
+general review:    yamaken@r4810
+64-bit by eyes:    yamaken@r4810
+64-bit by tests:   
+coding style:      yamaken@r4810
+normal case tests: 
+corner case tests: 
+
 file:              module-srfi23.c
 category:          srfi
 spec by eyes:      yamaken@r3953
@@ -1100,6 +1114,9 @@ Log
         * storage-common.h
         * storage.c
           - QA done again @r4809 for GC around freecell and scm_gc_protectedp()
+
+        * module-srfi9.c
+          - QA done @r4810 by eyes
 
 2007-08-07  YamaKen <yamaken AT bp.iij4u.or.jp>
         * write.c

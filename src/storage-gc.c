@@ -42,7 +42,7 @@
  *   - gc_mark_locations()
  *       marks Scheme objects that held in the registers.
  *
- *   - gc_mark_locations()
+ *   - gc_mark_locations_n()
  *       marks Scheme objects that located on the stack.
  *
  *   - gc_mark_protected_var()
@@ -333,7 +333,13 @@ scm_gc_protectedp(ScmObj obj)
     ScmObj **slot;
 
     /* constants or objects referred from registers or stack */
-    if (SCM_CONSTANTP(obj) || GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
+    if (
+#if SCM_USE_STORAGE_COMPACT
+        SCM_IMMP(obj)
+#else
+        SCM_CONSTANTP(obj)
+#endif
+        || GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
         return scm_true;
 
     /* referred from static variables */

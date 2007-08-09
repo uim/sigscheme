@@ -50,6 +50,8 @@ Extensions: (not required for now)
 ==============================================================================
 Performance improvements:
 
+* %%identity-hash, %%string-hash, %%symbol-hash, %%string-ci-hash for SRFI-69
+
 * (not required for now) Introduce SCM_QNULL for (quote ()) to reduce cons cell
   consumption, and support shortcuts for it in read.c and eval.c
 

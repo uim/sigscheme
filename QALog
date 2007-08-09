@@ -542,7 +542,7 @@ corner case tests:
 
 file:              storage-common.h
 category:          core
-spec by eyes:      yamaken@r4066, yamaken@r4108, yamaken@r4152
+spec by eyes:      yamaken@r4066, yamaken@r4108, yamaken@r4152, yamaken@r4809
 spec by tests:     
 general review:    yamaken@r4066
 64-bit by eyes:    yamaken@r4066
@@ -553,7 +553,7 @@ corner case tests:
 
 file:              storage-fatty.h
 category:          core
-spec by eyes:      yamaken@r4066, yamaken@r4108, yamaken@r4127
+spec by eyes:      yamaken@r4066, yamaken@r4108, yamaken@r4127, yamaken@r4809
 spec by tests:     
 general review:    yamaken@r4066
 64-bit by eyes:    yamaken@r4066
@@ -564,18 +564,18 @@ corner case tests:
 
 file:              storage-compact.h
 category:          core
-spec by eyes:      yamaken@r4103, yamaken@r4123, yamaken@r4135
+spec by eyes:      yamaken@r4103, yamaken@r4123, yamaken@r4135, yamaken@r4809
 spec by tests:     
 general review:    yamaken@r4103
 64-bit by eyes:    yamaken@r4103, yamaken@r4135
 64-bit by tests:   
 coding style:      yamaken@r4103
-normal case tests: yamaken@r4103, yamaken@r4123, yamaken@r4135
+normal case tests: yamaken@r4103, yamaken@r4123, yamaken@r4135, yamaken@r4809
 corner case tests: 
 
 file:              storage.c
 category:          core
-spec by eyes:      yamaken@r4066, yamaken@r4152
+spec by eyes:      yamaken@r4066, yamaken@r4152, yamaken@r4809
 spec by tests:     
 general review:    yamaken@r4066
 64-bit by eyes:    yamaken@r4066
@@ -586,7 +586,7 @@ corner case tests:
 
 file:              storage-gc.c
 category:          core
-spec by eyes:      yamaken@r4066, yamaken@r4101, yamaken@r4108, yamaken@r4110, yamaken@r4111, yamaken@r4152, yamaken@r4182, yamaken@r4515
+spec by eyes:      yamaken@r4066, yamaken@r4101, yamaken@r4108, yamaken@r4110, yamaken@r4111, yamaken@r4152, yamaken@r4182, yamaken@r4515, yamaken@r4809
 spec by tests:     
 general review:    yamaken@r4066
 64-bit by eyes:    yamaken@r4066
@@ -1093,6 +1093,14 @@ corner case tests:
 
 Log
 ---
+2007-08-09  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * storage-gc.c
+        * storage-compact.h
+        * storage-fatty.h
+        * storage-common.h
+        * storage.c
+          - QA done again @r4809 for GC around freecell and scm_gc_protectedp()
+
 2007-08-07  YamaKen <yamaken AT bp.iij4u.or.jp>
         * write.c
           - Fix misinitialized hash table and QA done again @r4800 for hash

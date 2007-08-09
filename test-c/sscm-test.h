@@ -244,7 +244,7 @@ int                                                     \
 main(int argc, char *argv[])                            \
 {                                                       \
     tst_suite_info suite = TST_DEFAULT_SUITE_SETUP;     \
-    scm_initialize(NULL);                               \
+    scm_initialize(NULL, NULL);                         \
     tst_main(&suite);                                   \
     scm_finalize();                                     \
     TST_DEFAULT_SUITE_CLEANUP(suite);                   \

@@ -41,7 +41,7 @@ int
 main ()
 {
     ScmObj sexp;
-    scm_initialize(NULL);
+    scm_initialize(NULL, NULL);
     for (;;) {
         ScmObj in = scm_p_current_input_port();
         ScmObj out = scm_p_current_output_port();

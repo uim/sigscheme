@@ -12,7 +12,7 @@ EXTRA_DIST= sscm-test.h utils.c \
             test-global.c \
             test-gc.c test-gc-protect.c test-gc-protect-stack.c \
             test-storage.c test-storage-compact.c \
-            test-strcasecmp.c test-length.c test-format.c
+            test-strcasecmp.c test-length.c test-format.c test-array2list.c
 
 SUFFIXES= -coll.o -coll.c
 
@@ -34,7 +34,8 @@ TESTS= test-alignment-coll \
        test-global-coll \
        test-gc-coll test-gc-protect-coll test-gc-protect-stack-coll \
        test-storage-coll test-storage-compact-coll \
-       test-strcasecmp-coll test-length-coll test-format-coll
+       test-strcasecmp-coll test-length-coll test-format-coll \
+       test-array2list-coll
 XFAIL_TESTS =
 check_PROGRAMS= $(TESTS) test-minishell
 else

@@ -401,6 +401,69 @@ scm_eval_c_string_internal(const char *exp)
 }
 #endif /* SCM_USE_EVAL_C_STRING */
 
+SCM_EXPORT ScmObj
+scm_array2list(void **ary, size_t size, ScmObj (*conv)(void *))
+{
+    void **p;
+    ScmObj elm, lst;
+    ScmQueue q;
+    DECLARE_INTERNAL_FUNCTION("scm_array2list");
+
+    SCM_ASSERT(ary);
+    SCM_ASSERT(size <= SCM_INT_T_MAX);
+
+    lst = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, lst);
+    for (p = &ary[0]; p < &ary[size]; p++) {
+        elm = (conv) ? (*conv)(*p) : (ScmObj)(*p);
+        SCM_QUEUE_ADD(q, elm);
+    }
+
+    return lst;
+}
+
+SCM_EXPORT ScmObj
+scm_null_term_array2list(void **ary, ScmObj (*conv)(void *))
+{
+    void **p, *term;
+    ScmObj elm, lst;
+    ScmQueue q;
+    DECLARE_INTERNAL_FUNCTION("scm_null_term_array2list");
+
+    SCM_ASSERT(ary);
+
+    term = (conv) ? NULL : (void *)SCM_EOF;
+
+    lst = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, lst);
+    for (p = &ary[0]; *p != term; p++) {
+        elm = (conv) ? (*conv)(*p) : (ScmObj)(*p);
+        SCM_QUEUE_ADD(q, elm);
+    }
+
+    return lst;
+}
+
+SCM_EXPORT void **
+scm_list2null_term_array(ScmObj lst, void *(*conv)(ScmObj))
+{
+    scm_int_t len;
+    void **ary, **p;
+    ScmObj elm;
+    DECLARE_INTERNAL_FUNCTION("scm_list2null_term_array");
+
+    len = scm_length(lst);
+    if (!SCM_LISTLEN_PROPERP(len))
+        ERR("proper list required");
+
+    p = ary = scm_malloc((len + 1) * sizeof(void *));
+    FOR_EACH (elm, lst)
+        *p++ = (conv) ? (*conv)(elm) : (void *)elm;
+    *p = NULL;
+
+    return ary;
+}
+
 static void
 argv_err(char **argv, const char *err_msg)
 {

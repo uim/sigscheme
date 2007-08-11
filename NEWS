@@ -18,6 +18,9 @@ Overview of changes from 0.7.x to 0.8.0
   - New syntax let-optionals* compatible with Gauche, for optional argument
     processing
 
+  - New C interface functions scm_array2list(), scm_null_term_array2list() and
+    scm_list2null_term_array()
+
   - %%require-module and scm_require_module(). 'use' and scm_use() have been
     deprecated and will be removed in SigScheme 0.9.0
 

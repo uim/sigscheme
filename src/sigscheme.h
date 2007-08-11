@@ -1248,6 +1248,10 @@ SCM_EXPORT void scm_finalize(void);
 #if SCM_USE_EVAL_C_STRING
 SCM_EXPORT ScmObj scm_eval_c_string(const char *exp);
 #endif
+SCM_EXPORT ScmObj scm_array2list(void **ary, size_t size,
+                                 ScmObj (*conv)(void *));
+SCM_EXPORT ScmObj scm_null_term_array2list(void **ary, ScmObj (*conv)(void *));
+SCM_EXPORT void **scm_list2null_term_array(ScmObj lst, void *(*conv)(ScmObj));
 
 /* module.c */
 SCM_EXPORT void scm_provide(ScmObj feature);

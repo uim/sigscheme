@@ -1034,7 +1034,14 @@ read_number(ScmObj port, char prefix)
 static ScmObj
 read_quoted(ScmObj port, ScmObj quoter)
 {
-    return SCM_LIST_2(quoter, read_sexpression(port));
+    ScmObj obj;
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    obj = read_sexpression(port);
+    if (EOFP(obj))
+        ERR("EOF in ~a", quoter);
+
+    return SCM_LIST_2(quoter, obj);
 }
 
 /*===========================================================================

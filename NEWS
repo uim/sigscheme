@@ -90,6 +90,8 @@ Overview of changes from 0.7.x to 0.8.0
   - [R5RS] Fix invalid assertion on modifying optional arguments to a dotted or
     circular list (see test-misc.scm). This bug only appeared on --enable-debug
 
+  - Fix reading unterminated quote as (quote #<eof>)
+
 * Others
 
   - New document multibyte.txt about multibyte character processing has been

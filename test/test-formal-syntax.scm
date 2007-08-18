@@ -384,4 +384,11 @@
 (assert-equal? (tn) #t            (if #t #t #t))
 (assert-error  (tn) (lambda ()    (if #t #t #t . #t)))
 
+(tn "EOF immediately after quoter")
+;; (quote #<eof>) is invalid
+(assert-error  (tn) (lambda () (string-read "'")))
+(assert-error  (tn) (lambda () (string-read "`")))
+(assert-error  (tn) (lambda () (string-read ",")))
+(assert-error  (tn) (lambda () (string-read ",@")))
+
 (total-report)

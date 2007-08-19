@@ -27,8 +27,8 @@ Overview of changes from 0.7.x to 0.8.0
   - System-installed libraries written in Scheme are introduced. And to manage
     them, scm_set_system_load_path() and %%system-load-path have been added
 
-  - New character codec procedures %%current-char-codec,
-    %%set-current-char-codec! and with-char-codec
+  - New character codec related procedures %%current-char-codec,
+    %%set-current-char-codec!, with-char-codec and %%string-reconstruct!
 
   - New port handling procedures %%current-error-port,
     %%set-current-input-port!, %%set-current-output-port!,
@@ -76,6 +76,9 @@ Overview of changes from 0.7.x to 0.8.0
     such as (receive (x y) (call/cc (lambda (k) (k 0 1))))
 
   - [SRFI-38] Fix broken execution by misinitialized internal hash table
+
+  - Fix string-length on multibyte string invalidly counted based on current
+    char codec. It is inconsistent with string length recorded in string object
 
   - [R5RS] Fix error on (integer->char 0) on non-Unicode codecs
 

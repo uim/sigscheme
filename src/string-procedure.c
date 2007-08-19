@@ -615,3 +615,21 @@ scm_p_string_mutablep(ScmObj str)
 
     return MAKE_BOOL(SCM_STRING_MUTABLEP(str));
 }
+
+SCM_EXPORT ScmObj
+scm_p_string_reconstructx(ScmObj str)
+{
+    scm_int_t len;
+    DECLARE_FUNCTION("%%string-reconstruct!", procedure_fixed_1);
+
+    ENSURE_STRING(str);
+    ENSURE_MUTABLE_STRING(str);
+
+    /* recount string length in current char codec */
+#if SCM_USE_MULTIBYTE_CHAR
+    len = scm_mb_bare_c_strlen(scm_current_char_codec, SCM_STRING_STR(str));
+    SCM_STRING_SET_LEN(str, len);
+#endif
+
+    return str;
+}

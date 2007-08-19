@@ -853,24 +853,24 @@ corner case tests:
 
 file:              string.c
 category:          r5rs
-spec by eyes:      yamaken@r3911
-spec by tests:     yamaken@r3911
+spec by eyes:      yamaken@r3911, yamaken@r4865
+spec by tests:     yamaken@r3911, yamaken@r4865
 general review:    yamaken@r3911
 64-bit by eyes:    yamaken@r3911
 64-bit by tests:   
 coding style:      yamaken@r3911
-normal case tests: yamaken@r3911
+normal case tests: yamaken@r3911, yamaken@r4865
 corner case tests: yamaken@r3911
 
 file:              string-procedure.c
 category:          r5rs
-spec by eyes:      yamaken@r4552, yamaken@r4564
-spec by tests:     yamaken@r4552, yamaken@r4564
+spec by eyes:      yamaken@r4552, yamaken@r4564, yamaken@r4865
+spec by tests:     yamaken@r4552, yamaken@r4564, yamaken@r4865
 general review:    yamaken@r4552
 64-bit by eyes:    yamaken@r4552
 64-bit by tests:   
 coding style:      yamaken@r4552
-normal case tests: yamaken@r4552
+normal case tests: yamaken@r4552, yamaken@r4865
 corner case tests: 
 
 file:              vector.c
@@ -1107,6 +1107,13 @@ corner case tests:
 
 Log
 ---
+2007-08-19  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * string.c
+        * string-procedure.c
+          - QA done again @r4865 for multibyte string handlings. string-length
+            is fixed, and new procedure %%string-reconstruct! has been added
+            with tests in test-string-proc.scm
+
 2007-08-11  YamaKen <yamaken AT bp.iij4u.or.jp>
         * sigscheme.c
           - QA done again @r4818 for array<->list conversion functions. The 3

@@ -81,11 +81,7 @@ scm_p_string_length(ScmObj str)
 
     ENSURE_STRING(str);
 
-#if SCM_USE_MULTIBYTE_CHAR
-    len = scm_mb_bare_c_strlen(scm_current_char_codec, SCM_STRING_STR(str));
-#else
     len = SCM_STRING_LEN(str);
-#endif
 
     return MAKE_INT(len);
 }

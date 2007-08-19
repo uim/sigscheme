@@ -1514,6 +1514,7 @@ SCM_EXPORT ScmObj scm_p_string2list(ScmObj str);
 SCM_EXPORT ScmObj scm_p_list2string(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_string_fillx(ScmObj str, ScmObj ch);
 SCM_EXPORT ScmObj scm_p_string_mutablep(ScmObj str);
+SCM_EXPORT ScmObj scm_p_string_reconstructx(ScmObj str);
 #endif /* SCM_USE_STRING_PROCEDURE */
 
 /* vector.c */

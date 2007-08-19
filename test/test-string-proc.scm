@@ -1034,4 +1034,31 @@
 (assert-true   (tn) (mutable?            (my-string-fill! (cp "aあbう") #\z)))
 (assert-true   (tn) (mutable?            (my-string-fill! (cp "あaうb") #\z)))
 
+(tn "%%string-reconstruct!")
+(assert-error  (tn) (lambda () (%%string-reconstruct! "")))
+(assert-error  (tn) (lambda () (%%string-reconstruct! "const str")))
+(assert-error  (tn) (lambda () (%%string-reconstruct! "あaう")))
+(assert-equal? (tn) 0 (string-length (string-copy "")))
+(assert-equal? (tn) 9 (string-length (string-copy "const str")))
+(assert-equal? (tn) 3 (string-length (string-copy "あaう")))
+(assert-equal? (tn) 0 (string-length (with-char-codec "ISO-8859-1"
+                                       (lambda ()
+                                         (%%string-reconstruct!
+                                          (string-copy ""))))))
+(assert-equal? (tn) 9 (string-length (with-char-codec "ISO-8859-1"
+                                       (lambda ()
+                                         (%%string-reconstruct!
+                                          (string-copy "const str"))))))
+(assert-equal? (tn) 7 (string-length (with-char-codec "ISO-8859-1"
+                                       (lambda ()
+                                         (%%string-reconstruct!
+                                          (string-copy "あaう"))))))
+(let ((byte-str (with-char-codec "ISO-8859-1"
+                  (lambda ()
+                    (%%string-reconstruct!
+                     (string-copy "あaう"))))))
+  (assert-equal? (tn) 7 (string-length byte-str))
+  ;; reconstruct as UTF-8 string
+  (assert-equal? (tn) 3 (string-length (%%string-reconstruct! byte-str))))
+
 (total-report)

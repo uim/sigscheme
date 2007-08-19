@@ -33,6 +33,7 @@ FUNC_TABLES = \
         functable-r5rs-write.c \
         functable-r5rs-load.c \
         functable-r5rs-deep-cadrs.c \
+        functable-legacy-macro.c \
         functable-sscm-ext.c \
         functable-siod.c \
         functable-srfi1.c \
@@ -90,6 +91,8 @@ functable-r5rs-load.c: load.c $(BUILD_FUNCTBL_DEPS)
 functable-r5rs-deep-cadrs.c: deep-cadrs.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_deep_cadrs" $<
 # Optional modules
+functable-legacy-macro.c: legacy-macro.c $(BUILD_FUNCTBL_DEPS)
+	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_legacy_macro" $<
 functable-sscm-ext.c: module-sscm-ext.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_sscm_ext" $<
 functable-siod.c: module-siod.c $(BUILD_FUNCTBL_DEPS)
@@ -261,10 +264,12 @@ endif
 if USE_QUASIQUOTE
   libsscm_sources += qquote.c
 endif
-# FIXME: support SCM_USE_SYNTAX_CASE, SCM_USE_UNHYGIENIC_MACRO and
-# SCM_USE_LEGACY_MACRO
+# FIXME: support SCM_USE_SYNTAX_CASE
 if USE_HYGIENIC_MACRO
   libsscm_sources += macro.c
+endif
+if USE_LEGACY_MACRO
+  libsscm_sources += legacy-macro.c
 endif
 if USE_PROMISE
   libsscm_sources += promise.c

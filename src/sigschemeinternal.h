@@ -137,6 +137,7 @@ extern "C" {
 #define FUNCP          SCM_FUNCP
 #define SYNTAXP        SCM_SYNTAXP
 #define CLOSUREP       SCM_CLOSUREP
+#define SYNTACTIC_CLOSUREP SCM_SYNTACTIC_CLOSUREP
 #define PROCEDUREP     SCM_PROCEDUREP
 #define SYNTACTIC_OBJECTP SCM_SYNTACTIC_OBJECTP
 #define VECTORP        SCM_VECTORP
@@ -767,6 +768,11 @@ SCM_EXPORT void scm_fin_module(void);
 /* sigscheme.c */
 SCM_EXPORT char **scm_interpret_argv(char **argv);
 SCM_EXPORT void scm_free_argv(char **argv);
+
+/* legacy-macro.c */
+#if SCM_USE_LEGACY_MACRO
+SCM_EXPORT void scm_init_legacy_macro(void);
+#endif
 
 /*
  * modules

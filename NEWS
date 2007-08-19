@@ -15,6 +15,9 @@ Overview of changes from 0.7.x to 0.8.0
 
   - R5RS promises (delay and force)
 
+  - legacy define-macro, expected to be compatible with other Scheme
+    implementations
+
   - New syntax let-optionals* compatible with Gauche, for optional argument
     processing
 

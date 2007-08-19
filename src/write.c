@@ -286,7 +286,12 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
         break;
 #endif /* SCM_USE_HYGIENIC_MACRO */
     case ScmClosure:
-        scm_port_puts(port, "#<closure ");
+#if SCM_USE_LEGACY_MACRO
+        if (SYNTACTIC_CLOSUREP(obj))
+            scm_port_puts(port, "#<syntactic closure ");
+        else
+#endif
+            scm_port_puts(port, "#<closure ");
         write_obj(port, SCM_CLOSURE_EXP(obj), otype);
         scm_port_put_char(port, '>');
         break;

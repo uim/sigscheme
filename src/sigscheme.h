@@ -819,10 +819,23 @@ struct ScmStorageConf_ {
                             && !(SCM_FUNC_TYPECODE(o) & SCM_FUNCTYPE_SYNTAX)) \
                            || SCM_CLOSUREP(o)                                \
                            || SCM_CONTINUATIONP(o))
-#if SCM_USE_HYGIENIC_MACRO
+
+#if (SCM_USE_HYGIENIC_MACRO && SCM_USE_LEGACY_MACRO)
+#define SCM_SYNTACTIC_OBJECTP(o) (SCM_SYNTAXP(o) || SCM_HMACROP(o)      \
+                                  || SCM_SYNTACTIC_CLOSUREP(o))
+#elif SCM_USE_HYGIENIC_MACRO
 #define SCM_SYNTACTIC_OBJECTP(o) (SCM_SYNTAXP(o) || SCM_HMACROP(o))
+#elif SCM_USE_LEGACY_MACRO
+#define SCM_SYNTACTIC_OBJECTP(o) (SCM_SYNTAXP(o) || SCM_SYNTACTIC_CLOSUREP(o))
 #else
 #define SCM_SYNTACTIC_OBJECTP(o) (SCM_SYNTAXP(o))
+#endif
+
+#if SCM_USE_LEGACY_MACRO
+#define SCM_SYNTACTIC_CLOSURE_ENV scm_syntactic_closure_env
+#define SCM_SYNTACTIC_CLOSUREP(o)                                       \
+    (SCM_CLOSUREP(o)                                                    \
+     && SCM_EQ(SCM_CLOSURE_ENV(o), SCM_SYNTACTIC_CLOSURE_ENV))
 #endif
 
 #define SCM_CLOSUREP(o)                 SCM_SAL_CLOSUREP(o)
@@ -1234,6 +1247,18 @@ SCM_GLOBAL_VARS_END(syntax);
 #define scm_sym_unquote_splicing SCM_GLOBAL_VAR(syntax, scm_sym_unquote_splicing)
 #define scm_sym_ellipsis         SCM_GLOBAL_VAR(syntax, scm_sym_ellipsis)
 SCM_DECLARE_EXPORTED_VARS(syntax);
+
+/* legacy-macro.c */
+#if SCM_USE_LEGACY_MACRO
+/* Don't use scm_syntactic_closure_env directly. Use SCM_SYNTACTIC_CLOSURE_ENV
+ * instead. */
+SCM_GLOBAL_VARS_BEGIN(legacy_macro);
+ScmObj scm_syntactic_closure_env;
+SCM_GLOBAL_VARS_END(legacy_macro);
+#define scm_syntactic_closure_env                                       \
+    SCM_GLOBAL_VAR(legacy_macro, scm_syntactic_closure_env)
+SCM_DECLARE_EXPORTED_VARS(legacy_macro);
+#endif /* SCM_USE_LEGACY_MACRO */
 
 /*=======================================
   Function Declarations
@@ -1651,6 +1676,12 @@ SCM_EXPORT ScmObj scm_format(ScmObj port, enum ScmFormatCapability fcap,
 /*===========================================================================
    SigScheme: Optional Funtions
 ===========================================================================*/
+/* legacy-macro.c */
+#if SCM_USE_LEGACY_MACRO
+SCM_EXPORT ScmObj scm_s_define_macro(ScmObj identifier, ScmObj rest,
+                                     ScmEvalState *eval_state);
+#endif /* SCM_USE_LEGACY_MACRO */
+
 /* module-sscm-ext.c */
 #if SCM_USE_SSCM_EXTENSIONS
 SCM_EXPORT void scm_require(const char *filename);

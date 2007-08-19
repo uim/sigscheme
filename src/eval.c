@@ -250,8 +250,34 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
         proc = EVAL(proc, env);
 
     while (!FUNCP(proc)) {
-        if (CLOSUREP(proc))
-            return call_closure(proc, args, eval_state, need_eval);
+        if (CLOSUREP(proc)) {
+#if SCM_USE_LEGACY_MACRO
+            if (SYNTACTIC_CLOSUREP(proc)) {
+                ScmObj ret;
+
+                if (!need_eval)
+                    ERR_OBJ("can't apply/map a macro", proc);
+
+                ret = call_closure(proc, args, eval_state, SCM_VALTYPE_AS_IS);
+                /* eval the result into an as-is object */
+                ret = SCM_FINISH_TAILREC_CALL(ret, eval_state);
+                /* restore previous env */
+                eval_state->env = env;
+                /* eval returned object again as a syntactic form. */
+                eval_state->ret_type = SCM_VALTYPE_NEED_EVAL;
+#if SCM_STRICT_TOPLEVEL_DEFINITIONS
+                /* Workaround to allow toplevel definitions by the returned
+                 * form. See scm_eval(). */
+                eval_state->nest = SCM_NEST_RETTYPE_BEGIN;
+#endif
+
+                return ret;
+            } else
+#endif /* SCM_USE_LEGACY_MACRO */
+            {
+                return call_closure(proc, args, eval_state, need_eval);
+            }
+        }
 #if SCM_USE_HYGIENIC_MACRO
         if (HMACROP(proc)) {
             if (!need_eval)

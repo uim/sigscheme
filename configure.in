@@ -525,6 +525,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
     # SigScheme-specific extensions
     case "$enable_conf" in
       full|r5rs|dev)
+        use_legacy_macro=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=no
@@ -532,6 +533,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=yes
         ;;
       small)
+        use_legacy_macro=no
         use_sscm_extensions=no
         use_sscm_format_extension=no
         use_compat_siod=no
@@ -539,6 +541,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=no
         ;;
       siod)
+        use_legacy_macro=no
         use_sscm_extensions=yes
         use_sscm_format_extension=no
         use_compat_siod=yes
@@ -546,6 +549,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eval_c_string=yes
         ;;
       uim)
+        use_legacy_macro=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=yes
@@ -668,7 +672,7 @@ AX_FEATURE_ARG_Y(r6rs-chars,       [R6RS characters (preliminary)])
 # Common Scheme features
 AX_FEATURE_VAR_N(syntax-case,      ['syntax-case' (not implemented yet)])
 AX_FEATURE_VAR_N(unhygienic-macro, [syntactic closure (not implemented yet)])
-AX_FEATURE_VAR_N(legacy-macro,     ['define-macro' (not implemented yet)])
+AX_FEATURE_ARG_Y(legacy-macro,     ['define-macro' syntactic closure])
 
 # SigScheme-specific features
 AX_FEATURE_ARG_Y(sscm-extensions,     [SigScheme-specific extensions])
@@ -965,6 +969,7 @@ AC_SUBST(use_srfi69)
 AC_SUBST(use_srfi95)
 AC_SUBST(use_r6rs_chars)
 AC_SUBST(use_r6rs_named_chars)
+AC_SUBST(use_legacy_macro)
 AC_SUBST(use_sscm_extensions)
 AC_SUBST(use_sscm_format_extension)
 AC_SUBST(use_compat_siod)
@@ -1126,6 +1131,7 @@ R6RS characters:  $use_r6rs_chars
 R6RS named chars: $use_r6rs_named_chars
 
 [SigScheme-specific extensions]
+define-macro:         $use_legacy_macro
 SigScheme extensions: $use_sscm_extensions
 format+ procedure:    $use_sscm_format_extension
 SIOD compatibilities: $use_compat_siod

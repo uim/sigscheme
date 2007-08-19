@@ -321,6 +321,9 @@ scm_initialize_internal(const char *const *argv)
     scm_define_alias("r5rs:member",   "member");
     scm_define_alias("r5rs:assoc",    "assoc");
 
+#if SCM_USE_LEGACY_MACRO
+    scm_init_legacy_macro();
+#endif
 #if SCM_USE_SSCM_EXTENSIONS
     scm_require_module("sscm-ext");
 #endif

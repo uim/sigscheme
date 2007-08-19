@@ -50,6 +50,7 @@ sscm_srfi55=@use_srfi55@
 sscm_srfi60=@use_srfi60@
 sscm_r6rs_chars=@use_r6rs_chars@
 sscm_r6rs_named_chars=@use_r6rs_named_chars@
+sscm_legacy_macro=@use_legacy_macro@
 sscm_extensions=@use_sscm_extensions@
 sscm_format_extension=@use_sscm_format_extension@
 sscm_compat_siod=@use_compat_siod@

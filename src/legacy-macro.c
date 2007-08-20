@@ -115,7 +115,7 @@ scm_s_define_macro(ScmObj identifier, ScmObj rest, ScmEvalState *eval_state)
     closure = SCM_SYMBOL_VCELL(identifier);
     ENSURE_CLOSURE(closure);
     if (!scm_toplevel_environmentp(SCM_CLOSURE_ENV(closure)))
-        ERR_OBJ("syntactic closure must have toplevel environment");
+        ERR("syntactic closure must have toplevel environment");
     /* destructively mark the closure as syntactic */
     SCM_CLOSURE_SET_ENV(closure, SCM_SYNTACTIC_CLOSURE_ENV);
 

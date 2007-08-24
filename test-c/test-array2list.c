@@ -1,6 +1,6 @@
 /*===========================================================================
  *  Filename : test-array2list.c
- *  About    : test for list C array <-> Scheme list conversion functions
+ *  About    : test for C array <-> Scheme list conversion functions
  *
  *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
  *
@@ -111,80 +111,44 @@ TST_CASE("scm_array2list() without conversion")
                          scm_array2list(ary, 3, NULL)));
 }
 
-TST_CASE("scm_null_term_array2list()")
-{
-    void **ary;
-
-    ary = (void **)null_ary;
-
-    TST_TN_EQ_INT(0, scm_length(scm_null_term_array2list(ary, make_str)));
-    TST_TN_TRUE  (NULLP(scm_null_term_array2list(ary, make_str)));
-
-    ary = (void **)char_ary;
-
-    TST_TN_EQ_INT(3, scm_length(scm_null_term_array2list(ary, make_str)));
-    TST_TN_TRUE  (EQUALP(scm_eval_c_string("'(\"abc\" \"def\" \"gh\")"),
-                         scm_null_term_array2list(ary, make_str)));
-}
-
-TST_CASE("scm_null_term_array2list() without conversion")
-{
-    ScmObj obj_ary[4];
-    void **ary;
-
-    obj_ary[0] = SCM_EOF;
-    ary = (void **)obj_ary;
-
-    TST_TN_EQ_INT(0, scm_length(scm_null_term_array2list(ary, NULL)));
-    TST_TN_TRUE  (NULLP(scm_null_term_array2list(ary, NULL)));
-
-    obj_ary[0] = make_str(char_ary[0]);
-    obj_ary[1] = make_str(char_ary[1]);
-    obj_ary[2] = make_str(char_ary[2]);
-    obj_ary[3] = SCM_EOF;
-    ary = (void **)obj_ary;
-
-    TST_TN_EQ_INT(3, scm_length(scm_null_term_array2list(ary, NULL)));
-    TST_TN_TRUE  (EQUALP(scm_eval_c_string("'(\"abc\" \"def\" \"gh\")"),
-                         scm_null_term_array2list(ary, NULL)));
-}
-
-TST_CASE("scm_list2null_term_array()")
+TST_CASE("scm_list2array()")
 {
     const char *list1 = "'(\"abc\")";
     const char *list3 = "'(\"abc\" \"def\" \"gh\")";
     void **ary;
+    size_t len;
 
-    ary = scm_list2null_term_array(SCM_NULL, refer_c_str);
-    TST_TN_EQ_PTR(NULL, ary[0]);
+    ary = scm_list2array(SCM_NULL, &len, refer_c_str);
+    TST_TN_EQ_INT(0, len);
 
-    ary = scm_list2null_term_array(scm_eval_c_string(list1), refer_c_str);
+    ary = scm_list2array(scm_eval_c_string(list1), &len, refer_c_str);
+    TST_TN_EQ_INT(1, len);
     TST_TN_EQ_STR("abc", ary[0]);
-    TST_TN_EQ_PTR(NULL,  ary[1]);
 
-    ary = scm_list2null_term_array(scm_eval_c_string(list3), refer_c_str);
+    ary = scm_list2array(scm_eval_c_string(list3), &len, refer_c_str);
+    TST_TN_EQ_INT(3, len);
     TST_TN_EQ_STR("abc", ary[0]);
     TST_TN_EQ_STR("def", ary[1]);
     TST_TN_EQ_STR("gh",  ary[2]);
-    TST_TN_EQ_PTR(NULL,  ary[3]);
 }
 
-TST_CASE("scm_list2null_term_array() without conversion")
+TST_CASE("scm_list2array() without conversion")
 {
     const char *list1 = "'(\"abc\")";
     const char *list3 = "'(\"abc\" \"def\" \"gh\")";
     void **ary;
+    size_t len;
 
-    ary = scm_list2null_term_array(SCM_NULL, NULL);
-    TST_TN_EQ_PTR(NULL, ary[0]);
+    ary = scm_list2array(SCM_NULL, &len, NULL);
+    TST_TN_EQ_INT(0, len);
 
-    ary = scm_list2null_term_array(scm_eval_c_string(list1), NULL);
+    ary = scm_list2array(scm_eval_c_string(list1), &len, NULL);
+    TST_TN_EQ_INT(1, len);
     TST_TN_TRUE(EQUALP(CONST_STRING("abc"), (ScmObj)ary[0]));
-    TST_TN_EQ_PTR(NULL,  ary[1]);
 
-    ary = scm_list2null_term_array(scm_eval_c_string(list3), NULL);
+    ary = scm_list2array(scm_eval_c_string(list3), &len, NULL);
+    TST_TN_EQ_INT(3, len);
     TST_TN_TRUE(EQUALP(CONST_STRING("abc"), (ScmObj)ary[0]));
     TST_TN_TRUE(EQUALP(CONST_STRING("def"), (ScmObj)ary[1]));
     TST_TN_TRUE(EQUALP(CONST_STRING("gh"),  (ScmObj)ary[2]));
-    TST_TN_EQ_PTR(NULL,  ary[3]);
 }

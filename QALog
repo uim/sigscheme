@@ -712,7 +712,7 @@ corner case tests:
 
 file:              sigscheme.c
 category:          core
-spec by eyes:      yamaken@r4017, yamaken@r4019, yamaken@r4066, yamaken@r4152, yamaken@r4182, yamaken@r4543, yamaken@r4722, yamaken@r4818
+spec by eyes:      yamaken@r4017, yamaken@r4019, yamaken@r4066, yamaken@r4152, yamaken@r4182, yamaken@r4543, yamaken@r4722, yamaken@r4818, yamaken@r4880
 spec by tests:     
 general review:    yamaken@r4017
 64-bit by eyes:    yamaken@r4017
@@ -1120,6 +1120,11 @@ corner case tests:
 
 Log
 ---
+2007-08-24  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * sigscheme.c
+          - QA done again @r4880 for revised array<->list conversion
+            functions. Both 2 functions are fully tested with test-array2list.c
+
 2007-08-19  YamaKen <yamaken AT bp.iij4u.or.jp>
         * string.c
         * string-procedure.c

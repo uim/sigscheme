@@ -405,7 +405,7 @@ scm_eval_c_string_internal(const char *exp)
 #endif /* SCM_USE_EVAL_C_STRING */
 
 SCM_EXPORT ScmObj
-scm_array2list(void **ary, size_t size, ScmObj (*conv)(void *))
+scm_array2list(void **ary, size_t len, ScmObj (*conv)(void *))
 {
     void **p;
     ScmObj elm, lst;
@@ -413,33 +413,11 @@ scm_array2list(void **ary, size_t size, ScmObj (*conv)(void *))
     DECLARE_INTERNAL_FUNCTION("scm_array2list");
 
     SCM_ASSERT(ary);
-    SCM_ASSERT(size <= SCM_INT_T_MAX);
+    SCM_ASSERT(len <= SCM_INT_T_MAX);
 
     lst = SCM_NULL;
     SCM_QUEUE_POINT_TO(q, lst);
-    for (p = &ary[0]; p < &ary[size]; p++) {
-        elm = (conv) ? (*conv)(*p) : (ScmObj)(*p);
-        SCM_QUEUE_ADD(q, elm);
-    }
-
-    return lst;
-}
-
-SCM_EXPORT ScmObj
-scm_null_term_array2list(void **ary, ScmObj (*conv)(void *))
-{
-    void **p, *term;
-    ScmObj elm, lst;
-    ScmQueue q;
-    DECLARE_INTERNAL_FUNCTION("scm_null_term_array2list");
-
-    SCM_ASSERT(ary);
-
-    term = (conv) ? NULL : (void *)SCM_EOF;
-
-    lst = SCM_NULL;
-    SCM_QUEUE_POINT_TO(q, lst);
-    for (p = &ary[0]; *p != term; p++) {
+    for (p = &ary[0]; p < &ary[len]; p++) {
         elm = (conv) ? (*conv)(*p) : (ScmObj)(*p);
         SCM_QUEUE_ADD(q, elm);
     }
@@ -448,21 +426,21 @@ scm_null_term_array2list(void **ary, ScmObj (*conv)(void *))
 }
 
 SCM_EXPORT void **
-scm_list2null_term_array(ScmObj lst, void *(*conv)(ScmObj))
+scm_list2array(ScmObj lst, size_t *len, void *(*conv)(ScmObj))
 {
-    scm_int_t len;
+    scm_int_t scm_len;
     void **ary, **p;
     ScmObj elm;
-    DECLARE_INTERNAL_FUNCTION("scm_list2null_term_array");
+    DECLARE_INTERNAL_FUNCTION("scm_list2array");
 
-    len = scm_length(lst);
-    if (!SCM_LISTLEN_PROPERP(len))
+    scm_len = scm_length(lst);
+    if (!SCM_LISTLEN_PROPERP(scm_len))
         ERR("proper list required");
 
-    p = ary = scm_malloc((len + 1) * sizeof(void *));
+    *len = (size_t)scm_len;
+    p = ary = scm_malloc(*len * sizeof(void *));
     FOR_EACH (elm, lst)
         *p++ = (conv) ? (*conv)(elm) : (void *)elm;
-    *p = NULL;
 
     return ary;
 }

@@ -45,6 +45,8 @@ Features
   - SRFI-95 : Sorting and Merging
 - R6RS: R6RS characters (partial and preliminary)
 - Multibyte character encodings support
+- define-macro
+- let-optionals* for optional argument processing
 - Partial SIOD compatibility
 
 See doc/spec.txt and doc/design.txt for furtuer information.

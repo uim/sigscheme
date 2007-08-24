@@ -57,6 +57,7 @@ What's New
   - SRFI-69 Basic hash tables
   - SRFI-95 Sorting and Merging
   - R5RS promises (delay and force)
+  - define-macro
   - let-optionals* for optional argument processing
   - Character codec handling procedures
 

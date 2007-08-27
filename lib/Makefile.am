@@ -5,6 +5,9 @@ endif
 if USE_SRFI9
 dist_scmlib_DATA += srfi-9.scm
 endif
+if USE_SRFI43
+dist_scmlib_DATA += srfi-43.scm
+endif
 if USE_SRFI55
 dist_scmlib_DATA += srfi-55.scm
 endif

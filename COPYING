@@ -95,6 +95,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------
 
 
+lib/srfi-43.scm is covered by:
+-----------------------------------------------------------------------------
+;;; Taylor Campbell wrote this code; he places it in the public domain.
+-----------------------------------------------------------------------------
+
+
 lib/srfi-69.scm is covered by:
 -----------------------------------------------------------------------------
 Copyright (C) Panu Kalliokoski (2005). All Rights Reserved.

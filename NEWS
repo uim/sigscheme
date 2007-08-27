@@ -7,6 +7,8 @@ Overview of changes from 0.7.x to 0.8.0
 
   - SRFI-9 Defining Record Types
 
+  - SRFI-43 Vector library
+
   - SRFI-55 require-extension
 
   - SRFI-69 Basic hash tables

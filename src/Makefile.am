@@ -45,6 +45,7 @@ FUNC_TABLES = \
         functable-srfi28.c \
         functable-srfi34.c \
         functable-srfi38.c \
+        functable-srfi43.c \
         functable-srfi48.c \
         functable-srfi55.c \
         functable-srfi60.c
@@ -115,6 +116,8 @@ functable-srfi34.c: module-srfi34.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi34" $<
 functable-srfi38.c: module-srfi38.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi38" $<
+functable-srfi43.c: module-srfi43.c $(BUILD_FUNCTBL_DEPS)
+	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi43" $<
 functable-srfi48.c: module-srfi48.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi48" $<
 functable-srfi55.c: module-srfi55.c $(BUILD_FUNCTBL_DEPS)
@@ -341,6 +344,9 @@ if USE_SRFI34
 endif
 if USE_SRFI38
   libsscm_sources += module-srfi38.c
+endif
+if USE_SRFI43
+  libsscm_sources += module-srfi43.c
 endif
 if USE_SRFI48
   libsscm_sources += module-srfi48.c

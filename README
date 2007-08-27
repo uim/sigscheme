@@ -38,6 +38,7 @@ Features
   - SRFI-28 : Basic Format Strings
   - SRFI-34 : Exception Handling for Programs
   - SRFI-38 : External Representation for Data with Shared Structure (partial)
+  - SRFI-43 : Vector library
   - SRFI-48 : Intermediate Format Strings
   - SRFI-55 : require-extension
   - SRFI-60 : Integer as Bits (partial)

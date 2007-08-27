@@ -498,6 +498,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi28=yes
         use_srfi34=yes
         use_srfi38=yes
+        use_srfi43=yes
         use_srfi48=yes
         use_srfi55=yes
         use_srfi60=yes
@@ -515,6 +516,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi28=no
         use_srfi34=no
         use_srfi38=no
+        use_srfi43=no
         use_srfi48=no
         use_srfi55=no
         use_srfi60=no
@@ -660,6 +662,7 @@ AX_FEATURE_ARG_Y(srfi23,         [SRFI-23 'error'])
 AX_FEATURE_ARG_Y(srfi28,         [SRFI-28 'format'])
 AX_FEATURE_ARG_Y(srfi34,         [SRFI-34 exception handling for programs])
 AX_FEATURE_ARG_Y(srfi38,         [SRFI-38 'write/ss' ('read/ss' is not provided)])
+AX_FEATURE_ARG_Y(srfi43,         [SRFI-43 vector library])
 AX_FEATURE_ARG_Y(srfi48,         [SRFI-48 'format' (superset of SRFI-28)])
 AX_FEATURE_ARG_Y(srfi55,         [SRFI-55 'require-extension'])
 AX_FEATURE_ARG_Y(srfi60,         [SRFI-60 integers as bits (partial)])
@@ -725,9 +728,10 @@ sscm_extensions: load
 eval_c_string: reader srfi6
 srfi1: continuation deep_cadrs load sscm_extensions srfi8 srfi23
 srfi6: port string
-srfi9: load srfi23
+srfi9: load vector srfi23
 srfi34: continuation srfi23
 srfi38: writer
+srfi43: load vector srfi8 srfi23 sscm_extensions
 srfi55: load sscm_extensions
 srfi60: int
 srfi69: load int string vector srfi9 srfi23
@@ -884,6 +888,7 @@ AX_FEATURE_DEFINE(srfi23)
 AX_FEATURE_DEFINE(srfi28)
 AX_FEATURE_DEFINE(srfi34)
 AX_FEATURE_DEFINE(srfi38)
+AX_FEATURE_DEFINE(srfi43)
 AX_FEATURE_DEFINE(srfi48)
 AX_FEATURE_DEFINE(srfi55)
 AX_FEATURE_DEFINE(srfi60)
@@ -963,6 +968,7 @@ AC_SUBST(use_srfi23)
 AC_SUBST(use_srfi28)
 AC_SUBST(use_srfi34)
 AC_SUBST(use_srfi38)
+AC_SUBST(use_srfi43)
 AC_SUBST(use_srfi48)
 AC_SUBST(use_srfi55)
 AC_SUBST(use_srfi60)
@@ -1121,6 +1127,7 @@ SRFI-23: $use_srfi23
 SRFI-28: $use_srfi28
 SRFI-34: $use_srfi34
 SRFI-38: $use_srfi38
+SRFI-43: $use_srfi43
 SRFI-48: $use_srfi48
 SRFI-55: $use_srfi55
 SRFI-60: $use_srfi60

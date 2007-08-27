@@ -179,6 +179,7 @@ Categorized File List
   * module-srfi28.c
   * module-srfi34.c
   * module-srfi38.c
+  * module-srfi43.c
   * module-srfi48.c
   * module-srfi55.c
   * module-srfi60.c
@@ -277,6 +278,7 @@ yyyy yy  srfi module-srfi23.c
 yyyy yyy srfi module-srfi28.c
 yyyy yyy srfi module-srfi34.c
 yyyy yyy srfi module-srfi38.c
+         srfi module-srfi43.c
 yyyy yyy srfi module-srfi48.c
 yyyy yy  srfi module-srfi55.c
 yyyyyyyy srfi module-srfi60.c
@@ -1017,6 +1019,17 @@ general review:    yamaken@r4041
 coding style:      yamaken@r4041
 normal case tests: yamaken@r4041
 corner case tests: yamaken@r4041
+
+file:              module-srfi43.c
+category:          srfi
+spec by eyes:      
+spec by tests:     
+general review:    
+64-bit by eyes:    
+64-bit by tests:   
+coding style:      
+normal case tests: 
+corner case tests: 
 
 file:              module-srfi48.c
 category:          srfi

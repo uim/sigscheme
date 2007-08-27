@@ -46,6 +46,16 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
+#if HAVE_SIGSETJMP
+#define JMP_BUF           sigjmp_buf
+#define SETJMP(env)       sigsetjmp((env), 1)
+#define LONGJMP(env, val) siglongjmp((env), (val))
+#else
+#define JMP_BUF           jmp_buf
+#define SETJMP(env)       setjmp(env)
+#define LONGJMP(env, val) longjmp((env), (val))
+#endif
+
 #define CONTINUATION_FRAME(cont)                                             \
     ((struct scm_continuation_frame *)SCM_CONTINUATION_OPAQUE(cont))
 #define CONTINUATION_SET_FRAME    SCM_CONTINUATION_SET_OPAQUE
@@ -63,7 +73,7 @@ struct scm_continuation_frame {
 #if SCM_USE_BACKTRACE
     volatile ScmObj trace_stack;
 #endif
-    jmp_buf c_env;
+    JMP_BUF c_env;
 };
 
 /*=======================================
@@ -277,7 +287,7 @@ scm_call_with_current_continuation(ScmObj proc, ScmEvalState *eval_state)
     continuation_stack_push(cont);
 #endif
 
-    if (setjmp(cont_frame.c_env)) {
+    if (SETJMP(cont_frame.c_env)) {
         /* returned back to the original continuation */
         /* Don't refer cont because it may already be invalidated by
          * continuation_stack_unwind(). */
@@ -332,7 +342,7 @@ scm_call_continuation(ScmObj cont, ScmObj ret)
         exit_dynamic_extent(frame->dyn_ext);
 
         frame->ret_val = ret;
-        longjmp(frame->c_env, scm_true);
+        LONGJMP(frame->c_env, scm_true);
         /* NOTREACHED */
     } else {
         ERR("expired continuation");

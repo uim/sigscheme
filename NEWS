@@ -70,6 +70,9 @@ Overview of changes from 0.7.x to 0.8.0
     standard current ports handling on with-input-from-file and
     with-output-to-file are now continuation-safe by dynamic-wind
 
+  - Continuation implementation now uses sigsetjmp(3) and siglongjmp(3) if
+    available
+
 * Fixes
 
   - [CRITICAL] Fix unterminated string generation on singlebyte character codec

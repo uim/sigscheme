@@ -679,7 +679,7 @@ corner case tests:
 
 file:              continuation.c
 category:          core
-spec by eyes:      yamaken@r3880, yamaken@r4138, yamaken@r4603
+spec by eyes:      yamaken@r3880, yamaken@r4138, yamaken@r4603, yamaken@r4893
 spec by tests:     yamaken@r3880, yamaken@r4076, yamaken@r4603
 general review:    yamaken@r3880
 64-bit by eyes:    yamaken@r3880

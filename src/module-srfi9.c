@@ -59,11 +59,13 @@ static void define_record_field(ScmObj type_obj, ScmObj field_spec,
 
 SCM_GLOBAL_VARS_BEGIN(static_srfi9);
 #define static
+static ScmObj l_proc_car;
 static ScmObj l_proc_make_record_type;
 static ScmObj l_proc_record_constructor, l_proc_record_predicate;
 static ScmObj l_proc_record_accessor, l_proc_record_modifier;
 #undef static
 SCM_GLOBAL_VARS_END(static_srfi9);
+#define l_proc_car                SCM_GLOBAL_VAR(static_srfi9, l_proc_car)
 #define l_proc_make_record_type   SCM_GLOBAL_VAR(static_srfi9,           \
                                                  l_proc_make_record_type)
 #define l_proc_record_constructor SCM_GLOBAL_VAR(static_srfi9,           \
@@ -93,6 +95,7 @@ scm_initialize_srfi9(void)
     scm_require_module("srfi-23");
     scm_load_system_file("srfi-9.scm");
 
+    l_proc_car                = SYMBOL_VALUE("car");
     l_proc_make_record_type   = SYMBOL_VALUE("make-record-type");
     l_proc_record_constructor = SYMBOL_VALUE("record-constructor");
     l_proc_record_predicate   = SYMBOL_VALUE("record-predicate");
@@ -105,7 +108,8 @@ scm_s_srfi9_define_record_type(ScmObj type_name, ScmObj ctor_spec,
                                ScmObj pred_name, ScmObj field_specs,
                                ScmEvalState *eval_state)
 {
-    ScmObj env, type_obj, ctor, pred, ctor_name, field_tags, field_spec, rest;
+    ScmObj env, type_obj, ctor, pred, ctor_name, ctor_tags;
+    ScmObj field_tags, field_spec, rest;
     DECLARE_FUNCTION("define-record-type", syntax_variadic_tailrec_3);
 
     if (!SCM_DEFINABLE_TOPLEVELP(eval_state))
@@ -118,11 +122,12 @@ scm_s_srfi9_define_record_type(ScmObj type_name, ScmObj ctor_spec,
     env = eval_state->env;
 
     ctor_name = CAR(ctor_spec);
-    field_tags = CDR(ctor_spec);
+    ctor_tags = CDR(ctor_spec);
+    field_tags = scm_map_single_arg(l_proc_car, field_specs);
 
     type_obj = scm_call(l_proc_make_record_type,
                         LIST_2(type_name, field_tags));
-    ctor = scm_call(l_proc_record_constructor, LIST_2(type_obj, field_tags));
+    ctor = scm_call(l_proc_record_constructor, LIST_2(type_obj, ctor_tags));
     pred = scm_call(l_proc_record_predicate, LIST_1(type_obj));
     scm_s_define_internal(ScmFirstClassObj,
                           type_name, LIST_2(SYM_QUOTE, type_obj), env);

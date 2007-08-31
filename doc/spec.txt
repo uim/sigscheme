@@ -457,6 +457,13 @@ System interface
 SRFI conformance
 ----------------
 
+SRFI-0  Feature-based conditional expansion construct
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Supported. But since the macro expansion is performed at evaluation-time and
+the expanded form is not stored as the code, the form may be expanded
+differently at next time.
+
 SRFI-1  List Library
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -580,6 +587,14 @@ The shared index starts with #1 (not #0).
   sscm> lst
   #1=(a . #1#)
 ================================================================
+
+SRFI-43 Vector library
+~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported.
+
+It is based on the reference implementation of SRFI-43.
+
 
 SRFI-48 Intermediate Format Strings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

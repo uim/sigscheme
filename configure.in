@@ -488,6 +488,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
     # SRFIs
     case "$enable_conf" in
       full|r5rs|dev|uim)
+        use_srfi0=yes
         use_srfi1=yes
         use_srfi2=yes
         use_srfi6=yes
@@ -506,6 +507,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi95=yes
         ;;
       small|siod)
+        use_srfi0=no
         use_srfi1=no
         use_srfi2=no
         use_srfi6=no
@@ -652,6 +654,7 @@ AX_FEATURE_ARG_Y(writer,         [R5RS 'write' and 'display'])
 AX_FEATURE_ARG_Y(load,           [R5RS 'load'])
 
 # SRFIs
+AX_FEATURE_ARG_Y(srfi0,          [SRFI-0 'cond-expand'])
 AX_FEATURE_ARG_Y(srfi1,          [SRFI-1 list library])
 AX_FEATURE_ARG_Y(srfi2,          [SRFI-2 'and-let*'])
 AX_FEATURE_ARG_Y(srfi6,          [SRFI-6 basic string ports])
@@ -726,6 +729,7 @@ writer: port raw_c_format
 load: port reader string
 sscm_extensions: load
 eval_c_string: reader srfi6
+srfi0: load srfi55 legacy_macro srfi1 srfi23
 srfi1: continuation deep_cadrs load sscm_extensions srfi8 srfi23
 srfi6: port string
 srfi9: load vector srfi23
@@ -878,6 +882,7 @@ AX_FEATURE_DEFINE(writer)
 AX_FEATURE_DEFINE(load)
 
 # SRFIs
+AX_FEATURE_DEFINE(srfi0)
 AX_FEATURE_DEFINE(srfi1)
 AX_FEATURE_DEFINE(srfi2)
 AX_FEATURE_DEFINE(srfi6)
@@ -958,6 +963,7 @@ AC_SUBST(use_port)
 AC_SUBST(use_reader)
 AC_SUBST(use_writer)
 AC_SUBST(use_load)
+AC_SUBST(use_srfi0)
 AC_SUBST(use_srfi1)
 AC_SUBST(use_srfi2)
 AC_SUBST(use_srfi6)
@@ -1117,6 +1123,7 @@ Writer:             $use_writer
 Load:               $use_load
 
 [SRFIs]
+SRFI-0:  $use_srfi0
 SRFI-1:  $use_srfi1
 SRFI-2:  $use_srfi2
 SRFI-6:  $use_srfi6

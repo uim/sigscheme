@@ -356,9 +356,15 @@ scm_initialize_internal(const char *const *argv)
     scm_load_system_file("sigscheme-init.scm");
 #endif
 
-    /* require-extension is enabled by default */
 #if SCM_USE_SRFI55
+    /* require-extension is enabled by default */
     scm_require_module("srfi-55");
+#endif
+#if SCM_USE_SRFI0
+    /* cond-expand is enabled by default */
+    scm_s_srfi55_require_extension(LIST_1(LIST_2(scm_intern("srfi"),
+                                                 MAKE_INT(0))),
+                                   SCM_INTERACTION_ENV);
 #endif
 
     return rest_argv;

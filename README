@@ -28,6 +28,7 @@ Features
 - Conforms to R5RS basically (not fully)
 - R5RS hygienic macros (experimental)
 - Supports Following SRFIs
+  - SRFI-0  : Feature-based conditional expansion construct
   - SRFI-1  : List Library
   - SRFI-2  : AND-LET*: an AND with local bindings, a guarded LET* special form
   - SRFI-6  : Basic String Ports

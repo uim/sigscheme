@@ -1,4 +1,7 @@
 dist_scmlib_DATA = sigscheme-init.scm
+if USE_SRFI0
+dist_scmlib_DATA += srfi-0.scm
+endif
 if USE_SRFI1
 dist_scmlib_DATA += srfi-1.scm
 endif

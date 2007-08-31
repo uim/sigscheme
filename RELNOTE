@@ -51,6 +51,7 @@ Mailinglist: sigscheme-ja@googlegroups.com
 What's New
 ----------
 
+  - SRFI-0  Feature-based conditional expansion construct
   - SRFI-1  List Library (full-featured)
   - SRFI-9  Defining Record Types
   - SRFI-43 Vector library

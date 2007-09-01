@@ -31,6 +31,11 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+;; This unit-testing library should be replaced with standard SRFI-64 once the
+;; hygienic-macros are well-implemented. To write new tests, use the SRFI-64
+;; compatible assertions contained at the bottom of this file.
+;;   -- YamaKen 2007-09-01
+
 (cond-expand
  (sigscheme
   ;; To allow --disable-srfi55, don't use require-extension here.
@@ -224,3 +229,77 @@
 
 (define fixnum-bits (and (symbol-bound? 'fixnum-width)
                          (fixnum-width)))
+
+
+;;
+;; SRFI-64 compatibilities
+;;
+
+;; See test-unittest.scm to understand how to use these.
+
+(cond-expand
+ (sigscheme
+  ;; To allow --disable-srfi55, don't use require-extension here.
+  (%%require-module "sscm-ext"))
+ (else #t))
+
+(define-macro test-begin
+    (lambda (suite-name . opt-count)
+      (let-optionals* opt-count ((count #f))
+        `(test-name ,suite-name))))
+
+(define-macro test-end
+  (lambda args
+    (let-optionals* args ((suite-name #f))
+      '#f)))
+
+(define-macro test-assert
+  (lambda (first . rest)
+    (let-optionals* (reverse (cons first rest)) ((expr #f)
+                                                 (tname '(test-name)))
+      `(assert-true ,tname ,expr))))
+
+(define-macro test-equal
+  (lambda args
+    `(%test-equal equal? . ,args)))
+
+(define-macro test-eqv
+  (lambda args
+    `(%test-equal eqv? . ,args)))
+
+(define-macro test-eq
+  (lambda args
+    `(%test-equal eq? . ,args)))
+
+(define-macro %test-equal
+  (lambda (= second third . rest)
+    (let-optionals* (if (null? rest)
+                        (list '(test-name) second third)
+                        (cons second (cons third rest)))
+        ((tname #f)
+         (expected #f)
+         (expr #f))
+      `(%test-equal2 ,= ,tname ,expected ,expr))))
+
+(define %test-equal2
+  (lambda (= tname expected actual)
+    (or (assert tname tname (= expected actual))
+        (report-inequality expected actual))))
+
+(define-macro test-error
+  (lambda (first . rest)
+    (let-optionals* (reverse (cons first rest)) ((expr #f)
+                                                 (err-type #t)
+                                                 (tname '(test-name)))
+      `(assert-error ,tname (lambda () ,expr)))))
+
+(define test-read-eval-string
+  (lambda (str)
+    (let* ((port (open-input-string str))
+           (expr (read port)))
+      (if (or (eof-object? expr)
+              (guard (err
+                      (else #t))
+                (not (eof-object? (read-char port)))))
+          (error "invalid expression string" str))
+      (eval expr (interaction-environment)))))

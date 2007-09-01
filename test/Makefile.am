@@ -61,6 +61,7 @@ sscm_tests = \
         test-symbol.scm \
         test-syntax-rules.scm \
         test-syntax.scm \
+        test-unittest.scm \
         test-values.scm \
         test-vector.scm
 

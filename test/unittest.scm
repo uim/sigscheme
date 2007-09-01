@@ -31,17 +31,12 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-;;;; defining a syntax as value is invalid
-;;(if (provided? "sigscheme")
-;;    (eval '(begin
-;;             (define cond-expand cond)
-;;             (define sigscheme #t))
-;;          (interaction-environment)))
-;;
-;;(cond-expand
-;; (sigscheme
-;;  (%%require-module "srfi-34"))
-;; (else #t))
+(cond-expand
+ (sigscheme
+  ;; To allow --disable-srfi55, don't use require-extension here.
+  (%%require-module "srfi-23")
+  (%%require-module "srfi-34"))
+ (else #t))
 
 (define *test-track-progress* #f)  ;; for locationg SEGV point
 (define *total-testsuites* 1)  ;; TODO: introduce test suites and defaults to 0
@@ -177,16 +172,20 @@
 
 (define obj->literal
   (lambda (obj)
-    ;; To allow --disable-srfi55, don't use require-extension here.
-    (%%require-module "srfi-6")
+    (cond-expand
+     (sigscheme
+      ;; To allow --disable-srfi55, don't use require-extension here.
+      (%%require-module "srfi-6")))
     (let ((port (open-output-string)))
       (write obj port)
       (get-output-string port))))
 
 (define string-read
   (lambda (str)
-    ;; To allow --disable-srfi55, don't use require-extension here.
-    (%%require-module "srfi-6")
+    (cond-expand
+     (sigscheme
+      ;; To allow --disable-srfi55, don't use require-extension here.
+      (%%require-module "srfi-6")))
     (let ((port (open-input-string str)))
       (read port))))
 

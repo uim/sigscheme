@@ -71,5 +71,6 @@
                             (car rest))
                            (else
                             (rec (cdr rest)))))))
-          (and clause
-               (cons 'begin (cdr clause)))))))
+          (if clause
+              (cons 'begin (cdr clause))
+              (error "unfulfilled cond-expand"))))))

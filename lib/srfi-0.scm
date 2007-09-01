@@ -31,7 +31,7 @@
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-(require-extension (srfi 1 23))
+(require-extension (srfi 23))
 
 (define %cond-expand-feature?
   (lambda (feature-exp)
@@ -44,9 +44,11 @@
             (args (cdr feature-exp)))
       (case directive
         ((and)
-         (every %cond-expand-feature? args))
+         ;;(every %cond-expand-feature? args))
+         (not (memq #f (map %cond-expand-feature? args))))
         ((or)
-         (any %cond-expand-feature? args))
+         ;;(any %cond-expand-feature? args))
+         (not (not (memq #t (map %cond-expand-feature? args)))))
         ((not)
          (if (not (null? (cdr args)))
              (error "invalid feature expression"))
@@ -58,8 +60,16 @@
   (lambda clauses
     (if (null? clauses)
         (error "unfulfilled cond-expand")
-        (let ((clause (find (lambda (clause)
-                              (%cond-expand-feature? (car clause)))
-                            clauses)))
+;;        (let ((clause (find (lambda (clause)
+;;                              (%cond-expand-feature? (car clause)))
+;;                            clauses)))
+        (let ((clause (let rec ((rest clauses))
+                          (cond
+                           ((null? rest)
+                            #f)
+                           ((%cond-expand-feature? (caar rest))
+                            (car rest))
+                           (else
+                            (rec (cdr rest)))))))
           (and clause
                (cons 'begin (cdr clause)))))))

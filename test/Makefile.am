@@ -1,5 +1,5 @@
 # Libraries
-EXTRA_DIST = unittest.scm unittest-bigloo.scm unittest-gauche.scm \
+EXTRA_DIST = unittest-bigloo.scm unittest-gauche.scm \
              run-singletest.sh.in
 
 sscm_xfail_tests =

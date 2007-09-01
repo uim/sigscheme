@@ -34,7 +34,7 @@
 
 (require-extension (sscm-ext))
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (and sigscheme?
          (not (symbol-bound? 'make-string)))

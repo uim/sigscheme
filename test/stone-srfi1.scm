@@ -20,7 +20,7 @@
 ;; 2007-07-18 yamaken   - Disable (make-list 5) ==> (#f #f #f #f #f)
 
 (require-extension (srfi 1))
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (define *test-track-progress* #f)
 

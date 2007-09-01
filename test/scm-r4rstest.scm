@@ -61,7 +61,7 @@
 ;;                      - Enable (test-sc4) and (test-delay)
 
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (define tn test-name)
 (define tn-section

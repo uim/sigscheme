@@ -35,7 +35,7 @@
 ;; internal definitions in 'let' variants are writtin at test-let.scm
 ;; see also test-begin.scm for top-level definitions
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (define tn test-name)
 (define *test-track-progress* #f)

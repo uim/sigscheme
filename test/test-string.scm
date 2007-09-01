@@ -33,7 +33,7 @@
 
 ;; See also test-string-{core,null,pred,proc}.scm
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (symbol-bound? 'string?))
     (test-skip "R5RS strings is not enabled"))

@@ -34,7 +34,7 @@
 
 (require-extension (sscm-ext))
 
-(load "test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (symbol-bound? 'let-optionals*))
     (test-skip "SigScheme extensions are not enabled"))

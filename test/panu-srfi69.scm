@@ -8,7 +8,7 @@
 ;;                       http://members.sange.fi/~atehwa/vc/r+d/guse/srfi/test-hash.ss
 ;;                       and adapted to SigScheme
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (require-extension (srfi 38 69))
 

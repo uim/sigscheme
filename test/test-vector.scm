@@ -35,7 +35,7 @@
 
 (require-extension (sscm-ext))
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (symbol-bound? 'vector?))
     (test-skip "R5RS vectors is not enabled"))

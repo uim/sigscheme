@@ -33,7 +33,7 @@
 
 ;; See also oleg-srfi2.scm
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (require-extension (srfi 2))
 

@@ -35,7 +35,7 @@
 
 ;; All tests in this file are passed against r3170 (new repository)
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (require-extension (srfi 6 38 48))
 

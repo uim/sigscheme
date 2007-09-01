@@ -31,7 +31,7 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (symbol-bound? 'call-with-current-continuation))
     (test-skip "R5RS continuation is not enabled"))

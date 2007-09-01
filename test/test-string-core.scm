@@ -33,7 +33,7 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (symbol-bound? 'string?))
     (test-skip "R5RS core string procedures are not enabled"))

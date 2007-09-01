@@ -1,4 +1,4 @@
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (define test
   (lambda (msg ret func)

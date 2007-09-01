@@ -30,7 +30,7 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 ;; SRFI-55 is enabled by default if exists.
 (if (not (provided? "srfi-55"))

@@ -161,7 +161,7 @@
 ; echo '(module test (include "myenv-bigloo.scm") (include "srfi-12.scm") 
 ;        (include "vland.scm"))' | bigloo -i --
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (require-extension (srfi 2))
 

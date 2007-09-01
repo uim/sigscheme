@@ -27,6 +27,10 @@ Overview of changes from 0.7.x to 0.8.0
 
   - New C interface functions scm_array2list() and scm_list2array()
 
+  - unittest.scm is now installed as a library. And some SRFI-64 compatible
+    assertions are added. It is a temporary solution and will be replaced with
+    full SRFI-64 implementation in future release
+
   - %%require-module and scm_require_module(). 'use' and scm_use() have been
     deprecated and will be removed in SigScheme 0.9.0
 

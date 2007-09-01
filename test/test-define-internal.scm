@@ -33,7 +33,7 @@
 
 ;; internal definitions in 'let' variants are writtin at test-let.scm
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (provided? "internal-definitions"))
     (test-skip "R5RS internal definitions is not enabled"))

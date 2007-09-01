@@ -37,7 +37,7 @@
 ;; See also test-syntax.scm for valid identifiers based on "7.1 Formal syntax"
 ;; of R5RS.
 
-(load "test/unittest.scm")
+(require-extension (unittest))
 
 (define tn test-name)
 

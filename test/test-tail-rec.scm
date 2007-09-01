@@ -47,7 +47,7 @@
 
 (require-extension (srfi 8 23 34))
 
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (define test-eval?         #f)
 (define test-and?          #t)  ;; #t is required to conform to R5RS

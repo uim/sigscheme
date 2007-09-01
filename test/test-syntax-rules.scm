@@ -30,7 +30,7 @@
 ;;  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-(load "./test/unittest.scm")
+(require-extension (unittest))
 
 (if (not (symbol-bound? 'syntax-rules))
     (test-skip "R5RS hygienic macros is not enabled"))

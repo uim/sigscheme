@@ -127,4 +127,12 @@
 (test-error (test-read-eval-string "#\\newlin"))
 (test-end)
 
-(total-report)
+(test-begin "Non-standard SRFI-64-like assertions")
+(test-true  #t)
+(test-false #f)
+(test-true  (not #f))
+(test-false (not #t))
+(test-true  '(not #t))
+(test-end)
+
+(test-report-result)

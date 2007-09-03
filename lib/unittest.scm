@@ -43,7 +43,7 @@
   (%%require-module "srfi-34"))
  (else #t))
 
-(define *test-track-progress* #f)  ;; for locationg SEGV point
+(define *test-track-progress* #f)  ;; for locating SEGV point
 (define *total-testsuites* 1)  ;; TODO: introduce test suites and defaults to 0
 (define *total-testcases* 1)   ;; TODO: introduce testcase and defaults to 0
 (define *total-tests* 1)       ;; TODO: introduce test group and defaults to 0
@@ -52,7 +52,7 @@
 (define *total-errors* 0) ;; TODO: recover unintended error and increment this
 (define test-filename "unspecified")
 
-(define total-report
+(define test-report-result
   (lambda ()
     (let ((header (if (zero? *total-failures*)
                       "OK: "
@@ -67,6 +67,9 @@
                  *total-failures*   " failures, "
                  *total-errors*     " errors"))
       (newline))))
+
+;; Backward compatibility
+(define total-report test-report-result)
 
 (define report-error
   (lambda (err-msg)
@@ -303,3 +306,21 @@
                 (not (eof-object? (read-char port)))))
           (error "invalid expression string" str))
       (eval expr (interaction-environment)))))
+
+
+;;
+;; Non-standard SRFI-64-like assertions
+;;
+
+;; I think that writing (test-assert <exp>) and (test-assert (not <exp>)) is
+;; cumbersome.  -- YamaKen 2007-09-04
+
+(define-macro test-true
+  (lambda args
+    `(test-assert . ,args)))
+
+(define-macro test-false
+  (lambda (first . rest)
+    (let-optionals* (reverse (cons first rest)) ((expr #f)
+                                                 (tname '(test-name)))
+      `(test-assert ,tname (not ,expr)))))

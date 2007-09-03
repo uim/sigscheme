@@ -137,7 +137,7 @@ scm_s_srfi9_define_record_type(ScmObj type_name, ScmObj ctor_spec,
     rest = field_specs;
     FOR_EACH (field_spec, rest)
         define_record_field(type_obj, field_spec, env);
-    ENSURE_PROPER_LIST_TERMINATION(rest, field_specs);
+    SCM_ASSERT(NULLP(rest));
 
     return SCM_UNDEF;
 }

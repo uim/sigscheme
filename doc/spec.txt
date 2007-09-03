@@ -497,7 +497,9 @@ SRFI-9 Defining Record Types
 
 Fully supported.
 
-It is based on the reference implementation of SRFI-9.
+It is based on the reference implementation of SRFI-9. But different to the
+original implementation, `eval` procedure of the SigScheme port accepts
+`(interaction-environment)` as environment argument.
 
 
 SRFI-22 Running Scheme Scripts on Unix

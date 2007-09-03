@@ -273,7 +273,7 @@ yyyy yyy srfi module-srfi1.c
 yyyy yyy srfi module-srfi2.c
 yyyy yyy srfi module-srfi6.c
 yyyy yyy srfi module-srfi8.c
-y yy y   srfi module-srfi9.c
+yyyy yyy srfi module-srfi9.c
 yyyy yy  srfi module-srfi23.c
 yyyy yyy srfi module-srfi28.c
 yyyy yyy srfi module-srfi34.c
@@ -967,14 +967,14 @@ corner case tests: yamaken@r4572
 
 file:              module-srfi9.c
 category:          srfi
-spec by eyes:      yamaken@r4810
-spec by tests:     
-general review:    yamaken@r4810
-64-bit by eyes:    yamaken@r4810
+spec by eyes:      yamaken@r4810, yamaken@r4939
+spec by tests:     yamaken@r4939
+general review:    yamaken@r4810, yamaken@r4939
+64-bit by eyes:    yamaken@r4810, yamaken@r4939
 64-bit by tests:   
-coding style:      yamaken@r4810
-normal case tests: 
-corner case tests: 
+coding style:      yamaken@r4810, yamaken@r4939
+normal case tests: yamaken@r4939
+corner case tests: yamaken@r4939
 
 file:              module-srfi23.c
 category:          srfi
@@ -1133,6 +1133,11 @@ corner case tests:
 
 Log
 ---
+2007-09-04  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * module-srfi9.c
+          - QA done again @r4939 (including the fix in r4928) with
+            test-srfi9.scm
+
 2007-08-24  YamaKen <yamaken AT bp.iij4u.or.jp>
         * sigscheme.c
           - QA done again @r4880 for revised array<->list conversion

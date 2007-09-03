@@ -321,6 +321,10 @@ scm_initialize_internal(const char *const *argv)
     scm_define_alias("r5rs:member",   "member");
     scm_define_alias("r5rs:assoc",    "assoc");
 
+    /* for distinction from SRFI-9 overridings */
+    scm_define_alias("r5rs:vector?", "vector?");
+    scm_define_alias("r5rs:eval",    "eval");
+
 #if SCM_USE_LEGACY_MACRO
     scm_init_legacy_macro();
 #endif

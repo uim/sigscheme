@@ -25,6 +25,11 @@
 ;; 2007-07-23 yamaken   - Imported from
 ;;                        http://srfi.schemers.org/srfi-9/srfi-9.html
 ;;                        and adapted to SigScheme
+;; 2007-09-04 yamaken   - Fix  (real-eval `(lambda (vector?) ,exp))
+;;                        with (real-eval `(lambda (vector?) ,exp) env)
+;;                      - Suppress overriding of 'eval' since current SigScheme
+;;                        implementation (0.8.0) does not need the vector?
+;;                        trick. It allows (interaction-environment).
 
 
 ;; This code is divided into three layers. In top-down order these are:
@@ -105,14 +110,20 @@
 	   (not (eq? (vector-ref x 0)
 		record-marker)))))
 
+(cond-expand
+ (sigscheme
+  ;; Current SigScheme implementation does not need the vector? trick.
+  #t)
+ (else
 ; This won't work if ENV is the interaction environment and someone has
 ; redefined LAMBDA there.
 
 (define eval
   (let ((real-eval eval))
     (lambda (exp env)
-      ((real-eval `(lambda (vector?) ,exp))
+      ((real-eval `(lambda (vector?) ,exp) env)
        vector?))))
+))
 
 ; Definitions of the record procedures.
 

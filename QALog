@@ -1022,14 +1022,14 @@ corner case tests: yamaken@r4041
 
 file:              module-srfi43.c
 category:          srfi
-spec by eyes:      
-spec by tests:     
-general review:    
-64-bit by eyes:    
+spec by eyes:      yamaken@r4943
+spec by tests:     yamaken@r4943
+general review:    yamaken@r4943
+64-bit by eyes:    yamaken@r4943
 64-bit by tests:   
-coding style:      
-normal case tests: 
-corner case tests: 
+coding style:      yamaken@r4943
+normal case tests: yamaken@r4943
+corner case tests: yamaken@r4943
 
 file:              module-srfi48.c
 category:          srfi
@@ -1133,6 +1133,10 @@ corner case tests:
 
 Log
 ---
+2007-09-08  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * module-srfi43.c
+          - QA done @r4943 with test-srfi43.scm
+
 2007-09-04  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi9.c
           - QA done again @r4939 (including the fix in r4928) with

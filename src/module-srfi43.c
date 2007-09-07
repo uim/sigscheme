@@ -101,7 +101,8 @@ scm_s_let_vector_start_plus_end(ScmObj callee, ScmObj vec,
                                 ScmObj body,
                                 ScmEvalState *eval_state)
 {
-    ScmObj env, start, end, proc_check_type, check_type_args, receive_expr;
+    ScmObj env, start_name, end_name, proc_check_type, check_type_args;
+    ScmObj receive_expr;
     DECLARE_FUNCTION("let-vector-start+end", syntax_variadic_tailrec_4);
 
     if (!LIST_2_P(start_plus_end))
@@ -117,9 +118,9 @@ scm_s_let_vector_start_plus_end(ScmObj callee, ScmObj vec,
                              EVAL(callee, env));
     vec = scm_call(proc_check_type, check_type_args);
 
-    start = QUOTE(CAR(start_plus_end));
-    end   = QUOTE(CADR(start_plus_end));
+    start_name = QUOTE(CAR(start_plus_end));
+    end_name   = QUOTE(CADR(start_plus_end));
     receive_expr = CONS(l_sym_vector_parse_start_plus_end,
-                        LIST_5(QUOTE(vec), args, start, end, callee));
+                        LIST_5(QUOTE(vec), args, start_name, end_name, callee));
     return scm_s_srfi8_receive(start_plus_end, receive_expr, body, eval_state);
 }

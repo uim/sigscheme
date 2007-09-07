@@ -50,6 +50,7 @@ sscm_tests = \
         test-srfi34.scm \
         test-srfi34-2.scm \
         test-srfi38.scm \
+        test-srfi43.scm \
         test-srfi48.scm \
         test-srfi55.scm \
         test-srfi60.scm \

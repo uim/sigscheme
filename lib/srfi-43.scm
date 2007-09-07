@@ -8,6 +8,7 @@
 ;; 2007-08-28 yamaken   - Imported from
 ;;                        http://srfi.schemers.org/srfi-43/vector-lib.scm
 ;;                        and adapted to SigScheme
+;; 2007-09-08 yamaken   - Fix an incorrect error message in check-indices
 
 
 ;;; --------------------
@@ -243,7 +244,7 @@
                           callee))
           ((>= start (vector-length vec))
            (check-indices vec
-                          (lose `(,start-name > len)
+                          (lose `(,start-name >= len)
                                 `(len was ,(vector-length vec)))
                           start-name
                           end end-name

@@ -294,7 +294,9 @@
     (let-optionals* (reverse (cons first rest)) ((expr #f)
                                                  (err-type #t)
                                                  (tname '(test-name)))
-      `(assert-error ,tname (lambda () ,expr)))))
+      `(assert-error ,tname
+                     (lambda ()
+                       (eval ',expr (interaction-environment)))))))
 
 (define test-read-eval-string
   (lambda (str)

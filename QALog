@@ -282,7 +282,7 @@ yyyy yyy srfi module-srfi43.c
 yyyy yyy srfi module-srfi48.c
 yyyy yy  srfi module-srfi55.c
 yyyyyyyy srfi module-srfi60.c
-         opt legacy-macro.c
+yyyy yyy opt legacy-macro.c
 y yy y   opt module-sscm-ext.c
 y yy y   opt module-siod.c
          other main.c
@@ -692,14 +692,14 @@ corner case tests: yamaken@r3880, yamaken@r4603
 
 file:              eval.c
 category:          core
-spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299, yamaken@r4603
-spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103, yamaken@r4603
-general review:    yamaken@r3865
-64-bit by eyes:    yamaken@r3865
+spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299, yamaken@r4603, yamaken@r4946
+spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103, yamaken@r4603, yamaken@r4946
+general review:    yamaken@r3865, yamaken@r4946
+64-bit by eyes:    yamaken@r3865, yamaken@r4946
 64-bit by tests:   
-coding style:      yamaken@r3866
-normal case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603
-corner case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603
+coding style:      yamaken@r3866, yamaken@r4946
+normal case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603, yamaken@r4946
+corner case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603, yamaken@r4946
 
 file:              module.c
 category:          core
@@ -1066,14 +1066,14 @@ corner case tests: yamaken@r3944
 
 file:              legacy-macro.c
 category:          opt
-spec by eyes:      
-spec by tests:     
-general review:    
-64-bit by eyes:    
+spec by eyes:      yamaken@r4946
+spec by tests:     yamaken@r4946
+general review:    yamaken@r4946
+64-bit by eyes:    yamaken@r4946
 64-bit by tests:   
-coding style:      
-normal case tests: 
-corner case tests: 
+coding style:      yamaken@r4946
+normal case tests: yamaken@r4946
+corner case tests: yamaken@r4946
 
 file:              module-sscm-ext.c
 category:          opt
@@ -1136,6 +1136,10 @@ Log
 2007-09-08  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi43.c
           - QA done @r4943 with test-srfi43.scm
+
+        * legacy-macro.c
+        * eval.c
+          - QA done @r4946 for define-macro with test-legacy-macro.scm
 
 2007-09-04  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi9.c

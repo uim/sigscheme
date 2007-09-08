@@ -263,7 +263,8 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
                 ret = SCM_FINISH_TAILREC_CALL(ret, eval_state);
                 /* restore previous env */
                 eval_state->env = env;
-                /* eval returned object again as a syntactic form. */
+                /* Instruct evaluating returned object again as a syntactic
+                 * form. */
                 eval_state->ret_type = SCM_VALTYPE_NEED_EVAL;
 #if SCM_STRICT_TOPLEVEL_DEFINITIONS
                 /* Workaround to allow toplevel definitions by the returned

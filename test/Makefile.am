@@ -24,6 +24,7 @@ sscm_tests = \
         test-formal-syntax.scm \
         test-formatplus.scm \
         test-lambda.scm \
+        test-legacy-macro.scm \
         test-let.scm \
         test-letstar.scm \
         test-letrec.scm \

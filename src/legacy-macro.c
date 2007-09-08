@@ -76,8 +76,8 @@ scm_init_legacy_macro(void)
     scm_gc_protect_with_init(&scm_syntactic_closure_env, syn_closure_env);
 }
 
-/* To test ScmNestState, scm_s_define() needs eval_state although this is not a
- * tail-recursive syntax */
+/* To test ScmNestState, scm_s_define() needs ScmEvalState although this is not
+ * a tail-recursive syntax */
 SCM_EXPORT ScmObj
 scm_s_define_macro(ScmObj identifier, ScmObj rest, ScmEvalState *eval_state)
 {
@@ -113,9 +113,11 @@ scm_s_define_macro(ScmObj identifier, ScmObj rest, ScmEvalState *eval_state)
     identifier = SCM_UNWRAP_KEYWORD(identifier);
 
     closure = SCM_SYMBOL_VCELL(identifier);
+    if (!CLOSUREP(closure))
+        SCM_SYMBOL_SET_VCELL(identifier, SCM_UNBOUND);
     ENSURE_CLOSURE(closure);
     if (!scm_toplevel_environmentp(SCM_CLOSURE_ENV(closure)))
-        ERR("syntactic closure must have toplevel environment");
+        ERR("syntactic closure in SigScheme must have toplevel environment");
     /* destructively mark the closure as syntactic */
     SCM_CLOSURE_SET_ENV(closure, SCM_SYNTACTIC_CLOSURE_ENV);
 

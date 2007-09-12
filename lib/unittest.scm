@@ -39,9 +39,10 @@
 (cond-expand
  (sigscheme
   ;; To allow --disable-srfi55, don't use require-extension here.
+  (%%require-module "srfi-6")
   (%%require-module "srfi-23")
   (%%require-module "srfi-34"))
- (else #t))
+ (else))
 
 (define *test-track-progress* #f)  ;; for locating SEGV point
 (define *total-testsuites* 1)  ;; TODO: introduce test suites and defaults to 0
@@ -180,20 +181,12 @@
 
 (define obj->literal
   (lambda (obj)
-    (cond-expand
-     (sigscheme
-      ;; To allow --disable-srfi55, don't use require-extension here.
-      (%%require-module "srfi-6")))
     (let ((port (open-output-string)))
       (write obj port)
       (get-output-string port))))
 
 (define string-read
   (lambda (str)
-    (cond-expand
-     (sigscheme
-      ;; To allow --disable-srfi55, don't use require-extension here.
-      (%%require-module "srfi-6")))
     (let ((port (open-input-string str)))
       (read port))))
 
@@ -244,7 +237,7 @@
  (sigscheme
   ;; To allow --disable-srfi55, don't use require-extension here.
   (%%require-module "sscm-ext"))
- (else #t))
+ (else))
 
 (define-macro test-begin
     (lambda (suite-name . opt-count)

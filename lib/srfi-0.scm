@@ -33,6 +33,9 @@
 
 (require-extension (srfi 23))
 
+(define-macro %cond-expand-dummy
+  (lambda () #t))
+
 (define %cond-expand-feature?
   (lambda (feature-exp)
     (cond
@@ -72,5 +75,8 @@
                            (else
                             (rec (cdr rest)))))))
           (if clause
-              (cons 'begin (cdr clause))
+              `(begin
+                 ;; raise error if cond-expand is placed in non-toplevel
+                 (define-macro %cond-expand-dummy (lambda () #t))
+                 . ,(cdr clause))
               (error "unfulfilled cond-expand"))))))

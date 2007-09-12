@@ -10,7 +10,7 @@ It features small footprint (64KB in library form on the 'small' configuration)
 like SIOD and TinyScheme, low memory consumption (2-words per cons cell),
 multibyte characters handling (UTF-8, EUCs and Shift_JIS) and more.
 
-It is mainly developed to replace the Scheme interpreter of uim.
+It is mainly developed to be the Scheme interpreter of uim.
 
   Homepage:
     http://code.google.com/p/sigscheme/
@@ -36,8 +36,8 @@ validated and now can be used for production codes.
   - Multibyte character processing
 
 But R5RS hygienic macros feature is still likely having a reliability problem,
-and also contains architectural inefficiency. See "Macros" subsection of
-doc/spec.txt for details. It is expected to be resolved in 0.9.0.
+and also contains architectural inefficiency. See "Hygienic macros" subsection
+of doc/spec.txt for details. It is expected to be resolved in 0.9.0.
 
 See the file 'QALog' for further information about the quality assurance state.
 
@@ -68,6 +68,9 @@ See 'NEWS' for the fully detailed changes.
 
 Notes for Packagers and System Integrators
 ------------------------------------------
+
+  - This release introduced various system-installed Scheme libraries. Please
+    install them in addition to libsscm
 
   - libgcroots has been updated and bundled in this release. Since it is
     installed as a separated library independent of libsscm, please create its

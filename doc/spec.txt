@@ -47,18 +47,20 @@ continuation objects lying between the curent and the common ancestor of
 the destination are invalidated. Calling an invalidated continuation object
 causes an error.
 
-Macros
-~~~~~~
+Hygienic macros
+~~~~~~~~~~~~~~~
 
 The hygienic macros are fully supported. But although the macro expansion
 engine itself works well and can be expected as R5RS-conformant, its
 integration into SigScheme is not fully validated yet. It is likely having a
-problem on identifier references.
+problem on identifier references. So the feature is disabled by default on most
+configurations.
 
 In addition to the validity problem, there is an architectural inefficiency.
-Since SigScheme had been started as macro-less naive system, it lacks the
-concept 'compilation'. So current SigScheme implementation adopted runtime
-macro expansion. A macro form is kept untransformed in program, and expanded
+Since SigScheme development had been started as macro-less naive system, it
+lacks the concepts 'compilation', 'macro-expansion phase' and 'lexical
+environment'. So current SigScheme implementation adopted runtime macro
+expansion. A macro form is kept untransformed in program, and expanded
 immediately before each evaluation. For example, following code causes macro
 expansion on each `map-caddr` call.
 
@@ -736,13 +738,153 @@ TODOs
   - Disable #\newline on R6RS-compatible mode
 
 
+SigScheme extensions
+--------------------
+
+If `--enable-sscm-extensions` is specified for configure script explicitly or
+implicitly, these features can be used.
+
+Legacy macro
+~~~~~~~~~~~~
+
+Legacy and common `define-macro` is provided to define syntactic closures. But
+SigScheme's implementation is having some limitations.
+
+  - The closure can only be defined with top-level environment due to an
+    internal implementation trick
+
+  - Macro forms are kept untransformed in program, and expanded immediately
+    before each evaluation, as if they are ordinary syntaxes
+
+  - `define-macro` destructively modifies closure object
+
+To avoid problems related to these limitations, side-effect in macros are
+strongly discouraged. See following examples for each limitation.
+
+.The closure can only be defined with top-level environment
+----------------------------------------------------------------
+(define-macro m
+  (let ((?var 3))
+    (lambda ()
+      ?var)))    ==>  error
+----------------------------------------------------------------
+
+.Macro forms are kept untransformed in program
+----------------------------------------------------------------
+(define cnt 0)
+(define-macro m
+  (lambda ()
+    (set! cnt (+ cnt 1))
+    cnt))
+(define proc-m
+  (lambda ()
+    (m)))
+
+(proc-m)  ==>  1
+(proc-m)  ==>  2  ;; ordinary Scheme implementation returns 1
+(proc-m)  ==>  3  ;; ordinary Scheme implementation returns 1
+----------------------------------------------------------------
+
+.`define-macro` destructively modifies closure object
+----------------------------------------------------------------
+(define f
+  (lambda (x) (* x x)))
+(f (+ 1 2))     ==>  9
+(procedure? f)  ==>  #t
+
+(define-macro mf f)
+(mf (+ 1 2))    ==>  error
+(mf 3)          ==>  9
+(f (+ 1 2))     ==>  error
+(procedure? f)  ==>  error
+----------------------------------------------------------------
+
+See `test-legacy-macro.scm` to know more detailed specification.
+
+let-optionals*
+~~~~~~~~~~~~~~
+
+`let-optionals*` is provided for optional argument processing. The
+specification is exactly same as Gauche 0.8.8. See `test-sscm-ext.scm` for
+further information.
+
+
 SIOD compatibility
 ------------------
 
-FIXME: describe them.
+SIOD specific features
+~~~~~~~~~~~~~~~~~~~~~~
 
-  - #f and '()
+If `--enable-compat-siod` is specified for configure script explicitly or
+implicitly, some SIOD compatible features are provided.
 
-  - let and let* bindings
+  - symbol-value
+  - set-symbol-value!
+  - verbose
+  - undefine
+  - eof-val
+  - %%closure-code
+  - bit-and
+  - bit-or
+  - bit-xor
+  - bit-not
 
-  - '=' predicate
+SIOD specific behaviors
+~~~~~~~~~~~~~~~~~~~~~~~
+
+If `--enable-compat-siod-bugs` is specified for configure script explicitly or
+implicitly, some procedures and syntaxes emulate SIOD's behavior. We call them
+'bugs' for convention although they are not actually bugs on non-R5RS-compliant
+SIOD implementation.
+
+  - `#f` is identical to null list
+
+  - `(car \'())` evaluates to `()`
+
+  - `(cdr \'())` evaluates to `()`
+
+  - `(if #f #t)` evaluates to `#f`
+
+  - `let` and `let*` accepts value-less binding forms
+
+  - `=` predicate can be applied to non-number objects
+
+.#f is identical to null list
+----------------------------------------------------------------
+(null?    #f)   ==>  #t
+(null?    '())  ==>  #t
+(boolean? #f)   ==>  #t
+(boolean? '())  ==>  #t
+(if '() 'true 'false)  ==>  false
+----------------------------------------------------------------
+
+.`let` and `let*` accepts value-less binding forms
+----------------------------------------------------------------
+(let ((var))
+  var)           ==>  #f
+
+(let* ((var))
+  var)           ==>  #f
+
+(letrec ((var))
+  var)           ==>  error
+----------------------------------------------------------------
+
+.`=` predicate can be applied to non-number objects
+----------------------------------------------------------------
+(require-extension (siod))
+
+(= 3 (+ 1 2))         ==>  #t
+(= 3 (+ 1 2) 3)       ==>  error  ;; only accepts 2 args
+
+(define lst '(0 1 2))
+(= lst lst)           ==>  #t
+(= lst (list 0 1 2))  ==>  #f
+
+;; '=' is defined as follows if --enable-compat-siod-bugs
+(define =
+  (let ((%= =))
+    (lambda (x y)
+      (or (eq? x y)
+          (%= x y)))))
+----------------------------------------------------------------

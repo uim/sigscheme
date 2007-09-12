@@ -1,8 +1,12 @@
-TXTS = index.txt design.txt spec.txt multibyte.txt style.txt test-c.txt \
-        global-obj.txt gc-protection.txt release.txt
+TXTS = index.txt design.txt spec.txt multibyte.txt style.txt \
+        global-obj.txt release.txt
 ASCIIDOC_HTMLS = \
-        index.html design.html spec.html multibyte.html style.html test-c.html \
-        global-obj.html gc-protection.html release.html
+        index.html design.html spec.html multibyte.html style.html \
+        global-obj.html release.html
+
+# Obsolete
+#TXTS += gc-protection.txt test-c.txt
+#ASCIIDOC_HTMLS += gc-protection.html test-c.html
 
 EXTRA_DIST =
 

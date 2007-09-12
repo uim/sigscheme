@@ -66,6 +66,18 @@
   (test-eq 'val (m))))
 (test-end)
 
+(test-begin "define-macro bad definition placement")
+;; non-toplevel definition
+(test-error (if #t (define-macro m
+                     (lambda ()
+                       '(define foo 3)))))
+;; non-toplevel definition by a form returned by syntactic closure
+(define-macro m
+  (lambda ()
+    '(define foo 3)))
+(test-error (if #t (m)))
+(test-end)
+
 (test-begin "define-macro referring runtime env")
 (define cnt 0)
 (define-macro m

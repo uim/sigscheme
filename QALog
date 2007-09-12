@@ -692,14 +692,14 @@ corner case tests: yamaken@r3880, yamaken@r4603
 
 file:              eval.c
 category:          core
-spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299, yamaken@r4603, yamaken@r4946
-spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103, yamaken@r4603, yamaken@r4946
+spec by eyes:      yamaken@r3865, yamaken@r4103, yamaken@r4152, yamaken@r4299, yamaken@r4603, yamaken@r4946, yamaken@r4950
+spec by tests:     yamaken@r3865, yamaken@r4076, yamaken@r4103, yamaken@r4603, yamaken@r4946, yamaken@r4950
 general review:    yamaken@r3865, yamaken@r4946
 64-bit by eyes:    yamaken@r3865, yamaken@r4946
 64-bit by tests:   
 coding style:      yamaken@r3866, yamaken@r4946
-normal case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603, yamaken@r4946
-corner case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603, yamaken@r4946
+normal case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603, yamaken@r4946, yamaken@r4950
+corner case tests: yamaken@r3865, yamaken@r4103, yamaken@r4603, yamaken@r4946, yamaken@r4950
 
 file:              module.c
 category:          core
@@ -1133,6 +1133,12 @@ corner case tests:
 
 Log
 ---
+2007-09-13  YamaKen <yamaken AT bp.iij4u.or.jp>
+        * eval.c
+          - Fix non-toplevel definition by a form returned by syntactic
+            closure, and QA done again @r4950 for define-macro with
+            test-legacy-macro.scm
+
 2007-09-08  YamaKen <yamaken AT bp.iij4u.or.jp>
         * module-srfi43.c
           - QA done @r4943 with test-srfi43.scm

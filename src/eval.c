@@ -254,9 +254,12 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
 #if SCM_USE_LEGACY_MACRO
             if (SYNTACTIC_CLOSUREP(proc)) {
                 ScmObj ret;
+                scm_bool toplevelp;
 
                 if (!need_eval)
                     ERR_OBJ("can't apply/map a macro", proc);
+
+                toplevelp = SCM_DEFINABLE_TOPLEVELP(eval_state);
 
                 ret = call_closure(proc, args, eval_state, SCM_VALTYPE_AS_IS);
                 /* eval the result into an as-is object */
@@ -269,7 +272,8 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
 #if SCM_STRICT_TOPLEVEL_DEFINITIONS
                 /* Workaround to allow toplevel definitions by the returned
                  * form. See scm_eval(). */
-                eval_state->nest = SCM_NEST_RETTYPE_BEGIN;
+                if (toplevelp)
+                    eval_state->nest = SCM_NEST_RETTYPE_BEGIN;
 #endif
 
                 return ret;

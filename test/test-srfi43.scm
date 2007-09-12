@@ -215,4 +215,68 @@
 (test-error (let-vector-start+end vector-ref vec '(3 3)   (start end) #t))
 (test-end)
 
+;; Test real let-vector-start+end use.
+(test-begin "vector->list R5RS")
+(test-equal '()
+            (vector->list '#()))
+(test-equal '(0 1 2 3 4)
+            (vector->list '#(0 1 2 3 4)))
+(test-end)
+
+(test-begin "vector->list with start index")
+(test-error (vector->list '#(0 1 2 3 4) -1))
+(test-equal '(0 1 2 3 4)
+            (vector->list '#(0 1 2 3 4) 0))
+(test-equal '(1 2 3 4)
+            (vector->list '#(0 1 2 3 4) 1))
+(test-equal '(2 3 4)
+            (vector->list '#(0 1 2 3 4) 2))
+(test-equal '(3 4)
+            (vector->list '#(0 1 2 3 4) 3))
+(test-equal '(4)
+            (vector->list '#(0 1 2 3 4) 4))
+(cond-expand
+ (gauche
+  (test-equal '()
+              (vector->list '#(0 1 2 3 4) 5)))
+ (else
+  (test-error (vector->list '#(0 1 2 3 4) 5))))
+(test-error (vector->list '#(0 1 2 3 4) 6))
+(test-end)
+
+(test-begin "vector->list with start and end index")
+(test-error (vector->list '#(0 1 2 3 4) 0 -1))
+(test-equal '()
+            (vector->list '#(0 1 2 3 4) 0 0))
+(test-equal '(0)
+            (vector->list '#(0 1 2 3 4) 0 1))
+(test-equal '(0 1)
+            (vector->list '#(0 1 2 3 4) 0 2))
+(test-equal '(0 1 2 3 4)
+            (vector->list '#(0 1 2 3 4) 0 5))
+(test-error (vector->list '#(0 1 2 3 4) 0 6))
+
+(test-error (vector->list '#(0 1 2 3 4) 1 0))
+(test-equal '()
+            (vector->list '#(0 1 2 3 4) 1 1))
+(test-equal '(1)
+            (vector->list '#(0 1 2 3 4) 1 2))
+(test-equal '(1 2)
+            (vector->list '#(0 1 2 3 4) 1 3))
+(test-equal '(1 2 3 4)
+            (vector->list '#(0 1 2 3 4) 1 5))
+
+(test-error (vector->list '#(0 1 2 3 4) 4 3))
+(test-equal '()
+            (vector->list '#(0 1 2 3 4) 4 4))
+(test-equal '(4)
+            (vector->list '#(0 1 2 3 4) 4 5))
+(cond-expand
+ (gauche
+  (test-equal '()
+              (vector->list '#(0 1 2 3 4) 5 5)))
+ (else
+  (test-error (vector->list '#(0 1 2 3 4) 5 5))))
+(test-end)
+
 (test-report-result)

@@ -19,8 +19,7 @@ Overview of changes from 0.7.x to 0.8.0
 
   - R5RS promises (delay and force)
 
-  - Legacy define-macro, expected to be compatible with other Scheme
-    implementations
+  - Legacy define-macro with some limitations (see spec.txt)
 
   - New syntax let-optionals* compatible with Gauche, for optional argument
     processing
@@ -107,6 +106,9 @@ Overview of changes from 0.7.x to 0.8.0
     circular list (see test-misc.scm). This bug only appeared on --enable-debug
 
   - Fix reading unterminated quote as (quote #<eof>)
+
+  - [SIOD] Fix defining '=' as SIOD-compatible version regardless of
+    --enable-compat-siod-bugs
 
 * Others
 

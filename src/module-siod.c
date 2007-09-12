@@ -115,6 +115,10 @@ scm_initialize_siod(void)
 
     scm_register_funcs(scm_functable_siod);
 
+#if SCM_COMPAT_SIOD_BUGS
+    scm_define_alias("=", "%%siod=");
+#endif
+
     scm_require_module("sscm-ext");
     scm_define_alias("the-environment", "%%current-environment");
 
@@ -177,7 +181,7 @@ scm_p_set_symbol_valuex(ScmObj var, ScmObj val)
 SCM_EXPORT ScmObj
 scm_p_siod_equal(ScmObj obj1, ScmObj obj2)
 {
-    DECLARE_FUNCTION("=", procedure_fixed_2);
+    DECLARE_FUNCTION("%%siod=", procedure_fixed_2);
 
     if (EQ(obj1, obj2))
         return SCM_TRUE;

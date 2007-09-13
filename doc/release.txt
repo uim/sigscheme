@@ -113,7 +113,7 @@ Don't forget adding appropriate tags as follows.
 Final release:
 ----------------------------------------------------------------
   googlecode-upload.py -u yamakenz -p sigscheme \
-                       -s 'SigScheme 0.8.0' -l 'Stable Featured' \
+                       -s 'SigScheme 0.8.0' -l 'Stable,Featured' \
                        sigscheme-0.8.0.tar.bz2
 ----------------------------------------------------------------
 

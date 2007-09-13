@@ -45,11 +45,6 @@ static char *char_ary[] = {
     NULL
 };
 
-static char *null_ary[] = {
-    NULL
-};
-
-
 static ScmObj
 make_str(void *str)
 {

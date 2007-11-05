@@ -231,8 +231,11 @@ scm_p_string_setx(ScmObj str, ScmObj k, ScmObj ch)
         suffix_len = strlen(suffix_src);
 
         new_str_len = prefix_len + ch_len + suffix_len;
-        new_str = scm_realloc(c_str, new_str_len + sizeof(""));
-
+        if (ch_len > orig_ch_len) {
+          new_str = scm_realloc(c_str, new_str_len + sizeof(""));
+        } else {
+          new_str = c_str;
+        }
         suffix_src = &new_str[prefix_len + orig_ch_len];
         suffix_dst = &new_str[prefix_len + ch_len];
         memmove(suffix_dst, suffix_src, suffix_len);

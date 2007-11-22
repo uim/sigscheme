@@ -181,10 +181,12 @@ scm_strdup(const char *str)
     return copied;
 }
 
-#if 0
 /* For 'name' slot of symbol object on storage-compact. If your malloc(3) does
  * not ensure 8-bytes alignment, Complete this function and hook this into
- * symbol object creation and modification.  -- YamaKen 2006-05-30 */
+ * symbol object creation and modification.  -- YamaKen 2006-05-30
+ *
+ * At least strdup(3) with short string in FreeBSD Release 7.0 BETA1.5
+ * and 8.0-CURRENT x86 returns unaligned address -- ekato 2007-11-04 */
 SCM_EXPORT char *
 scm_align_str(char *str)
 {
@@ -192,17 +194,16 @@ scm_align_str(char *str)
     size_t size;
 
     /* Use ScmCell-alignment to ensure at least 8-bytes aligned. */
-    if ((uintptr_t)ptr % sizeof(ScmCell)) {
+    if ((uintptr_t)str % sizeof(ScmCell)) {
         size = strlen(str) + sizeof("");
-        copied = scm_malloc_aligned8(size);
+        copied = scm_malloc_aligned(size);
         strcpy(copied, str);
         free(str);
         return copied;
     } else {
-        return ptr;
+        return str;
     }
 }
-#endif
 
 /*=======================================
    Extendable Local Buffer

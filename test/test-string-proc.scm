@@ -545,6 +545,11 @@
       (assert-error  (tn) (lambda () (string-set! (cp "あaうb") 3 #x00)))
       (assert-error  (tn) (lambda () (string-set! (cp "あaうb") 4 #x00)))
       (assert-error  (tn) (lambda () (string-set! (cp "あaうb") 5 #x00)))))
+;; Tests for the bug fixed in r5040
+(tn "string-set! multibyte char modification")
+(assert-equal? (tn) "Aabcde" (my-string-set! (cp "あabcde") 0 #\A))
+(assert-equal? (tn) "Aaう"   (my-string-set! (cp "あaう")   0 #\A))
+(assert-equal? (tn) "Aaうb"  (my-string-set! (cp "あaうb")  0 #\A))
 
 (tn "substring invalid forms")
 (assert-error  (tn) (lambda () (substring #\a 0 0)))

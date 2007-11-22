@@ -642,11 +642,11 @@ SCM_MISC_DECLARE_TYPE(SYMBOL, L1(0),
 #define SCM_ISAL_SYMBOL_INIT(o, n, c)                                        \
     do {                                                                     \
         char *_s = scm_align_str(n);                                         \
-        (SCM_ASSERT(SCM_ALIGNED_SYMBOL_NAME(_s)),                            \
-         SCM_INIT((o),                                                       \
-                  (c),                                                       \
-                  (scm_uintobj_t)(_s) | SCM_MTAG_SYMBOL,                     \
-                  SCM_PTAG_MISC));                                           \
+        SCM_ASSERT(SCM_ALIGNED_SYMBOL_NAME(_s));                             \
+        SCM_INIT((o),                                                        \
+                 (c),                                                        \
+                 (scm_uintobj_t)(_s) | SCM_MTAG_SYMBOL,                      \
+                 SCM_PTAG_MISC);                                             \
     } while (0)
 #define SCM_CELL_SYMBOLP(c)            SCM_MISC_CELL_TYPEP((c), SYMBOL)
 #define SCM_CELL_SYMBOL_FIN(c)                                               \

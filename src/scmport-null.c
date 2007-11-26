@@ -121,6 +121,7 @@ nullport_dyn_cast(ScmBytePort *bport, const ScmBytePortVTbl *dst_vptr)
 static void
 nullport_close(ScmNullPort *port)
 {
+    free(port);
 }
 
 static char *

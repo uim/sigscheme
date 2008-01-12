@@ -225,7 +225,7 @@ AC_DEFUN([AX_FEATURE_DETECT_CONFLICTS], [
   _ax_feature_list_expanded=''
   for feature in $ax_feature_list_all; do
     _ax_feature_val=AS_VAR_GET(AX_FEATURE_PREFIX_VAR[]$feature)
-    _ax_feature_val=${_ax_feature_val:no}
+    _ax_feature_val=${_ax_feature_val:-no}
     if test "x$_ax_feature_val" != xno; then
       _ax_feature_list_expanded="$_ax_feature_list_expanded $feature"
     fi

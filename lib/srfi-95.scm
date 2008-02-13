@@ -15,7 +15,7 @@
 ;;; per element.
 ;;; jaffer: 2007-01-29: Final SRFI-95.
 
-;;; Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+;;; Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 
 ;; ChangeLog
 ;;

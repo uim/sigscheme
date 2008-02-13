@@ -1,7 +1,7 @@
 ;;  Filename : srfi-0.scm
 ;;  About    : SRFI-0 Feature-based conditional expansion construct
 ;;
-;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

@@ -2,7 +2,7 @@
  *  Filename : module-srfi43.c
  *  About    : SRFI-43 Vector library
  *
- *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

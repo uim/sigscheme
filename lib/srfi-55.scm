@@ -1,7 +1,7 @@
 ;;  Filename : srfi-55.scm
 ;;  About    : SRFI-55 require-extension
 ;;
-;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

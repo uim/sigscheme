@@ -2,7 +2,7 @@
 ;;  About    : unit test for the proper tail recursion
 ;;
 ;;  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

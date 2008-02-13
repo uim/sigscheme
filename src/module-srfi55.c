@@ -2,7 +2,7 @@
  *  Filename : module-srfi55.c
  *  About    : require-extension
  *
- *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

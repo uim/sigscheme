@@ -2,7 +2,7 @@
  *  Filename : test-array2list.c
  *  About    : test for C array <-> Scheme list conversion functions
  *
- *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

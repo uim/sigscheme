@@ -2,7 +2,7 @@
 ;;  About    : unit test for the SRFI-2 'and-let*'
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007 SigScheme Project <uim AT freedesktop.org>
+;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

@@ -1,4 +1,4 @@
-SigScheme 0.7.5 Release Note
+SigScheme 0.7.6 Release Note
 ============================
 
 What's SigScheme
@@ -7,15 +7,14 @@ What's SigScheme
 SigScheme is a R5RS Scheme interpreter for embedded use.
 
   Homepage:
-    http://uim.freedesktop.org/wiki/SigScheme
+    http://code.google.com/p/sigscheme/
 
 
 About This Release
 ------------------
 
-This distribution of SigScheme 0.7.5 is latest stable release of the
-software. And this release has been adopted by uim 1.4.1, the primary
-application of SigScheme.
+This distribution of SigScheme 0.7.6 is a maintenance release of the
+software adopted for uim 1.4.2, the primary application of SigScheme.
 
 As declared in 0.6.1 release, the main goal of 0.7.x series is to acquire
 stability and standards conformance. Though many parts have been validated
@@ -46,11 +45,18 @@ Please report us if you find a problem. And if you have a time, run
 'make-report.sh' and send us the result regardless of PASSed or FAILed. It
 greatly helps the development, especially for non-PC platforms.
 
-Mailinglist: uim@freedesktop.org
+Mailinglist: sigscheme-ja@googlegroups.com
 
 
 What's New
 ----------
+
+  - Fix memory alignment issue in symbol name.
+  - Fix possible bug in string buffer usage.
+
+
+What's New in 0.7.5
+-------------------
 
   - Add SIOD compatibility about syntax 'if'.
   - Revise the SRFI-75 support into R6RS (R5.92RS) characters.

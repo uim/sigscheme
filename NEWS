@@ -1,3 +1,13 @@
+Overview of changes from 0.7.5 to 0.7.6
+==
+
+* Fixes
+
+ - [CRITICAL] Fix memory alighnment issue in symbol name.
+ - [CRITICAL] Fix possible bug in string buffer.
+ - Fix make test in test-string-cmp.
+
+
 Overview of changes from 0.7.4 to 0.7.5
 ==
 

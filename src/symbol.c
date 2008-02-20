@@ -71,6 +71,7 @@ scm_intern(const char *name)
 {
     ScmObj sym, lst, rest;
     uint32_t hash;
+    char *copied;
     DECLARE_INTERNAL_FUNCTION("scm_intern");
 
 #if (SCM_USE_SRFI75 && SCM_STRICT_ARGCHECK)
@@ -91,7 +92,8 @@ scm_intern(const char *name)
     }
 
     /* if not found, allocate new symbol object and prepend it into the list */
-    sym = MAKE_SYMBOL(scm_strdup(name), SCM_UNBOUND);
+    copied = scm_strdup(name);
+    sym = MAKE_SYMBOL(copied, SCM_UNBOUND);
     scm_symbol_hash[hash] = CONS(sym, lst);
 
     return sym;

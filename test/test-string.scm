@@ -98,7 +98,8 @@
 (assert-equal? (tn) (integer->string 11)          "\v")  ;; 118
 (assert-equal? (tn) (list->string '(#\vtab))      "\v")  ;; 118
 (assert-equal? (tn) '(#\vtab)   (string->list    "\v"))  ;; 118
-(assert-equal? (tn) (integer->string 124)         "\|")  ;; 124
+;; "\|" is removed from final R6RS
+;;(assert-error  (tn) (integer->string 124)         "\|")  ;; 124
 
 ;; All these conventional escape sequences should cause parse error as defined
 ;; in SRFI-75: "Any other character in a string after a backslash is an
@@ -197,7 +198,8 @@
 (assert-parse-error (tn) "\"\\y\"")  ;; 121
 (assert-parse-error (tn) "\"\\z\"")  ;; 122
 (assert-parse-error (tn) "\"\\{\"")  ;; 123
-;;                            "\|"   ;; 124
+;; "\|" is removed from final R6RS
+(assert-parse-error (tn) "\"\\|\"")  ;; 124
 (assert-parse-error (tn) "\"\\}\"")  ;; 125
 (assert-parse-error (tn) "\"\\~\"")  ;; 126
 

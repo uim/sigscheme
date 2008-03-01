@@ -63,6 +63,16 @@ altered from previous version.
 
 Finally, update LIBGCROOTS_URL in `make-dist.sh`.
 
+Test
+~~~~
+
+Make all tests passed.
+
+----------------------------------------------------------------
+$ ./configure --enable-maintainer-mode --enable-conf=full
+$ make check
+----------------------------------------------------------------
+
 Tagging
 ~~~~~~~
 

@@ -1,5 +1,22 @@
+Overview of changes from 0.8.0 to 0.8.1
+=======================================
+
+* Specification changes
+
+  - [R6RS] Remove the escape sequence "\|" invalidated in final R6RS
+
+* Fixes (also fixed in 0.7.6)
+
+  - [CRITICAL] Fix memory alighnment issue in symbol name.
+  - [CRITICAL] Fix possible bug in string buffer.
+  - Plug possible memory leak.
+  - Fix make test in test-string-cmp.
+  - Fix compilation on Mac OS X 10.5
+  - Support OpenBSD PowerPC and x86_64 in libgcroots
+
+
 Overview of changes from 0.7.x to 0.8.0
-==
+=======================================
 
 * New features
 
@@ -125,6 +142,19 @@ Overview of changes from 0.7.x to 0.8.0
     test/test-srfi1-another.scm for validation status. The procedures that not
     validated only have header comment such as ";; delete-duplicates" in the
     file.
+
+
+Overview of changes from 0.7.5 to 0.7.6
+==
+
+* Fixes
+
+ - [CRITICAL] Fix memory alighnment issue in symbol name.
+ - [CRITICAL] Fix possible bug in string buffer.
+ - Plug possible memory leak.
+ - Fix make test in test-string-cmp.
+ - Fix compilation on Mac OS X 10.5
+ - Support OpenBSD PowerPC and x86_64 in libgcroots
 
 
 Overview of changes from 0.7.4 to 0.7.5

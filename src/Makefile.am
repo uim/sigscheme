@@ -138,9 +138,9 @@ sigscheme-combined.c: $(libsscm_sources) config.h
 	@for src in $^ $>; do                           \
 	    case $$src in                               \
 	    *.c)                                        \
-		echo $(ECHO_N) '#include "' >>$@;       \
-		echo $(ECHO_N) $$src >>$@;              \
-		echo '"' >>$@;                          \
+		printf '#include "' >>$@;               \
+		printf $$src >>$@;                      \
+		printf '"\n' >>$@;                      \
 		;;                                      \
 	    esac                                        \
 	done

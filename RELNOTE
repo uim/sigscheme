@@ -1,4 +1,4 @@
-SigScheme 0.8.0 Release Note
+SigScheme 0.8.1 Release Note
 ============================
 
 What's SigScheme
@@ -19,27 +19,15 @@ It is mainly developed to be the Scheme interpreter of uim.
 About This Release
 ------------------
 
-This distribution of SigScheme 0.8.0 is latest stable release of the
-software. And this release will be adopted by uim 1.5.0, the primary
+This distribution of SigScheme 0.8.1 is latest stable release of the
+software. And this release will be adopted for uim 1.5.0, the primary
 application of SigScheme.
 
-This release aimed to acquire many useful features such as SRFI-1 (see "What's
-New" section), and to complete code validations for most part of
-SigScheme. Following features that left unvalidated in 0.7.x series have been
-validated and now can be used for production codes.
+This release only fixes bugs found after 0.8.0.
 
-  - R5RS characters
-  - All string procedures of R5RS
-  - R5RS vectors
-  - SRFI-2
-  - SRFI-8
-  - Multibyte character processing
+See 'NEWS' for the fully detailed changes.
 
-But R5RS hygienic macros feature is still likely having a reliability problem,
-and also contains architectural inefficiency. See "Hygienic macros" subsection
-of doc/spec.txt for details. It is expected to be resolved in 0.9.0.
-
-See the file 'QALog' for further information about the quality assurance state.
+See the file 'QALog' about quality assurance state.
 
 Please report us if you find a problem. And if you have a time, run
 'make-report.sh' and send us the result regardless of PASSed or FAILed. It
@@ -48,29 +36,11 @@ greatly helps the development, especially for non-PC platforms.
 Mailinglist: sigscheme-ja@googlegroups.com
 
 
-What's New
-----------
-
-  - SRFI-0  Feature-based conditional expansion construct
-  - SRFI-1  List Library (full-featured)
-  - SRFI-9  Defining Record Types
-  - SRFI-43 Vector library
-  - SRFI-55 require-extension
-  - SRFI-69 Basic hash tables
-  - SRFI-95 Sorting and Merging
-  - R5RS promises (delay and force)
-  - define-macro
-  - let-optionals* for optional argument processing
-  - Character codec handling procedures
-
-See 'NEWS' for the fully detailed changes.
-
-
 Notes for Packagers and System Integrators
 ------------------------------------------
 
-  - This release introduced various system-installed Scheme libraries. Please
-    install them in addition to libsscm
+  - 0.8.0 introduced various system-installed Scheme libraries. Please install
+    them in addition to libsscm
 
   - libgcroots has been updated and bundled in this release. Since it is
     installed as a separated library independent of libsscm, please create its

@@ -78,9 +78,6 @@ SCM_EXPORT const ScmSpecialCharInfo scm_special_char_table[] = {
     {'\"',   "\\\"",  "\""},         /* 34, R5RS */
     {'\\',   "\\\\",  "\\"},         /* 92, R5RS */
     {' ',    " ",     "space"},      /* 32, R5RS */
-#if SCM_USE_R6RS_CHARS
-    {'|',    "\\|",   "|"},
-#endif
 
     /* control characters */
     {'\n',   "\\n",   "newline"},    /*  10, R5RS */

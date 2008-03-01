@@ -3,7 +3,7 @@
 #  Filename : check_declare_func_typo.rb
 #
 #  Copyright (C) 2005-2006 Kazuki Ohta <mover at hct.zaq.ne.jp>
-#  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+#  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 #
 #  All rights reserved.
 #

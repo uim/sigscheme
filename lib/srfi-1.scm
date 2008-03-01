@@ -6,7 +6,7 @@
 ;;; hold me liable for its use. Please send bug reports to shivers@ai.mit.edu.
 ;;;     -Olin
 
-;;; Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+;;; Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 
 ;; ChangeLog
 ;;

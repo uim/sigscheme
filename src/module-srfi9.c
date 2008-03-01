@@ -2,7 +2,7 @@
  *  Filename : module-srfi9.c
  *  About    : SRFI-9 Defining Record Types
  *
- *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

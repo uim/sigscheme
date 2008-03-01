@@ -2,7 +2,7 @@
  *  Filename : legacy-macro.c
  *  About    : Legacy 'define-macro' syntax
  *
- *  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
  *
  *  All rights reserved.
  *

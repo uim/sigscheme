@@ -1,7 +1,7 @@
 ;;  Filename : test-promise.scm
 ;;  About    : unit tests for R5RS promise
 ;;
-;;  Copyright (c) 2007 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
 ;;
 ;;  All rights reserved.
 ;;

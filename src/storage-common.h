@@ -172,6 +172,13 @@ SCM_EXPORT ScmObj scm_make_subpat(ScmObj x, scm_int_t meta);
 #define SCM_SAL_ENVP(env) (NULLP(env) || CONSP(env))
 
 
+/*=======================================
+  Internal Functions
+=======================================*/
+/* alloc.c */
+SCM_EXPORT char *scm_align_str(char *str);
+
+
 #ifdef __cplusplus
 /* } */
 #endif

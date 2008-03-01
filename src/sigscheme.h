@@ -1242,7 +1242,6 @@ SCM_EXPORT void *scm_malloc(size_t size);
 SCM_EXPORT void *scm_calloc(size_t number, size_t size);
 SCM_EXPORT void *scm_realloc(void *ptr, size_t size);
 SCM_EXPORT char *scm_strdup(const char *str);
-SCM_EXPORT char *scm_align_str(char *str);
 
 /* storage-gc.c */
 SCM_EXPORT void scm_gc_protect(ScmObj *var);

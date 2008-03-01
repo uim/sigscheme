@@ -1,5 +1,15 @@
+Overview of changes from 0.7.7 to 0.7.7
+=======================================
+
+* Fixes
+
+  - Remove the scm_align_str() from public API which had accidentally been
+    exposed in 0.7.6. Since the API was not public though exported, the ABI
+    interface number is not changed
+
+
 Overview of changes from 0.7.5 to 0.7.6
-==
+=======================================
 
 * Fixes
 

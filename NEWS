@@ -1,3 +1,17 @@
+Overview of changes from 0.8.1 to 0.8.2
+=======================================
+
+* Specification changes
+
+  - test-report-result exits with error code 70 (EX_SOFTWARE) if some tests are
+    failed
+
+* Fixes
+
+  - Fix bogus result of 'make check'. 0.8.1 and earlier passes all tests even
+    if sme tests are failed
+
+
 Overview of changes from 0.8.0 to 0.8.1
 =======================================
 

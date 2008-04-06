@@ -53,7 +53,7 @@
 (define *total-errors* 0) ;; TODO: recover unintended error and increment this
 (define test-filename "unspecified")
 
-(define test-report-result
+(define test-display-result
   (lambda ()
     (let ((header (if (zero? *total-failures*)
                       "OK: "
@@ -68,6 +68,15 @@
                  *total-failures*   " failures, "
                  *total-errors*     " errors"))
       (newline))))
+
+(define test-report-result
+  (lambda ()
+    (test-display-result)
+    (let ((EX_OK       0)
+          (EX_SOFTWARE 70))
+      (exit (if (positive? *total-failures*)
+                EX_SOFTWARE
+                EX_OK)))))
 
 ;; Backward compatibility
 (define total-report test-report-result)

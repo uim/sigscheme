@@ -2,7 +2,7 @@
 EXTRA_DIST = unittest-bigloo.scm unittest-gauche.scm \
              run-singletest.sh.in
 
-sscm_xfail_tests =
+sscm_xfail_tests = test-fail.scm
 sscm_optional_tests =
 # Native tests of SigScheme
 sscm_tests = \
@@ -21,6 +21,7 @@ sscm_tests = \
         test-eqv.scm \
         test-equal.scm \
         test-eval.scm \
+        test-fail.scm \
         test-formal-syntax.scm \
         test-formatplus.scm \
         test-lambda.scm \

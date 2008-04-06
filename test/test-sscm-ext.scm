@@ -43,7 +43,7 @@
 (define ud (undef))
 
 (tn "sscm-version")
-(assert-equal? (tn) "0.8.1"      (sscm-version))
+(assert-equal? (tn) "0.8.2"      (sscm-version))
 
 (tn "%%current-char-codec")
 (assert-equal? (tn) "UTF-8"      (%%current-char-codec))

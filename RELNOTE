@@ -1,4 +1,4 @@
-SigScheme 0.8.1 Release Note
+SigScheme 0.8.2 Release Note
 ============================
 
 What's SigScheme
@@ -19,7 +19,7 @@ It is mainly developed to be the Scheme interpreter of uim.
 About This Release
 ------------------
 
-This distribution of SigScheme 0.8.1 is latest stable release of the
+This distribution of SigScheme 0.8.2 is latest stable release of the
 software. And this release will be adopted for uim 1.5.0, the primary
 application of SigScheme.
 

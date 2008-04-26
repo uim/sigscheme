@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sigscheme/config.h>
 #if (!SCM_USE_CHAR || !SCM_USE_VECTOR)
 #define TST_EXCLUDE_THIS
 #endif
@@ -417,13 +418,13 @@ TST_CASE("C func ptr")
 }
 #endif /* use sscm extension mechanism */
 
-#if SCM_USE_HYGIENIC_MACRO
 #if SCM_USE_UNHYGIENIC_MACRO
 #error "No test implemented."
 #endif
 
 TST_CASE("subpat")
 {
+#if SCM_USE_HYGIENIC_MACRO
     ScmObj obj;
 #define SUBPAT_TST(tst, pat, meta)              \
     tst(obj, SUBPAT,                            \
@@ -432,10 +433,12 @@ TST_CASE("subpat")
 
     SUBPAT_TST(TST_INIT2, LIST_1(SCM_NULL), -1);
     SUBPAT_TST(TST_SET2, SCM_NULL, 5);
+#endif /* SCM_USE_HYGIENIC_MACRO */
 }
 
 TST_CASE("far symbol")
 {
+#if SCM_USE_HYGIENIC_MACRO
     ScmObj obj;
 #if SCM_USE_UNHYGIENIC_MACRO
 #error "Packed env handling must be revised."
@@ -453,10 +456,12 @@ TST_CASE("far symbol")
     FARSYMBOL_TST(TST_INIT2, SCM_SYM_QUOTE, null);
     FARSYMBOL_TST(TST_SET2, SCM_MAKE_FARSYMBOL(SCM_SYM_QUOTE, null),
                   scm_pack_env(env));
+#endif /* SCM_USE_HYGIENIC_MACRO */
 }
 
 TST_CASE(hmacro, "hmacro")
 {
+#if SCM_USE_HYGIENIC_MACRO
     ScmObj obj;
     ScmObj env, rules;
 
@@ -487,7 +492,7 @@ TST_CASE(hmacro, "hmacro")
     SCM_HMACRO_SET_ENV(obj, scm_pack_env(env));
     HMACRO_TST(TST2, rules, scm_pack_env(env),
                "after SET_ENV");
+#endif /* SCM_USE_HYGIENIC_MACRO */
 }
 
-#endif /* use hygienic macro */
 #endif /* !TST_EXCLUDE_THIS */

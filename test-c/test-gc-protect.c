@@ -38,6 +38,12 @@
 #include "sigscheme.h"
 #include "sigschemeinternal.h"
 
+/* Due to the conservative GC algorithm, an object cannot be detected as "this
+ * object is NOT protected", although "IS protected" can. But since testing
+ * such uncertain unprotected objects helps GC debugging, this file try such
+ * tests iff --enable-debug is specified although they may fail.
+ *   -- YamaKen 2008-04-27 */
+#define TRY_TESTS_THAT_PASS_IN_MOST_CASES SCM_DEBUG
 
 static ScmObj make_obj(void);
 static void *make_obj_internal(void *dummy);
@@ -85,9 +91,13 @@ TST_CASE("GC stack protection")
 {
     TST_TN_FALSE(scm_gc_protected_contextp());
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     TST_TN_FALSE(var_in_protected_func(NULL));
+#endif
     TST_TN_TRUE (scm_call_with_gc_ready_stack(var_in_protected_func, NULL));
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     TST_TN_FALSE(var_in_protected_func(NULL));
+#endif
 }
 
 static void *
@@ -103,9 +113,13 @@ TST_CASE("GC stack protection for long array")
 {
     TST_TN_FALSE(scm_gc_protected_contextp());
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     TST_TN_FALSE(vars_in_protected_func(NULL));
+#endif
     TST_TN_TRUE (scm_call_with_gc_ready_stack(vars_in_protected_func, NULL));
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     TST_TN_FALSE(vars_in_protected_func(NULL));
+#endif
 }
 
 static void *
@@ -129,11 +143,13 @@ TST_CASE("GC static variable protection")
 
     TST_TN_FALSE(scm_gc_protected_contextp());
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     /* unprotected */
     for (i = 0; i < N_OBJS; i++)
         static_objs[i] = make_obj();
     for (i = 0; i < N_OBJS; i++)
         TST_TN_FALSE(scm_gc_protectedp(static_objs[i]));
+#endif
 
     /* protected */
     for (i = 0; i < N_OBJS; i++) {
@@ -143,11 +159,13 @@ TST_CASE("GC static variable protection")
     for (i = 0; i < N_OBJS; i++)
         TST_TN_TRUE(scm_gc_protectedp(static_objs[i]));
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     /* unprotect again */
     for (i = 0; i < N_OBJS; i++)
         scm_gc_unprotect(&static_objs[i]);
     for (i = 0; i < N_OBJS; i++)
         TST_TN_FALSE(scm_gc_protectedp(static_objs[i]));
+#endif
 }
 
 TST_CASE("GC auto variable protection with scm_gc_protect()")
@@ -157,11 +175,13 @@ TST_CASE("GC auto variable protection with scm_gc_protect()")
 
     TST_TN_FALSE(scm_gc_protected_contextp());
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     /* unprotected */
     for (i = 0; i < N_OBJS; i++)
         auto_objs[i] = make_obj();
     for (i = 0; i < N_OBJS; i++)
         TST_TN_FALSE(scm_gc_protectedp(auto_objs[i]));
+#endif
 
     /* protected */
     for (i = 0; i < N_OBJS; i++) {
@@ -171,11 +191,13 @@ TST_CASE("GC auto variable protection with scm_gc_protect()")
     for (i = 0; i < N_OBJS; i++)
         TST_TN_TRUE(scm_gc_protectedp(auto_objs[i]));
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     /* unprotect again */
     for (i = 0; i < N_OBJS; i++)
         scm_gc_unprotect(&auto_objs[i]);
     for (i = 0; i < N_OBJS; i++)
         TST_TN_FALSE(scm_gc_protectedp(auto_objs[i]));
+#endif
 }
 
 static void *
@@ -210,6 +232,7 @@ TST_CASE("GC indirect protection via on-heap object reference")
 
     TST_TN_TRUE (scm_call_with_gc_ready_stack(test_implicit_protection, NULL));
 
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     /* unprotected lst */
     lst = LIST_2(SCM_FALSE, SCM_FALSE);
     unprotected_lst = CDR(lst);
@@ -227,6 +250,7 @@ TST_CASE("GC indirect protection via on-heap object reference")
     TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
     lst = SCM_FALSE;
     TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
+#endif
 
     /* protected static lst */
     scm_gc_protect(&protected_lst);
@@ -236,5 +260,7 @@ TST_CASE("GC indirect protection via on-heap object reference")
     TST_TN_TRUE (scm_gc_protectedp(protected_lst));
     TST_TN_TRUE (scm_gc_protectedp(unprotected_lst));
     protected_lst = SCM_FALSE;
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     TST_TN_FALSE(scm_gc_protectedp(unprotected_lst));
+#endif
 }

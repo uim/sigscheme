@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include <sigscheme/config.h>
 #if (!SCM_USE_CHAR || !SCM_USE_STRING || !SCM_USE_INT)
 #define TST_EXCLUDE_THIS
 #endif
@@ -105,7 +106,7 @@ main(int argc, char **argv)
 {
     tst_suite_info suite = TST_DEFAULT_SUITE_SETUP;
 
-    scm_initialize(NULL);
+    scm_initialize(NULL, NULL);
 
     scm_gc_protect_with_init(&lst,
                              LIST_5(SCM_TRUE,

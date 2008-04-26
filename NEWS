@@ -1,3 +1,15 @@
+Overview of changes from 0.8.2 to 0.8.3
+=======================================
+
+* Fixes
+
+  - Disable some GC protection tests that produce indifinite result on make
+    check
+  - Re-enable following unintentionally disabled tests
+    * test-format.c
+    * test-storage.c
+
+
 Overview of changes from 0.8.1 to 0.8.2
 =======================================
 
@@ -9,7 +21,7 @@ Overview of changes from 0.8.1 to 0.8.2
 * Fixes
 
   - Fix bogus result of 'make check'. 0.8.1 and earlier passes all tests even
-    if sme tests are failed
+    if some tests are failed
 
 
 Overview of changes from 0.8.0 to 0.8.1

@@ -168,8 +168,13 @@ int
 main(int argc, char **argv)
 {
     tst_suite_info suite = TST_DEFAULT_SUITE_SETUP;
+    const char *my_argv[] = {
+        "dummy",
+        "--system-load-path", TST_SCM_SYSTEM_LOAD_PATH,
+        NULL
+    };
 
-    scm_initialize(NULL);
+    scm_initialize(NULL, my_argv);
 
     stack_dir = probe_stack_growth_dir();
     fvv_internal = fvv;

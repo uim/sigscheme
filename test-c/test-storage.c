@@ -230,7 +230,7 @@ TST_CASE("char")
 TST_CASE("symbol")
 {
     ScmObj obj;
-    char *p = "abcdefghijklmnopqrstuv";
+    char *p = scm_strdup("abcdefghijklmnopqrstuv");
     p = (char*)(((intptr_t)p + 7)& (-8));
 
 #define SYMBOL_TST(tst, nam, val)               \

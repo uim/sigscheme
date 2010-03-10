@@ -637,7 +637,7 @@ within_heapp(ScmObj obj)
         return scm_false;
     /* The pointer on the stack is 'tagged' to represent its types.
      * So we need to ignore the tag to get its real pointer value. */
-    ptr = SCM_UNTAG_PTR(obj);
+    ptr = (ScmCell *)SCM_DROP_TAG(obj);
 #else /* SCM_USE_STORAGE_COMPACT */
     ptr = obj;
 #endif /* SCM_USE_STORAGE_COMPACT */

@@ -55,6 +55,7 @@
 =======================================*/
 /* FIXME: only supports UNIX flavors */
 #define ABSOLUTE_PATHP(path) ((path)[0] == '/')
+#define PATH_SEPARATOR ':'
 
 #if SCM_USE_SRFI22
 /* SRFI-22: The <script prelude> line may not be longer than 64 characters. */
@@ -121,10 +122,22 @@ scm_fin_load(void)
 SCM_EXPORT void
 scm_set_lib_path(const char *path)
 {
+    const char *begin, *end;
     DECLARE_INTERNAL_FUNCTION("scm_set_lib_path");
 
-    if (!ABSOLUTE_PATHP(path))
-        ERR("library path must be absolute but got: ~S", path);
+    begin = path;
+    while (begin[0] != '\0') {
+        while (begin[0] == PATH_SEPARATOR)
+            begin++;
+
+        end = begin;
+        while (end[0] != '\0' && end[0] != PATH_SEPARATOR)
+            end++;
+
+        if (!ABSOLUTE_PATHP(begin))
+            ERR("library path must be absolute but got: ~S", path);
+        begin = end;
+    }
 
     free(l_scm_lib_path);
     l_scm_lib_path = (path) ? scm_strdup(path) : NULL;
@@ -228,6 +241,7 @@ static char *
 find_path(const char *filename)
 {
     char *path;
+    const char *begin, *end;
     size_t lib_path_len, filename_len, path_len;
 
     SCM_ASSERT(filename);
@@ -237,16 +251,34 @@ find_path(const char *filename)
         return scm_strdup(filename);
 
     /* try under l_scm_lib_path */
+    /* l_scm_lib_path is separated with PATH_SEPARATOR */
     if (l_scm_lib_path) {
-        lib_path_len = (l_scm_lib_path) ? strlen(l_scm_lib_path) : 0;
-        filename_len = strlen(filename);
-        path_len = lib_path_len + sizeof((char)'/') + filename_len + sizeof("");
+        begin = l_scm_lib_path;
+        while (begin[0] != '\0') {
+            while (begin[0] == PATH_SEPARATOR)
+                begin++;
 
-        path = scm_malloc(path_len);
-        sprintf(path, "%s/%s", l_scm_lib_path, filename);
-        if (file_existsp(path))
-            return path;
-        free(path);
+            end = begin;
+            while (end[0] != '\0' && end[0] != PATH_SEPARATOR)
+                end++;
+
+            if (end > begin)
+                lib_path_len = end - begin;
+            else
+                lib_path_len = 0;
+            filename_len = strlen(filename);
+            path_len = lib_path_len + sizeof((char)'/') + filename_len + sizeof("");
+
+            path = scm_malloc(path_len);
+            strncpy(path, begin, lib_path_len);
+            path[lib_path_len] = '\0';
+            strcat(path, "/");
+            strcat(path, filename);
+            if (file_existsp(path))
+                return path;
+            free(path);
+            begin = end;
+        }
     }
 
     return NULL;

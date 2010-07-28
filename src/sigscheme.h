@@ -65,10 +65,10 @@ extern "C" {
 /*=======================================
   Macro Definitions
 =======================================*/
-#define SSCM_VERSION_STRING     "0.8.4"
+#define SSCM_VERSION_STRING     "0.8.5"
 #define SSCM_VERSION_MAJOR      (0)
 #define SSCM_VERSION_MINOR      (8)
-#define SSCM_VERSION_PATCHLEVEL (4)
+#define SSCM_VERSION_PATCHLEVEL (5)
 #define SSCM_VERSION_REQUIRE(major, minor, patchlevel)			     \
   ((major) < SSCM_VERSION_MAJOR						     \
    || ((major) == SSCM_VERSION_MAJOR && (minor) < SSCM_VERSION_MINOR)	     \

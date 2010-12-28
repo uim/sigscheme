@@ -295,7 +295,7 @@ case "${with_libgcroots:=no}" in
     GCROOTS_REQ=gcroots
   ;;
   yes|installed)
-    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.1.4],
+    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.2.3],
                       [],
                       [AC_MSG_ERROR([installed libgcroots is not found.])])
     use_libgcroots="installed one"

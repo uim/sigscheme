@@ -230,6 +230,7 @@ extern "C" {
     do {                                                                     \
         type f;                                                              \
         if (0) f = (c_func);  /* compile-time type check */                  \
+        (void)f;              /* suppress warnings       */                  \
     } while (/* CONSTCOND */ 0)
 
 #if 0

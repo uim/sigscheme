@@ -946,7 +946,6 @@ read_number_or_peculiar(ScmObj port)
 {
     scm_ichar_t c;
     int err;
-    size_t len;
     char buf[INT_LITERAL_LEN_MAX + sizeof("")];
     DECLARE_INTERNAL_FUNCTION("read");
 
@@ -961,7 +960,7 @@ read_number_or_peculiar(ScmObj port)
         return read_number(port, 'd');
 
     if (c == '+' || c == '-') {
-        len = read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);
+        read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);
         if (err == TOKEN_BUF_EXCEEDED)
             ERR("invalid number literal");
 
@@ -1019,11 +1018,10 @@ static ScmObj
 read_number(ScmObj port, char prefix)
 {
     int err;
-    size_t len;
     char buf[INT_LITERAL_LEN_MAX + sizeof("")];
     DECLARE_INTERNAL_FUNCTION("read");
 
-    len = read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);
+    read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);
     if (err == TOKEN_BUF_EXCEEDED)
         ERR("invalid number literal");
 

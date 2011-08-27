@@ -575,13 +575,13 @@ write_constant(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 static void
 write_errobj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 {
-    ScmObj err_obj_tag, reason, objs, trace_stack, elm;
+    ScmObj reason, objs, elm;
     DECLARE_INTERNAL_FUNCTION("write");
 
-    err_obj_tag = MUST_POP_ARG(obj);
+    MUST_POP_ARG(obj);
     reason      = MUST_POP_ARG(obj);
     objs        = MUST_POP_ARG(obj);
-    trace_stack = MUST_POP_ARG(obj);
+    MUST_POP_ARG(obj);
     ASSERT_NO_MORE_ARG(obj);
 
     switch (otype) {
@@ -704,14 +704,14 @@ write_ss_scan(ScmObj obj, scm_write_ss_context *ctx)
     scm_int_t i, len;
 #endif
     scm_hash_entry *ent;
-    ScmObj err_obj_tag, reason, objs, trace_stack;
+    ScmObj reason, objs;
     DECLARE_INTERNAL_FUNCTION("write-with-shared-structure");
 
     if (ERROBJP(obj)) {
-        err_obj_tag = MUST_POP_ARG(obj);
+        MUST_POP_ARG(obj);
         reason      = MUST_POP_ARG(obj);
         objs        = MUST_POP_ARG(obj);
-        trace_stack = MUST_POP_ARG(obj);
+        MUST_POP_ARG(obj);
         ASSERT_NO_MORE_ARG(obj);
 
         write_ss_scan(reason, ctx);

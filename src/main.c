@@ -123,14 +123,14 @@ repl_loop(void)
     ScmEvalState eval_state;
     ScmBaseCharPort *cport;
     ScmBytePort *bport;
-    ScmObj sym_guard, cond_catch, proc_read, proc_eval, err;
+    ScmObj cond_catch, proc_read, proc_eval, err;
 
     proc_read = scm_symbol_value(scm_intern("read"), SCM_INTERACTION_ENV);
     proc_eval = scm_symbol_value(scm_intern("eval"), SCM_INTERACTION_ENV);
     err = CONS(SCM_UNDEF, SCM_UNDEF); /* unique ID */
 
     /* prepare the constant part of the form to get the loop fast */
-    sym_guard = scm_intern("guard");
+    scm_intern("guard");
     cond_catch = LIST_2(scm_intern("err"),
                         LIST_3(scm_intern("else"),
                                LIST_2(scm_intern("%%inspect-error"),

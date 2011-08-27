@@ -275,18 +275,29 @@ scm_p_fatal_error(ScmObj err_obj)
 SCM_EXPORT ScmObj
 scm_p_inspect_error(ScmObj err_obj)
 {
-    ScmObj rest, err_obj_tag, reason, objs, trace_stack;
+    ScmObj rest;
+#if SCM_USE_BACKTRACE
+    ScmObj trace_stack;
+#endif
     DECLARE_FUNCTION("%%inspect-error", procedure_fixed_1);
 
     if (ERROBJP(err_obj)) {
         rest = err_obj;
-        err_obj_tag = MUST_POP_ARG(rest);
-        reason      = MUST_POP_ARG(rest);
-        objs        = MUST_POP_ARG(rest);
+        MUST_POP_ARG(rest);
+        MUST_POP_ARG(rest);
+        MUST_POP_ARG(rest);
+#if SCM_USE_BACKTRACE
         trace_stack = MUST_POP_ARG(rest);
+#else
+        MUST_POP_ARG(rest);
+#endif
         ASSERT_NO_MORE_ARG(rest);
     } else {
+#if SCM_USE_BACKTRACE
         trace_stack = scm_trace_stack();
+#else
+        scm_trace_stack();
+#endif
     }
 
     if (scm_debug_categories() & SCM_DBG_ERRMSG) {

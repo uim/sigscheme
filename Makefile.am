@@ -11,11 +11,9 @@ DIST_SUBDIRS = $(SUBDIRS)
 # $(distdir) does work as a part of $(RELEASE_URL) when configured as a
 # subpackage.
 DIST_NAME = $(PACKAGE)-$(VERSION)
-UIM_REPOSITORY = http://uim.googlecode.com/svn
-SSCM_REPOSITORY = $(UIM_REPOSITORY)/sigscheme-trunk
-TAGS_REPOSITORY = $(UIM_REPOSITORY)/tags
-#RELEASE_URL     = $(SSCM_REPOSITORY)
-RELEASE_URL     = $(TAGS_REPOSITORY)/$(DIST_NAME)
+UIM_REPOSITORY = http://uim.googlecode.com/git/
+#RELEASE_BRANCH     = master
+RELEASE_BRANCH     = $(DIST_NAME)
 DIST_SUM_LIST = $(DIST_NAME).sum
 
 EXTRA_DIST = \
@@ -36,10 +34,13 @@ DISTCLEANFILES = sigscheme.pc tools/gnuify-changelog.pl $(DIST_SUM_LIST)
 .PHONY: FORCE sum
 FORCE:
 
+# We use `wget' instead of `git archive' here
+# because `git archive' doesn't work with Google Code Git repository.
 ChangeLog: FORCE
-	svn export $(UIM_REPOSITORY)/trunk/tools/gnuify-changelog.pl \
-	    tools/gnuify-changelog.pl
-	svn log $(RELEASE_URL) | tools/gnuify-changelog.pl > $@
+	wget $(UIM_REPOSITORY)/tools/gnuify-changelog.pl
+	git log --date-order --date=short $(RELEASE_BRANCH) \
+	    | perl ./gnuify-changelog.pl > $@
+	rm gnuify-changelog.pl
 	@test -s $@ && echo 'ChangeLog updated successfully.'
 
 sum: FORCE

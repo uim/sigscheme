@@ -1,6 +1,3 @@
-[submodule "uim.libgcroots"]
-	path = uim.libgcroots
-	url = https://code.google.com/p/uim.libgcroots/
 [submodule "libgcroots"]
 	path = libgcroots
 	url = https://code.google.com/p/uim.libgcroots/

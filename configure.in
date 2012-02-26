@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE([1.10 dist-bzip2])
 # must be invoked immediately after initialization.
 #AC_GNU_SOURCE
 
-# --enable-maintainer-mode is requied to build svn repository version of
+# --enable-maintainer-mode is requied to build Git repository version of
 # SigScheme.
 AM_MAINTAINER_MODE
 
@@ -21,7 +21,7 @@ AC_PROG_LIBTOOL
 AC_PROG_LN_S
 AC_PROG_EGREP
 # Prefers GNU sed if found. GNU sed is required for generating
-# test-c/collect.sh from svn repository version of SigScheme.
+# test-c/collect.sh from Git repository version of SigScheme.
 AC_PROG_SED
 
 # These programs are only needed on make dist

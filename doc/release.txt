@@ -79,18 +79,18 @@ Tagging
 A release must be branched and tagged for development management.
 
 ----------------------------------------------------------------
-$ svn cp -r33xx https://uim.googlecode.com/svn/sigscheme-trunk \
-                https://uim.googlecode.com/svn/branches/sigscheme-x.y
+$ git branch sigscheme-x.y <start-point>
+$ git push origin sigscheme-x.y
 
-$ svn cp -r33xx https://uim.googlecode.com/svn/branches/sigscheme-x.y \
-                https://uim.googlecode.com/svn/tags/sigscheme-x.y.z
+$ git tag -a sigscheme-x.y.z <commit on sigscheme-x.y>
+$ git push --tags
 ----------------------------------------------------------------
 
 If the release is a snapshot, tag as follows:
 
 ----------------------------------------------------------------
-$ svn cp -r33xx https://uim.googlecode.com/svn/sigscheme-trunk \
-                https://uim.googlecode.com/svn/tags/sigscheme-snapshot-YYYYMMDD
+$ git tag -a sigscheme-snapshot-YYYYMMDD
+$ git push --tags
 ----------------------------------------------------------------
 
 Packaging
@@ -98,8 +98,8 @@ Packaging
 
 ----------------------------------------------------------------
 $ cd /tmp
-$ svn export http://uim.googlecode.com/svn/tags/sigscheme-x.y.z
-$ cd sigscheme-x.y.z
+$ git clone https://code.google.com/p/uim.sigscheme/
+$ git checkout sigscheme-x.y.z
 $ ./make-dist.sh
 ----------------------------------------------------------------
 

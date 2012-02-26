@@ -12,8 +12,8 @@ DIST_SUBDIRS = $(SUBDIRS)
 # subpackage.
 DIST_NAME = $(PACKAGE)-$(VERSION)
 UIM_REPOSITORY = http://uim.googlecode.com/git/
-#RELEASE_BRANCH     = master
-RELEASE_BRANCH     = $(DIST_NAME)
+#RELEASE_TAG     = master
+RELEASE_TAG     = $(DIST_NAME)
 DIST_SUM_LIST = $(DIST_NAME).sum
 
 EXTRA_DIST = \
@@ -38,7 +38,7 @@ FORCE:
 # because `git archive' doesn't work with Google Code Git repository.
 ChangeLog: FORCE
 	wget $(UIM_REPOSITORY)/tools/gnuify-changelog.pl
-	git log --date-order --date=short $(RELEASE_BRANCH) \
+	git log --date-order --date=short $(RELEASE_TAG) \
 	    | perl ./gnuify-changelog.pl > $@
 	rm gnuify-changelog.pl
 	@test -s $@ && echo 'ChangeLog updated successfully.'

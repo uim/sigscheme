@@ -1,3 +1,4 @@
+/ChangeLog
 /Makefile
 /Makefile.in
 /aclocal.m4
@@ -29,6 +30,13 @@
 # /doc/
 /doc/Makefile
 /doc/Makefile.in
+/doc/design.html
+/doc/global-obj.html
+/doc/index.html
+/doc/multibyte.html
+/doc/release.html
+/doc/spec.html
+/doc/style.html
 
 # /include/
 /include/Makefile
@@ -103,6 +111,18 @@
 /test-c/Makefile
 /test-c/Makefile.in
 /test-c/collect.sh
+/test-c/test-alignment-coll.c
+/test-c/test-array2list-coll.c
+/test-c/test-format-coll.c
+/test-c/test-gc-coll.c
+/test-c/test-gc-protect-coll.c
+/test-c/test-gc-protect-stack-coll.c
+/test-c/test-global-coll.c
+/test-c/test-length-coll.c
+/test-c/test-storage-coll.c
+/test-c/test-storage-compact-coll.c
+/test-c/test-strcasecmp-coll.c
+/tools/gnuify-changelog.pl
 
 # /test/
 /test/Makefile
@@ -112,3 +132,4 @@
 # /tools/
 /tools/Makefile
 /tools/Makefile.in
+/tools/gnuify-changelog.pl

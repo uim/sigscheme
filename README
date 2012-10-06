@@ -7,7 +7,7 @@ SigScheme is a R5RS Scheme interpreter for embedded use.
     http://code.google.com/p/sigscheme/
 
   Git repository:
-    git clone https://code.google.com/p/uim.sigscheme/
+    git clone https://github.com/uim/sigscheme.git
 
 
 See following files for further information.

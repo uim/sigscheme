@@ -1,4 +1,4 @@
-##### http://sigscheme.uim.googlecode.com/git/m4/ax_feature_configurator.m4
+##### https://github.com/uim/sigscheme/blob/master/m4/ax_feature_configurator.m4
 #
 # SYNOPSIS
 #
@@ -9,7 +9,7 @@
 #   A dependency-based feature configurator.
 #
 #   This macro suite is still under development. See
-#   http://sigscheme.uim.googlecode.com/git/configure.in
+#   https://github.com/uim/sigscheme/blob/master/configure.in
 #   as a working example.
 #
 # LAST MODIFICATION

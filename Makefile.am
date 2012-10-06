@@ -11,7 +11,7 @@ DIST_SUBDIRS = $(SUBDIRS)
 # $(distdir) does work as a part of $(RELEASE_URL) when configured as a
 # subpackage.
 DIST_NAME = $(PACKAGE)-$(VERSION)
-UIM_REPOSITORY = http://uim.googlecode.com/git/
+UIM_REPOSITORY = https://raw.github.com/uim/uim/master
 #RELEASE_TAG     = master
 RELEASE_TAG     = $(DIST_NAME)
 DIST_SUM_LIST = $(DIST_NAME).sum

@@ -739,7 +739,7 @@ SEQ   MNEMONIC        DESCRIPTION
 ~F
 ~wF   [Fixed]         the arg is a string or number which has width w and
 ~w,dF                 d digits after the decimal
-~C    [Character]     charater arg is output by write-char
+~C    [Character]     character arg is output by write-char
 ~_    [Space]         a single space character is output
 ~Y    [Yuppify]       the list arg is pretty-printed to the output
 ~?    [Indirection]   recursive format: next 2 args are format-string and list

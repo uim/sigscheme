@@ -402,7 +402,7 @@ Overview of changes from 0.6.1 to 0.7.1
 
   - [MAJOR] Add lacking or incomplete error handlings for port operations
 
-  - [MAJOR] Fix incomplete singlebyte charater support
+  - [MAJOR] Fix incomplete singlebyte character support
 
   - [MAJOR] Fix broken sign extention for 8-bit char on string port read
 

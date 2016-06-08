@@ -100,7 +100,7 @@
 "~F\n"                                                                        \
 "~wF   [Fixed]         the arg is a string or number which has width w and\n" \
 "~w,dF                 d digits after the decimal\n"                          \
-"~C    [Character]     charater arg is output by write-char\n"                \
+"~C    [Character]     character arg is output by write-char\n"                \
 "~_    [Space]         a single space character is output\n"                  \
 "~Y    [Yuppify]       the list arg is pretty-printed to the output\n"        \
 "~?    [Indirection]   recursive format: next 2 args are format-string and list\n" \

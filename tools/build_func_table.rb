@@ -4,7 +4,7 @@
 #  About    : script to building built-in function table
 #
 #  Copyright (C) 2005-2006 Kazuki Ohta <mover at hct.zaq.ne.jp>
-#  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+#  Copyright (c) 2007-2018 SigScheme Project <uim-en AT googlegroups.com>
 #
 #  All rights reserved.
 #
@@ -49,7 +49,9 @@ def table_footer
 end
 
 def build_table_body(filename)
-  src = File.new(filename).read
+  src = File.open(filename, "r:utf-8") do |file|
+    file.read
+  end
   "    /* #{filename} */\n" + scm_generate_func_table_body(src)
 end
 

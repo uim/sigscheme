@@ -29,25 +29,11 @@ endif
 
 $(pkgconfig_DATA): config.status
 
-DISTCLEANFILES = sigscheme.pc tools/gnuify-changelog.pl $(DIST_SUM_LIST)
+DISTCLEANFILES = sigscheme.pc $(DIST_SUM_LIST)
 
 .PHONY: FORCE sum
 FORCE:
 
-# We use `wget' instead of `git archive' here
-# because `git archive' doesn't work with Google Code Git repository.
-ChangeLog: FORCE
-	wget $(UIM_REPOSITORY)/tools/gnuify-changelog.pl
-	git log --date-order --date=short $(RELEASE_TAG) \
-	    | perl ./gnuify-changelog.pl > $@
-	rm gnuify-changelog.pl
-	@test -s $@ && echo 'ChangeLog updated successfully.'
-
 sum: FORCE
 	$(MD5) $(DIST_ARCHIVES) >$(DIST_SUM_LIST)
 	$(SHA1) $(DIST_ARCHIVES) >>$(DIST_SUM_LIST)
-
-distclean-local:
-	if test '$(top_srcdir)' != '$(top_builddir)'; then  \
-	    rm -f ChangeLog;                                    \
-	fi

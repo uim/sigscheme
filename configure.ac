@@ -3,7 +3,7 @@ AC_INIT([SigScheme], [0.9.0], [sigscheme-ja@googlegroups.com], [sigscheme])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/sigscheme.c])
 AC_CONFIG_HEADERS([src/config.h])
-AM_INIT_AUTOMAKE([1.10 dist-bzip2])
+AM_INIT_AUTOMAKE([1.10 foreign dist-bzip2])
 
 # Enable this iff asprintf(3) or another GNU extension is needed. This macro
 # must be invoked immediately after initialization.

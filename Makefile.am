@@ -38,3 +38,7 @@ FORCE:
 sum: FORCE
 	$(MD5) $(DIST_ARCHIVES) >$(DIST_SUM_LIST)
 	$(SHA1) $(DIST_ARCHIVES) >>$(DIST_SUM_LIST)
+
+tag:
+	git tag -a -m "$(VERSION) has been released!!!" $(VERSION)
+	git push --tags

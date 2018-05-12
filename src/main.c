@@ -65,6 +65,10 @@
 #define FEATURE_ID_SIOD "siod"
 #endif
 
+#if !defined(MAXPATHLEN)
+#define MAXPATHLEN 1024 /* GNU Hurd doesn't have MAXPATHLEN */
+#endif
+
 /*=======================================
   File Local Type Definitions
 =======================================*/

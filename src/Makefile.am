@@ -376,9 +376,9 @@ endif
 if USE_SHELL
 bin_PROGRAMS  = sscm
 sscm_SOURCES  = main.c
-sscm_LDADD    = libsscm.la @GCROOTS_LIBS@
-sscm_CPPFLAGS = -I$(top_builddir)/include @GCROOTS_CFLAGS@
-sscm_CFLAGS   =
+sscm_LDADD    = libsscm.la
+sscm_CPPFLAGS = -I$(top_builddir)/include
+sscm_CFLAGS   = @GCROOTS_CFLAGS@
 endif
 
 # To enable ruby-and-perl-less build on tarball distribution, we should not

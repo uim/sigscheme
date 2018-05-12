@@ -76,7 +76,7 @@ TST_CASE("scm_gc_protected_contextp()")
 {
     TST_TN_FALSE(scm_gc_protected_contextp());
 
-    TST_TN_FALSE(protected_func(NULL));
+    TST_TN_TRUE (protected_func(NULL) == NULL);
     TST_TN_TRUE (scm_call_with_gc_ready_stack(protected_func, NULL));
     TST_TN_FALSE(protected_func(NULL));
 }
@@ -92,7 +92,7 @@ TST_CASE("GC stack protection")
     TST_TN_FALSE(scm_gc_protected_contextp());
 
 #if TRY_TESTS_THAT_PASS_IN_MOST_CASES
-    TST_TN_FALSE(var_in_protected_func(NULL));
+    TST_TN_TRUE (var_in_protected_func(NULL) == NULL);
 #endif
     TST_TN_TRUE (scm_call_with_gc_ready_stack(var_in_protected_func, NULL));
 #if TRY_TESTS_THAT_PASS_IN_MOST_CASES
@@ -114,7 +114,7 @@ TST_CASE("GC stack protection for long array")
     TST_TN_FALSE(scm_gc_protected_contextp());
 
 #if TRY_TESTS_THAT_PASS_IN_MOST_CASES
-    TST_TN_FALSE(vars_in_protected_func(NULL));
+    TST_TN_TRUE (vars_in_protected_func(NULL) == NULL);
 #endif
     TST_TN_TRUE (scm_call_with_gc_ready_stack(vars_in_protected_func, NULL));
 #if TRY_TESTS_THAT_PASS_IN_MOST_CASES

@@ -36,7 +36,7 @@
 
 require 'scm_decl.rb'
 
-DATA_DIR    = "../tools"  # FIXME: make specifiable via commandline option
+DATA_DIR    = "#{File.dirname(__FILE__)}/../tools"
 FILE_HEADER = "#{DATA_DIR}/functable-header.txt"
 FILE_FOOTER = "#{DATA_DIR}/functable-footer.txt"
 

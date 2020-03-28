@@ -53,76 +53,81 @@ FUNC_TABLES = \
 if MAINTAINER_MODE
 $(FUNC_TABLES): $(top_builddir)/config.status
 # Core
-SSCM_CORE_SRCS = error.c module.c
-R5RS_CORE_SRCS = eval.c procedure.c list.c
+SSCM_CORE_SRCS = \
+	$(srcdir)/error.c \
+	$(srcdir)/module.c
+R5RS_CORE_SRCS = \
+	$(srcdir)/eval.c \
+	$(srcdir)/list.c \
+	$(srcdir)/procedure.c
 functable-sscm-core.c: $(SSCM_CORE_SRCS) $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_sscm_core" $(SSCM_CORE_SRCS)
 functable-r5rs-core.c: $(R5RS_CORE_SRCS) $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_core" $(R5RS_CORE_SRCS)
 # R5RS syntaxes
-functable-r5rs-syntax.c: syntax.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-syntax.c: $(srcdir)/syntax.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_syntax" $<
-functable-r5rs-qquote.c: qquote.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-qquote.c: $(srcdir)/qquote.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_qquote" $<
-functable-r5rs-macro.c: macro.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-macro.c: $(srcdir)/macro.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_macro" $<
-functable-r5rs-promise.c: promise.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-promise.c: $(srcdir)/promise.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_promise" $<
 # R5RS procedures
-functable-r5rs-number.c: number.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-number.c: $(srcdir)/number.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_number" $<
-functable-r5rs-number-io.c: number-io.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-number-io.c: $(srcdir)/number-io.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_number_io" $<
-functable-r5rs-char.c: char.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-char.c: $(srcdir)/char.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_char" $<
-functable-r5rs-string.c: string.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-string.c: $(srcdir)/string.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_string" $<
-functable-r5rs-string-procedure.c: string-procedure.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-string-procedure.c: $(srcdir)/string-procedure.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_string_procedure" $<
-functable-r5rs-vector.c: vector.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-vector.c: $(srcdir)/vector.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_vector" $<
-functable-r5rs-port.c: port.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-port.c: $(srcdir)/port.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_port" $<
-functable-r5rs-read.c: read.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-read.c: $(srcdir)/read.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_read" $<
-functable-r5rs-write.c: write.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-write.c: $(srcdir)/write.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_write" $<
-functable-r5rs-load.c: load.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-load.c: $(srcdir)/load.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_load" $<
-functable-r5rs-deep-cadrs.c: deep-cadrs.c $(BUILD_FUNCTBL_DEPS)
+functable-r5rs-deep-cadrs.c: $(srcdir)/deep-cadrs.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_deep_cadrs" $<
 # Optional modules
-functable-legacy-macro.c: legacy-macro.c $(BUILD_FUNCTBL_DEPS)
+functable-legacy-macro.c: $(srcdir)/legacy-macro.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_legacy_macro" $<
-functable-sscm-ext.c: module-sscm-ext.c $(BUILD_FUNCTBL_DEPS)
+functable-sscm-ext.c: $(srcdir)/module-sscm-ext.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_sscm_ext" $<
-functable-siod.c: module-siod.c $(BUILD_FUNCTBL_DEPS)
+functable-siod.c: $(srcdir)/module-siod.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_siod" $<
-functable-srfi1.c: module-srfi1.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi1.c: $(srcdir)/module-srfi1.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi1" $<
-functable-srfi2.c: module-srfi2.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi2.c: $(srcdir)/module-srfi2.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi2" $<
-functable-srfi6.c: module-srfi6.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi6.c: $(srcdir)/module-srfi6.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi6" $<
-functable-srfi8.c: module-srfi8.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi8.c: $(srcdir)/module-srfi8.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi8" $<
-functable-srfi9.c: module-srfi9.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi9.c: $(srcdir)/module-srfi9.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi9" $<
-functable-srfi23.c: module-srfi23.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi23.c: $(srcdir)/module-srfi23.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi23" $<
-functable-srfi28.c: module-srfi28.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi28.c: $(srcdir)/module-srfi28.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi28" $<
-functable-srfi34.c: module-srfi34.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi34.c: $(srcdir)/module-srfi34.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi34" $<
-functable-srfi38.c: module-srfi38.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi38.c: $(srcdir)/module-srfi38.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi38" $<
-functable-srfi43.c: module-srfi43.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi43.c: $(srcdir)/module-srfi43.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi43" $<
-functable-srfi48.c: module-srfi48.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi48.c: $(srcdir)/module-srfi48.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi48" $<
-functable-srfi55.c: module-srfi55.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi55.c: $(srcdir)/module-srfi55.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi55" $<
-functable-srfi60.c: module-srfi60.c $(BUILD_FUNCTBL_DEPS)
+functable-srfi60.c: $(srcdir)/module-srfi60.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi60" $<
 endif
 

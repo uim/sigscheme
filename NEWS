@@ -1,3 +1,27 @@
+Overview of changes from 0.9.0 to 0.9.1
+=======================================
+
+* Improvements
+
+  * Simplify getcontext() detection
+    [GitHub#3][Patch by NIIBE Yutaka]
+
+  * Add support for GNU Hurd
+    [GitHub#5][Patch by NIIBE Yutaka]
+
+  * Update the bundled libgcroots to 0.3.2
+
+* Fixes
+
+  * Fix test directory
+    [Reported by OBATA Akio]
+
+* Thanks
+
+  * NIIBE Yutaka
+
+  * OBATA Akio
+
 Overview of changes from 0.8.6 to 0.9.0
 =======================================
 

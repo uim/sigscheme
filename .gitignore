@@ -3,6 +3,7 @@
 /Makefile.in
 /aclocal.m4
 /autom4te.cache
+/compile
 /config.guess
 /config.log
 /config.status
@@ -18,6 +19,7 @@
 /missing
 /sigscheme.mk
 /sigscheme.pc
+/test-driver
 /uim.desktop
 /uim.desktop.in
 /uim.pc
@@ -62,6 +64,11 @@
 # /m4/
 /m4/Makefile
 /m4/Makefile.in
+/m4/libtool.m4
+/m4/ltoptions.m4
+/m4/ltsugar.m4
+/m4/ltversion.m4
+/m4/lt~obsolete.m4
 
 # /src/
 /src/.deps/
@@ -69,6 +76,7 @@
 /src/Makefile.in
 /src/config.h
 /src/config.h.in
+/src/config.h.in~
 /src/functable-legacy-macro.c
 /src/functable-r5rs-char.c
 /src/functable-r5rs-core.c

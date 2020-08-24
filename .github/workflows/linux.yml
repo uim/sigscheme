@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          sumodules: true
       - name: Install dependencies to generate configure
         run: |
           sudo apt update
@@ -21,6 +23,8 @@ jobs:
             libtool
       - name: Generate configure
         run: |
+          ./autogen.sh
+          cd libgcroots
           ./autogen.sh
       - name: Build Docker image
         run: |

@@ -40,5 +40,5 @@ sum: FORCE
 	$(SHA1) $(DIST_ARCHIVES) >>$(DIST_SUM_LIST)
 
 tag:
-	git tag -a -m "$(VERSION) has been released!!!" $(VERSION)
-	git push --tags
+	cd "$(srcdir)" && git tag -a -m "$(VERSION) has been released!!!" $(VERSION)
+	cd "$(srcdir)" && git push --tags

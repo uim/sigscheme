@@ -38,6 +38,7 @@ FORCE:
 sum: FORCE
 	$(MD5) $(DIST_ARCHIVES) >$(DIST_SUM_LIST)
 	$(SHA1) $(DIST_ARCHIVES) >>$(DIST_SUM_LIST)
+	$(SHA256) $(DIST_ARCHIVES) >>$(DIST_SUM_LIST)
 
 tag:
 	cd "$(srcdir)" && git tag -a -m "$(VERSION) has been released!!!" $(VERSION)

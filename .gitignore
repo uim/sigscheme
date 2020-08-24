@@ -17,13 +17,11 @@
 /libtool
 /ltmain.sh
 /missing
+/sigscheme-*.sum
+/sigscheme-*.tar.*
 /sigscheme.mk
 /sigscheme.pc
 /test-driver
-/uim.desktop
-/uim.desktop.in
-/uim.pc
-/uim.spec
 
 # /bench/
 /bench/Makefile

@@ -1012,7 +1012,7 @@ AC_DEFINE(SCM_SCMPORT_USE_WITH_SIGSCHEME, 1,
 # Debugging-related flags
 if test "x$use_debug" = xyes; then
   if test "x$ac_cv_prog_cc_g" = xyes; then
-    CFLAGS="$CFLAGS -g"
+    CFLAGS="$CFLAGS -g3"
   fi
 
   # Restricting the C dialect tends to cause system library disfunction such as

@@ -1084,7 +1084,7 @@ base config:  $use_conf
 [Storage configuration]
 Storage impl: $use_storage
 Fixnum size:  $use_fixnum
-getcontext:   $ax_cv_func_getcontext
+getcontext:   $ac_cv_func_getcontext
 libgcroots:   $use_libgcroots
 
 [Multibyte character handlings]

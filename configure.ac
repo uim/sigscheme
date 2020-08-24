@@ -203,7 +203,6 @@ AX_LANG_WNOERROR  # end AC_LANG_WERROR
 # Checks for library functions
 #
 
-# AX_FUNC_GETCONTEXT
 AX_FUNC_SIGSETJMP
 
 AC_CHECK_FUNCS([getcontext strtoll strtoimax \

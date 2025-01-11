@@ -35,7 +35,7 @@ AC_DEFUN([AX_CHECK_PAGE_ALIGNED_MALLOC],
 # include <unistd.h>
 #endif
 
-int main()
+int main(void)
 {
   int pagesize = getpagesize();
   int i;

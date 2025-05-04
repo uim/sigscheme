@@ -1,4 +1,11 @@
 services:
+  arch-linux:
+    image: uim/sigscheme-arch-linux
+    build:
+      context: ci/dockerfiles
+      dockerfile: arch-linux.dockerfile
+    volumes:
+      - .:/source:delegated
   debian-12:
     image: uim/sigscheme-debian-12
     build:

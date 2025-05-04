@@ -66,7 +66,6 @@ AC_C_INLINE
 AC_C_CHAR_UNSIGNED
 AX_C_ARITHMETIC_RSHIFT
 AX_C___ATTRIBUTE__
-#AX_C___ALIGNOF__
 #AX_C_DATA_ALIGNED
 #if test "x$ax_cv_c_data_aligned" = xno; then
 #  AC_MSG_ERROR([C data types are not aligned as we expected.])

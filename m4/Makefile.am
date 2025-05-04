@@ -1,5 +1,5 @@
 EXTRA_DIST = ax_check_page_aligned_malloc.m4            \
-             ax_c___alignof__.m4                        \
+             ax_c___attribute__.m4                      \
              ax_c_arithmetic_rshift.m4                  \
              ax_c_referenceable_passed_va_list.m4       \
              ax_cflags_gcc_option.m4                    \

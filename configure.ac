@@ -174,26 +174,22 @@ else
   ax_prog_cc_version="unknown"
 fi
 
-AC_LANG_WERROR  # Turn warning-only unknown options into error.
-
-AX_CFLAGS_GCC_OPTION([-pedantic])
-AX_CFLAGS_GCC_OPTION([-Wall])
-AX_CFLAGS_GCC_OPTION([-Wchar-subscripts])
-AX_CFLAGS_GCC_OPTION([-Wmissing-declarations])
-AX_CFLAGS_GCC_OPTION([-Wredundant-decls])
-AX_CFLAGS_GCC_OPTION([-Wmissing-prototypes])
-AX_CFLAGS_GCC_OPTION([-Wnested-externs])
-AX_CFLAGS_GCC_OPTION([-Wpointer-arith])
-AX_CFLAGS_GCC_OPTION([-Wcast-align])
-AX_CFLAGS_GCC_OPTION([-Wsign-compare])
+AX_CHECK_COMPILE_FLAG([-pedantic])
+AX_CHECK_COMPILE_FLAG([-Wall])
+AX_CHECK_COMPILE_FLAG([-Wchar-subscripts])
+AX_CHECK_COMPILE_FLAG([-Wmissing-declarations])
+AX_CHECK_COMPILE_FLAG([-Wredundant-decls])
+AX_CHECK_COMPILE_FLAG([-Wmissing-prototypes])
+AX_CHECK_COMPILE_FLAG([-Wnested-externs])
+AX_CHECK_COMPILE_FLAG([-Wpointer-arith])
+AX_CHECK_COMPILE_FLAG([-Wcast-align])
+AX_CHECK_COMPILE_FLAG([-Wsign-compare])
 
 # Suppress warnings about strings longer than ISO C 89 maximum length (509).
-AX_CFLAGS_GCC_OPTION([-Wno-overlength-strings])
+AX_CHECK_COMPILE_FLAG([-Wno-overlength-strings])
 
 # Disable the problematic preprocessing on Mac OS X
-AX_CFLAGS_GCC_OPTION([-no-cpp-precomp])
-
-AX_LANG_WNOERROR  # end AC_LANG_WERROR
+AX_CHECK_COMPILE_FLAG([-no-cpp-precomp])
 
 #
 # Checks for library functions
@@ -1009,20 +1005,6 @@ if test "x$use_debug" = xyes; then
   if test "x$ac_cv_prog_cc_g" = xyes; then
     CFLAGS="$CFLAGS -g3"
   fi
-
-  # Restricting the C dialect tends to cause system library disfunction such as
-  # on glibc and Darwin libc. So this option is only specified at debugging
-  # mode.
-  #
-  # -std=gnu89 is required only for (old?) glibc. -std=c89 is sufficient for
-  # other environments.
-  AC_LANG_WERROR  # Turn warning-only unknown options into error.
-  if test "x$ax_cv_lib_glibc" = xyes; then
-    AX_CFLAGS_GCC_OPTION([-std=gnu89])
-  else
-    AX_CFLAGS_GCC_OPTION([-std=c89])
-  fi
-  AX_LANG_WNOERROR  # end AC_LANG_WERROR
 else
   CFLAGS="$CFLAGS -DNDEBUG"
 fi

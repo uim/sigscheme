@@ -1,10 +1,10 @@
 version: "3.5"
 
 services:
-  debian-10:
-    image: uim/sigscheme-debian-10
+  debian-12:
+    image: uim/sigscheme-debian-12
     build:
       context: ci/dockerfiles
-      dockerfile: debian-10.dockerfile
+      dockerfile: debian-12.dockerfile
     volumes:
       - .:/source:delegated

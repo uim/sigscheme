@@ -12,7 +12,6 @@ pushd libgcroots
 popd
 ./autogen.sh
 popd
-popd
 set +x
 echo "::endgroup::"
 

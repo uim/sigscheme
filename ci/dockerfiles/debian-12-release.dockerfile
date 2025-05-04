@@ -12,9 +12,13 @@ RUN \
   apt update -qq && \
   apt install -y \
     asciidoc \
+    autoconf \
+    autoconf-archive \
+    automake \
     bzip2 \
     gcc \
     libc6-dev \
+    libtool \
     make \
     pkg-config \
     ruby \

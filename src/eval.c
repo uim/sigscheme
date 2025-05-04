@@ -56,8 +56,63 @@
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static ScmObj reduce(ScmObj (*func)(), ScmObj args, ScmObj env,
-                     enum ScmValueType need_eval);
+typedef ScmObj (*ScmReduceFuncType)(ScmObj left,
+                                    ScmObj right,
+                                    enum ScmReductionState *state);
+typedef ScmObj (*ScmTailrecArg0FuncType)(ScmEvalState *eval_state);
+typedef ScmObj (*ScmTailrecArg1FuncType)(ScmObj arg0,
+                                         ScmEvalState *eval_state);
+typedef ScmObj (*ScmTailrecArg2FuncType)(ScmObj arg0,
+                                         ScmObj arg1,
+                                         ScmEvalState *eval_state);
+typedef ScmObj (*ScmTailrecArg3FuncType)(ScmObj arg0,
+                                         ScmObj arg1,
+                                         ScmObj arg2,
+                                         ScmEvalState *eval_state);
+typedef ScmObj (*ScmTailrecArg4FuncType)(ScmObj arg0,
+                                         ScmObj arg1,
+                                         ScmObj arg2,
+                                         ScmObj arg3,
+                                         ScmEvalState *eval_state);
+typedef ScmObj (*ScmTailrecArg5FuncType)(ScmObj arg0,
+                                         ScmObj arg1,
+                                         ScmObj arg2,
+                                         ScmObj arg3,
+                                         ScmObj arg4,
+                                         ScmEvalState *eval_state);
+typedef ScmObj (*ScmTailrecArg6FuncType)(ScmObj arg0,
+                                         ScmObj arg1,
+                                         ScmObj arg2,
+                                         ScmObj arg3,
+                                         ScmObj arg4,
+                                         ScmObj arg5,
+                                         ScmEvalState *eval_state);
+typedef ScmObj (*ScmArg0FuncType)(void);
+typedef ScmObj (*ScmArg1FuncType)(ScmObj arg0);
+typedef ScmObj (*ScmArg2FuncType)(ScmObj arg0, ScmObj arg1);
+typedef ScmObj (*ScmArg3FuncType)(ScmObj arg0, ScmObj arg1, ScmObj arg2);
+typedef ScmObj (*ScmArg4FuncType)(ScmObj arg0,
+                                  ScmObj arg1,
+                                  ScmObj arg2,
+                                  ScmObj arg3);
+typedef ScmObj (*ScmArg5FuncType)(ScmObj arg0,
+                                  ScmObj arg1,
+                                  ScmObj arg2,
+                                  ScmObj arg3,
+                                  ScmObj arg4);
+typedef ScmObj (*ScmArg6FuncType)(ScmObj arg0,
+                                  ScmObj arg1,
+                                  ScmObj arg2,
+                                  ScmObj arg3,
+                                  ScmObj arg4,
+                                  ScmObj arg5);
+typedef ScmObj (*ScmArg7FuncType)(ScmObj arg0,
+                                  ScmObj arg1,
+                                  ScmObj arg2,
+                                  ScmObj arg3,
+                                  ScmObj arg4,
+                                  ScmObj arg5,
+                                  ScmObj arg6);
 #if SCM_USE_CONTINUATION
 static void call_continuation(ScmObj cont, ScmObj args,
                               ScmEvalState *eval_state,
@@ -96,7 +151,7 @@ scm_call(ScmObj proc, ScmObj args)
 
 /* ARGS should NOT have been evaluated yet. */
 static ScmObj
-reduce(ScmObj (*func)(), ScmObj args, ScmObj env, enum ScmValueType need_eval)
+reduce(ScmReduceFuncType func, ScmObj args, ScmObj env, enum ScmValueType need_eval)
 {
     ScmObj left, right;
     enum ScmReductionState state;
@@ -235,7 +290,6 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
      enum ScmValueType need_eval)
 {
     ScmObj env, vals;
-    ScmObj (*func)();
     enum ScmFuncTypeCode type;
     scm_bool syntaxp;
     int mand_count, i;
@@ -324,10 +378,11 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
     /* We have a C function. */
 
     type = SCM_FUNC_TYPECODE(proc);
-    func = SCM_FUNC_CFUNC(proc);
 
-    if (type == SCM_REDUCTION_OPERATOR)
+    if (type == SCM_REDUCTION_OPERATOR) {
+        ScmReduceFuncType func = (ScmReduceFuncType)SCM_FUNC_CFUNC(proc);
         return reduce(func, args, env, need_eval);
+    }
 
     syntaxp = type & SCM_FUNCTYPE_SYNTAX;
     if (syntaxp) {
@@ -379,28 +434,71 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
     if (type & SCM_FUNCTYPE_TAILREC) {
         switch (i) {
         case 1:
-            return (*func)(eval_state);
+            {
+                ScmTailrecArg0FuncType func =
+                    (ScmTailrecArg0FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(eval_state);
+            }
         case 2:
-            return (*func)(argbuf[0], eval_state);
+            {
+                ScmTailrecArg1FuncType func =
+                    (ScmTailrecArg1FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0], eval_state);
+            }
         case 3:
 #if SCM_FUNCTYPE_MAND_MAX >= 1
-            return (*func)(argbuf[0], argbuf[1], eval_state);
+            {
+                ScmTailrecArg2FuncType func =
+                    (ScmTailrecArg2FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0], argbuf[1], eval_state);
+            }
 #endif
         case 4:
 #if SCM_FUNCTYPE_MAND_MAX >= 2
-            return (*func)(argbuf[0], argbuf[1], argbuf[2], eval_state);
+            {
+                ScmTailrecArg3FuncType func =
+                    (ScmTailrecArg3FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0], argbuf[1], argbuf[2], eval_state);
+            }
 #endif
         case 5:
 #if SCM_FUNCTYPE_MAND_MAX >= 3
-            return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3], eval_state);
+            {
+                ScmTailrecArg4FuncType func =
+                    (ScmTailrecArg4FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0],
+                               argbuf[1],
+                               argbuf[2],
+                               argbuf[3],
+                               eval_state);
+            }
 #endif
         case 6:
 #if SCM_FUNCTYPE_MAND_MAX >= 4
-            return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3], argbuf[4], eval_state);
+            {
+                ScmTailrecArg5FuncType func =
+                    (ScmTailrecArg5FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0],
+                               argbuf[1],
+                               argbuf[2],
+                               argbuf[3],
+                               argbuf[4],
+                               eval_state);
+            }
 #endif
         case 7:
 #if SCM_FUNCTYPE_MAND_MAX >= 5
-            return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3], argbuf[4], argbuf[5], eval_state);
+            {
+                ScmTailrecArg6FuncType func =
+                    (ScmTailrecArg6FuncType)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0],
+                               argbuf[1],
+                               argbuf[2],
+                               argbuf[3],
+                               argbuf[4],
+                               argbuf[5],
+                               eval_state);
+            }
 #endif
         default:
             SCM_NOTREACHED;
@@ -410,30 +508,69 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
 
     switch (i) {
     case 0:
-        return (*func)();
+        {
+            ScmArg0FuncType func = (ScmArg0FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)();
+        }
     case 1:
-        return (*func)(argbuf[0]);
+        {
+            ScmArg1FuncType func = (ScmArg1FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0]);
+        }
     case 2:
-        return (*func)(argbuf[0], argbuf[1]);
+        {
+            ScmArg2FuncType func = (ScmArg2FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0], argbuf[1]);
+        }
     case 3:
 #if SCM_FUNCTYPE_MAND_MAX >= 1
-        return (*func)(argbuf[0], argbuf[1], argbuf[2]);
+        {
+            ScmArg3FuncType func = (ScmArg3FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0], argbuf[1], argbuf[2]);
+        }
 #endif
     case 4:
 #if SCM_FUNCTYPE_MAND_MAX >= 2
-        return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3]);
+        {
+            ScmArg4FuncType func = (ScmArg4FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3]);
+        }
 #endif
     case 5:
 #if SCM_FUNCTYPE_MAND_MAX >= 3
-        return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3], argbuf[4]);
+        {
+            ScmArg5FuncType func = (ScmArg5FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0],
+                           argbuf[1],
+                           argbuf[2],
+                           argbuf[3],
+                           argbuf[4]);
+        }
 #endif
     case 6:
 #if SCM_FUNCTYPE_MAND_MAX >= 4
-        return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3], argbuf[4], argbuf[5]);
+        {
+            ScmArg6FuncType func = (ScmArg6FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0],
+                           argbuf[1],
+                           argbuf[2],
+                           argbuf[3],
+                           argbuf[4],
+                           argbuf[5]);
+        }
 #endif
     case 7:
 #if SCM_FUNCTYPE_MAND_MAX >= 5
-        return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3], argbuf[4], argbuf[5], argbuf[6]);
+        {
+            ScmArg7FuncType func = (ScmArg7FuncType)SCM_FUNC_CFUNC(proc);
+            return (*func)(argbuf[0],
+                           argbuf[1],
+                           argbuf[2],
+                           argbuf[3],
+                           argbuf[4],
+                           argbuf[5],
+                           argbuf[6]);
+        }
 #endif
 
     default:

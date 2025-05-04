@@ -659,7 +659,7 @@ struct ScmStorageConf_ {
     SCM_TYPESAFE_MACRO(SCM_SAL_MAKE_FUNC,                                    \
                        ScmObj,                                               \
                        (enum ScmFuncTypeCode, ScmFuncType),                  \
-                       ((type), (func)))
+                       ((type), (ScmFuncType)(func)))
 
 #define SCM_MAKE_CLOSURE(exp, env)                                           \
     SCM_TYPESAFE_MACRO(SCM_SAL_MAKE_CLOSURE,                                 \

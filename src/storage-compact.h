@@ -222,7 +222,7 @@ struct ScmCell_ {
     ScmObj obj_y;
 };
 
-typedef ScmObj (*ScmFuncType)();
+typedef ScmObj (*ScmFuncType)(void);
 
 /* ScmObj = .....|PP|G
  * G = GC bit

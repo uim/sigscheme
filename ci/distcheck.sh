@@ -3,6 +3,7 @@
 set -eux
 
 /source/configure \
+  --enable-conf=uim \
   --enable-maintainer-mode \
   --prefix=/tmp/local
 

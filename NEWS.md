@@ -1,6 +1,12 @@
 # NEWS
 
-## 0.9.2
+## 0.9.3 - 2025-05-06
+
+### Improvements
+
+  * Cleaned up internal function call dispatch implementation.
+
+## 0.9.2 - 2025-05-05
 
 ### Improvements
 

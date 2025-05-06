@@ -56,63 +56,6 @@
 /*=======================================
   File Local Function Declarations
 =======================================*/
-typedef ScmObj (*ScmReduceFuncType)(ScmObj left,
-                                    ScmObj right,
-                                    enum ScmReductionState *state);
-typedef ScmObj (*ScmTailrecArg0FuncType)(ScmEvalState *eval_state);
-typedef ScmObj (*ScmTailrecArg1FuncType)(ScmObj arg0,
-                                         ScmEvalState *eval_state);
-typedef ScmObj (*ScmTailrecArg2FuncType)(ScmObj arg0,
-                                         ScmObj arg1,
-                                         ScmEvalState *eval_state);
-typedef ScmObj (*ScmTailrecArg3FuncType)(ScmObj arg0,
-                                         ScmObj arg1,
-                                         ScmObj arg2,
-                                         ScmEvalState *eval_state);
-typedef ScmObj (*ScmTailrecArg4FuncType)(ScmObj arg0,
-                                         ScmObj arg1,
-                                         ScmObj arg2,
-                                         ScmObj arg3,
-                                         ScmEvalState *eval_state);
-typedef ScmObj (*ScmTailrecArg5FuncType)(ScmObj arg0,
-                                         ScmObj arg1,
-                                         ScmObj arg2,
-                                         ScmObj arg3,
-                                         ScmObj arg4,
-                                         ScmEvalState *eval_state);
-typedef ScmObj (*ScmTailrecArg6FuncType)(ScmObj arg0,
-                                         ScmObj arg1,
-                                         ScmObj arg2,
-                                         ScmObj arg3,
-                                         ScmObj arg4,
-                                         ScmObj arg5,
-                                         ScmEvalState *eval_state);
-typedef ScmObj (*ScmArg0FuncType)(void);
-typedef ScmObj (*ScmArg1FuncType)(ScmObj arg0);
-typedef ScmObj (*ScmArg2FuncType)(ScmObj arg0, ScmObj arg1);
-typedef ScmObj (*ScmArg3FuncType)(ScmObj arg0, ScmObj arg1, ScmObj arg2);
-typedef ScmObj (*ScmArg4FuncType)(ScmObj arg0,
-                                  ScmObj arg1,
-                                  ScmObj arg2,
-                                  ScmObj arg3);
-typedef ScmObj (*ScmArg5FuncType)(ScmObj arg0,
-                                  ScmObj arg1,
-                                  ScmObj arg2,
-                                  ScmObj arg3,
-                                  ScmObj arg4);
-typedef ScmObj (*ScmArg6FuncType)(ScmObj arg0,
-                                  ScmObj arg1,
-                                  ScmObj arg2,
-                                  ScmObj arg3,
-                                  ScmObj arg4,
-                                  ScmObj arg5);
-typedef ScmObj (*ScmArg7FuncType)(ScmObj arg0,
-                                  ScmObj arg1,
-                                  ScmObj arg2,
-                                  ScmObj arg3,
-                                  ScmObj arg4,
-                                  ScmObj arg5,
-                                  ScmObj arg6);
 #if SCM_USE_CONTINUATION
 static void call_continuation(ScmObj cont, ScmObj args,
                               ScmEvalState *eval_state,
@@ -151,7 +94,10 @@ scm_call(ScmObj proc, ScmObj args)
 
 /* ARGS should NOT have been evaluated yet. */
 static ScmObj
-reduce(ScmReduceFuncType func, ScmObj args, ScmObj env, enum ScmValueType need_eval)
+reduce(scm_reduction_operator func,
+       ScmObj args,
+       ScmObj env,
+       enum ScmValueType need_eval)
 {
     ScmObj left, right;
     enum ScmReductionState state;
@@ -380,7 +326,8 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
     type = SCM_FUNC_TYPECODE(proc);
 
     if (type == SCM_REDUCTION_OPERATOR) {
-        ScmReduceFuncType func = (ScmReduceFuncType)SCM_FUNC_CFUNC(proc);
+        scm_reduction_operator func =
+            (scm_reduction_operator)SCM_FUNC_CFUNC(proc);
         return reduce(func, args, env, need_eval);
     }
 
@@ -418,163 +365,323 @@ call(ScmObj proc, ScmObj args, ScmEvalState *eval_state,
 
     if (type & SCM_FUNCTYPE_TAILREC) {
         eval_state->ret_type = SCM_VALTYPE_NEED_EVAL;
-#if (SIZEOF_VOID_P != SIZEOF_SCMOBJ)
-        /* eval_state cannot be stored into argbuf safely. */
-        argbuf[i++] = SCM_INVALID; /* dummy */
-#else
-        argbuf[i++] = (ScmObj)eval_state;
-#endif
     } else {
         eval_state->ret_type = SCM_VALTYPE_AS_IS;
         if (type & SCM_FUNCTYPE_SYNTAX)
             argbuf[i++] = env;
     }
 
-#if (SIZEOF_VOID_P != SIZEOF_SCMOBJ)
     if (type & SCM_FUNCTYPE_TAILREC) {
+        if (type & SCM_FUNCTYPE_VARIADIC) {
+            switch (i) {
+            case 1:
+                {
+                    scm_procedure_variadic_tailrec_0 func =
+                        (scm_procedure_variadic_tailrec_0)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], eval_state);
+                }
+            case 2:
+#if SCM_FUNCTYPE_MAND_MAX >= 1
+                {
+                    scm_procedure_variadic_tailrec_1 func =
+                        (scm_procedure_variadic_tailrec_1)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1], eval_state);
+                }
+#endif
+            case 3:
+#if SCM_FUNCTYPE_MAND_MAX >= 2
+                {
+                    scm_procedure_variadic_tailrec_2 func =
+                        (scm_procedure_variadic_tailrec_2)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1], argbuf[2], eval_state);
+                }
+#endif
+            case 4:
+#if SCM_FUNCTYPE_MAND_MAX >= 3
+                {
+                    scm_procedure_variadic_tailrec_3 func =
+                        (scm_procedure_variadic_tailrec_3)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   eval_state);
+                }
+#endif
+            case 5:
+#if SCM_FUNCTYPE_MAND_MAX >= 4
+                {
+                    scm_procedure_variadic_tailrec_4 func =
+                        (scm_procedure_variadic_tailrec_4)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4],
+                                   eval_state);
+                }
+#endif
+            case 6:
+#if SCM_FUNCTYPE_MAND_MAX >= 5
+                {
+                    scm_procedure_variadic_tailrec_5 func =
+                        (scm_procedure_variadic_tailrec_5)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4],
+                                   argbuf[5],
+                                   eval_state);
+                }
+#endif
+            default:
+                SCM_NOTREACHED;
+            }
+        } else {
+             switch (i) {
+             case 0:
+                 {
+                     scm_procedure_fixed_tailrec_0 func =
+                         (scm_procedure_fixed_tailrec_0)SCM_FUNC_CFUNC(proc);
+                     return (*func)(eval_state);
+                 }
+#if SCM_FUNCTYPE_MAND_MAX >= 1
+             case 1:
+                 {
+                     scm_procedure_fixed_tailrec_1 func =
+                         (scm_procedure_fixed_tailrec_1)SCM_FUNC_CFUNC(proc);
+                     return (*func)(argbuf[0], eval_state);
+                 }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 2
+             case 2:
+                 {
+                     scm_procedure_fixed_tailrec_2 func =
+                         (scm_procedure_fixed_tailrec_2)SCM_FUNC_CFUNC(proc);
+                     return (*func)(argbuf[0], argbuf[1], eval_state);
+                 }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 3
+             case 3:
+                 {
+                     scm_procedure_fixed_tailrec_3 func =
+                         (scm_procedure_fixed_tailrec_3)SCM_FUNC_CFUNC(proc);
+                     return (*func)(argbuf[0], argbuf[1], argbuf[2], eval_state);
+                 }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 4
+             case 4:
+                 {
+                     scm_procedure_fixed_tailrec_4 func =
+                         (scm_procedure_fixed_tailrec_4)SCM_FUNC_CFUNC(proc);
+                     return (*func)(argbuf[0],
+                                    argbuf[1],
+                                    argbuf[2],
+                                    argbuf[3],
+                                    eval_state);
+                 }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 5
+             case 5:
+                 {
+                     scm_procedure_fixed_tailrec_5 func =
+                         (scm_procedure_fixed_tailrec_5)SCM_FUNC_CFUNC(proc);
+                     return (*func)(argbuf[0],
+                                    argbuf[1],
+                                    argbuf[2],
+                                    argbuf[3],
+                                    argbuf[4],
+                                    eval_state);
+                 }
+#endif
+             default:
+                 SCM_NOTREACHED;
+             }
+        }
+    } else if (type & SCM_FUNCTYPE_SYNTAX) {
+        if (type & SCM_FUNCTYPE_VARIADIC) {
+            switch (i) {
+            case 2:
+                {
+                    scm_syntax_variadic_0 func =
+                        (scm_syntax_variadic_0)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1]);
+                }
+#if SCM_FUNCTYPE_MAND_MAX >= 1
+            case 3:
+                {
+                    scm_syntax_variadic_1 func =
+                        (scm_syntax_variadic_1)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1], argbuf[2]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 2
+            case 4:
+                {
+                    scm_syntax_variadic_2 func =
+                        (scm_syntax_variadic_2)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 3
+            case 5:
+                {
+                    scm_syntax_variadic_3 func =
+                        (scm_syntax_variadic_3)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 4
+            case 6:
+                {
+                    scm_syntax_variadic_4 func =
+                        (scm_syntax_variadic_4)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4],
+                                   argbuf[5]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 5
+            case 7:
+                {
+                    scm_syntax_variadic_5 func =
+                        (scm_syntax_variadic_5)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4],
+                                   argbuf[5],
+                                   argbuf[6]);
+                }
+#endif
+            default:
+                SCM_NOTREACHED;
+            }
+        } else {
+            switch (i) {
+            case 1:
+                {
+                    scm_syntax_fixed_0 func =
+                        (scm_syntax_fixed_0)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0]);
+                }
+#if SCM_FUNCTYPE_MAND_MAX >= 1
+            case 2:
+                {
+                    scm_syntax_fixed_1 func =
+                        (scm_syntax_fixed_1)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 2
+            case 3:
+                {
+                    scm_syntax_fixed_2 func =
+                        (scm_syntax_fixed_2)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1], argbuf[2]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 3
+            case 4:
+                {
+                    scm_syntax_fixed_3 func =
+                        (scm_syntax_fixed_3)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 4
+            case 5:
+                {
+                    scm_syntax_fixed_4 func =
+                        (scm_syntax_fixed_4)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4]);
+                }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 5
+            case 6:
+                {
+                    scm_syntax_fixed_5 func =
+                        (scm_syntax_fixed_5)SCM_FUNC_CFUNC(proc);
+                    return (*func)(argbuf[0],
+                                   argbuf[1],
+                                   argbuf[2],
+                                   argbuf[3],
+                                   argbuf[4],
+                                   argbuf[5]);
+                }
+#endif
+            default:
+                SCM_NOTREACHED;
+            }
+        }
+    } else {
         switch (i) {
+        case 0:
+            {
+                scm_procedure_fixed_0 func =
+                    (scm_procedure_fixed_0)SCM_FUNC_CFUNC(proc);
+                return (*func)();
+            }
+#if SCM_FUNCTYPE_MAND_MAX >= 1
         case 1:
             {
-                ScmTailrecArg0FuncType func =
-                    (ScmTailrecArg0FuncType)SCM_FUNC_CFUNC(proc);
-                return (*func)(eval_state);
+                scm_procedure_fixed_1 func =
+                    (scm_procedure_fixed_1)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0]);
             }
+#endif
+#if SCM_FUNCTYPE_MAND_MAX >= 2
         case 2:
             {
-                ScmTailrecArg1FuncType func =
-                    (ScmTailrecArg1FuncType)SCM_FUNC_CFUNC(proc);
-                return (*func)(argbuf[0], eval_state);
-            }
-        case 3:
-#if SCM_FUNCTYPE_MAND_MAX >= 1
-            {
-                ScmTailrecArg2FuncType func =
-                    (ScmTailrecArg2FuncType)SCM_FUNC_CFUNC(proc);
-                return (*func)(argbuf[0], argbuf[1], eval_state);
+                scm_procedure_fixed_2 func =
+                    (scm_procedure_fixed_2)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0], argbuf[1]);
             }
 #endif
-        case 4:
-#if SCM_FUNCTYPE_MAND_MAX >= 2
-            {
-                ScmTailrecArg3FuncType func =
-                    (ScmTailrecArg3FuncType)SCM_FUNC_CFUNC(proc);
-                return (*func)(argbuf[0], argbuf[1], argbuf[2], eval_state);
-            }
-#endif
-        case 5:
 #if SCM_FUNCTYPE_MAND_MAX >= 3
+        case 3:
             {
-                ScmTailrecArg4FuncType func =
-                    (ScmTailrecArg4FuncType)SCM_FUNC_CFUNC(proc);
-                return (*func)(argbuf[0],
-                               argbuf[1],
-                               argbuf[2],
-                               argbuf[3],
-                               eval_state);
+                scm_procedure_fixed_3 func =
+                    (scm_procedure_fixed_3)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0], argbuf[1], argbuf[2]);
             }
 #endif
-        case 6:
 #if SCM_FUNCTYPE_MAND_MAX >= 4
+        case 4:
             {
-                ScmTailrecArg5FuncType func =
-                    (ScmTailrecArg5FuncType)SCM_FUNC_CFUNC(proc);
-                return (*func)(argbuf[0],
-                               argbuf[1],
-                               argbuf[2],
-                               argbuf[3],
-                               argbuf[4],
-                               eval_state);
+                scm_procedure_fixed_4 func =
+                    (scm_procedure_fixed_4)SCM_FUNC_CFUNC(proc);
+                return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3]);
             }
 #endif
-        case 7:
 #if SCM_FUNCTYPE_MAND_MAX >= 5
+        case 5:
             {
-                ScmTailrecArg6FuncType func =
-                    (ScmTailrecArg6FuncType)SCM_FUNC_CFUNC(proc);
+                scm_procedure_fixed_5 func =
+                    (scm_procedure_fixed_5)SCM_FUNC_CFUNC(proc);
                 return (*func)(argbuf[0],
                                argbuf[1],
                                argbuf[2],
                                argbuf[3],
-                               argbuf[4],
-                               argbuf[5],
-                               eval_state);
+                               argbuf[4]);
             }
 #endif
         default:
             SCM_NOTREACHED;
         }
-    }
-#endif /* (SIZEOF_VOID_P < SIZEOF_SCMOBJ) */
-
-    switch (i) {
-    case 0:
-        {
-            ScmArg0FuncType func = (ScmArg0FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)();
-        }
-    case 1:
-        {
-            ScmArg1FuncType func = (ScmArg1FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0]);
-        }
-    case 2:
-        {
-            ScmArg2FuncType func = (ScmArg2FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0], argbuf[1]);
-        }
-    case 3:
-#if SCM_FUNCTYPE_MAND_MAX >= 1
-        {
-            ScmArg3FuncType func = (ScmArg3FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0], argbuf[1], argbuf[2]);
-        }
-#endif
-    case 4:
-#if SCM_FUNCTYPE_MAND_MAX >= 2
-        {
-            ScmArg4FuncType func = (ScmArg4FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0], argbuf[1], argbuf[2], argbuf[3]);
-        }
-#endif
-    case 5:
-#if SCM_FUNCTYPE_MAND_MAX >= 3
-        {
-            ScmArg5FuncType func = (ScmArg5FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0],
-                           argbuf[1],
-                           argbuf[2],
-                           argbuf[3],
-                           argbuf[4]);
-        }
-#endif
-    case 6:
-#if SCM_FUNCTYPE_MAND_MAX >= 4
-        {
-            ScmArg6FuncType func = (ScmArg6FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0],
-                           argbuf[1],
-                           argbuf[2],
-                           argbuf[3],
-                           argbuf[4],
-                           argbuf[5]);
-        }
-#endif
-    case 7:
-#if SCM_FUNCTYPE_MAND_MAX >= 5
-        {
-            ScmArg7FuncType func = (ScmArg7FuncType)SCM_FUNC_CFUNC(proc);
-            return (*func)(argbuf[0],
-                           argbuf[1],
-                           argbuf[2],
-                           argbuf[3],
-                           argbuf[4],
-                           argbuf[5],
-                           argbuf[6]);
-        }
-#endif
-
-    default:
-        SCM_NOTREACHED;
     }
 }
 

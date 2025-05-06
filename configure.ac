@@ -1,5 +1,5 @@
 AC_PREREQ(2.60b)
-AC_INIT([SigScheme], [0.9.3], [sigscheme-ja@googlegroups.com], [sigscheme])
+AC_INIT([SigScheme], [0.9.4], [sigscheme-ja@googlegroups.com], [sigscheme])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/sigscheme.c])
 AC_CONFIG_HEADERS([src/config.h])

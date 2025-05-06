@@ -6,7 +6,7 @@
 
   * Cleaned up internal function call dispatch implementation.
 
-## 0.9.2 - 2025-05-05
+## 0.9.2 - 2025-05-04
 
 ### Improvements
 

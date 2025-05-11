@@ -261,11 +261,11 @@ make_loaded_str(const char *filename)
     char *loaded_str;
     size_t size;
 
-    size = strlen(filename) + sizeof("*-loaded*");
+    size = strlen(filename) + sizeof("*-loaded*") + 1 /* '\0' */;
     loaded_str = scm_malloc(size);
     sprintf(loaded_str, "*%s-loaded*", filename);
 
-    return MAKE_IMMUTABLE_STRING(loaded_str, STRLEN_UNKNOWN);
+    return MAKE_IMMUTABLE_STRING(loaded_str, size - 1);
 }
 
 /*

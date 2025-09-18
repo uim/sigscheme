@@ -10,10 +10,8 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
-;; To receive a copy of the GNU General Public License, write to the
-;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-;; Boston, MA 02111-1307, USA; or view
-;; http://swiss.csail.mit.edu/~jaffer/GPL.html
+;; To receive a copy of the GNU General Public License, see
+;; <https://www.gnu.org/licenses/>.
 
 ;;;;"r4rstest.scm":  Test R4RS correctness of scheme implementations.
 ;;; Author:          Aubrey Jaffer

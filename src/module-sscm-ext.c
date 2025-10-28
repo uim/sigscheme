@@ -248,7 +248,7 @@ scm_p_require(ScmObj filename)
     scm_require_internal(c_filename);
 
 #if SCM_COMPAT_SIOD
-    loaded_str = make_loaded_str(c_filenam);
+    loaded_str = make_loaded_str(c_filename);
     retsym = scm_intern(SCM_STRING_STR(loaded_str));
     SCM_SYMBOL_SET_VCELL(retsym, SCM_TRUE);
 

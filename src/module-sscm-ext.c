@@ -233,22 +233,19 @@ scm_require_internal(const char *filename)
 }
 
 SCM_EXPORT ScmObj
-scm_p_require(ScmObj filename)
+scm_p_require(volatile ScmObj filename)
 {
 #if SCM_COMPAT_SIOD
     ScmObj loaded_str, retsym;
 #endif
-    const char *c_filename;
-
     DECLARE_FUNCTION("require", procedure_fixed_1);
 
     ENSURE_STRING(filename);
 
-    c_filename = SCM_STRING_STR(filename);
-    scm_require_internal(c_filename);
+    scm_require_internal(SCM_STRING_STR(filename));
 
 #if SCM_COMPAT_SIOD
-    loaded_str = make_loaded_str(c_filename);
+    loaded_str = make_loaded_str(SCM_STRING_STR(filename));
     retsym = scm_intern(SCM_STRING_STR(loaded_str));
     SCM_SYMBOL_SET_VCELL(retsym, SCM_TRUE);
 

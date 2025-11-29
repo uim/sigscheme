@@ -11,6 +11,26 @@ concurrency:
   group: ${{ github.head_ref || github.sha }}-${{ github.workflow }}
   cancel-in-progress: true
 jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - name: Setup
+        run: |
+          ./setup.sh
+      - name: Generate configure
+        run: |
+          ./autogen.sh
+      - name: Configure
+        run: |
+          ./configure --enable-maintainer-mode
+      - name: Build
+        run: |
+          make -j$(nproc)
   test:
     name: ${{ matrix.image }}
     strategy:
@@ -27,15 +47,9 @@ jobs:
           submodules: true
       - name: Install dependencies to generate configure
         run: |
-          sudo apt update
-          sudo apt install -y -V \
-            autoconf \
-            autoconf-archive \
-            libtool
+          ./setup.sh
       - name: Generate configure
         run: |
-          ./autogen.sh
-          cd libgcroots
           ./autogen.sh
       - name: Build Docker image
         run: |

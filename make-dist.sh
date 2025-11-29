@@ -1,10 +1,11 @@
 #!/bin/sh
 
+set -eu
+
 MAKE=make
 
-git submodule update --init 
-(cd libgcroots && git checkout master && ./autogen.sh) \
-&& ./autogen.sh \
-|| { echo 'autogen failed.' && exit 1; }
+git submodule update --init
+./autogen.sh
 
-./configure --enable-maintainer-mode --enable-conf=full && $MAKE distcheck sum
+./configure --enable-maintainer-mode --enable-conf=full
+$MAKE distcheck sum

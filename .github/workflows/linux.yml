@@ -18,7 +18,7 @@ jobs:
       matrix:
         image:
           - arch-linux
-          - debian-12
+          - debian-13
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -54,10 +54,10 @@ jobs:
           submodules: recursive
       - name: Build Docker image
         run: |
-          docker compose build debian-12-release
+          docker compose build debian-13-release
       - name: Run Docker image
         run: |
-          docker compose run debian-12-release
+          docker compose run debian-13-release
       - uses: actions/upload-artifact@v5
         with:
           name: source

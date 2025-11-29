@@ -1,4 +1,4 @@
-FROM debian:12
+FROM debian:13
 
 RUN \
   echo "debconf debconf/frontend select Noninteractive" | \
@@ -12,13 +12,9 @@ RUN \
   apt update -qq && \
   apt install -y \
     asciidoc \
-    autoconf \
-    autoconf-archive \
-    automake \
     bzip2 \
     gcc \
     libc6-dev \
-    libtool \
     make \
     pkg-config \
     ruby \
@@ -39,4 +35,4 @@ USER sigscheme
 RUN mkdir -p /home/sigscheme/build
 WORKDIR /home/sigscheme/build
 
-CMD /source/ci/release.sh
+CMD /source/ci/distcheck.sh

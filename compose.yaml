@@ -6,17 +6,17 @@ services:
       dockerfile: arch-linux.dockerfile
     volumes:
       - .:/source:delegated
-  debian-12:
-    image: uim/sigscheme-debian-12
+  debian-13:
+    image: uim/sigscheme-debian-13
     build:
       context: ci/dockerfiles
-      dockerfile: debian-12.dockerfile
+      dockerfile: debian-13.dockerfile
     volumes:
       - .:/source:delegated
-  debian-12-release:
-    image: uim/sigscheme-debian-12-release
+  debian-13-release:
+    image: uim/sigscheme-debian-13-release
     build:
       context: ci/dockerfiles
-      dockerfile: debian-12-release.dockerfile
+      dockerfile: debian-13-release.dockerfile
     volumes:
       - .:/source:delegated

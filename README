@@ -132,11 +132,16 @@ How to build unreleased version
 -------------------------------
 
   $ git clone --recursive https://github.com/uim/sigscheme.git
+  $ git submodule init
   $ cd sigscheme
   $ ./setup.sh
   $ ./autogen.sh
   $ ./configure --enable-maintainer-mode <YOUR_BUILD_OPTIONS>
   $ make -j$(nproc)
+
+After the first checkout, the two git commands may be replaced by
+
+  $ git submodue update
 
 Acknowledgements
 ----------------

@@ -1474,6 +1474,7 @@ SCM_EXPORT ScmObj scm_p_abs(ScmObj _n);
 SCM_EXPORT ScmObj scm_p_quotient(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_modulo(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_remainder(ScmObj _n1, ScmObj _n2);
+SCM_EXPORT ScmObj scm_p_expt(ScmObj _n1, ScmObj _n2);
 #endif /* SCM_USE_NUMBER */
 
 /* number-io.c */

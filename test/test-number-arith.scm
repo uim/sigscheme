@@ -1843,5 +1843,13 @@
                                                -9223372036854775808))"))
   (else
    (assert-fail (tn) "unknown int bitwidth")))
+(tn "expt")
+(assert-equal? (tn)   9 (expt  3  2))
+(assert-equal? (tn)   9 (expt -3  2))
+(assert-equal? (tn)  27 (expt  3  3))
+(assert-equal? (tn) -27 (expt -3  3))
+(assert-equal? (tn)   1 (expt -3  0))
+(assert-equal? (tn)   0 (expt  0 11))
+(assert-error  (tn)     (expt  3 -2))
 
 (total-report)

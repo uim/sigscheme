@@ -45,6 +45,7 @@
 =======================================*/
 #define ERRMSG_DIV_BY_ZERO     "division by zero"
 #define ERRMSG_REQ_1_ARG       "at least 1 argument required"
+#define ERRMSG_NEGATIVE_EXP    "negative exponent"
 
 /*=======================================
   File Local Type Definitions
@@ -416,4 +417,31 @@ scm_p_remainder(ScmObj _n1, ScmObj _n2)
         ERR(ERRMSG_DIV_BY_ZERO);
 
     return MAKE_INT(n1 % n2);
+}
+
+SCM_EXPORT ScmObj
+scm_p_expt(ScmObj _base, ScmObj _expo)
+{
+    scm_int_t base, expo, result;
+    DECLARE_FUNCTION("expt", procedure_fixed_2);
+
+    ENSURE_INT(_base);
+    ENSURE_INT(_expo);
+
+    base = SCM_INT_VALUE(_base);
+    expo = SCM_INT_VALUE(_expo);
+
+    /* SigScheme only implements integer numbers, so negative
+       exponents are not allowed. */
+    if (expo < 0) ERR(ERRMSG_NEGATIVE_EXP);
+
+    result = 1;
+    while (expo > 0) {
+        if (expo % 2 == 1)
+            result *= base;
+        base *= base;
+        expo /= 2;
+    }
+
+    return MAKE_INT(result);
 }

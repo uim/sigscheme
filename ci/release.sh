@@ -25,7 +25,7 @@ echo "::endgroup::"
 
 echo "::group::distcheck"
 set -x
-make distcheck
+make distcheck VERBOSE=1
 set +x
 echo "::endgroup::"
 

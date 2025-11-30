@@ -7,7 +7,7 @@ set -eux
   --enable-maintainer-mode \
   --prefix=/tmp/local
 
-make distcheck
+make distcheck VERBOSE=1
 make sum
 
 sudo -H mv *.tar.* *.sum /source/

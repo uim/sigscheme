@@ -420,8 +420,6 @@ Numbers
   - *procedure:* rational? obj
   - *procedure:* exact? z
   - *procedure:* inexact? z
-  - *library procedure:* gcd n1 ...
-  - *library procedure:* lcm n1 ...
   - *procedure:* numerator q
   - *procedure:* denominator q
   - *procedure:* floor x

@@ -442,6 +442,72 @@ scm_p_expt(ScmObj _base, ScmObj _expo)
         base *= base;
         expo /= 2;
     }
+    return MAKE_INT(result);
+}
 
+static scm_int_t gcd(scm_int_t x, scm_int_t y)
+{
+    /* Note: we do not check the sign of x and y, because
+       this does not affect the computation, except maybe
+       for the sign of the result. So we do compute the
+       absolute value in the end. This is one single
+       computation of abs, instead of two. */
+    scm_int_t tmp;
+    while (x != 0) {
+        tmp = x;
+        x = y % x;
+        y = tmp;
+    }
+    return (y >= 0) ? y : -y;
+}
+
+SCM_EXPORT
+ScmObj scm_p_gcd(ScmObj left, ScmObj right, enum ScmReductionState *state)
+{
+    scm_int_t result;
+    DECLARE_FUNCTION("gcd", reduction_operator);
+
+    result = 0;
+    switch (*state) {
+    case SCM_REDUCE_PARTWAY:
+    case SCM_REDUCE_LAST:
+        ENSURE_INT(left);
+        result = SCM_INT_VALUE(left);
+        /* Fall through. */
+    case SCM_REDUCE_1:
+        ENSURE_INT(right);
+        result = gcd(result, SCM_INT_VALUE(right));
+        /* Fall through. */
+    case SCM_REDUCE_0:
+        break;
+    default:
+        SCM_NOTREACHED;
+    }
+    return MAKE_INT(result);
+}
+
+SCM_EXPORT ScmObj
+scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state)
+{
+    scm_int_t result;
+    DECLARE_FUNCTION("lcm", reduction_operator);
+
+    result = 1;
+    switch (*state) {
+    case SCM_REDUCE_PARTWAY:
+    case SCM_REDUCE_LAST:
+        ENSURE_INT(left);
+        result = SCM_INT_VALUE(left);
+        /* Fall through. */
+    case SCM_REDUCE_1:
+        ENSURE_INT(right);
+        result *= SCM_INT_VALUE(right) / gcd(result, SCM_INT_VALUE(right));
+        /* Fall through. */
+    case SCM_REDUCE_0:
+        break;
+    default:
+        SCM_NOTREACHED;
+    }
+    if (result < 0) result = -result;
     return MAKE_INT(result);
 }

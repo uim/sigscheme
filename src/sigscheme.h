@@ -1475,6 +1475,8 @@ SCM_EXPORT ScmObj scm_p_quotient(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_modulo(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_remainder(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_expt(ScmObj _n1, ScmObj _n2);
+SCM_EXPORT ScmObj scm_p_gcd(ScmObj left, ScmObj right, enum ScmReductionState *state);
+SCM_EXPORT ScmObj scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state);
 #endif /* SCM_USE_NUMBER */
 
 /* number-io.c */

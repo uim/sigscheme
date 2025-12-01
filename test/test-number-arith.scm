@@ -1864,6 +1864,6 @@
 (assert-equal? (tn)  10 (lcm 10))
 (assert-equal? (tn)  20 (lcm 20 1))
 (assert-equal? (tn) 100 (lcm 10 2 4 50))
-(assert-error  (tn)    (lambda () (lcm 'a)))
+(assert-error  (tn)     (lambda () (lcm 'a)))
 
 (total-report)

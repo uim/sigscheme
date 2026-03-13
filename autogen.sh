@@ -3,5 +3,7 @@
 set -eu
 
 ${AUTORECONF:-autoreconf} --force --install "$@"
-cd libgcroots
+cd bdwgc
+./autogen.sh
+cd ../libgcroots
 ./autogen.sh "$@"

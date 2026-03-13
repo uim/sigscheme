@@ -1,3 +1,6 @@
 [submodule "libgcroots"]
 	path = libgcroots
 	url = https://github.com/uim/libgcroots.git
+[submodule "bdwgc"]
+	path = bdwgc
+	url = https://github.com/bdwgc/bdwgc.git

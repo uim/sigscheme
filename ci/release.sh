@@ -7,6 +7,9 @@ set -x
 rm -rf ~/source
 cp -a /source ~/source
 pushd ~/source
+pushd bdwgc
+./autogen.sh
+popd
 pushd libgcroots
 ./autogen.sh
 popd

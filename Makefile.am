@@ -1,9 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = doc m4 tools
-if USE_BDWGC_BUNDLED
-SUBDIRS += bdwgc
-endif
 if USE_LIBGCROOTS_BUNDLED
 SUBDIRS += libgcroots
 endif

@@ -45,11 +45,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include <gcroots.h>
-#if (GCROOTS_API_REVISION < 1)
-#error "libgcroots that has API revision >= 1 is required"
-#endif
-
 #include "scmint.h"
 #include "global.h"
 #if SCM_USE_MULTIBYTE_CHAR

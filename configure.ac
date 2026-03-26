@@ -267,10 +267,10 @@ AM_CONDITIONAL(WITH_MASTER_PKG, [test "x$with_master_pkg" != xno])
 
 AC_ARG_WITH(libgcroots,
             AS_HELP_STRING([--with-libgcroots@<:@=WHICH@:>@],
-                           [use alternative libgcroots instead of
-                            package-bundled one.
-                            WHICH=(installed|tiny-subst)
-                            @<:@default=installed@:>@]))
+                           [use system BDWGC or alternative libgcroots
+                            instead of package-bundled libgcroots.
+                            WHICH=(no|installed|tiny-subst)
+                            @<:@default=no@:>@]))
 
 case "${with_libgcroots:=no}" in
   no)
@@ -287,11 +287,16 @@ case "${with_libgcroots:=no}" in
     GCROOTS_REQ=gcroots
   ;;
   yes|installed)
-    PKG_CHECK_MODULES(GCROOTS, [gcroots >= 0.2.3],
-                      [],
-                      [AC_MSG_ERROR([installed libgcroots is not found.])])
-    use_libgcroots="installed one"
-    GCROOTS_REQ=gcroots
+    PKG_CHECK_MODULES(
+      BDWGC, [bdw-gc >= 8.3.0],
+      [BDWGC_REQ=bdw-gc
+       AC_DEFINE(SCM_WITH_BDWGC, 1, [Define to 1 to use BDWGC.])
+       use_libgcroots="installed BDWGC"],
+      [PKG_CHECK_MODULES(
+        GCROOTS, [gcroots >= 0.2.3],
+        [GCROOTS_REQ=gcroots
+         use_libgcroots="installed one"],
+        [AC_MSG_ERROR([neither BDWGC nor libgcroots was found.])])])
   ;;
   tiny-subst)
     # use src/gcroots/gcroots.[hc]
@@ -299,34 +304,21 @@ case "${with_libgcroots:=no}" in
     GCROOTS_CFLAGS='-I$(sscm_abs_top_srcdir)/src/gcroots'
     use_libgcroots="tiny substitution in src/gcroots"
   ;;
-  bundled-bdwgc)
-    # use src/gcroots/gcroots.[hc] but redirecting to bundled bdwgc
-    with_libgcroots=tiny_subst_bdwgc
-    GCROOTS_CFLAGS='-I$(sscm_abs_top_srcdir)/src/gcroots -I$(sscm_abs_top_srcdir)/bdwgc/include'
-    AC_DEFINE(SCM_WITH_BDWGC, 1, [Define to 1 to use bdwgc library.])
-    use_libgcroots="based on bundled bdwgc"
-
-    ac_configure_args="$ac_configure_args --disable-threads"
-    AC_CONFIG_SUBDIRS([bdwgc])
-    GCROOTS_LIBS='$(sscm_abs_top_builddir)/bdwgc/libgc.la'
-  ;;
   *)
     AC_MSG_ERROR([invalid argument for --with-libgcroots.])
   ;;
 esac
 
+AC_SUBST(BDWGC_REQ)
+AC_SUBST(BDWGC_LIBS)
+AC_SUBST(BDWGC_CFLAGS)
 AC_SUBST(GCROOTS_REQ)
 AC_SUBST(GCROOTS_LIBS)
 AC_SUBST(GCROOTS_CFLAGS)
-AM_CONDITIONAL(USE_BDWGC_BUNDLED,
-               [test "x$with_libgcroots" = xtiny_subst_bdwgc])
-AM_CONDITIONAL(USE_LIBGCROOTS,
-               [test "x$with_libgcroots" != xtiny_subst \
-                    -a "x$with_libgcroots" != xtiny_subst_bdwgc])
+AM_CONDITIONAL(USE_LIBGCROOTS, [test "x$with_libgcroots" != xtiny_subst])
 AM_CONDITIONAL(USE_LIBGCROOTS_BUNDLED, [test "x$with_libgcroots" = xno])
 AM_CONDITIONAL(USE_LIBGCROOTS_TINY_SUBST,
-               [test "x$with_libgcroots" = xtiny_subst \
-                    -o "x$with_libgcroots" = xtiny_subst_bdwgc])
+               [test "x$with_libgcroots" = xtiny_subst])
 
 
 ########################################

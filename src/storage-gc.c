@@ -64,6 +64,13 @@
 #include "sigscheme.h"
 #include "sigschemeinternal.h"
 
+#ifdef SCM_WITH_BDWGC
+#include <gc/gc.h>
+#include <gc/gc_mark.h>
+#else
+#include <gcroots.h>
+#endif
+
 /*=======================================
   File Local Macro Definitions
 =======================================*/
@@ -83,6 +90,22 @@
 =======================================*/
 typedef ScmCell *ScmObjHeap;
 
+#ifdef SCM_WITH_BDWGC
+typedef struct BDWGCContext_ {
+    struct GC_stack_base stack_base;
+    scm_bool is_protected;
+} BDWGCContext;
+
+typedef struct BDWGCReadyStackData_ {
+    ScmGCGateFunc func;
+    void *arg;
+} BDWGCReadyStackData;
+
+typedef struct BDWGCFindObjectData_ {
+    void *findee;
+} BDWGCFindObjectData;
+#endif
+
 /*=======================================
   Variable Definitions
 =======================================*/
@@ -101,7 +124,11 @@ static ScmObj l_freelist;
 
 static ScmObj **l_protected_vars;
 static size_t l_protected_vars_size, l_n_empty_protected_vars;
+#ifdef SCM_WITH_BDWGC
+static BDWGCContext *l_bdwgc_ctx;
+#else
 static GCROOTS_context *l_gcroots_ctx;
+#endif
 #if SCM_DEBUG
 static size_t l_gcing;
 static scm_bool l_allocating;
@@ -120,7 +147,11 @@ SCM_GLOBAL_VARS_END(static_gc);
 #define l_protected_vars_size  SCM_GLOBAL_VAR(static_gc, l_protected_vars_size)
 #define l_n_empty_protected_vars                                             \
     SCM_GLOBAL_VAR(static_gc, l_n_empty_protected_vars)
+#ifdef SCM_WITH_BDWGC
+#define l_bdwgc_ctx            SCM_GLOBAL_VAR(static_gc, l_bdwgc_ctx)
+#else
 #define l_gcroots_ctx          SCM_GLOBAL_VAR(static_gc, l_gcroots_ctx)
+#endif
 #if SCM_DEBUG
 #define l_gcing                SCM_GLOBAL_VAR(static_gc, l_gcing)
 #define l_allocating           SCM_GLOBAL_VAR(static_gc, l_allocating)
@@ -160,6 +191,17 @@ static void finalize_protected_var(void);
 static void scm_ensure_proper_freelist(ScmObj flst);  /* FIXME */
 #endif
 
+/* BDWGC Related Functions */
+#ifdef SCM_WITH_BDWGC
+static void *GC_CALLBACK bdwgc_ready_stack(struct GC_stack_base *base,
+                                           void *data);
+static void GC_CALLBACK bdwgc_mark(void **start, void **end,
+                                   void *data, unsigned hint);
+static void GC_CALLBACK bdwgc_find_object(void **start, void **end,
+                                          void *data, unsigned hint);
+static int bdwgc_context_is_protected(BDWGCContext *ctx, void *obj);
+#endif
+
 /*=======================================
   Function Definitions
 =======================================*/
@@ -188,9 +230,14 @@ scm_init_gc(const ScmStorageConf *conf)
     l_allocating = scm_false;
 #endif
 
+#ifdef SCM_WITH_BDWGC
+    l_bdwgc_ctx = scm_malloc(sizeof(BDWGCContext));
+    l_bdwgc_ctx->is_protected = scm_false;
+#else
     l_gcroots_ctx = GCROOTS_init(scm_malloc,
                                  (GCROOTS_mark_proc)gc_mark_locations,
                                  scm_false);
+#endif
 
     initialize_heap(conf);
 }
@@ -201,8 +248,14 @@ scm_fin_gc(void)
     finalize_heap();
     finalize_protected_var();
 
+#ifdef SCM_WITH_BDWGC
+    free(l_bdwgc_ctx);
+    l_bdwgc_ctx = NULL;
+#else
     GCROOTS_fin(l_gcroots_ctx);
     free(l_gcroots_ctx);
+    l_gcroots_ctx = NULL;
+#endif
 
     SCM_GLOBAL_VARS_FIN(static_gc);
 }
@@ -339,7 +392,13 @@ scm_gc_protectedp(ScmObj obj)
 #else
         SCM_CONSTANTP(obj)
 #endif
-        || GCROOTS_is_protected(l_gcroots_ctx, (void *)obj))
+        ||
+#ifdef SCM_WITH_BDWGC
+        bdwgc_context_is_protected(l_bdwgc_ctx, (void *)obj)
+#else
+        GCROOTS_is_protected(l_gcroots_ctx, (void *)obj)
+#endif
+      )
         return scm_true;
 
     /* referred from static variables */
@@ -373,13 +432,32 @@ scm_gc_protectedp(ScmObj obj)
 SCM_EXPORT void *
 scm_call_with_gc_ready_stack(ScmGCGateFunc func, void *arg)
 {
+#ifdef SCM_WITH_BDWGC
+    assert(l_bdwgc_ctx);
+    assert(func);
+
+    if (l_bdwgc_ctx->is_protected) {
+        return func(arg);
+    } else {
+        BDWGCReadyStackData data;
+        data.func = func;
+        data.arg = arg;
+        return GC_call_with_stack_base(bdwgc_ready_stack, &data);
+    }
+#else
     return GCROOTS_call_with_gc_ready_stack(l_gcroots_ctx, func, arg);
+#endif
 }
 
 SCM_EXPORT scm_bool
 scm_gc_protected_contextp(void)
 {
-  return GCROOTS_is_protected_context(l_gcroots_ctx);
+#ifdef SCM_WITH_BDWGC
+    assert(l_bdwgc_ctx);
+    return l_bdwgc_ctx->is_protected;
+#else
+    return GCROOTS_is_protected_context(l_gcroots_ctx);
+#endif
 }
 
 /*===========================================================================
@@ -769,7 +847,17 @@ gc_mark(void)
 
     /* Mark stack and all machine-dependent contexts such as registers,
      * register windows (SPARC), register stack backing store (IA-64) etc. */
+#ifdef SCM_WITH_BDWGC
+    assert(l_bdwgc_ctx);
+    if (l_bdwgc_ctx->is_protected) {
+      GC_custom_push_regs_and_stack(bdwgc_mark,
+                                    NULL,
+                                    &(l_bdwgc_ctx->stack_base),
+                                    NULL);
+    }
+#else
     GCROOTS_mark(l_gcroots_ctx);
+#endif
 
     gc_mark_global_vars();
 
@@ -924,3 +1012,64 @@ gc_sweep(void)
 
     return sum_collected;
 }
+
+#ifdef SCM_WITH_BDWGC
+static void *GC_CALLBACK
+bdwgc_ready_stack(struct GC_stack_base *base,
+                  void *data)
+{
+    void *result;
+    BDWGCReadyStackData *ready_stack_data = (BDWGCReadyStackData *)data;
+
+    memcpy(&(l_bdwgc_ctx->stack_base), base, sizeof(*base));
+    l_bdwgc_ctx->is_protected = scm_true;
+    result = (*ready_stack_data->func)(ready_stack_data->arg);
+    l_bdwgc_ctx->is_protected = scm_false;
+    return result;
+}
+
+static void GC_CALLBACK
+bdwgc_mark(void **start, void **end, void *data, unsigned hint)
+{
+    gc_mark_locations((ScmObj *)start, (ScmObj *)end, scm_false, scm_false);
+}
+
+static void GC_CALLBACK
+bdwgc_find_object(void **start, void **end, void *data, unsigned hint)
+{
+    BDWGCFindObjectData *find_object_data = (BDWGCFindObjectData *)data;
+    char *p = (char *)start;
+    char *lim = (char *)(end - 1);
+    void *findee = find_object_data->findee;
+
+    if (findee == NULL)
+        return; /* already found */
+
+    for (; p <= lim; p += ALIGNOF_VOID_P) {
+        if (*(void **)p == findee) {
+            find_object_data->findee = NULL; /* found */
+            break;
+        }
+    }
+}
+
+static int
+bdwgc_context_is_protected(BDWGCContext *ctx, void *obj)
+{
+    BDWGCFindObjectData data;
+
+    assert(ctx);
+    if (obj == NULL) /* not expected actually */
+      return scm_true;
+
+    if (!ctx->is_protected)
+      return scm_false;
+
+    data.findee = obj;
+    GC_custom_push_regs_and_stack(bdwgc_find_object,
+                                  &data,
+                                  &(ctx->stack_base),
+                                  NULL);
+    return data.findee == NULL;
+}
+#endif

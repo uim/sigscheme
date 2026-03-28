@@ -1,5 +1,29 @@
 # NEWS
 
+## 0.9.5 - 2026-03-28
+
+### Improvements
+
+  * Added `expt`
+    * GH-26
+    * Patch by jpellegrini
+
+  * Added `gcd` and `lcm`
+    * GH-25
+    * Patch by jpellegrini
+
+  * Added support for system BDWGC
+    * BDWGC 8.3.0 will have the feature that is provided by
+      libgcroots. We'll deprecate libgcroots and migrate to BDWGC
+      eventually.
+    * GH-29
+    * Patch by Ivan Maidanski
+
+### Thanks
+
+  * jpellegrini
+  * Ivan Maidanski
+
 ## 0.9.4 - 2025-11-29
 
 ### Fixes

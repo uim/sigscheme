@@ -1,5 +1,11 @@
 # NEWS
 
+## 0.9.6 - 2026-09-22
+
+### Improvements
+
+  * Updated bundled libgcroots to 0.3.3
+
 ## 0.9.5 - 2026-03-28
 
 ### Improvements

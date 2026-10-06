@@ -3,5 +3,5 @@
 set -eu
 
 ${AUTORECONF:-autoreconf} --force --install "$@"
-cd libgcroots
+cd subprojects/libgcroots
 ./autogen.sh "$@"

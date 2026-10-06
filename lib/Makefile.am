@@ -1,3 +1,5 @@
+EXTRA_DIST = meson.build
+
 dist_scmlib_DATA = sigscheme-init.scm unittest.scm
 if USE_SRFI0
 dist_scmlib_DATA += srfi-0.scm

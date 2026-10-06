@@ -154,12 +154,12 @@ case "${with_libgcroots:=no}" in
     # bundled libgcroots package
 
     ac_configure_args="$ac_configure_args "
-    AC_CONFIG_SUBDIRS([libgcroots])
+    AC_CONFIG_SUBDIRS([subprojects/libgcroots])
 
     # Specify absolute directories to make being usable from superordinate
     # packages such as uim.
-    GCROOTS_LIBS='$(sscm_abs_top_builddir)/libgcroots/libgcroots.la'
-    GCROOTS_CFLAGS='-I$(sscm_abs_top_srcdir)/libgcroots/include'
+    GCROOTS_LIBS='$(sscm_abs_top_builddir)/subprojects/libgcroots/libgcroots.la'
+    GCROOTS_CFLAGS='-I$(sscm_abs_top_srcdir)/subprojects/libgcroots/include'
     use_libgcroots="bundled one"
     GCROOTS_REQ=gcroots
   ;;

@@ -184,7 +184,8 @@ BUILT_DIST = $(FUNC_TABLES) sigscheme-combined-trim.h
 # the file is not listed into *_HEADERS.
 EXTRA_DIST = \
         $(BUILT_DIST) $(BUILD_FUNCTBL_DEPS) \
-        sigscheme-combined.h template.h template.c
+        sigscheme-combined.h template.h template.c \
+        meson.build
 
 # Only works on 'make all', 'make check' and 'make install'.
 # See "Built sources" section of automake info.
@@ -319,7 +320,7 @@ libsscm_la_SOURCES  = $(libsscm_sources)
 libsscm_la_LIBADD   = $(LIBOBJS) @BDWGC_LIBS@ @GCROOTS_LIBS@
 libsscm_la_LDFLAGS  = -version-info $(libsscm_version)
 # To take precedence over installed gcroots.h by the bundled
-# libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
+# subprojects/libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
 libsscm_la_CPPFLAGS = $(SSCM_INCLUDES) @BDWGC_CFLAGS@ \
                       @GCROOTS_CFLAGS@ -DSCM_COMPILING_LIBSSCM=1
 libsscm_la_CFLAGS   =

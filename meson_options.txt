@@ -1,0 +1,261 @@
+# Most features use a combo of 'auto', 'true' and 'false' instead of
+# boolean. 'auto' means "use the value provided by the 'conf' option
+# or the default value". This is the same as omitting
+# --enable-FEATURE/--disable-FEATURE with configure.
+#
+# Note that features may be enabled automatically to satisfy
+# dependencies of other features even if 'false' is specified. This
+# is the same behavior as configure.
+
+option('master_pkg',
+       type: 'string',
+       value: '',
+       description: 'alternative package name for pkgdatadir (default: sigscheme)')
+# 'gcroots' uses system libgcroots if it exists. The bundled
+# libgcroots is used otherwise. Use --force-fallback-for=gcroots to
+# always use the bundled libgcroots.
+option('gc',
+       type: 'combo',
+       choices: ['auto', 'bdwgc', 'gcroots', 'tiny-subst'],
+       value: 'auto',
+       description: 'GC roots implementation: BDWGC, libgcroots, tiny substitution in src/gcroots or auto (BDWGC then libgcroots)')
+
+option('conf',
+       type: 'combo',
+       choices: ['regular', 'full', 'r5rs', 'dev', 'uim'],
+       value: 'regular',
+       description: 'base configuration of SigScheme')
+
+# Storage configuration
+option('storage',
+       type: 'combo',
+       choices: ['compact', 'fatty'],
+       value: 'compact',
+       description: 'underlying storage implementation')
+option('fixnum',
+       type: 'combo',
+       choices: ['long', 'int', 'int32_t', 'int64_t'],
+       value: 'long',
+       description: 'Scheme integer (fixnum) size')
+
+# Character encodings
+option('default_encoding',
+       type: 'combo',
+       choices: ['auto', 'utf8', 'singlebyte', 'euccn', 'eucjp', 'euckr', 'sjis'],
+       value: 'auto',
+       description: 'default character encoding (auto: utf8 or the value provided by conf)')
+option('utf8',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'UTF-8 character encoding')
+option('euccn',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'EUC-CN character encoding')
+option('eucjp',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'EUC-JP character encoding')
+option('euckr',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'EUC-KR character encoding')
+option('sjis',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'Shift_JIS character encoding')
+option('strict_encoding_check',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'all feasible encoding error checks')
+
+# R5RS behaviors
+option('strict_r5rs',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'strict R5RS conformance checks')
+option('const_list_literal',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'immutable list literals')
+option('const_vector_literal',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'immutable vector literals')
+option('strict_null_form',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'rejecting quote-less ()')
+option('strict_vector_form',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'rejecting quote-less vector literal')
+option('strict_argcheck',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'strict check for form arguments')
+option('strict_toplevel_definitions',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'strict check for R5RS top-level definitions')
+option('internal_definitions',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS internal definitions')
+
+# R5RS features
+option('continuation',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS continuation')
+option('quasiquote',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS quasiquotation')
+option('hygienic_macro',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS hygienic macros (experimental)')
+option('promise',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS promises')
+option('int',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS integer numbers')
+option('numeric_io',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS \'number->string\' and \'string->number\'')
+option('char',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS characters')
+option('string',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'primary procedures of R5RS strings')
+option('string_procedures',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'rest procedures of R5RS strings')
+option('deep_cadrs',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'all c[ad]+r procedures defined in R5RS')
+option('vector',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS vectors')
+option('port',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS ports')
+option('reader',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS \'read\'')
+option('writer',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS \'write\' and \'display\'')
+option('load',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R5RS \'load\'')
+
+# SRFIs
+option('srfi0',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-0 \'cond-expand\'')
+option('srfi1',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-1 list library')
+option('srfi2',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-2 \'and-let*\'')
+option('srfi6',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-6 basic string ports')
+option('srfi8',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-8 \'receive\'')
+option('srfi9',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-9 defining record types')
+option('srfi22',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-22 running scheme scripts on Unix (partial)')
+option('srfi23',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-23 \'error\'')
+option('srfi28',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-28 \'format\'')
+option('srfi34',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-34 exception handling for programs')
+option('srfi38',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-38 \'write/ss\' (\'read/ss\' is not provided)')
+option('srfi43',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-43 vector library')
+option('srfi48',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-48 \'format\' (superset of SRFI-28)')
+option('srfi55',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-55 \'require-extension\'')
+option('srfi60',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-60 integers as bits (partial)')
+option('srfi69',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-69 basic hash tables')
+option('srfi95',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-95 sorting and merging')
+
+# R6RS features (preliminary)
+option('r6rs_named_chars',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'named characters of R6RS (preliminary)')
+option('r6rs_chars',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R6RS characters (preliminary)')
+
+# Common Scheme features
+option('legacy_macro',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: '\'define-macro\' syntactic closure')
+
+# SigScheme-specific features
+option('sscm_extensions',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SigScheme-specific extensions')
+option('sscm_format_extension',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SigScheme-specific \'format+\'')
+option('compat_siod',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'some SIOD compatible features')
+option('eval_c_string',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'eval_c_string() of libsscm')
+option('backtrace',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'showing backtrace on error')
+option('libsscm',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'building libsscm')
+option('shell',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'the \'sscm\' interactive shell')
+
+# Developer-only debugging features
+#
+# This is --enable-debug of configure. We can't use 'debug' because
+# it's a Meson's built-in option.
+option('debug_mode',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'debug mode')
+option('debug_port',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'port debugging')
+option('debug_parser',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'parser debugging')
+option('debug_macro',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'macro and pattern matching debugging')
+option('debug_encoding',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'encoding-related functions debugging')
+option('debug_backtrace_sep',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'frame-separator on backtrace')
+option('debug_backtrace_val',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'values printing on backtrace')
+option('soft_assert',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'recovery from failed SCM_ASSERT()')
+option('accessor_assert',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'type assertion on Scheme object accessors')
+option('warning_suppressor',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'suppressing compiler warnings')

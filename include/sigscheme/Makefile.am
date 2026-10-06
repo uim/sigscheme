@@ -13,3 +13,5 @@ else
 pkginclude_HEADERS += encoding-dummy.h
 endif
 endif
+
+EXTRA_DIST = meson.build

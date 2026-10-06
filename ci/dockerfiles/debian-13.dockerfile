@@ -16,6 +16,8 @@ RUN \
     gcc \
     libc6-dev \
     make \
+    meson \
+    ninja-build \
     pkg-config \
     ruby \
     sudo \

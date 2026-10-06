@@ -8,7 +8,7 @@ ASCIIDOC_HTMLS = \
 #TXTS += gc-protection.txt test-c.txt
 #ASCIIDOC_HTMLS += gc-protection.html test-c.html
 
-EXTRA_DIST =
+EXTRA_DIST = meson.build
 
 # Suppress installing documents on combined-source configuration
 if USE_LIBSSCM

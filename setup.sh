@@ -19,6 +19,8 @@ function setup_with_apt () {
     libc6-dev \
     libtool \
     make \
+    meson \
+    ninja-build \
     pkg-config \
     ruby \
     tzdata
@@ -33,6 +35,8 @@ function setup_with_dnf () {
     gcc \
     libtool \
     make \
+    meson \
+    ninja-build \
     pkg-config \
     ruby \
     tzdata

@@ -57,13 +57,17 @@ See doc/spec.txt and doc/design.txt for furtuer information.
 How to build
 ------------
 
-GNU make is requied to build.
+SigScheme can be built with Meson or GNU Autotools. Meson is
+recommended. GNU Autotools is still supported for compatibility but
+it will be removed in the future.
 
-Run ./configure with some options at the top directory.
+Meson 0.63.0 or later and Ninja are required to build with Meson.
 
-  $ ./configure [--enable-conf=CONF] [--enable-default-encoding=ENCODING]
+Run 'meson setup' with some options at the top directory.
 
-(1) --enable-conf=CONF
+  $ meson setup [-Dconf=CONF] [-Ddefault_encoding=ENCODING] build
+
+(1) -Dconf=CONF
 
   This specifies a base configuration set. Select one from the list below
   suitable for your purpose.
@@ -74,12 +78,12 @@ Run ./configure with some options at the top directory.
     - dev:     developer-friendly configuration
     - uim:     configure for uim
 
-(2) --enable-default-encoding=ENCODING
+(2) -Ddefault_encoding=ENCODING
 
   SigScheme normally selects UTF-8 as default encoding. You can change it by
   this option as follows.
 
-    $ ./configure --enable-default-encoding=eucjp
+    $ meson setup -Ddefault_encoding=eucjp build
 
   Following encodings can be specified.
 
@@ -89,13 +93,53 @@ Run ./configure with some options at the top directory.
     - euckr
     - sjis
 
-(3) --enable-ENCODING
+(3) -DENCODING=true
 
   In addition to (2), you can enable other optional and switchable character
   encodings.
 
-    $ ./configure --enable-default-encoding=eucjp --enable-eucjp --enable-sjis
+    $ meson setup -Ddefault_encoding=eucjp -Deucjp=true -Dsjis=true build
 
+(4) -Dgc=GC
+
+  SigScheme uses BDWGC (8.3.0 or later) or libgcroots to find GC roots. By
+  default (-Dgc=auto), system BDWGC is used if it exists. Otherwise
+  system libgcroots is used if it exists. Otherwise the bundled
+  libgcroots is used. You can choose one explicitly as follows.
+
+    - bdwgc:      use system BDWGC
+    - gcroots:    use system libgcroots or the bundled libgcroots
+    - tiny-subst: use tiny substitution in src/gcroots
+
+  Use --force-fallback-for=gcroots to always use the bundled libgcroots.
+
+    $ meson setup -Dgc=gcroots --force-fallback-for=gcroots build
+
+Meson's built-in options are also available. For example, use
+--buildtype=release for an optimized build and -Db_ndebug=true to
+disable assertions.
+
+See meson_options.txt or 'meson configure build' for all options. Each
+--enable-FEATURE/--disable-FEATURE option of configure is available as
+-DFEATURE=true/-DFEATURE=false. Note that '-' in FEATURE is replaced
+with '_' and --enable-debug is -Ddebug_mode=true.
+
+Then run 'meson compile'.
+
+  $ meson compile -C build
+
+
+With GNU Autotools
+~~~~~~~~~~~~~~~~~~
+
+GNU make is requied to build.
+
+Run ./configure with some options at the top directory.
+
+  $ ./configure [--enable-conf=CONF] [--enable-default-encoding=ENCODING]
+
+Options are the same as Meson's ones: --enable-conf=CONF,
+--enable-default-encoding=ENCODING, --enable-ENCODING and so on.
 
 Then type 'make' at the top directory.
 
@@ -105,11 +149,19 @@ Then type 'make' at the top directory.
 Test
 ----
 
+  $ meson test -C build
+
+or
+
   $ make check
 
 
 Installation
 ------------
+
+  $ meson install -C build
+
+or
 
   $ make install
 
@@ -128,6 +180,14 @@ To execute a Scheme script, specify it as argument.
 
 How to build unreleased version
 -------------------------------
+
+  $ git clone --recursive https://github.com/uim/sigscheme.git
+  $ cd sigscheme
+  $ ./setup.sh
+  $ meson setup <YOUR_BUILD_OPTIONS> build
+  $ meson compile -C build
+
+or
 
   $ git clone --recursive https://github.com/uim/sigscheme.git
   $ cd sigscheme

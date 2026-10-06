@@ -7,6 +7,8 @@ RUN \
     bzip2 \
     gcc \
     make \
+    meson \
+    ninja \
     perl \
     pkg-config \
     ruby \

@@ -7,7 +7,7 @@ set -x
 rm -rf ~/source
 cp -a /source ~/source
 pushd ~/source
-pushd libgcroots
+pushd subprojects/libgcroots
 ./autogen.sh
 popd
 ./autogen.sh

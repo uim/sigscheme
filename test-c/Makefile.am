@@ -1,7 +1,7 @@
 include $(top_builddir)/libgcroots.mk
 
 # To take precedence over installed gcroots.h by the bundled
-# libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
+# subprojects/libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
 AM_CPPFLAGS = -I$(top_builddir)/include -I$(top_srcdir)/include \
 	      -I$(top_srcdir)/src @GCROOTS_CFLAGS@ \
 	      -DTST_SCM_SYSTEM_LOAD_PATH=\"@abs_top_srcdir@/lib\"
@@ -9,7 +9,7 @@ AM_CFLAGS   =
 AM_LDFLAGS  = -rpath $(libdir)
 LIBS        = $(top_builddir)/src/libsscm.la @GCROOTS_LIBS@
 
-EXTRA_DIST= sscm-test.h utils.c \
+EXTRA_DIST= meson.build sscm-test.h utils.c \
             test-alignment.c \
             test-global.c \
             test-gc.c test-gc-protect.c test-gc-protect-stack.c \

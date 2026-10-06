@@ -66,6 +66,28 @@ jobs:
       - name: Test
         run: |
           make check -j$(nproc) VERBOSE=1
+      - name: "Meson: Configure"
+        run: |
+          case "${{ matrix.libgcroots }}" in
+            installed)
+              gc_options="-Dgc=bdwgc"
+              ;;
+            tiny-subst)
+              gc_options="-Dgc=tiny-subst"
+              ;;
+          esac
+          meson setup \
+            --prefix=/usr \
+            -Dconf=uim \
+            ${gc_options} \
+            ../meson-build \
+            .
+      - name: "Meson: Build"
+        run: |
+          meson compile -C ../meson-build
+      - name: "Meson: Test"
+        run: |
+          meson test -C ../meson-build --print-errorlogs
   conf:
     name: conf=${{ matrix.conf }}
     strategy:
@@ -100,6 +122,23 @@ jobs:
       - name: Test
         run: |
           make check -j$(nproc) VERBOSE=1
+      - name: "Meson: Configure"
+        run: |
+          # Use the bundled libgcroots explicitly like configure's
+          # default. The default -Dgc=auto uses system BDWGC or
+          # libgcroots if they exist.
+          meson setup \
+            -Dconf=${{ matrix.conf }} \
+            -Dgc=gcroots \
+            --force-fallback-for=gcroots \
+            ../meson-build \
+            .
+      - name: "Meson: Build"
+        run: |
+          meson compile -C ../meson-build
+      - name: "Meson: Test"
+        run: |
+          meson test -C ../meson-build --print-errorlogs
   test:
     name: ${{ matrix.image }}
     strategy:
@@ -126,6 +165,9 @@ jobs:
       - name: Run Docker image
         run: |
           docker compose run ${{ matrix.image }}
+      - name: Build with Meson
+        run: |
+          docker compose run ${{ matrix.image }} /source/ci/meson.sh
   release:
     name: Release
     runs-on: ubuntu-latest

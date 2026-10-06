@@ -130,3 +130,6 @@
 /tools/Makefile
 /tools/Makefile.in
 /tools/gnuify-changelog.pl
+
+# /subprojects/
+/subprojects/.wraplock

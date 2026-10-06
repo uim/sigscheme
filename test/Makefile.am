@@ -1,6 +1,6 @@
 # Libraries
 EXTRA_DIST = unittest-bigloo.scm unittest-gauche.scm \
-             run-singletest.sh.in
+             run-singletest.sh.in meson.build
 
 sscm_xfail_tests = test-fail.scm
 sscm_optional_tests =

@@ -84,6 +84,10 @@
 #define M32 (SIZEOF_SCM_INT_T == SIZEOF_INT32_T)
 #define M64 (SIZEOF_SCM_INT_T == SIZEOF_INT64_T)
 
+/* Some tests for multibyte characters such as character output and
+ * width padding assume UTF-8 as the default encoding. */
+#define UTF8 SCM_USE_UTF8_AS_DEFAULT
+
 #define STR SCM_STRING_STR
 
 static ScmObj lst, clst;
@@ -149,7 +153,9 @@ TST_CASE("format ~C")
     TST_TN_EQ_STR("a",  STR(format("~C", (scm_ichar_t)'a')));
     TST_TN_EQ_STR("\"", STR(format("~C", (scm_ichar_t)'\"')));
     TST_TN_EQ_STR("\\", STR(format("~C", (scm_ichar_t)'\\')));
+#if UTF8
     TST_TN_EQ_STR("あ", STR(format("~C", (scm_ichar_t)0x3042)));
+#endif
 }
 
 TST_CASE("format ~S")
@@ -184,16 +190,20 @@ TST_CASE("format ~S")
     TST_TN_EQ_STR("aあBいc",   STR(format("~3S",  "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~4S",  "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~5S",  "aあBいc")));
+#if UTF8
     TST_TN_EQ_STR(" aあBいc",  STR(format("~6S",  "aあBいc")));
     TST_TN_EQ_STR("  aあBいc", STR(format("~7S",  "aあBいc")));
+#endif
     TST_TN_EQ_STR("aあBいc",   STR(format("~00S", "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~01S", "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~02S", "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~03S", "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~04S", "aあBいc")));
     TST_TN_EQ_STR("aあBいc",   STR(format("~05S", "aあBいc")));
+#if UTF8
     TST_TN_EQ_STR(" aあBいc",  STR(format("~06S", "aあBいc")));
     TST_TN_EQ_STR("  aあBいc", STR(format("~07S", "aあBいc")));
+#endif
 }
 
 TST_CASE("format ~P")
@@ -2621,7 +2631,9 @@ TST_CASE("format ~c")
     TST_TN_EQ_STR("a",  STR(format("~c", MAKE_CHAR('a'))));
     TST_TN_EQ_STR("\"", STR(format("~c", MAKE_CHAR('\"'))));
     TST_TN_EQ_STR("\\", STR(format("~c", MAKE_CHAR('\\'))));
+#if UTF8
     TST_TN_EQ_STR("あ", STR(format("~c", MAKE_CHAR(0x3042))));
+#endif
 }
 
 TST_CASE("format ~d")
@@ -2858,10 +2870,12 @@ TST_CASE("format ~f (string)")
                            STR(format("~4f",  CONST_STRING("aあBいc"))));
     TST_TN_EQ_STR("aあBいc",
                            STR(format("~5f",  CONST_STRING("aあBいc"))));
+#if UTF8
     TST_TN_EQ_STR(" aあBいc",
                            STR(format("~6f",  CONST_STRING("aあBいc"))));
     TST_TN_EQ_STR("  aあBいc",
                            STR(format("~7f",  CONST_STRING("aあBいc"))));
+#endif
     TST_TN_EQ_STR("aあBいc",
                            STR(format("~00f", CONST_STRING("aあBいc"))));
     TST_TN_EQ_STR("aあBいc",
@@ -2874,10 +2888,12 @@ TST_CASE("format ~f (string)")
                            STR(format("~04f", CONST_STRING("aあBいc"))));
     TST_TN_EQ_STR("aあBいc",
                            STR(format("~05f", CONST_STRING("aあBいc"))));
+#if UTF8
     TST_TN_EQ_STR(" aあBいc",
                            STR(format("~06f", CONST_STRING("aあBいc"))));
     TST_TN_EQ_STR("  aあBいc",
                            STR(format("~07f", CONST_STRING("aあBいc"))));
+#endif
 }
 
 TST_CASE("format ~~")
@@ -3058,6 +3074,7 @@ TST_CASE("format mixed raw C directives")
                              (size_t)100,
                              (ptrdiff_t)-1)));
 
+#if UTF8
     TST_TN_EQ_STR("-100 1010aa string64-01144あ100b-01",
                   STR(format("~D~5QBa~S~WX~03JD~3LO~C~ZU~C~03TD",
                              -100,
@@ -3070,6 +3087,7 @@ TST_CASE("format mixed raw C directives")
                              (size_t)100,
                              (scm_ichar_t)'b',
                              (ptrdiff_t)-1)));
+#endif
 }
 
 TST_CASE("format mixed SRFI directives")
@@ -3079,6 +3097,7 @@ TST_CASE("format mixed SRFI directives")
                   STR(format("slashified: ~s~%any: ~a~%",
                              MAKE_CHAR('a'), MAKE_CHAR('a'))));
 
+#if UTF8
     TST_TN_EQ_STR("-100 1010aa string64-01144あ100b-01",
                   STR(format("~d~5ba~a~x~03d~3o~c~d~c~03d",
                              MAKE_INT(-100),
@@ -3091,10 +3110,12 @@ TST_CASE("format mixed SRFI directives")
                              MAKE_INT(100),
                              MAKE_CHAR('b'),
                              MAKE_INT(-1))));
+#endif
 }
 
 TST_CASE("format mixed SRFI & raw C directives")
 {
+#if UTF8
     TST_TN_EQ_STR("-100 1010aa string64another string-01144~あ100b-01",
                   STR(format("~D~5ba~S~WX~a~03JD~3LO~~~c~ZU~C~03TD",
                              -100,
@@ -3108,6 +3129,7 @@ TST_CASE("format mixed SRFI & raw C directives")
                              (size_t)100,
                              (scm_ichar_t)'b',
                              (ptrdiff_t)-1)));
+#endif
 }
 
 TST_CASE("format freshline by mixed SRFI & raw C directives")

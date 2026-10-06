@@ -7,7 +7,7 @@ set -eux
   --enable-maintainer-mode \
   --prefix=/tmp/local
 
-make distcheck VERBOSE=1
+make distcheck DISTCHECK_CONFIGURE_FLAGS="--enable-conf=uim" VERBOSE=1
 make sum
 
 sudo -H mv *.tar.* *.sum /source/

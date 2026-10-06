@@ -191,10 +191,11 @@ TST_CASE("GC auto variable protection with scm_gc_protect()")
     for (i = 0; i < N_OBJS; i++)
         TST_TN_TRUE(scm_gc_protectedp(auto_objs[i]));
 
-#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
-    /* unprotect again */
+    /* unprotect again: auto_objs must be unprotected before returning
+     * because it's invalid after returning */
     for (i = 0; i < N_OBJS; i++)
         scm_gc_unprotect(&auto_objs[i]);
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     for (i = 0; i < N_OBJS; i++)
         TST_TN_FALSE(scm_gc_protectedp(auto_objs[i]));
 #endif

@@ -37,7 +37,7 @@
 #define __SCM_ENCODING_CONFIG_H
 
 #if SCM_ENCODING_USE_WITH_SIGSCHEME
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #else /* SCM_ENCODING_USE_WITH_SIGSCHEME */
 #include <stdlib.h>
 #include <assert.h>

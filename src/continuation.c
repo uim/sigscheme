@@ -40,7 +40,7 @@
 #include <stdlib.h>
 #include <setjmp.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
 /*=======================================

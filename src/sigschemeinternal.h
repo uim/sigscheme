@@ -42,12 +42,12 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "global.h"
-#include "sigscheme.h"
+#include <sigscheme/global.h>
+#include <sigscheme/sigscheme.h>
 #if SCM_USE_MULTIBYTE_CHAR
-#include "encoding.h"
+#include <sigscheme/encoding.h>
 #else
-#include "encoding-dummy.h"
+#include <sigscheme/encoding-dummy.h>
 #endif
 #if SCM_USE_PORT
 #include "scmport.h"

@@ -40,7 +40,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 #if SCM_USE_MULTIBYTE_CHAR
 #include "scmport-mbchar.h"

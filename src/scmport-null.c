@@ -44,7 +44,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "scmint.h"
+#include <sigscheme/scmint.h>
 #include "scmport-config.h"
 #include "scmport.h"
 #include "scmport-null.h"

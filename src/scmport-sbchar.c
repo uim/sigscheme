@@ -43,7 +43,7 @@
 
 #include <stdlib.h>
 
-#include "scmint.h"
+#include <sigscheme/scmint.h>
 #include "scmport-config.h"
 #include "scmport.h"
 #include "scmport-sbchar.h"

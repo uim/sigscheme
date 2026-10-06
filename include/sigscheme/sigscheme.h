@@ -38,6 +38,7 @@
 #define __SIGSCHEME_H
 
 #include <sigscheme/config.h>
+#include <sigscheme/config-old.h>
 #define SCM_USE_VALUES_APPLIER 1
 
 #include <limits.h>
@@ -45,12 +46,12 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "scmint.h"
-#include "global.h"
+#include <sigscheme/scmint.h>
+#include <sigscheme/global.h>
 #if SCM_USE_MULTIBYTE_CHAR
-#include "encoding.h"
+#include <sigscheme/encoding.h>
 #else
-#include "encoding-dummy.h"
+#include <sigscheme/encoding-dummy.h>
 #endif
 
 #ifdef __cplusplus
@@ -488,9 +489,9 @@ typedef scm_int_t ScmPackedEnv;
  *
  */
 #if SCM_USE_STORAGE_FATTY
-#include "storage-fatty.h"
+#include <sigscheme/storage-fatty.h>
 #elif SCM_USE_STORAGE_COMPACT
-#include "storage-compact.h"
+#include <sigscheme/storage-compact.h>
 #else
 #error "specify a storage layer implementation"
 #endif

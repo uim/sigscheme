@@ -45,8 +45,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "scmint.h"
-#include "encoding.h"
+#include <sigscheme/scmint.h>
+#include <sigscheme/encoding.h>
 #include "scmport-config.h"
 #include "scmport.h"
 #include "scmport-mbchar.h"

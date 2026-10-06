@@ -66,12 +66,12 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 #if SCM_USE_MULTIBYTE_CHAR
-#include "encoding.h"
+#include <sigscheme/encoding.h>
 #else
-#include "encoding-dummy.h"
+#include <sigscheme/encoding-dummy.h>
 #endif
 
 /*=======================================

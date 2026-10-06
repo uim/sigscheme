@@ -44,11 +44,12 @@
 #define __SCM_ENCODING_H
 
 #include <sigscheme/config.h>
+#include <sigscheme/config-old.h>
 
 #include <stddef.h>
 
-#include "scmint.h"
-#include "global.h"
+#include <sigscheme/scmint.h>
+#include <sigscheme/global.h>
 
 #ifdef __cplusplus
 extern "C" {

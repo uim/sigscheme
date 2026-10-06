@@ -522,6 +522,6 @@ SCM_DECLARE_EXPORTED_VARS(storage_fatty);
 /* } */
 #endif
 
-#include "storage-common.h"
+#include <sigscheme/storage-common.h>
 
 #endif /* __STORAGE_FATTY_H */

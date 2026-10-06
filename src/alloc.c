@@ -46,7 +46,7 @@
 #include <unistd.h>
 #endif
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
 /*=======================================

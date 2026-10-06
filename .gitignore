@@ -44,16 +44,10 @@
 /include/Makefile.in
 /include/sigscheme/Makefile
 /include/sigscheme/Makefile.in
-/include/sigscheme/config-old.h
 /include/sigscheme/config.h
-/include/sigscheme/encoding-dummy.h
-/include/sigscheme/encoding.h
-/include/sigscheme/global.h
-/include/sigscheme/scmint.h
-/include/sigscheme/sigscheme.h
-/include/sigscheme/storage-common.h
-/include/sigscheme/storage-compact.h
-/include/sigscheme/storage-fatty.h
+/include/sigscheme/config.h.in
+/include/sigscheme/config.h.in~
+/include/sigscheme/stamp-h1
 
 # /lib/
 /lib/Makefile
@@ -73,9 +67,6 @@
 /src/.deps/
 /src/Makefile
 /src/Makefile.in
-/src/config.h
-/src/config.h.in
-/src/config.h.in~
 /src/functable-legacy-macro.c
 /src/functable-r5rs-char.c
 /src/functable-r5rs-core.c
@@ -111,7 +102,6 @@
 /src/functable-sscm-ext.c
 /src/sigscheme-combined-trim.h
 /src/sigscheme-combined.c
-/src/stamp-h1
 
 # /test-c/
 /test-c/.deps/

@@ -46,12 +46,12 @@
 #include <assert.h>
 #endif
 
-#include "scmint.h"
-#include "global.h"
+#include <sigscheme/scmint.h>
+#include <sigscheme/global.h>
 #if SCM_USE_MULTIBYTE_CHAR
-#include "encoding.h"
+#include <sigscheme/encoding.h>
 #else
-#include "encoding-dummy.h"
+#include <sigscheme/encoding-dummy.h>
 #endif
 
 #ifdef __cplusplus

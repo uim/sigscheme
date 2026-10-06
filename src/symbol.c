@@ -40,7 +40,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
 /*=======================================

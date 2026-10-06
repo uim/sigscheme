@@ -37,7 +37,7 @@
 
 #include <stdlib.h>
 
-#include "global.h"
+#include <sigscheme/global.h>
 
 #ifdef __cplusplus
 extern "C" {

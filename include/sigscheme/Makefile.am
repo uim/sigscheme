@@ -1,38 +1,15 @@
-BUILT_SOURCES = \
-        config.h \
-        config-old.h scmint.h global.h encoding.h encoding-dummy.h \
-        sigscheme.h \
-        storage-common.h storage-fatty.h storage-compact.h
-
-config.h: $(top_builddir)/src/config.h
-	rm -f $@
-	$(LN_S) $< $@
-config-old.h: $(top_srcdir)/src/config-old.h
-	rm -f $@
-	$(LN_S) $< $@
-scmint.h: $(top_srcdir)/src/scmint.h
-	rm -f $@
-	$(LN_S) $< $@
-global.h: $(top_srcdir)/src/global.h
-	rm -f $@
-	$(LN_S) $< $@
-encoding.h: $(top_srcdir)/src/encoding.h
-	rm -f $@
-	$(LN_S) $< $@
-encoding-dummy.h: $(top_srcdir)/src/encoding-dummy.h
-	rm -f $@
-	$(LN_S) $< $@
-sigscheme.h: $(top_srcdir)/src/sigscheme.h
-	rm -f $@
-	$(LN_S) $< $@
-storage-common.h: $(top_srcdir)/src/storage-common.h
-	rm -f $@
-	$(LN_S) $< $@
-storage-fatty.h: $(top_srcdir)/src/storage-fatty.h
-	rm -f $@
-	$(LN_S) $< $@
-storage-compact.h: $(top_srcdir)/src/storage-compact.h
-	rm -f $@
-	$(LN_S) $< $@
-
-CLEANFILES = $(BUILT_SOURCES)
+# Suppress installing headers on combined-source configuration
+if USE_LIBSSCM
+nodist_pkginclude_HEADERS = config.h
+pkginclude_HEADERS = config-old.h scmint.h global.h sigscheme.h
+if USE_STORAGE_COMPACT
+pkginclude_HEADERS += storage-common.h storage-compact.h
+else
+pkginclude_HEADERS += storage-common.h storage-fatty.h
+endif
+if USE_MULTIBYTE_CHAR
+pkginclude_HEADERS += encoding.h
+else
+pkginclude_HEADERS += encoding-dummy.h
+endif
+endif

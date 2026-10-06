@@ -45,7 +45,7 @@
 #include <string.h>
 #endif
 
-#include "global.h"
+#include <sigscheme/global.h>
 
 /*=======================================
   File Local Macro Definitions

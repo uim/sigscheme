@@ -2,7 +2,7 @@ AC_PREREQ(2.60b)
 AC_INIT([SigScheme], [0.9.7], [sigscheme-ja@googlegroups.com], [sigscheme])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/sigscheme.c])
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([include/sigscheme/config.h])
 AM_INIT_AUTOMAKE([1.10 foreign dist-bzip2])
 
 # Enable this iff asprintf(3) or another GNU extension is needed. This macro
@@ -1029,18 +1029,8 @@ AC_SUBST(SSCM_DEFS)
 # Output configuration result #
 ###############################
 
-# This include guard is required to prevent being overridden by
-# system-installed config.h on a source that is compiled on
-# !SCM_COMPILING_LIBSSCM such as test-c/test-*.c.
-AH_TOP([#ifndef __SIGSCHEME_CONFIG_H
-#define __SIGSCHEME_CONFIG_H])
-
-# FIXME: temporary solution
-AH_BOTTOM([
-/* FIXME: temporary solution */
-#include "config-old.h"
-
-#endif /* __SIGSCHEME_CONFIG_H */])
+# config.h is included as both <config.h> and <sigscheme/config.h>.
+AH_TOP([#pragma once])
 
 AC_CONFIG_FILES([sigscheme.pc
                  libgcroots.mk

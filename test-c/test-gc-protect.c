@@ -35,7 +35,7 @@
 #include <sigscheme/config.h>
 
 #include "sscm-test.h"
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
 /* Due to the conservative GC algorithm, an object cannot be detected as "this

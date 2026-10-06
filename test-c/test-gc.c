@@ -38,7 +38,7 @@
 #endif
 
 #include "sscm-test.h"
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 #define HEAP_SIZE    SCM_DEFAULT_HEAP_SIZE
 

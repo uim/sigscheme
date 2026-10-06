@@ -73,7 +73,7 @@
 
 #include <config.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
 /*=======================================

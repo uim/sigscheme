@@ -41,7 +41,7 @@
 #ifndef __SCM_SCMPORT_MBCHAR_H
 #define __SCM_SCMPORT_MBCHAR_H
 
-#include "encoding.h"
+#include <sigscheme/encoding.h>
 #include "scmport.h"
 
 #ifdef __cplusplus

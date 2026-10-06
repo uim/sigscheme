@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "scmint.h"
+#include <sigscheme/scmint.h>
 #include "scmport-config.h"
 #include "scmport.h"
 #include "scmport-str.h"

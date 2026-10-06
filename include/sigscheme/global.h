@@ -39,13 +39,14 @@
 #define __SCM_GLOBAL_H
 
 #include <sigscheme/config.h>
+#include <sigscheme/config-old.h>
 
 #if (defined(__SYMBIAN32__) && !defined(EKA2))
 #include <string.h>
 #include <stdlib.h>
 #include <e32std.h>
 #elif BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-#include "AEEStdLib.h"
+#include <AEEStdLib.h>
 #else
 #include <string.h>
 #endif

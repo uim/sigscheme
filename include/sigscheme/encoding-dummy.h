@@ -42,11 +42,12 @@
 #define __SCM_ENCODING_DUMMY_H
 
 #include <sigscheme/config.h>
+#include <sigscheme/config-old.h>
 
 #include <stddef.h>
 #include <string.h>
 
-#include "scmint.h"
+#include <sigscheme/scmint.h>
 
 #ifdef __cplusplus
 extern "C" {

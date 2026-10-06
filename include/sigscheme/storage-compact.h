@@ -998,6 +998,6 @@ typedef ScmObj *ScmRef;
 /* } */
 #endif
 
-#include "storage-common.h"
+#include <sigscheme/storage-common.h>
 
 #endif /* __STORAGE_COMPACT_H */

@@ -49,9 +49,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "scmint.h"
+#include <sigscheme/scmint.h>
 #include "encoding-config.h"
-#include "encoding.h"
+#include <sigscheme/encoding.h>
 
 /*=======================================
   File Local Macro Definitions

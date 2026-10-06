@@ -134,7 +134,7 @@ endif
 # Optional and not built by 'make all'. Build explicitly with 'make combined'
 # if needed. This target does not use non-standard scripting languages for
 # portability.
-sigscheme-combined.c: $(libsscm_sources) config.h
+sigscheme-combined.c: $(libsscm_sources) $(top_builddir)/include/sigscheme/config.h
 	@echo 'generating $@'
 	@echo "/* This is an auto-generated file. Don't edit directly. */" >$@
 	@echo >>$@
@@ -156,7 +156,6 @@ sigscheme-combined.c: $(libsscm_sources) config.h
 	@echo 'SCM_AGGREGATED_GLOBAL_VARS_BEGIN;' >>$@
 	@for src in $^ $>; do                           \
 	    case $$src in                               \
-	    global.h) ;;                                \
 	    *.h | *.c)                                 \
 	        $(EGREP) -e '^ *SCM_DEFINE_(STATIC|EXPORTED)_VARS\b' $$src \
 	          | sed -e 's/^.*SCM_DEFINE_STATIC_VARS/    SCM_AGGREGATED_GLOBAL_VARS/' \
@@ -170,7 +169,6 @@ sigscheme-combined.c: $(libsscm_sources) config.h
 	@echo >>$@
 	@for src in $^ $>; do                           \
 	    case $$src in                               \
-	    global.h) ;;                                \
 	    *.h | *.c)                                 \
 	        $(EGREP) -e '^ *SCM_DEFINE_(STATIC|EXPORTED)_VARS\b' $$src \
 	          | sed -e 's/^.*SCM_DEFINE_STATIC_VARS/SCM_DEFINE_GLOBAL_VARS_INSTANCE_ACCESSOR/' \
@@ -189,10 +187,6 @@ sigscheme-combined-trim.h: $(DIST_SOURCES)
 	@echo "/* This is an auto-generated file. Don't edit directly. */" >$@
 	@for src in $^ $>; do                   \
 	    case $$src in                       \
-	    config-old.h)       ;;              \
-	    scmint.h)           ;;              \
-	    encoding.h)         ;;              \
-	    encoding-dummy.h)   ;;              \
 	    encoding-config.h)  ;;              \
 	    scmport.h)          ;;              \
 	    scmport-config.h)   ;;              \
@@ -201,8 +195,6 @@ sigscheme-combined-trim.h: $(DIST_SOURCES)
 	    scmport-str.h)      ;;              \
 	    scmport-sbchar.h)   ;;              \
 	    scmport-mbchar.h)   ;;              \
-	    storage-*.h)        ;;              \
-	    sigscheme.h)        ;;              \
 	    main.c)             ;;              \
 	    *.h | *.c)                          \
 		echo >>$@;                      \
@@ -227,24 +219,14 @@ EXTRA_DIST += dllentry.c
 # See "Built sources" section of automake info.
 BUILT_SOURCES = $(BUILT_DIST)
 
-# Suppress installing headers on combined-source configuration
-if USE_LIBSSCM
-nodist_pkginclude_HEADERS = config.h
-pkginclude_HEADERS = config-old.h scmint.h global.h sigscheme.h
-endif
+# For <sigscheme/*.h>. config.h is generated in $(top_builddir).
+SSCM_INCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include
 
 libsscm_sources = \
         alloc.c storage.c storage-gc.c \
         error.c symbol.c env.c eval.c \
 	syntax.c procedure.c list.c \
         sigschemeinternal.h module.c sigscheme.c
-if USE_LIBSSCM
-if USE_STORAGE_COMPACT
-  pkginclude_HEADERS += storage-common.h storage-compact.h
-else
-  pkginclude_HEADERS += storage-common.h storage-fatty.h
-endif
-endif
 if USE_CONTINUATION
   libsscm_sources += continuation.c
 endif
@@ -254,15 +236,9 @@ if USE_PORT
         scmport-file.h scmport-file.c \
         scmport-basechar.c
 if USE_MULTIBYTE_CHAR
-if USE_LIBSSCM
-  pkginclude_HEADERS += encoding.h
-endif
   libsscm_sources    += encoding-config.h encoding.c \
                         scmport-mbchar.h scmport-mbchar.c
 else
-if USE_LIBSSCM
-  pkginclude_HEADERS += encoding-dummy.h
-endif
   libsscm_sources    += scmport-sbchar.h scmport-sbchar.c
 endif
 endif
@@ -373,7 +349,7 @@ libsscm_la_LIBADD   = $(LIBOBJS) @BDWGC_LIBS@ @GCROOTS_LIBS@
 libsscm_la_LDFLAGS  = -version-info $(libsscm_version)
 # To take precedence over installed gcroots.h by the bundled
 # libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
-libsscm_la_CPPFLAGS = -I$(top_builddir)/include @BDWGC_CFLAGS@ \
+libsscm_la_CPPFLAGS = $(SSCM_INCLUDES) @BDWGC_CFLAGS@ \
                       @GCROOTS_CFLAGS@ -DSCM_COMPILING_LIBSSCM=1
 libsscm_la_CFLAGS   =
 endif
@@ -382,7 +358,7 @@ if USE_SHELL
 bin_PROGRAMS  = sscm
 sscm_SOURCES  = main.c
 sscm_LDADD    = libsscm.la @BDWGC_LIBS@ @GCROOTS_LIBS@
-sscm_CPPFLAGS = -I$(top_builddir)/include @BDWGC_CFLAGS@ @GCROOTS_CFLAGS@
+sscm_CPPFLAGS = $(SSCM_INCLUDES) @BDWGC_CFLAGS@ @GCROOTS_CFLAGS@
 sscm_CFLAGS   =
 endif
 

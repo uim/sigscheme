@@ -39,7 +39,7 @@
 
 #include <stddef.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 #include "scmport-null.h"
 

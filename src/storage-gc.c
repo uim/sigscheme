@@ -61,7 +61,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
 #ifdef SCM_WITH_BDWGC

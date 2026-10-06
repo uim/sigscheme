@@ -41,7 +41,7 @@
 #include <setjmp.h>
 #endif
 
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #include "gcroots.h"
 
 /*=======================================

@@ -37,7 +37,7 @@
 #define __SCM_SCMPORT_CONFIG_H
 
 #if SCM_SCMPORT_USE_WITH_SIGSCHEME
-#include "sigscheme.h"
+#include <sigscheme/sigscheme.h>
 #else /* SCM_SCMPORT_USE_WITH_SIGSCHEME */
 #include <stdlib.h>
 #include <string.h>

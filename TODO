@@ -34,7 +34,7 @@ Extensions: (not required for now)
   - Make the slib.scm installable
   - Fill some variables with configure (slib.scm.in)
 
-* Make Symbian OS and BREW support working (patches are welcome)
+* Make Symbian OS support working (patches are welcome)
 
 * Implement numbers other than integer
   - Define SAL accessors considering SRFI-50 and other implementations

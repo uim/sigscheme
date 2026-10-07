@@ -41,11 +41,11 @@ toolchain-based symbol exportation control.
 Platforms that lack writable static data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some platforms such as BREW and some versions of Symbian OS lack writable
-static data capability. It means that no writable global variable can be used
-in SigScheme. But SigScheme do need various global data such as dynamic extent,
-symbol table, R5RS constant object holder and so on. So an alternative dynamic
-data store that can globally be accessed is needed.
+Some versions of Symbian OS lack writable static data capability. It means that
+no writable global variable can be used in SigScheme. But SigScheme do need
+various global data such as dynamic extent, symbol table, R5RS constant object
+holder and so on. So an alternative dynamic data store that can globally be
+accessed is needed.
 
 
 Solution

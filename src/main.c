@@ -37,19 +37,10 @@
 
 #include <config.h>
 
-#if BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-#include "sigscheme-combined.c"
-#endif
-
 #include <stdlib.h>
 
 #include <unistd.h>
 #include <sys/param.h>
-
-#if BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-#include "AEEAppGen.h"
-#include "AEEStdLib.h"
-#endif
 
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
@@ -79,28 +70,11 @@ struct g_sscm {
     char lib_path[MAXPATHLEN + sizeof("")];
 };
 
-#if BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-/* experimental, broken and existing for technical example */
-
-#define SCM_BREW_USER_APPLET_T CSSCMApplet
-typedef struct _CSSCMApplet CSSCMApplet;
-struct _CSSCMApplet {
-    AEEApplet a;
-    struct scm_g_aggregated m_scm_g_aggregated_instance;
-
-    struct g_sscm m_sscm;
-};
-
-#define sscm (((CSSCMApplet *)GETAPPINSTANCE())->m_sscm)
-#endif /* BREW_MAJ_VER */
-
 /*=======================================
   Variable Definitions
 =======================================*/
 /* Don't use any global variable other than the 'sscm' */
-#if !BREW_MAJ_VER  /* FIXME: inappropriate detection method */
 static struct g_sscm sscm;
-#endif /* !BREW_MAJ_VER */
 
 /*=======================================
   File Local Function Declarations

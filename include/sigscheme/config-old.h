@@ -70,8 +70,7 @@
 /*===========================================================================
   Dependency Resolution
 ===========================================================================*/
-#if ((defined(__SYMBIAN32__) && !defined(EKA2)) \
-     || BREW_MAJ_VER)  /* FIXME: inappropriate detection method */
+#if (defined(__SYMBIAN32__) && !defined(EKA2))
 #define SCM_HAVE_WRITABLE_GLOBAL_VARS 0
 #else
 #define SCM_HAVE_WRITABLE_GLOBAL_VARS 1

@@ -39,8 +39,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <e32std.h>
-#elif BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-#include "AEEStdLib.h"
 #else
 #include <string.h>
 #endif
@@ -106,31 +104,6 @@ scm_aggregated_global_vars_fin(void)
     if (KErrNone != Dll::SetTls(NULL))
         exit(EXIT_FAILURE);    /* FIXME: more appropriate handling */
 #endif
-}
-
-#elif BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-/*** EXPERIMENTAL AND NOT TESTED ***/
-
-/*
- * Usage:
- *
- * #include "sigscheme-combined.c"
- *
- * #define SCM_BREW_USER_APPLET_T CMyApplet
- *
- * typedef struct _CMyApplet {
- *   AEEApplet a;
- *   ...
- *   struct scm_g_aggregated m_scm_g_aggregated_instance;
- *   ...
- * } CMyApplet;
- */
-
-SCM_EXPORT void
-scm_aggregated_global_vars_init(void)
-{
-    MEMSET(SCM_AGGREGATED_GLOBAL_VARS_INSTANCE(),
-           0, sizeof(struct scm_g_aggregated));
 }
 
 #elif SCM_HAVE_WRITABLE_GLOBAL_VARS

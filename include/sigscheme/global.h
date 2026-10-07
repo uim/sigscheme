@@ -45,8 +45,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <e32std.h>
-#elif BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-#include <AEEStdLib.h>
 #else
 #include <string.h>
 #endif
@@ -88,17 +86,6 @@ extern "C" {
 #define SCM_AGGREGATED_GLOBAL_VARS_FIN()  (scm_aggregated_global_vars_fin())
 #define SCM_AGGREGATED_GLOBAL_VARS_INSTANCE()                                \
     ((struct scm_g_aggregated *)Dll::Tls())
-
-#elif BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-/*** EXPERIMENTAL AND NOT TESTED ***/
-
-#define SCM_DECLARE_AGGREGATED_GLOBAL_VARS() extern int scm_g_dummy
-#define SCM_DEFINE_AGGREGATED_GLOBAL_VARS()  extern int scm_g_dummy
-
-#define SCM_AGGREGATED_GLOBAL_VARS_INIT() (scm_aggregated_global_vars_init())
-#define SCM_AGGREGATED_GLOBAL_VARS_FIN()  SCM_EMPTY_EXPR
-#define SCM_AGGREGATED_GLOBAL_VARS_INSTANCE()                                \
-    (&((SCM_BREW_USER_APPLET_T *)GETAPPINSTANCE())->m_scm_g_aggregated_instance)
 
 #elif SCM_HAVE_WRITABLE_GLOBAL_VARS
 #define SCM_DECLARE_AGGREGATED_GLOBAL_VARS()                                 \
@@ -199,10 +186,6 @@ extern "C" {
 #else /* SCM_COMPILING_LIBSSCM */
 #define SCM_EXPORT IMPORT_C
 #endif /* SCM_COMPILING_LIBSSCM */
-
-#elif BREW_MAJ_VER  /* FIXME: inappropriate detection method */
-#define SCM_EXTERN(_decl) extern _decl
-#define SCM_EXPORT extern  /* respect coding style of BREW */
 
 /* FIXME: reflect SCM_COMBINED_SOURCE */
 #elif (defined(_WIN32) || defined(_WIN64))

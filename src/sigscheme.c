@@ -532,6 +532,14 @@ scm_interpret_argv(char **argv)
     }
 
     if (sys_load_path) {
+        /* scm_set_system_load_path() can't report an error before the
+         * initialization because ports aren't initialized yet. */
+        if (!l_scm_initialized && !ABSOLUTE_PATHP(sys_load_path)) {
+            fprintf(stderr,
+                    SCM_ERR_HEADER "system load path must be absolute: %s\n",
+                    sys_load_path);
+            exit(EXIT_FAILURE);
+        }
         scm_set_system_load_path(sys_load_path);
     }
 

@@ -54,7 +54,6 @@
   File Local Macro Definitions
 =======================================*/
 /* FIXME: only supports UNIX flavors */
-#define ABSOLUTE_PATHP(path) ((path)[0] == '/')
 #define PATH_SEPARATOR ':'
 
 #if SCM_USE_SRFI22

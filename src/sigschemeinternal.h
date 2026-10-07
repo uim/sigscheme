@@ -191,6 +191,8 @@ extern "C" {
 =======================================*/
 #define SCM_ERR_HEADER "Error: "
 
+#define ABSOLUTE_PATHP(path) ((path)[0] == '/')
+
 #define ERRMSG_FIXNUM_OVERFLOW     "fixnum overflow"
 #define ERRMSG_UNHANDLED_EXCEPTION "unhandled exception"
 #define SCM_ERRMSG_IMPROPER_ARGS                                             \

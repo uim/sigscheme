@@ -44,9 +44,6 @@ AC_CHECK_HEADERS([sys/types.h malloc.h strings.h unistd.h])
 # Checks for typedefs, structures, and compiler characteristics
 #
 
-# a submacro of ax_create_stdint_h.m4
-AX_CHECK_DATA_MODEL
-
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
@@ -1042,7 +1039,6 @@ AC_MSG_RESULT([[
 Package:                $PACKAGE_STRING
 build (compile on):     $ac_cv_build
 host (compile for):     $ac_cv_host
-host data model:        $ac_cv_data_model
 host align (C/S/I/L/P): ${ac_cv_alignof_char}/${ac_cv_alignof_short}/${ac_cv_alignof_int}/${ac_cv_alignof_long}/${ac_cv_alignof_void_p}
 Compiler:               $CC
 Compiler version:       $ax_prog_cc_version

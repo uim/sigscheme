@@ -42,7 +42,7 @@
 #define __SCM_SCMPORT_H
 
 #include <stddef.h>
-#if (HAVE_ASSERT_H && !SCM_SOFT_ASSERT)
+#if !SCM_SOFT_ASSERT
 #include <assert.h>
 #endif
 
@@ -74,10 +74,8 @@ extern "C" {
 
 #if SCM_SCMPORT_USE_WITH_SIGSCHEME
 #define SCM_PORT_ASSERT(exp) (SCM_ASSERT(exp))
-#elif HAVE_ASSERT_H
-#define SCM_PORT_ASSERT(exp) (assert(exp))
 #else
-#define SCM_PORT_ASSERT(exp) SCM_EMPTY_EXPR
+#define SCM_PORT_ASSERT(exp) (assert(exp))
 #endif
 
 #define SCM_PORT_ERROR_INVALID_TYPE(klass, port, type)                       \

@@ -154,11 +154,9 @@ extern "C" {
 #endif
 #define SCM_ASSERT(cond)                                                     \
     ((cond) || (scm_die(SCM_ASSERTION_MSG(cond), __FILE__, __LINE__), 1))
-#elif HAVE_ASSERT_H
+#else
 #include <assert.h>
 #define SCM_ASSERT(cond) (assert(cond))
-#else
-#define SCM_ASSERT(cond) SCM_EMPTY_EXPR
 #endif
 
 #define SCM_ENSURE(cond)                                                     \
@@ -168,7 +166,7 @@ extern "C" {
     ((p) || (scm_fatal_error(SCM_ERRMSG_MEMORY_EXHAUSTED), 1))
 
 #if (SCM_USE_WARNING_SUPPRESSOR                                              \
-     && !SCM_SOFT_ASSERT && (!HAVE_ASSERT_H || defined(NDEBUG)))
+     && !SCM_SOFT_ASSERT && defined(NDEBUG))
 #include <stdlib.h>
 #define SCM_NOTREACHED (abort())
 #else

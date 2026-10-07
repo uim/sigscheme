@@ -44,10 +44,7 @@ AX_LIB_GLIBC
 # Checks for header files
 #
 
-AC_HEADER_STDC
-AC_CHECK_HEADERS([stdint.h inttypes.h sys/inttypes.h sys/types.h \
-                  limits.h malloc.h stddef.h stdlib.h string.h \
-                  strings.h unistd.h assert.h])
+AC_CHECK_HEADERS([sys/types.h malloc.h strings.h unistd.h])
 
 #
 # Checks for typedefs, structures, and compiler characteristics
@@ -55,13 +52,6 @@ AC_CHECK_HEADERS([stdint.h inttypes.h sys/inttypes.h sys/types.h \
 
 # FIXME: depending on the internal variable name
 AC_DEFUN([AX_LANG_WNOERROR], [ac_[]_AC_LANG_ABBREV[]_werror_flag=])
-
-AC_C_CONST
-AC_C_VOLATILE
-AC_C_STRINGIZE
-
-AC_C_RESTRICT
-AC_C_INLINE
 
 AC_C_CHAR_UNSIGNED
 AX_C_ARITHMETIC_RSHIFT
@@ -84,25 +74,6 @@ fi
 
 # a submacro of ax_create_stdint_h.m4
 AX_CHECK_DATA_MODEL
-
-AC_TYPE_LONG_LONG_INT
-AC_TYPE_UNSIGNED_LONG_LONG_INT
-AC_TYPE_LONG_DOUBLE
-AC_TYPE_LONG_DOUBLE_WIDER
-
-# stdint types
-AC_TYPE_INT8_T
-AC_TYPE_INT16_T
-AC_TYPE_INT32_T
-AC_TYPE_INT64_T
-AC_TYPE_INTMAX_T
-AC_TYPE_INTPTR_T
-AC_TYPE_UINT8_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
-AC_TYPE_UINTMAX_T
-AC_TYPE_UINTPTR_T
 
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short)
@@ -196,9 +167,7 @@ AX_CHECK_COMPILE_FLAG([-no-cpp-precomp])
 
 AX_FUNC_SIGSETJMP
 
-AC_CHECK_FUNCS([getcontext strtoll strtoimax \
-                memalign \
-                fileno getcwd getpagesize])
+AC_CHECK_FUNCS([getcontext memalign fileno getcwd getpagesize])
 
 AC_CHECK_FUNCS(posix_memalign,
   [

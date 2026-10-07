@@ -203,12 +203,8 @@ scm_string2number(const char *str, int radix, scm_bool *err)
     errno = 0;
 #if (SIZEOF_SCM_INT_T <= SIZEOF_LONG)
     n = (scm_int_t)strtol(str, &end, radix);
-#elif (HAVE_STRTOLL && SIZEOF_SCM_INT_T <= SIZEOF_LONG_LONG)
-    n = (scm_int_t)strtoll(str, &end, radix);
-#elif (HAVE_STRTOIMAX && SIZEOF_SCM_INT_T <= SIZEOF_INTMAX_T)
-    n = (scm_int_t)strtoimax(str, &end, radix);
 #else
-#error "This platform is not supported"
+    n = (scm_int_t)strtoll(str, &end, radix);
 #endif
 
     empty_strp = (end == str);  /* apply the first rule above */

@@ -45,57 +45,27 @@ AC_CHECK_HEADERS([sys/types.h malloc.h strings.h unistd.h])
 #
 
 AC_CHECK_SIZEOF(char)
-AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
-AC_CHECK_SIZEOF(long long)
-AC_CHECK_SIZEOF(float)
-AC_CHECK_SIZEOF(double)
-AC_CHECK_SIZEOF(long double)
 AC_CHECK_SIZEOF(void *)
 AC_CHECK_SIZEOF(size_t)
 
 # Do not assume (sizeof(int32_t) == 4) and so on (i.e. do not (CHAR_BIT == 8)).
-AC_CHECK_SIZEOF(int8_t)
 AC_CHECK_SIZEOF(int16_t)
 AC_CHECK_SIZEOF(int32_t)
 AC_CHECK_SIZEOF(int64_t)
 AC_CHECK_SIZEOF(intmax_t)
 AC_CHECK_SIZEOF(intptr_t)
-#AC_CHECK_SIZEOF(int_least8_t)
-#AC_CHECK_SIZEOF(int_least16_t)
-#AC_CHECK_SIZEOF(int_least32_t)
-#AC_CHECK_SIZEOF(int_least64_t)
-#AC_CHECK_SIZEOF(int_fast8_t)
-#AC_CHECK_SIZEOF(int_fast16_t)
-#AC_CHECK_SIZEOF(int_fast32_t)
-#AC_CHECK_SIZEOF(int_fast64_t)
 
 AC_CHECK_ALIGNOF(char)
-AC_CHECK_ALIGNOF(short)
 AC_CHECK_ALIGNOF(int)
 AC_CHECK_ALIGNOF(long)
-AC_CHECK_ALIGNOF(long long)
-AC_CHECK_ALIGNOF(float)
-AC_CHECK_ALIGNOF(double)
-AC_CHECK_ALIGNOF(long double)
 AC_CHECK_ALIGNOF(void *)
-AC_CHECK_ALIGNOF(size_t)
 
-AC_CHECK_ALIGNOF(int8_t)
 AC_CHECK_ALIGNOF(int16_t)
 AC_CHECK_ALIGNOF(int32_t)
 AC_CHECK_ALIGNOF(int64_t)
-AC_CHECK_ALIGNOF(intmax_t)
 AC_CHECK_ALIGNOF(intptr_t)
-#AC_CHECK_ALIGNOF(int_least8_t)
-#AC_CHECK_ALIGNOF(int_least16_t)
-#AC_CHECK_ALIGNOF(int_least32_t)
-#AC_CHECK_ALIGNOF(int_least64_t)
-#AC_CHECK_ALIGNOF(int_fast8_t)
-#AC_CHECK_ALIGNOF(int_fast16_t)
-#AC_CHECK_ALIGNOF(int_fast32_t)
-#AC_CHECK_ALIGNOF(int_fast64_t)
 
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
@@ -1039,7 +1009,7 @@ AC_MSG_RESULT([[
 Package:                $PACKAGE_STRING
 build (compile on):     $ac_cv_build
 host (compile for):     $ac_cv_host
-host align (C/S/I/L/P): ${ac_cv_alignof_char}/${ac_cv_alignof_short}/${ac_cv_alignof_int}/${ac_cv_alignof_long}/${ac_cv_alignof_void_p}
+host align (C/I/L/P):   ${ac_cv_alignof_char}/${ac_cv_alignof_int}/${ac_cv_alignof_long}/${ac_cv_alignof_void_p}
 Compiler:               $CC
 Compiler version:       $ax_prog_cc_version
 CFLAGS='$CFLAGS']])

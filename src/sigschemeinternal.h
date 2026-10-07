@@ -290,12 +290,11 @@ extern "C" {
 
 /* Signals an error.  The current function name and the message are
    sent to the error port.  The message is formatted by scm_vformat(). */
-/* FIXME: check variadic macro availability with autoconf */
-#if HAVE_C99_VARIADIC_MACRO
-#define ERR(fmt, ...)     (scm_error(SCM_MANGLE(name), fmt, __VA_ARGS__))
-#elif HAVE_GNU_VARIADIC_MACRO
-#define ERR(fmt, args...) (scm_error(SCM_MANGLE(name), fmt, args))
-#else
+#define ERR(...) (scm_error(SCM_MANGLE(name), __VA_ARGS__))
+
+#if !SCM_COMBINED_SOURCE
+/* They aren't used internally. They are only for keeping ABI
+ * compatibility of libsscm. */
 SCM_GLOBAL_VARS_BEGIN(error);
 const char *scm_err_funcname;
 SCM_GLOBAL_VARS_END(error);
@@ -303,7 +302,6 @@ SCM_GLOBAL_VARS_END(error);
 SCM_DECLARE_EXPORTED_VARS(error);
 
 SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
-#define ERR (scm_err_funcname = SCM_MANGLE(name)), scm_error_with_implicit_func
 #endif
 
 

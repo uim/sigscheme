@@ -62,7 +62,7 @@
 /*=======================================
   Variable Definitions
 =======================================*/
-#if (!HAVE_C99_VARIADIC_MACRO && !HAVE_GNU_VARIADIC_MACRO)
+#if !SCM_COMBINED_SOURCE
 SCM_DEFINE_EXPORTED_VARS(error);
 #endif
 
@@ -103,7 +103,7 @@ static void show_arg(ScmObj arg, ScmObj env);
 SCM_EXPORT void
 scm_init_error(void)
 {
-#if (!HAVE_C99_VARIADIC_MACRO && !HAVE_GNU_VARIADIC_MACRO)
+#if !SCM_COMBINED_SOURCE
     SCM_GLOBAL_VARS_INIT(error);
 #endif
     SCM_GLOBAL_VARS_INIT(static_error);
@@ -392,7 +392,9 @@ scm_plain_error(const char *msg, ...)
     /* NOTREACHED */
 }
 
-#if (!HAVE_C99_VARIADIC_MACRO && !HAVE_GNU_VARIADIC_MACRO)
+#if !SCM_COMBINED_SOURCE
+/* This isn't used internally. This is only for keeping ABI compatibility
+ * of libsscm. */
 SCM_EXPORT void
 scm_error_with_implicit_func(const char *msg, ...)
 {
@@ -403,7 +405,7 @@ scm_error_with_implicit_func(const char *msg, ...)
     /* va_end(va); */
     /* NOTREACHED */
 }
-#endif /* (!HAVE_C99_VARIADIC_MACRO && !HAVE_GNU_VARIADIC_MACRO) */
+#endif /* !SCM_COMBINED_SOURCE */
 
 SCM_EXPORT void
 scm_error(const char *func_name, const char *msg, ...)

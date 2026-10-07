@@ -44,15 +44,6 @@ AC_CHECK_HEADERS([sys/types.h malloc.h strings.h unistd.h])
 # Checks for typedefs, structures, and compiler characteristics
 #
 
-AC_C_BIGENDIAN
-if test "x$ac_cv_c_bigendian" = xyes; then
-  ax_c_endian=big
-elif test "x$ac_cv_c_bigendian" = xno; then
-  ax_c_endian=little
-else
-  ax_c_endian=$ac_cv_c_bigendian
-fi
-
 # a submacro of ax_create_stdint_h.m4
 AX_CHECK_DATA_MODEL
 
@@ -1053,7 +1044,6 @@ build (compile on):     $ac_cv_build
 host (compile for):     $ac_cv_host
 host data model:        $ac_cv_data_model
 host align (C/S/I/L/P): ${ac_cv_alignof_char}/${ac_cv_alignof_short}/${ac_cv_alignof_int}/${ac_cv_alignof_long}/${ac_cv_alignof_void_p}
-host endian:            $ax_c_endian
 Compiler:               $CC
 Compiler version:       $ax_prog_cc_version
 CFLAGS='$CFLAGS']])

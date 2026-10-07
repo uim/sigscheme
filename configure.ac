@@ -35,12 +35,6 @@ AC_PATH_PROGS(SHA1, sha1 sha1sum)
 AC_PATH_PROGS(SHA256, sha256 sha256sum)
 
 #
-# Checks for libraries
-#
-
-AX_LIB_GLIBC
-
-#
 # Checks for header files
 #
 
@@ -192,20 +186,7 @@ AH_VERBATIM(_XOPEN_SOURCE,
 #undef _XOPEN_SOURCE
 #endif])
 
-AC_CHECK_FUNCS(strcasecmp,
-  [
-    if test "x$ax_cv_lib_glibc" = xyes; then
-      AC_DEFINE(_BSD_SOURCE, 1)
-    fi
-  ],
-  [
-    AC_LIBOBJ(strcasecmp)
-  ])
-AH_VERBATIM(_BSD_SOURCE,
-[/* Define to 1 if it is needed to enable strcasecmp(3). */
-#if SCM_COMPILING_LIBSSCM
-#undef _BSD_SOURCE
-#endif])
+AC_CHECK_FUNCS(strcasecmp, [], [AC_LIBOBJ(strcasecmp)])
 
 AX_CHECK_PAGE_ALIGNED_MALLOC
 

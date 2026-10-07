@@ -42,9 +42,6 @@
 #if (HAVE_MEMALIGN && HAVE_MALLOC_H)
 #include <malloc.h>
 #endif
-#if HAVE_GETPAGESIZE
-#include <unistd.h>
-#endif
 
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
@@ -96,11 +93,6 @@ scm_malloc_aligned(size_t size)
                || sizeof(ScmCell) == 16
                || sizeof(ScmCell) == 32);
     p = memalign(sizeof(ScmCell), size);
-#elif (HAVE_PAGE_ALIGNED_MALLOC && HAVE_GETPAGESIZE)
-    if ((size_t)getpagesize() <= size)
-        p = scm_malloc(size);
-    else
-        PLAIN_ERR("cannot ensure memory alignment");
 #elif defined(__APPLE__)
     /*
      * malloc in Mac OS X guarantees 16 byte alignment.  And large

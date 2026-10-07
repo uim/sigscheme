@@ -159,7 +159,7 @@ AX_CHECK_COMPILE_FLAG([-no-cpp-precomp])
 
 AX_FUNC_SIGSETJMP
 
-AC_CHECK_FUNCS([getcontext memalign fileno getcwd getpagesize])
+AC_CHECK_FUNCS([getcontext memalign fileno getcwd])
 
 AC_CHECK_FUNCS(posix_memalign,
   [
@@ -187,8 +187,6 @@ AH_VERBATIM(_XOPEN_SOURCE,
 #endif])
 
 AC_CHECK_FUNCS(strcasecmp, [], [AC_LIBOBJ(strcasecmp)])
-
-AX_CHECK_PAGE_ALIGNED_MALLOC
 
 
 #####################

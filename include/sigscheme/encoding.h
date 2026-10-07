@@ -44,7 +44,6 @@
 #define __SCM_ENCODING_H
 
 #include <sigscheme/config.h>
-#include <sigscheme/config-old.h>
 
 #include <stddef.h>
 

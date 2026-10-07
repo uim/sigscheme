@@ -37,7 +37,6 @@
 #define __SCM_GLOBAL_H
 
 #include <sigscheme/config.h>
-#include <sigscheme/config-old.h>
 
 #include <string.h>
 

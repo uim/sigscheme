@@ -184,6 +184,14 @@
 #define OK 0
 #define TOKEN_BUF_EXCEEDED (-1)
 
+/* on-stack initial token buffer size */
+#define SCM_INITIAL_STRING_BUF_SIZE 64
+#define SCM_INITIAL_SYMBOL_BUF_SIZE 64
+
+/* token buffer size extender function */
+#define SCM_LBUF_F_STRING scm_lbuf_f_linear
+#define SCM_LBUF_F_SYMBOL scm_lbuf_f_linear
+
 /* can accept "backspace" of R5RS and "x0010FFFF" of R6RS characters */
 #define CHAR_LITERAL_LEN_MAX (sizeof("backspace") - sizeof(""))
 

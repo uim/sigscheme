@@ -1,7 +1,7 @@
 # Suppress installing headers on combined-source configuration
 if USE_LIBSSCM
 nodist_pkginclude_HEADERS = config.h
-pkginclude_HEADERS = config-old.h scmint.h global.h sigscheme.h
+pkginclude_HEADERS = scmint.h global.h sigscheme.h
 if USE_STORAGE_COMPACT
 pkginclude_HEADERS += storage-common.h storage-compact.h
 else

@@ -52,7 +52,6 @@
 #define __SCM_SCMINT_H
 
 #include <sigscheme/config.h>
-#include <sigscheme/config-old.h>
 
 #if HAVE_STDINT_H
 #include <stdint.h>

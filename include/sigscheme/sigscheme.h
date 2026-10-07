@@ -38,7 +38,6 @@
 #define __SIGSCHEME_H
 
 #include <sigscheme/config.h>
-#include <sigscheme/config-old.h>
 #define SCM_USE_VALUES_APPLIER 1
 
 #include <limits.h>
@@ -529,6 +528,10 @@ struct ScmStorageConf_ {
 #define SCM_FULLY_ADDRESSABLEP                                               \
     (SCM_PTR_BITS == (sizeof(void *) * CHAR_BIT))
 
+#define SCM_DEFAULT_HEAP_SIZE            0x4000
+#define SCM_DEFAULT_HEAP_ALLOC_THRESHOLD (SCM_DEFAULT_HEAP_SIZE / 2)
+#define SCM_DEFAULT_N_HEAPS_INIT         1
+#define SCM_DEFAULT_SYMBOL_HASH_SIZE     0x400
 #ifndef SCM_DEFAULT_N_HEAPS_MAX
 #define SCM_DEFAULT_N_HEAPS_MAX                                              \
     (((SCM_INT_BITS < SCM_PTR_BITS)                                          \

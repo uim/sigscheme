@@ -65,6 +65,8 @@ extern "C" {
 #define SCM_DEBUG_PORT 0
 #endif
 
+#define SCM_NEWLINE_STR "\n"
+
 #define SCM_ERRMSG_OPEN_PORT      "failed to open port"
 #define SCM_ERRMSG_CLOSE_PORT     "failed to close port"
 #define SCM_ERRMSG_READ_FROM_PORT "failed to read from port"

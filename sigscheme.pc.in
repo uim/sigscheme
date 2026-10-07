@@ -59,7 +59,6 @@ sscm_legacy_macro=@use_legacy_macro@
 sscm_extensions=@use_sscm_extensions@
 sscm_format_extension=@use_sscm_format_extension@
 sscm_compat_siod=@use_compat_siod@
-sscm_compat_siod_bugs=@use_compat_siod_bugs@
 sscm_eval_c_string=@use_eval_c_string@
 sscm_backtrace=@use_backtrace@
 sscm_debug=@use_debug@

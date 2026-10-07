@@ -58,14 +58,8 @@
 (tn "boolean values")
 (assert-false  (tn) (if #f #t #f))
 (assert-true   (tn) (if #t #t #f))
-(if (and (provided? "sigscheme")
-         (provided? "siod-bugs"))
-    (begin
-      (assert-false (tn) '())
-      (assert-true  (tn) (eq? #f '())))
-    (begin
-      (assert-true  (tn) '())
-      (assert-false (tn) (eq? #f '()))))
+(assert-true  (tn) '())
+(assert-false (tn) (eq? #f '()))
 (if (provided? "sigscheme")
     (begin
       (assert-true   (tn) (if (eof) #t #f))
@@ -116,10 +110,7 @@
 ;; > `Not' returns #t if obj is false, and returns #f otherwise.
 (assert-eq? (tn) #t (not #f))
 (assert-eq? (tn) #f (not #t))
-(if (and (provided? "sigscheme")
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #t (not '()))
-    (assert-eq? (tn) #f (not '())))
+(assert-eq? (tn) #f (not '()))
 (if (provided? "sigscheme")
     (begin
       (assert-eq? (tn) #f (not (eof)))
@@ -167,10 +158,7 @@
 (tn "boolean?")
 (assert-eq? (tn) #t (boolean? #f))
 (assert-eq? (tn) #t (boolean? #t))
-(if (and (provided? "sigscheme")
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #t (boolean? '()))
-    (assert-eq? (tn) #f (boolean? '())))
+(assert-eq? (tn) #f (boolean? '()))
 (if (provided? "sigscheme")
     (begin
       (assert-eq? (tn) #f (boolean? (eof)))

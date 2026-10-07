@@ -118,11 +118,6 @@ SCM_EXPORT ScmObj
 scm_p_car(ScmObj obj)
 {
     DECLARE_FUNCTION("car", procedure_fixed_1);
-#if SCM_COMPAT_SIOD_BUGS
-    if (NULLP(obj))
-        return SCM_NULL;
-#endif
-
     ENSURE_CONS(obj);
 
     return CAR(obj);
@@ -132,11 +127,6 @@ SCM_EXPORT ScmObj
 scm_p_cdr(ScmObj obj)
 {
     DECLARE_FUNCTION("cdr", procedure_fixed_1);
-#if SCM_COMPAT_SIOD_BUGS
-    if (NULLP(obj))
-        return SCM_NULL;
-#endif
-
     ENSURE_CONS(obj);
 
     return CDR(obj);

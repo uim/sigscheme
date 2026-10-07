@@ -60,10 +60,7 @@
 
 
 (tn "null?")
-(if (and (provided? "sigscheme")
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #t (null? #f))
-    (assert-eq? (tn) #f (null? #f)))
+(assert-eq? (tn) #f (null? #f))
 (assert-eq? (tn) #f (null? #t))
 (assert-eq? (tn) #t (null? '()))
 (if (provided? "sigscheme")
@@ -120,10 +117,7 @@
 (assert-eq? (tn) #f (null? (vector 0 1 2)))
 
 (tn "list?")
-(if (and (provided? "sigscheme")
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #t (list? #f))
-    (assert-eq? (tn) #f (list? #f)))
+(assert-eq? (tn) #f (list? #f))
 (assert-eq? (tn) #f (list? #t))
 (assert-eq? (tn) #t (list? '()))
 (if (provided? "sigscheme")

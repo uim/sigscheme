@@ -63,12 +63,8 @@
 ;; bindings must be a list
 (assert-error  (tn) (lambda ()
                       (letrec a 'val)))
-(if (provided? "siod-bugs")
-    (assert-equal? (tn)
-                   'val
-                   (letrec #f 'val))
-    (assert-error  (tn) (lambda ()
-                          (letrec #f 'val))))
+(assert-error  (tn) (lambda ()
+                      (letrec #f 'val)))
 (assert-error  (tn) (lambda ()
                       (letrec #() 'val)))
 (assert-error  (tn) (lambda ()

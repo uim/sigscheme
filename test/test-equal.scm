@@ -58,14 +58,8 @@
 
 (tn "equal? null")
 (assert-eq? (tn) #t (equal? '() '()))
-(if (and (provided? "sigscheme")
-         (provided? "siod-bugs"))
-    (begin
-      (assert-eq? (tn) #t (equal? #f '()))
-      (assert-eq? (tn) #t (equal? '() #f)))
-    (begin
-      (assert-eq? (tn) #f (equal? #f '()))
-      (assert-eq? (tn) #f (equal? '() #f))))
+(assert-eq? (tn) #f (equal? #f '()))
+(assert-eq? (tn) #f (equal? '() #f))
 (if (symbol-bound? 'vector?)
     (begin
       (assert-eq? (tn) #f (equal? '() '#()))

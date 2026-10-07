@@ -72,7 +72,6 @@ Run ./configure with some options at the top directory.
     - regular: (default) compile with typically needed features
     - small:   compile with primary features only
     - r5rs:    compile with strict R5RS conformances
-    - siod:    emulate some SIOD features and bugs
     - dev:     developer-friendly configuration
     - uim:     configure for uim
 

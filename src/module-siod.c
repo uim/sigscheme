@@ -115,10 +115,6 @@ scm_initialize_siod(void)
 
     scm_register_funcs(scm_functable_siod);
 
-#if SCM_COMPAT_SIOD_BUGS
-    scm_define_alias("=", "%%siod=");
-#endif
-
     scm_require_module("sscm-ext");
     scm_define_alias("the-environment", "%%current-environment");
 
@@ -178,6 +174,9 @@ scm_p_set_symbol_valuex(ScmObj var, ScmObj val)
     return val;
 }
 
+/* This was used as `=` by the removed SIOD bugs emulation. This is kept for
+ * compatibility because this is a public API and `%%siod=` is still
+ * available. */
 SCM_EXPORT ScmObj
 scm_p_siod_equal(ScmObj obj1, ScmObj obj2)
 {

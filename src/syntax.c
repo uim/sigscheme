@@ -226,11 +226,7 @@ scm_s_if(ScmObj test, ScmObj conseq, ScmObj rest, ScmEvalState *eval_state)
 #endif
         return conseq;
     } else {
-#if SCM_COMPAT_SIOD_BUGS
-        alt = (CONSP(rest)) ? CAR(rest) : SCM_FALSE;
-#else
         alt = (CONSP(rest)) ? CAR(rest) : SCM_UNDEF;
-#endif
 #if SCM_STRICT_ARGCHECK
         SAFE_POP(rest);
         ASSERT_NO_MORE_ARG(rest);
@@ -539,12 +535,6 @@ scm_s_let_internal(enum ScmObjType permitted, ScmObj bindings, ScmObj body,
     SCM_QUEUE_POINT_TO(varq, formals);
     SCM_QUEUE_POINT_TO(valq, actuals);
     FOR_EACH (binding, bindings) {
-#if SCM_COMPAT_SIOD_BUGS
-        /* temporary solution. the inefficiency is not a problem */
-        if (LIST_1_P(binding))
-            binding = LIST_2(CAR(binding), SCM_FALSE);
-#endif
-
         if (!LIST_2_P(binding) || !IDENTIFIERP(var = CAR(binding)))
             ERR_OBJ(ERRMSG_INVALID_BINDING, binding);
 #if SCM_STRICT_ARGCHECK
@@ -598,12 +588,6 @@ scm_s_letstar(ScmObj bindings, ScmObj body, ScmEvalState *eval_state)
     =======================================================================*/
 
     FOR_EACH (binding, bindings) {
-#if SCM_COMPAT_SIOD_BUGS
-        /* temporary solution. the inefficiency is not a problem */
-        if (LIST_1_P(binding))
-            binding = LIST_2(CAR(binding), SCM_FALSE);
-#endif
-
         if (!LIST_2_P(binding) || !IDENTIFIERP(var = CAR(binding)))
             ERR_OBJ(ERRMSG_INVALID_BINDING, binding);
 

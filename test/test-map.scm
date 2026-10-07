@@ -49,9 +49,7 @@
 (assert-error  (tn) (lambda () (map even? '(0 1 2 . 3))))
 (assert-error  (tn) (lambda () (map even? #t)))
 (assert-error  (tn) (lambda () (map even? '#(0 1 2))))
-(if (not (and (provided? "sigscheme")
-              (provided? "siod-bugs")))
-    (assert-error  (tn) (lambda () (map even? #f))))
+(assert-error  (tn) (lambda () (map even? #f)))
 
 (tn "map single-arg")
 ;; not applicable
@@ -97,9 +95,7 @@
 (assert-error  (tn) (lambda () (map + '(0 1 2) '(3 4 5) . #t)))
 (assert-error  (tn) (lambda () (map + #t #t)))
 (assert-error  (tn) (lambda () (map + '#(0 1 2) '#(3 4 5))))
-(if (not (and (provided? "sigscheme")
-              (provided? "siod-bugs")))
-    (assert-error  (tn) (lambda () (map even? #f #f))))
+(assert-error  (tn) (lambda () (map even? #f #f)))
 
 (tn "map multiple-args")
 ;; not applicable
@@ -218,9 +214,7 @@
 (assert-error  (tn) (lambda () (for-each even? '(0 1 2 . 3))))
 (assert-error  (tn) (lambda () (for-each even? #t)))
 (assert-error  (tn) (lambda () (for-each even? '#(0 1 2))))
-(if (not (and (provided? "sigscheme")
-              (provided? "siod-bugs")))
-    (assert-error  (tn) (lambda () (for-each even? #f))))
+(assert-error  (tn) (lambda () (for-each even? #f)))
 
 (tn "for-each single-arg")
 ;; not applicable
@@ -297,9 +291,7 @@
 (assert-error  (tn) (lambda () (for-each + '(0 1 2) '(3 4 5) . #t)))
 (assert-error  (tn) (lambda () (for-each + #t #t)))
 (assert-error  (tn) (lambda () (for-each + '#(0 1 2) '#(3 4 5))))
-(if (not (and (provided? "sigscheme")
-              (provided? "siod-bugs")))
-    (assert-error  (tn) (lambda () (for-each even? #f #f))))
+(assert-error  (tn) (lambda () (for-each even? #f #f)))
 
 (tn "for-each multiple-args")
 ;; not applicable

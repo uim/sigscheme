@@ -249,10 +249,7 @@
 (assert-eq?    (tn) #f (proper-list? clst3))
 (assert-eq?    (tn) #f (proper-list? clst4))
 (tn "proper-list? all kind of Scheme objects")
-(if (and sigscheme?
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #t (proper-list? #f))
-    (assert-eq? (tn) #f (proper-list? #f)))
+(assert-eq? (tn) #f (proper-list? #f))
 (assert-eq? (tn) #f (proper-list? #t))
 (assert-eq? (tn) #t (proper-list? '()))
 (if sigscheme?
@@ -318,10 +315,7 @@
 (assert-eq?    (tn) #t (circular-list? clst3))
 (assert-eq?    (tn) #t (circular-list? clst4))
 (tn "circular-list? all kind of Scheme objects")
-(if (and sigscheme?
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #f (circular-list? #f))
-    (assert-eq? (tn) #f (circular-list? #f)))
+(assert-eq? (tn) #f (circular-list? #f))
 (assert-eq? (tn) #f (circular-list? #t))
 (assert-eq? (tn) #f (circular-list? '()))
 (if sigscheme?
@@ -387,10 +381,7 @@
 (assert-eq?    (tn) #f (dotted-list? clst3))
 (assert-eq?    (tn) #f (dotted-list? clst4))
 (tn "dotted-list? all kind of Scheme objects")
-(if (and sigscheme?
-         (provided? "siod-bugs"))
-    (assert-eq? (tn) #f (dotted-list? #f))
-    (assert-eq? (tn) #t (dotted-list? #f)))
+(assert-eq? (tn) #t (dotted-list? #f))
 (assert-eq? (tn) #t (dotted-list? #t))
 (assert-eq? (tn) #f (dotted-list? '()))
 (if sigscheme?

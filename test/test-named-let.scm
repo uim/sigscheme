@@ -63,12 +63,8 @@
 ;; bindings must be a list
 (assert-error  (tn) (lambda ()
                       (let loop a 'val)))
-(if (provided? "siod-bugs")
-    (assert-equal? (tn)
-                   'val
-                   (let loop #f 'val))
-    (assert-error  (tn) (lambda ()
-                          (let loop #f 'val))))
+(assert-error  (tn) (lambda ()
+                      (let loop #f 'val)))
 (assert-error  (tn) (lambda ()
                       (let loop #() 'val)))
 (assert-error  (tn) (lambda ()
@@ -76,13 +72,9 @@
 ;; each binding must be a 2-elem list
 (assert-error  (tn) (lambda ()
                       (let loop (a 1))))
-(if (provided? "siod-bugs")
-    (assert-equal? (tn)
-                   'val
-                   (let loop ((a)) 'val))
-    (assert-error  (tn)
-                   (lambda ()
-                     (let loop ((a)) 'val))))
+(assert-error  (tn)
+               (lambda ()
+                 (let loop ((a)) 'val)))
 (assert-error  (tn)
                (lambda ()
                  (let loop ((a 1 'excessive)) 'val)))

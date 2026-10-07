@@ -283,8 +283,8 @@ AX_FEATURE_VAR_Y(sigscheme, [pseudo feature for dependency resolution])
 
 # Specify a set of default variable settings
 AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
-                        CONF=(regular|full|small|r5rs|siod|dev|uim) @<:@regular@:>@],
-                       [regular], [^(regular|full|small|r5rs|siod|dev|uim)$],
+                        CONF=(regular|full|small|r5rs|dev|uim) @<:@regular@:>@],
+                       [regular], [^(regular|full|small|r5rs|dev|uim)$],
   [
     # multibyte char handlings
     case "$enable_conf" in
@@ -295,7 +295,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_euckr=yes
         use_sjis=yes
         ;;
-      small|siod)
+      small)
         use_default_encoding=singlebyte
         use_utf8=no
         use_euccn=no
@@ -340,7 +340,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_strict_toplevel_definitions=yes
         use_internal_definitions=yes
         ;;
-      small|siod)
+      small)
         use_strict_r5rs=no
         use_const_list_literal=no
         use_const_vector_literal=no
@@ -379,22 +379,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_char=yes
         use_string=yes
         use_string_procedures=yes
-        use_deep_cadrs=no
-        use_vector=no
-        use_port=yes
-        use_reader=yes
-        use_writer=yes
-        use_load=yes
-        ;;
-      siod)
-        use_continuation=no
-        use_quasiquote=no
-        use_promise=no
-        use_int=yes
-        use_numeric_io=yes
-        use_char=no
-        use_string=yes
-        use_string_procedures=no
         use_deep_cadrs=no
         use_vector=no
         use_port=yes
@@ -451,7 +435,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi69=yes
         use_srfi95=yes
         ;;
-      small|siod)
+      small)
         use_srfi0=no
         use_srfi1=no
         use_srfi2=no
@@ -479,7 +463,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=no
-        use_compat_siod_bugs=no
         use_eval_c_string=yes
         ;;
       small)
@@ -487,23 +470,13 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_sscm_extensions=no
         use_sscm_format_extension=no
         use_compat_siod=no
-        use_compat_siod_bugs=no
         use_eval_c_string=no
-        ;;
-      siod)
-        use_legacy_macro=no
-        use_sscm_extensions=yes
-        use_sscm_format_extension=no
-        use_compat_siod=yes
-        use_compat_siod_bugs=yes
-        use_eval_c_string=yes
         ;;
       uim)
         use_legacy_macro=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
         use_compat_siod=yes
-        use_compat_siod_bugs=no
         use_eval_c_string=yes
         ;;
     esac
@@ -514,7 +487,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_r6rs_named_chars=yes
         use_r6rs_chars=yes
         ;;
-      r5rs|small|siod)
+      r5rs|small)
         use_r6rs_named_chars=no
         use_r6rs_chars=no
         ;;
@@ -630,7 +603,6 @@ AX_FEATURE_ARG_Y(legacy-macro,     ['define-macro' syntactic closure])
 AX_FEATURE_ARG_Y(sscm-extensions,     [SigScheme-specific extensions])
 AX_FEATURE_ARG_Y(sscm-format-extension, [SigScheme-specific 'format+'])
 AX_FEATURE_ARG_N(compat-siod,         [some SIOD compatible features])
-AX_FEATURE_ARG_N(compat-siod-bugs,    [emulating the buggy behaviors of SIOD])
 AX_FEATURE_ARG_Y(eval-c-string,       [eval_c_string() of libsscm])
 AX_FEATURE_ARG_N(backtrace,           [showing backtrace on error])
 AX_FEATURE_ARG_Y(libsscm,             [building libsscm])
@@ -689,7 +661,6 @@ r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
 
 compat_siod: sscm_extensions srfi60 eval_c_string
-compat_siod_bugs: compat_siod
 strict_r5rs: strict_null_form strict_vector_form strict_argcheck internal_definitions strict_toplevel_definitions const_vector_literal
 
 int:        number
@@ -743,12 +714,10 @@ storage_fatty storage_compact
 storage_compact valuecons
 storage_compact const_list_literal
 debug_no null_capable_string
-strict_r5rs compat_siod_bugs
 strict_r5rs strict_vector_form_no
 strict_r5rs strict_null_form_no
 strict_r5rs strict_toplevel_definitions_no
 strict_r5rs internal_definitions_no
-compat_siod_bugs strict_null_form
 long_fixnum int_fixnum 32bit_fixnum 64bit_fixnum
 intptr_scmref 32bit_scmref 64bit_scmref
 singlebyte_as_default utf8_as_default eucjp_as_default euckr_as_default euccn_as_default sjis_as_default
@@ -858,7 +827,6 @@ AX_FEATURE_DEFINE(legacy_macro)
 AX_FEATURE_DEFINE(sscm_extensions)
 AX_FEATURE_DEFINE(sscm_format_extension)
 AX_FEATURE_DEFINE(compat_siod,        SCM_COMPAT_SIOD,      COMPAT_SIOD)
-AX_FEATURE_DEFINE(compat_siod_bugs,   SCM_COMPAT_SIOD_BUGS, COMPAT_SIOD_BUGS)
 AX_FEATURE_DEFINE(eval_c_string)
 AX_FEATURE_DEFINE(backtrace)
 AX_FEATURE_DEFINE(libsscm)
@@ -931,7 +899,6 @@ AC_SUBST(use_legacy_macro)
 AC_SUBST(use_sscm_extensions)
 AC_SUBST(use_sscm_format_extension)
 AC_SUBST(use_compat_siod)
-AC_SUBST(use_compat_siod_bugs)
 AC_SUBST(use_eval_c_string)
 AC_SUBST(use_backtrace)
 AC_SUBST(use_debug)
@@ -1071,7 +1038,6 @@ define-macro:         $use_legacy_macro
 SigScheme extensions: $use_sscm_extensions
 format+ procedure:    $use_sscm_format_extension
 SIOD compatibilities: $use_compat_siod
-SIOD bugs emulation:  $use_compat_siod_bugs
 eval_c_string():      $use_eval_c_string
 Backtrace:            $use_backtrace
 Library:              $use_libsscm

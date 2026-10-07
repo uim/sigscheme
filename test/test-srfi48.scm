@@ -92,10 +92,7 @@
 (assert-error  (tn) (lambda () (format "~w" 0 1)))
 (assert-error  (tn) (lambda () (format "~1w" 1)))
 (assert-equal? (tn)
-               (if (and (provided? "sigscheme")
-                        (provided? "siod-bugs"))
-                   "()"
-                   "#f")
+               "#f"
                (format "~w" #f))
 (assert-equal? (tn)
                "#t"
@@ -555,10 +552,7 @@
 (assert-equal? (tn) "024aBc531"
                (format "~?" "0~?1" '("2~?3" ("4~a5" ("aBc")))))
 (assert-equal? (tn)
-               (if (and (provided? "sigscheme")
-                        (provided? "siod-bugs"))
-                   "()"
-                   "#f")
+               "#f"
                (format "~?" "~w" '(#f)))
 (assert-equal? (tn)
                "#t"
@@ -630,10 +624,7 @@
 (assert-error  (tn) (lambda () (format "~y" 0 1)))
 (assert-error  (tn) (lambda () (format "~1y" 1)))
 (assert-equal? (tn)
-               (if (and (provided? "sigscheme")
-                        (provided? "siod-bugs"))
-                   "()"
-                   "#f")
+               "#f"
                (format "~y" #f))
 (assert-equal? (tn)
                "#t"

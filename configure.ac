@@ -44,17 +44,6 @@ AC_CHECK_HEADERS([sys/types.h malloc.h strings.h unistd.h])
 # Checks for typedefs, structures, and compiler characteristics
 #
 
-# FIXME: depending on the internal variable name
-AC_DEFUN([AX_LANG_WNOERROR], [ac_[]_AC_LANG_ABBREV[]_werror_flag=])
-
-AX_C_REFERENCEABLE_PASSED_VA_LIST
-if test "x$ax_cv_c_referenceable_passed_va_list" = xno; then
-  # Temporary workaround: Assumes that va_list passed via an arg equals to
-  # &va_list[0].
-  AC_DEFINE(HAVE_AUTOREFERRED_PASSED_VA_LIST, 1,
-            [Define to 1 if va_list is an array type.])
-fi
-
 AC_C_BIGENDIAN
 if test "x$ac_cv_c_bigendian" = xyes; then
   ax_c_endian=big
@@ -1065,7 +1054,6 @@ host (compile for):     $ac_cv_host
 host data model:        $ac_cv_data_model
 host align (C/S/I/L/P): ${ac_cv_alignof_char}/${ac_cv_alignof_short}/${ac_cv_alignof_int}/${ac_cv_alignof_long}/${ac_cv_alignof_void_p}
 host endian:            $ax_c_endian
-host safe va_list ref:  $ax_cv_c_referenceable_passed_va_list
 Compiler:               $CC
 Compiler version:       $ax_prog_cc_version
 CFLAGS='$CFLAGS']])

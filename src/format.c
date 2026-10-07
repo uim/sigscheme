@@ -732,32 +732,18 @@ scm_vformat(ScmObj port,
             enum ScmFormatCapability fcap, const char *fmt, va_list c_args)
 {
     struct scm_format_args args;
+    va_list copied_c_args;
+    ScmObj ret;
 
+    /* Use a copy because the address of a va_list parameter may not be a
+     * valid va_list * on some platforms such as x86_64. */
+    va_copy(copied_c_args, c_args);
     args.type = ARG_VA_LIST;
-#if HAVE_REFERENCEABLE_PASSED_VA_LIST
-    /* { va_list ap; return &ap; } and f(va_list ap) { return &ap; } returns
-     * same value */
-    args.lst.va = &c_args;
-#elif HAVE_AUTOREFERRED_PASSED_VA_LIST
-    /* f(va_list ap) { return &ap; } returns invalid value */
-    /*
-     * x86_64 on gcc and some environemnts behaves such a way. See following
-     * bug reports of gcc for further information.
-     *
-     * http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14557
-     * http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20951
-     *
-     * To avoid taking an address of va_list that passed as a function argument
-     * is the best way to maximize the portability. But since it requires a
-     * combined function of format_internal(), format_raw_c_directive() and
-     * format_directive() which considerably makes the maintainability of
-     * format.c lost, I adopted this hack.  -- YamaKen 2006-12-07
-     */
-    args.lst.va = (va_list *)c_args;
-#else
-#error "This platform is not supported"
-#endif
-    return format_internal(port, fcap, fmt, args);
+    args.lst.va = &copied_c_args;
+    ret = format_internal(port, fcap, fmt, args);
+    va_end(copied_c_args);
+
+    return ret;
 }
 
 SCM_EXPORT ScmObj

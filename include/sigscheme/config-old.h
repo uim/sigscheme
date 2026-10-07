@@ -67,23 +67,4 @@
 #define SCM_NEWLINE_STR         "\r"   /* Mac OS */
 #endif
 
-/*===========================================================================
-  Dependency Resolution
-===========================================================================*/
-#if (defined(__SYMBIAN32__) && !defined(EKA2))
-#define SCM_HAVE_WRITABLE_GLOBAL_VARS 0
-#else
-#define SCM_HAVE_WRITABLE_GLOBAL_VARS 1
-#endif
-
-#if SCM_HAVE_WRITABLE_GLOBAL_VARS
-#ifndef SCM_USE_AGGREGATED_GLOBAL_VARS
-#define SCM_USE_AGGREGATED_GLOBAL_VARS 0
-#endif /* !SCM_USE_AGGREGATED_GLOBAL_VARS */
-#else /* SCM_HAVE_WRITABLE_GLOBAL_VARS */
-#undef SCM_USE_AGGREGATED_GLOBAL_VARS
-#define SCM_USE_AGGREGATED_GLOBAL_VARS 1
-#endif /* SCM_HAVE_WRITABLE_GLOBAL_VARS */
-
-
 #endif /* __SIGSCHEME_CONFIG_OLD_H */

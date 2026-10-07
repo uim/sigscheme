@@ -33,21 +33,13 @@
  *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ===========================================================================*/
 
-/* FIXME: SCM_WRITABLE_STATICLESS_PLATFORM is not available yet */
-
 #ifndef __SCM_GLOBAL_H
 #define __SCM_GLOBAL_H
 
 #include <sigscheme/config.h>
 #include <sigscheme/config-old.h>
 
-#if (defined(__SYMBIAN32__) && !defined(EKA2))
 #include <string.h>
-#include <stdlib.h>
-#include <e32std.h>
-#else
-#include <string.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,69 +57,6 @@ extern "C" {
 #define SCM_GLOBAL_STRUCT_WARNING_SUPPRESSOR
 #endif
 
-#if SCM_USE_AGGREGATED_GLOBAL_VARS
-#define SCM_AGGREGATED_GLOBAL_VARS_BEGIN                                     \
-    /* dummy statement to prevent static prefix */                           \
-    struct scm_g_dummy_aggregated_begin { int dummy; };                      \
-    struct scm_g_aggregated {                                                \
-        SCM_GLOBAL_STRUCT_WARNING_SUPPRESSOR
-#define SCM_AGGREGATED_GLOBAL_VARS(_name)                                    \
-        struct scm_g_##_name _name
-#define SCM_AGGREGATED_GLOBAL_VARS_END                                       \
-    }
-
-#if (defined(__SYMBIAN32__) && !defined(EKA2))
-/*** EXPERIMENTAL AND NOT TESTED ***/
-
-#define SCM_DECLARE_AGGREGATED_GLOBAL_VARS() extern int scm_g_dummy
-#define SCM_DEFINE_AGGREGATED_GLOBAL_VARS()  extern int scm_g_dummy
-
-#define SCM_AGGREGATED_GLOBAL_VARS_INIT() (scm_aggregated_global_vars_init())
-#define SCM_AGGREGATED_GLOBAL_VARS_FIN()  (scm_aggregated_global_vars_fin())
-#define SCM_AGGREGATED_GLOBAL_VARS_INSTANCE()                                \
-    ((struct scm_g_aggregated *)Dll::Tls())
-
-#elif SCM_HAVE_WRITABLE_GLOBAL_VARS
-#define SCM_DECLARE_AGGREGATED_GLOBAL_VARS()                                 \
-    SCM_EXTERN(struct scm_g_aggregated scm_g_aggregated_instance)
-#define SCM_DEFINE_AGGREGATED_GLOBAL_VARS()                                  \
-    /* dummy statement to prevent static prefix */                           \
-    struct scm_g_dummy_aggregated_define { int dummy; };                     \
-    SCM_EXPORT struct scm_g_aggregated scm_g_aggregated_instance
-
-#define SCM_AGGREGATED_GLOBAL_VARS_INIT() (scm_aggregated_global_vars_init())
-#define SCM_AGGREGATED_GLOBAL_VARS_FIN()  SCM_EMPTY_EXPR
-#define SCM_AGGREGATED_GLOBAL_VARS_INSTANCE() (scm_g_aggregated_instance)
-#else
-#error "This platform is not supported yet"
-#endif
-
-#define SCM_DEFINE_STATIC_VARS(_namespace)                                   \
-    static struct scm_g_##_namespace *scm_g_instance_##_namespace(void)
-
-#define SCM_GLOBAL_VARS_INIT(_namespace)   SCM_EMPTY_EXPR
-#define SCM_GLOBAL_VARS_FIN(_namespace)    SCM_EMPTY_EXPR
-
-#define SCM_GLOBAL_VARS_INSTANCE(_namespace) (*scm_g_instance_##_namespace())
-
-#define SCM_DEFINE_GLOBAL_VARS_INSTANCE_ACCESSOR(_namespace)                 \
-    SCM_EXPORT struct scm_g_##_namespace *                                   \
-    scm_g_instance_##_namespace(void)                                        \
-    {                                                                        \
-        return &SCM_AGGREGATED_GLOBAL_VARS_INSTANCE()._namespace;            \
-    }                                                                        \
-    extern int scm_g_dummy_##_namespace
-
-#else /* SCM_USE_AGGREGATED_GLOBAL_VARS */
-
-#define SCM_DECLARE_AGGREGATED_GLOBAL_VARS()                                 \
-    extern int scm_g_dummy
-#define SCM_DEFINE_AGGREGATED_GLOBAL_VARS()                                  \
-    extern int scm_g_dummy
-
-#define SCM_AGGREGATED_GLOBAL_VARS_INIT() SCM_EMPTY_EXPR
-#define SCM_AGGREGATED_GLOBAL_VARS_FIN()  SCM_EMPTY_EXPR
-
 #define SCM_DEFINE_STATIC_VARS(_namespace)                                   \
     static struct scm_g_##_namespace scm_g_instance_##_namespace
 #define SCM_GLOBAL_VARS_INIT(_namespace)                                     \
@@ -137,7 +66,6 @@ extern "C" {
 
 #define SCM_GLOBAL_VARS_INSTANCE(_namespace)                                 \
     (scm_g_instance_##_namespace)
-#endif /* SCM_USE_AGGREGATED_GLOBAL_VARS */
 
 #define SCM_GLOBAL_VARS_BEGIN(_namespace)                                    \
     struct scm_g_##_namespace {                                              \
@@ -148,15 +76,6 @@ extern "C" {
 #define SCM_GLOBAL_VAR(_namespace, _var_name)                                \
     (SCM_GLOBAL_VARS_INSTANCE(_namespace)._var_name)
 
-#if SCM_USE_AGGREGATED_GLOBAL_VARS
-#define SCM_DECLARE_EXPORTED_VARS(_namespace)                                \
-    SCM_EXPORT struct scm_g_##_namespace *scm_g_instance_##_namespace(void)
-#define SCM_DEFINE_EXPORTED_VARS(_namespace)                                 \
-    extern int scm_g_dummy_##_namespace
-#if !SCM_COMBINED_SOURCE
-#error "(SCM_USE_AGGREGATED_GLOBAL_VARS && !SCM_COMBINED_SOURCE) is not supported"
-#endif /* SCM_COMBINED_SOURCE */
-#else /* SCM_USE_AGGREGATED_GLOBAL_VARS */
 #if SCM_COMBINED_SOURCE
 /* define at declaration in the header file */
 #define SCM_DECLARE_EXPORTED_VARS(_namespace)                                \
@@ -172,20 +91,10 @@ extern "C" {
     struct scm_g_dummy_##_namespace { int dummy; };                          \
     SCM_EXPORT struct scm_g_##_namespace scm_g_instance_##_namespace
 #endif /* SCM_COMBINED_SOURCE */
-#endif /* SCM_USE_AGGREGATED_GLOBAL_VARS */
 
 #if (SCM_COMBINED_SOURCE && !SCM_EXPORT_API)
 #define SCM_EXTERN(_decl) extern int scm_g_dummy
 #define SCM_EXPORT static
-
-/* FIXME: reflect SCM_COMBINED_SOURCE */
-#elif defined(__SYMBIAN32__)
-#define SCM_EXTERN(_decl) extern _decl
-#if SCM_COMPILING_LIBSSCM
-#define SCM_EXPORT EXPORT_C
-#else /* SCM_COMPILING_LIBSSCM */
-#define SCM_EXPORT IMPORT_C
-#endif /* SCM_COMPILING_LIBSSCM */
 
 /* FIXME: reflect SCM_COMBINED_SOURCE */
 #elif (defined(_WIN32) || defined(_WIN64))
@@ -212,13 +121,6 @@ extern "C" {
 /*=======================================
   Function Declarations
 =======================================*/
-#if SCM_USE_AGGREGATED_GLOBAL_VARS
-SCM_EXPORT void scm_aggregated_global_vars_init(void);
-#if (defined(__SYMBIAN32__) && !defined(EKA2))
-SCM_EXPORT void scm_aggregated_global_vars_fin(void);
-#endif /* (defined(__SYMBIAN32__) && !defined(EKA2)) */
-#endif /* SCM_USE_AGGREGATED_GLOBAL_VARS */
-
 
 #ifdef __cplusplus
 }

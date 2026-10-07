@@ -201,8 +201,6 @@ scm_initialize(const ScmStorageConf *storage_conf, const char *const *argv)
 {
     char **rest_argv;
 
-    SCM_AGGREGATED_GLOBAL_VARS_INIT();
-
     scm_encoding_init();
     scm_init_storage(storage_conf);
 
@@ -386,7 +384,6 @@ scm_finalize()
 
     SCM_GLOBAL_VARS_FIN(procedure);
     SCM_GLOBAL_VARS_FIN(static_sigscheme);
-    SCM_AGGREGATED_GLOBAL_VARS_FIN();
 }
 
 #if SCM_USE_EVAL_C_STRING

@@ -33,7 +33,6 @@
  *  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ===========================================================================*/
 
-#define SCM_WRITABLE_STATICLESS_PLATFORM 0
 #define SCM_COMBINED_SOURCE 0
 
 #include "sscm-test.h"

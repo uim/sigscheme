@@ -151,32 +151,6 @@ sigscheme-combined.c: $(libsscm_sources) $(top_builddir)/include/sigscheme/confi
 	done
 	@echo >>$@
 	@echo '#include "sigscheme-combined-trim.h"' >>$@
-	@echo >>$@
-	@echo '#if SCM_USE_AGGREGATED_GLOBAL_VARS' >>$@
-	@echo 'SCM_AGGREGATED_GLOBAL_VARS_BEGIN;' >>$@
-	@for src in $^ $>; do                           \
-	    case $$src in                               \
-	    *.h | *.c)                                 \
-	        $(EGREP) -e '^ *SCM_DEFINE_(STATIC|EXPORTED)_VARS\b' $$src \
-	          | sed -e 's/^.*SCM_DEFINE_STATIC_VARS/    SCM_AGGREGATED_GLOBAL_VARS/' \
-	                -e 's/^.*SCM_DEFINE_EXPORTED_VARS/    SCM_AGGREGATED_GLOBAL_VARS/' >>$@; \
-		;;                                      \
-	    esac                                        \
-	done
-	@echo 'SCM_AGGREGATED_GLOBAL_VARS_END;' >>$@
-	@echo >>$@
-	@echo '#include "global-aggregated.c"' >>$@
-	@echo >>$@
-	@for src in $^ $>; do                           \
-	    case $$src in                               \
-	    *.h | *.c)                                 \
-	        $(EGREP) -e '^ *SCM_DEFINE_(STATIC|EXPORTED)_VARS\b' $$src \
-	          | sed -e 's/^.*SCM_DEFINE_STATIC_VARS/SCM_DEFINE_GLOBAL_VARS_INSTANCE_ACCESSOR/' \
-	                -e 's/^.*SCM_DEFINE_EXPORTED_VARS/SCM_DEFINE_GLOBAL_VARS_INSTANCE_ACCESSOR/' >>$@; \
-		;;                                      \
-	    esac                                        \
-	done
-	@echo '#endif /* SCM_USE_AGGREGATED_GLOBAL_VARS */' >>$@
 
 if MAINTAINER_MODE
 # Internal macros trimmer for combined-source version of SigScheme.
@@ -210,10 +184,7 @@ BUILT_DIST = $(FUNC_TABLES) sigscheme-combined-trim.h
 # the file is not listed into *_HEADERS.
 EXTRA_DIST = \
         $(BUILT_DIST) $(BUILD_FUNCTBL_DEPS) \
-        sigscheme-combined.h global-aggregated.c template.h template.c
-
-# FIXME: Build dll on supported platforms
-EXTRA_DIST += dllentry.c
+        sigscheme-combined.h template.h template.c
 
 # Only works on 'make all', 'make check' and 'make install'.
 # See "Built sources" section of automake info.

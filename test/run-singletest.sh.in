@@ -2,4 +2,9 @@
 
 SSCM="@abs_top_builddir@/src/sscm --system-load-path @abs_top_srcdir@/lib"
 
-cd @top_srcdir@ && $SSCM @abs_top_builddir@/test/$1
+case "$1" in
+  /*) test_file="$1" ;;
+  *)  test_file="@abs_top_builddir@/test/$1" ;;
+esac
+
+cd @top_srcdir@ && $SSCM "$test_file"

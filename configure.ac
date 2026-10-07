@@ -106,7 +106,7 @@ AX_CHECK_COMPILE_FLAG([-no-cpp-precomp])
 
 AX_FUNC_SIGSETJMP
 
-AC_CHECK_FUNCS([getcontext memalign fileno getcwd])
+AC_CHECK_FUNCS([getcontext memalign fileno])
 
 AC_CHECK_FUNCS(posix_memalign,
   [

@@ -84,20 +84,38 @@ extern "C" {
 #define SCM_EMPTY_EXPR ((void)0)
 #endif
 
-#if HAVE___ATTRIBUTE__
+/* __has_attribute() is available with GCC 5 or later and Clang. We
+ * can't use "defined(__has_attribute) && __has_attribute(...)" because
+ * it's a syntax error with compilers that don't support it. */
+#ifdef __has_attribute
 /* As a workaround for the noinline attribute vanishing bug on some Linux
  * distributions, we use ((__noinline__)) instead of ((noinline)). */
+#if __has_attribute(__noinline__)
 #define SCM_NOINLINE __attribute__((__noinline__))
+#endif
+#if __has_attribute(__noreturn__)
 #define SCM_NORETURN __attribute__((__noreturn__))
+#endif
+#if __has_attribute(__unused__)
 #define SCM_UNUSED   __attribute__((__unused__))
+#endif
+#if __has_attribute(__aligned__)
 /* size-less ((__aligned__)) may not be sufficient for m68k */
 #define SCM_SCMOBJ_ALIGNED __attribute__((__aligned__ (SIZEOF_SCMOBJ)))
-#else /* HAVE___ATTRIBUTE__ */
+#endif
+#endif /* __has_attribute */
+#ifndef SCM_NOINLINE
 #define SCM_NOINLINE
+#endif
+#ifndef SCM_NORETURN
 #define SCM_NORETURN
+#endif
+#ifndef SCM_UNUSED
 #define SCM_UNUSED
+#endif
+#ifndef SCM_SCMOBJ_ALIGNED
 #define SCM_SCMOBJ_ALIGNED
-#endif /* HAVE___ATTRIBUTE__ */
+#endif
 
 /* RFC: better names for the debug printing */
 /* SCM_DBG((a, b, c)) */

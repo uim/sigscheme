@@ -194,13 +194,14 @@
 #define SCM_SIGN_BIT(x) ((x)                                                 \
                          & ((scm_uintobj_t)1 << (sizeof(x) * CHAR_BIT - 1)))
 
-#if HAVE_ARITHMETIC_RSHIFT
-#define SCM_ARSHIFT(x, n)    ((scm_uintobj_t)((scm_intobj_t)(x) >> (n)))
-#else  /* not HAVE_ARITHMETIC_RSHIFT */
-/* Emulate a right arithmetic shift. */
-#define SCM_ARSHIFT(x, n)                                       \
-   (((scm_uintobj_t)(x) >> (n)) | -(SCM_SIGN_BIT(x) >> (n)))
-#endif /* not HAVE_ARITHMETIC_RSHIFT */
+/* Right shift of a negative value is implementation-defined. Use the native
+ * shift if it's arithmetic, otherwise emulate it. The condition is a
+ * constant expression so compilers drop the unused branch. */
+#define SCM_ARITHMETIC_RSHIFTP() (((scm_intobj_t)-1 >> 1) == -1)
+#define SCM_ARSHIFT(x, n)                                                    \
+    (SCM_ARITHMETIC_RSHIFTP()                                                \
+     ? (scm_uintobj_t)((scm_intobj_t)(x) >> (n))                             \
+     : (((scm_uintobj_t)(x) >> (n)) | -(SCM_SIGN_BIT(x) >> (n))))
 
 
 /* ------------------------------------------------------------

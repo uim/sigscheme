@@ -83,22 +83,19 @@ else
   ax_prog_cc_version="unknown"
 fi
 
-AX_CHECK_COMPILE_FLAG([-pedantic])
-AX_CHECK_COMPILE_FLAG([-Wall])
-AX_CHECK_COMPILE_FLAG([-Wchar-subscripts])
-AX_CHECK_COMPILE_FLAG([-Wmissing-declarations])
-AX_CHECK_COMPILE_FLAG([-Wredundant-decls])
-AX_CHECK_COMPILE_FLAG([-Wmissing-prototypes])
-AX_CHECK_COMPILE_FLAG([-Wnested-externs])
-AX_CHECK_COMPILE_FLAG([-Wpointer-arith])
-AX_CHECK_COMPILE_FLAG([-Wcast-align])
-AX_CHECK_COMPILE_FLAG([-Wsign-compare])
+AX_CHECK_COMPILE_FLAG([-pedantic], [CFLAGS="$CFLAGS -pedantic"])
+AX_CHECK_COMPILE_FLAG([-Wall], [CFLAGS="$CFLAGS -Wall"])
+AX_CHECK_COMPILE_FLAG([-Wchar-subscripts], [CFLAGS="$CFLAGS -Wchar-subscripts"])
+AX_CHECK_COMPILE_FLAG([-Wmissing-declarations], [CFLAGS="$CFLAGS -Wmissing-declarations"])
+AX_CHECK_COMPILE_FLAG([-Wredundant-decls], [CFLAGS="$CFLAGS -Wredundant-decls"])
+AX_CHECK_COMPILE_FLAG([-Wmissing-prototypes], [CFLAGS="$CFLAGS -Wmissing-prototypes"])
+AX_CHECK_COMPILE_FLAG([-Wnested-externs], [CFLAGS="$CFLAGS -Wnested-externs"])
+AX_CHECK_COMPILE_FLAG([-Wpointer-arith], [CFLAGS="$CFLAGS -Wpointer-arith"])
+AX_CHECK_COMPILE_FLAG([-Wcast-align], [CFLAGS="$CFLAGS -Wcast-align"])
+AX_CHECK_COMPILE_FLAG([-Wsign-compare], [CFLAGS="$CFLAGS -Wsign-compare"])
 
-# Suppress warnings about strings longer than ISO C 89 maximum length (509).
-AX_CHECK_COMPILE_FLAG([-Wno-overlength-strings])
-
-# Disable the problematic preprocessing on Mac OS X
-AX_CHECK_COMPILE_FLAG([-no-cpp-precomp])
+# Suppress warnings about strings longer than ISO C 99 maximum length (4095).
+AX_CHECK_COMPILE_FLAG([-Wno-overlength-strings], [CFLAGS="$CFLAGS -Wno-overlength-strings"])
 
 #
 # Checks for library functions

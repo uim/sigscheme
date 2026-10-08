@@ -67,8 +67,6 @@ AC_CHECK_ALIGNOF(int32_t)
 AC_CHECK_ALIGNOF(int64_t)
 AC_CHECK_ALIGNOF(intptr_t)
 
-AC_TYPE_SSIZE_T
-
 if $CC --version >/dev/null 2>/dev/null; then
   ax_prog_cc_version=`$CC --version | head -n 1`
 else

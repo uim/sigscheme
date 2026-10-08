@@ -79,7 +79,7 @@ scm_p_make_string(ScmObj length, ScmObj args)
 {
     ScmObj filler;
     scm_ichar_t filler_val;
-    ssize_t len;
+    scm_int_t len;
     int ch_len;
     char *str, *dst;
 #if SCM_USE_MULTIBYTE_CHAR

@@ -142,6 +142,9 @@ static const char *const builtin_features[] = {
 #if SCM_USE_DEEP_CADRS
     "deep-cadrs",
 #endif
+#if SCM_USE_R6RS_CHARS
+    "r6rs-chars",
+#endif
 #if SCM_COMPAT_SIOD
     "compat-siod",
 #endif

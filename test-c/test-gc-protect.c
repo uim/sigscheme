@@ -84,7 +84,7 @@ TST_CASE("scm_gc_protected_contextp()")
 static void *
 protected_func(void *arg)
 {
-    return (void *)scm_gc_protected_contextp();
+    return (void *)(intptr_t)scm_gc_protected_contextp();
 }
 
 TST_CASE("GC stack protection")
@@ -106,7 +106,7 @@ var_in_protected_func(void *arg)
     ScmObj obj;
 
     obj = make_obj();
-    return (void *)scm_gc_protectedp(obj);
+    return (void *)(intptr_t)scm_gc_protectedp(obj);
 }
 
 TST_CASE("GC stack protection for long array")
@@ -134,7 +134,7 @@ vars_in_protected_func(void *arg)
     for (i = 0, protectedp = scm_true; i < N_OBJS; i++)
         protectedp = protectedp && scm_gc_protectedp(objs[i]);
 
-    return (void *)protectedp;
+    return (void *)(intptr_t)protectedp;
 }
 
 TST_CASE("GC static variable protection")
@@ -222,12 +222,14 @@ test_implicit_protection(void *dummy)
     result = result && !scm_gc_protectedp(unprotected_lst);
 #endif
 
-    return (void *)result;
+    return (void *)(intptr_t)result;
 }
 
 TST_CASE("GC indirect protection via on-heap object reference")
 {
+#if TRY_TESTS_THAT_PASS_IN_MOST_CASES
     ScmObj lst;  /* unprotected */
+#endif
 
     TST_TN_FALSE(scm_gc_protected_contextp());
 

@@ -187,7 +187,7 @@ struct _tst_run_args {
 
 #define TST_RUN(fn, s, c)  tst_run((fn), (s), (c))
 static void *tst_run_internal(tst_run_args *args);
-static void
+static void SCM_UNUSED
 tst_run(void (*fn)(tst_suite_info *, tst_case_info *),
         tst_suite_info *suite, tst_case_info *tcase)
 {
@@ -346,12 +346,12 @@ do {                                                            \
     type _x = (expect);                                         \
     type _a = (actual);                                         \
     if (!eqp(_x, _a)) {                                         \
-        TST_FAIL(tst_format(__FILE__ ":%d: %s failed.\n"        \
-                            "  expected: " fmt "\n"             \
-                            "  but got : " fmt "\n",            \
-                            __LINE__, desc, _x, _a));           \
+        (void)TST_FAIL(tst_format(__FILE__ ":%d: %s failed.\n"  \
+                                  "  expected: " fmt "\n"       \
+                                  "  but got : " fmt "\n",      \
+                                  __LINE__, desc, _x, _a));     \
     } else {                                                    \
-        TST_SUCC();                                             \
+        (void)TST_SUCC();                                       \
     }                                                           \
 } while (0)
 
@@ -412,9 +412,9 @@ typedef void (*tst_funcptr_t)();
  * returns incorrect serial number, it is saved before evaluating
  * TST_FAIL() or TST_SUCC(). */
 #define TST_TN_TRUE(exp)                                                     \
-    do { TST_TN_SAVE; TST_TRUE((exp), TST_TN_NAME()); } while (0)
+    do { TST_TN_SAVE; (void)TST_TRUE((exp), TST_TN_NAME()); } while (0)
 #define TST_TN_FALSE(exp)                                                    \
-    do { TST_TN_SAVE; TST_FALSE((exp), TST_TN_NAME()); } while (0)
+    do { TST_TN_SAVE; (void)TST_FALSE((exp), TST_TN_NAME()); } while (0)
 #define TST_TN_EQ_INT(x, a)                                                  \
     do { TST_TN_SAVE; TST_EQ_INT((x), (a), TST_TN_NAME()); } while (0)
 #define TST_TN_EQ_UINT(x, a)                                                 \

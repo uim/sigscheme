@@ -115,7 +115,7 @@ typedef scm_int_t INT;
              "after setting " #f2);                             \
     } while (0)
 
-#define TST_EXPR(expr) TST_COND((expr), #expr)
+#define TST_EXPR(expr) ((void)TST_COND((expr), #expr))
 
 
 TST_CASE("eq? and constants")

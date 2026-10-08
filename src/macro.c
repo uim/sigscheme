@@ -1048,13 +1048,17 @@ transcribe_reppat(transcription_context *ctx, ScmObj template, ScmObj sub,
  * Syntax unwrapping
  * ==============================*/
 
-static ScmObj unwrap_farsymbol(ScmObj obj);
-static void unwrap_dispatch(ScmObj obj);
-static void unwrap_listx(ScmObj ls);
-static void unwrap_vectorx(ScmObj obj);
+/* A path from the root object to the object being unwrapped. It's used
+ * to detect circular references via CAR and vector elements. */
+struct unwrap_path {
+    ScmObj obj;
+    const struct unwrap_path *parent;
+};
 
-/* Like FOR_EACH(), but leaves the argument at the last cons cell. */
-#define UPTO_LAST_PAIR(ls) while (CONSP(CDR(ls)) && ((ls) = CDR(ls), 1))
+static ScmObj unwrap_farsymbol(ScmObj obj);
+static void unwrap_dispatch(ScmObj obj, const struct unwrap_path *path);
+static void unwrap_listx(ScmObj ls, const struct unwrap_path *path);
+static void unwrap_vectorx(ScmObj obj, const struct unwrap_path *path);
 
 static ScmObj
 unwrap_farsymbol(ScmObj obj)
@@ -1066,29 +1070,61 @@ unwrap_farsymbol(ScmObj obj)
     return obj;
 }
 
+/* Unwraps a list or a vector destructively. Circular references are not
+ * followed. */
 static void
-unwrap_dispatch(ScmObj obj)
+unwrap_dispatch(ScmObj obj, const struct unwrap_path *path)
 {
+    const struct unwrap_path *ancestor;
+    struct unwrap_path current;
+
+    if (!CONSP(obj) && !VECTORP(obj))
+        return;
+
+    for (ancestor = path; ancestor; ancestor = ancestor->parent) {
+        if (EQ(ancestor->obj, obj))
+            return;
+    }
+
+    current.obj = obj;
+    current.parent = path;
     if (CONSP(obj))
-        unwrap_listx(obj);
-    else if (VECTORP(obj))
-        unwrap_vectorx(obj);
+        unwrap_listx(obj, &current);
+    else
+        unwrap_vectorx(obj, &current);
 }
 
 static void
-unwrap_listx(ScmObj ls)
+unwrap_listx(ScmObj ls, const struct unwrap_path *path)
 {
-    do {
+    ScmObj slow;
+    scm_bool advance_slow;
+
+    /* Detect a circular list by Floyd's cycle-finding algorithm. */
+    slow = ls;
+    advance_slow = scm_false;
+    for (;;) {
         if (FARSYMBOLP(CAR(ls)))
             SET_CAR(ls, unwrap_farsymbol(CAR(ls)));
         else
-            unwrap_dispatch(CAR(ls));
-    } UPTO_LAST_PAIR (ls);
-    SET_CDR(ls, scm_unwrap_syntaxx(CDR(ls)));
+            unwrap_dispatch(CAR(ls), path);
+        if (!CONSP(CDR(ls)))
+            break;
+        ls = CDR(ls);
+        if (advance_slow)
+            slow = CDR(slow);
+        advance_slow = !advance_slow;
+        if (EQ(ls, slow))
+            return;
+    }
+    if (FARSYMBOLP(CDR(ls)))
+        SET_CDR(ls, unwrap_farsymbol(CDR(ls)));
+    else
+        unwrap_dispatch(CDR(ls), path);
 }
 
 static void
-unwrap_vectorx(ScmObj obj)
+unwrap_vectorx(ScmObj obj, const struct unwrap_path *path)
 {
     ScmObj *vec;
     scm_int_t i;
@@ -1099,7 +1135,7 @@ unwrap_vectorx(ScmObj obj)
         if (FARSYMBOLP(vec[i]))
             vec[i] = unwrap_farsymbol(vec[i]);
         else
-            unwrap_dispatch(vec[i]);
+            unwrap_dispatch(vec[i], path);
     }
 }
 
@@ -1109,7 +1145,7 @@ scm_unwrap_syntaxx(ScmObj arg)
     DBG_PRINT((DBG_UNWRAP, "unwrap-syntax!: ~s\n", arg));
     if (FARSYMBOLP(arg))
         return unwrap_farsymbol(arg);
-    unwrap_dispatch(arg);
+    unwrap_dispatch(arg, NULL);
     return arg;
 }
 
@@ -1119,38 +1155,6 @@ scm_unwrap_keyword(ScmObj obj)
     DBG_PRINT((DBG_UNWRAP, "unwrap-keyword: ~s\n", obj));
     return FARSYMBOLP(obj) ? unwrap_farsymbol(obj) : obj;
 }
-
-#if 0
-/* Alternative implementation. */
-SCM_EXPORT ScmObj
-scm_unwrap_syntaxx(ScmObj arg)
-{
-    if (CONSP(arg)) {
-        ScmObj ls = arg;
-        do {
-            SET_CAR(ls, scm_unwrap_syntaxx(CAR(ls)));
-            tail = ls;
-        } UPTO_LAST_PAIR(ls);
-        SET_CDR(ls, scm_unwrap_syntaxx(CDR(ls)));
-        return arg;
-    }
-
-    if (FARSYMBOLP(arg))
-        return unwrap_farsymbol(arg);
-
-    if (VECTORP(arg)) {
-        scm_int_t i;
-        ScmObj *vec;
-        i = SCM_VECTOR_LEN(arg);
-        vec = SCM_VECTOR_VEC(arg);
-        while (i--)
-            vec[i] = scm_unwrap_syntaxx(vec[i]);
-        return arg;
-    }
-    return arg;
-}
-#endif /* 0 */
-#undef UPTO_LAST_PAIR
 
 /* ==============================
  * Auxiliary Utilities

@@ -277,8 +277,8 @@ extern "C" {
  * macro can be invoked only at the beginning of a function body,
  * right after local variable declarations. */
 #define DECLARE_FUNCTION(func_name, type)                                    \
-    const char *SCM_MANGLE(name);                                            \
-    ScmObj SCM_MANGLE(tmp);                                                  \
+    const char *SCM_MANGLE(name) SCM_UNUSED;                                 \
+    ScmObj SCM_MANGLE(tmp) SCM_UNUSED;                                       \
     SCM_MANGLE(name) = func_name;                                            \
     SCM_MANGLE(tmp)  = SCM_INVALID /* No semicolon here. */
 

@@ -701,7 +701,7 @@ filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
     ScmObj exp, var, sym, begin_rest, lambda_formals, lambda_body;
     DECLARE_INTERNAL_FUNCTION("(body)");
 
-    for (; CONSP(body); POP(body)) {
+    for (; CONSP(body); body = CDR(body)) {
         exp = CAR(body);
         if (!CONSP(exp))
             break;

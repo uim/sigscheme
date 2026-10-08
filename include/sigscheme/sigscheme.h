@@ -156,7 +156,15 @@ extern "C" {
     ((cond) || (scm_die(SCM_ASSERTION_MSG(cond), __FILE__, __LINE__), 1))
 #else
 #include <assert.h>
-#define SCM_ASSERT(cond) (assert(cond))
+/* Don't pass COND to assert() directly. assert() stringifies the
+ * macro-expanded COND and some implementations such as glibc expand COND
+ * multiple times. Nested accessors use SCM_ASSERT() and it causes
+ * exponential growth of preprocessed code. */
+#ifdef NDEBUG
+#define SCM_ASSERT(cond) ((void)0)
+#else
+#define SCM_ASSERT(cond) ((cond) ? (void)0 : assert(!"assertion failed"))
+#endif
 #endif
 
 #define SCM_ENSURE(cond)                                                     \

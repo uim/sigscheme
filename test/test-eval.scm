@@ -91,8 +91,13 @@
 (assert-error  (tn) (lambda ()
                       (eval '(+ 1 2)
                             (scheme-report-environment #\a))))
-(assert-equal? (tn) 3 (eval '(+ 1 2)
-                            (scheme-report-environment 5)))
+(if (provided? "strict-r5rs")
+    ;; SigScheme doesn't provide an environment that conforms to R5RS.
+    (assert-error  (tn) (lambda ()
+                          (eval '(+ 1 2)
+                                (scheme-report-environment 5))))
+    (assert-equal? (tn) 3 (eval '(+ 1 2)
+                                (scheme-report-environment 5))))
 ;; R5RS: 6.5 Eval
 ;; `eval' is not allowed to create new bindings in the environments associated
 ;; with `null-environment' or `scheme-report-environment'.
@@ -127,8 +132,13 @@
 (assert-error  (tn) (lambda ()
                       (eval '(+ 1 2)
                             (null-environment #\a))))
-(assert-equal? (tn) 3 (eval '(+ 1 2)
-                            (null-environment 5)))
+(if (provided? "strict-r5rs")
+    ;; SigScheme doesn't provide an environment that conforms to R5RS.
+    (assert-error  (tn) (lambda ()
+                          (eval '(+ 1 2)
+                                (null-environment 5))))
+    (assert-equal? (tn) 3 (eval '(+ 1 2)
+                                (null-environment 5))))
 ;; R5RS: 6.5 Eval
 ;; `eval' is not allowed to create new bindings in the environments associated
 ;; with `null-environment' or `scheme-report-environment'.

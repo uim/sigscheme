@@ -84,7 +84,7 @@
 
 (let* ((outs (open-output-string))
        (a-pair (cons 'kar 'kdr))
-            (convolution (eval (list 'lambda '() a-pair) (scheme-report-environment 5))))
+            (convolution (eval (list 'lambda '() a-pair) (interaction-environment))))
        (set-cdr! a-pair convolution)
        (write-with-shared-structure convolution outs)
        (assert-equal? (tn)

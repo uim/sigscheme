@@ -772,7 +772,6 @@ static ScmObj
 read_char(ScmObj port)
 {
     const ScmSpecialCharInfo *info;
-    size_t len;
     scm_ichar_t c, next;
 #if SCM_USE_R6RS_CHARS
     scm_ichar_t unicode;
@@ -793,14 +792,14 @@ read_char(ScmObj port)
     }
 
     buf[0] = c;
-    len = read_token(port, &err, &buf[1], sizeof(buf) - 1, SCM_CH_DELIMITER);
+    read_token(port, &err, &buf[1], sizeof(buf) - 1, SCM_CH_DELIMITER);
     if (err == TOKEN_BUF_EXCEEDED)
         ERR("invalid character literal");
 
     CDBG((SCM_DBG_PARSER, "read_char: ch = ~S", buf));
 
 #if SCM_USE_R6RS_CHARS
-    unicode = parse_unicode_sequence(buf, len + sizeof((char)c));
+    unicode = parse_unicode_sequence(buf, strlen(buf));
     if (0 <= unicode)
         return MAKE_CHAR(unicode);
 #endif
@@ -823,7 +822,9 @@ read_string(ScmObj port)
 {
     ScmObj obj;
     const ScmSpecialCharInfo *info;
+#if SCM_USE_R6RS_CHARS
     ScmCharCodec *codec;
+#endif
     scm_int_t len;
     scm_ichar_t c;
     char *p;
@@ -835,7 +836,9 @@ read_string(ScmObj port)
     CDBG((SCM_DBG_PARSER, "read_string"));
 
     LBUF_INIT(lbuf, init_buf, sizeof(init_buf));
+#if SCM_USE_R6RS_CHARS
     codec = scm_port_codec(port);
+#endif
 
     for (offset = 0, p = LBUF_BUF(lbuf), len = 0;
          ;

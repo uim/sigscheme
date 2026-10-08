@@ -67,15 +67,7 @@ AC_CHECK_ALIGNOF(int32_t)
 AC_CHECK_ALIGNOF(int64_t)
 AC_CHECK_ALIGNOF(intptr_t)
 
-AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
-
-#AC_TYPE_MBSTATE_T
-#AC_TYPE_MODE_T
-#AC_TYPE_OFF_T
-#AC_TYPE_PID_T
-#AC_TYPE_SIGNAL
-#AC_TYPE_UID_T
 
 if $CC --version >/dev/null 2>/dev/null; then
   ax_prog_cc_version=`$CC --version | head -n 1`

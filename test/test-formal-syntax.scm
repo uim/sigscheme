@@ -161,28 +161,30 @@
 (assert-parseable (tn) "(\"foo\". \"bar\")")
 (assert-parseable (tn) "(\"foo\" \"bar\". \"baz\")")
 
+(tn "invalid dot pair without right space")
+(assert-parse-error (tn) "( .)")
+(assert-parse-error (tn) "( .\"foo\")")
+(assert-parse-error (tn) "( .\"foo\" \"bar\")")
+(assert-parse-error (tn) "(\"foo\" .)")
+(assert-parse-error (tn) "(\"foo\" \"bar\" .)")
+(assert-parse-error (tn) "(\"foo\" .\"bar\" \"baz\")")
+(assert-parse-error (tn) "(\"foo\" \"bar\" .\"baz\" \"quux\")")
+
+(tn "invalid dot pair without both space")
+(assert-parse-error (tn) "(.)")
+(assert-parse-error (tn) "(.\"foo\")")
+(assert-parse-error (tn) "(.\"foo\" \"bar\")")
+(assert-parse-error (tn) "(\"foo\".)")
+(assert-parse-error (tn) "(\"foo\" \"bar\".)")
+(assert-parse-error (tn) "(\"foo\".\"bar\" \"baz\")")
+(assert-parse-error (tn) "(\"foo\" \"bar\".\"baz\" \"quux\")")
+
+;; SigScheme requires explicit whitespace around the dot unless strict R5RS
+;; mode to avoid compatibility problem with other implementations.
 (let ((assert (if (and (provided? "sigscheme")
                        (not (provided? "strict-r5rs")))
                   assert-parse-error
                   assert-parseable)))
-  (tn "invalid dot pair without right space")
-  (assert (tn) "( .)")
-  (assert (tn) "( .\"foo\")")
-  (assert (tn) "( .\"foo\" \"bar\")")
-  (assert (tn) "(\"foo\" .)")
-  (assert (tn) "(\"foo\" \"bar\" .)")
-  (assert (tn) "(\"foo\" .\"bar\" \"baz\")")
-  (assert (tn) "(\"foo\" \"bar\" .\"baz\" \"quux\")")
-
-  (tn "invalid dot pair without both space")
-  (assert (tn) "(.)")
-  (assert (tn) "(.\"foo\")")
-  (assert (tn) "(.\"foo\" \"bar\")")
-  (assert (tn) "(\"foo\".)")
-  (assert (tn) "(\"foo\" \"bar\".)")
-  (assert (tn) "(\"foo\".\"bar\" \"baz\")")
-  (assert (tn) "(\"foo\" \"bar\".\"baz\" \"quux\")")
-
   (tn "dot pair without right space")
   (assert (tn) "(\"foo\" .\"bar\")")
   (assert (tn) "(\"foo\" \"bar\" .\"baz\")")

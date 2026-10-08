@@ -450,9 +450,9 @@ SCM_EXPORT void
 scm_show_backtrace(ScmObj trace_stack)
 {
 #if SCM_USE_BACKTRACE
-    ScmObj frame, env, obj;
+    ScmObj frame, obj;
 #if SCM_DEBUG_BACKTRACE_VAL
-    ScmObj elm;
+    ScmObj env, elm;
 #endif
     DECLARE_INTERNAL_FUNCTION("scm_show_backtrace");
 
@@ -469,13 +469,13 @@ scm_show_backtrace(ScmObj trace_stack)
         scm_port_newline(scm_err);
 #endif
 
-        env = TRACE_FRAME_ENV(frame);
         obj = TRACE_FRAME_OBJ(frame);
 
         SCM_WRITE_SS(scm_err, obj);
         scm_port_newline(scm_err);
 
 #if SCM_DEBUG_BACKTRACE_VAL
+        env = TRACE_FRAME_ENV(frame);
         switch (SCM_TYPE(obj)) {
         case ScmSymbol:
             show_arg(obj, env);

@@ -70,7 +70,6 @@ Run ./configure with some options at the top directory.
 
     - full:    compile with full features but broken ones
     - regular: (default) compile with typically needed features
-    - small:   compile with primary features only
     - r5rs:    compile with strict R5RS conformances
     - dev:     developer-friendly configuration
     - uim:     configure for uim

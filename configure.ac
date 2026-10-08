@@ -215,8 +215,8 @@ AX_FEATURE_VAR_Y(sigscheme, [pseudo feature for dependency resolution])
 
 # Specify a set of default variable settings
 AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
-                        CONF=(regular|full|small|r5rs|dev|uim) @<:@regular@:>@],
-                       [regular], [^(regular|full|small|r5rs|dev|uim)$],
+                        CONF=(regular|full|r5rs|dev|uim) @<:@regular@:>@],
+                       [regular], [^(regular|full|r5rs|dev|uim)$],
   [
     # multibyte char handlings
     case "$enable_conf" in
@@ -226,15 +226,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_eucjp=yes
         use_euckr=yes
         use_sjis=yes
-        ;;
-      small)
-        use_default_encoding=singlebyte
-        use_utf8=no
-        use_euccn=no
-        use_eucjp=no
-        use_euckr=no
-        use_sjis=no
-        use_strict_encoding_check=no
         ;;
       uim)
         use_default_encoding=singlebyte
@@ -272,16 +263,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_strict_toplevel_definitions=yes
         use_internal_definitions=yes
         ;;
-      small)
-        use_strict_r5rs=no
-        use_const_list_literal=no
-        use_const_vector_literal=no
-        use_strict_null_form=no
-        use_strict_vector_form=no
-        use_strict_argcheck=no
-        use_strict_toplevel_definitions=no
-        use_internal_definitions=no
-        ;;
     esac
 
     # R5RS features
@@ -297,22 +278,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_string_procedures=yes
         use_deep_cadrs=yes
         use_vector=yes
-        use_port=yes
-        use_reader=yes
-        use_writer=yes
-        use_load=yes
-        ;;
-      small)
-        use_continuation=no
-        use_quasiquote=no
-        use_promise=no
-        use_int=yes
-        use_numeric_io=yes
-        use_char=yes
-        use_string=yes
-        use_string_procedures=yes
-        use_deep_cadrs=no
-        use_vector=no
         use_port=yes
         use_reader=yes
         use_writer=yes
@@ -367,25 +332,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi69=yes
         use_srfi95=yes
         ;;
-      small)
-        use_srfi0=no
-        use_srfi1=no
-        use_srfi2=no
-        use_srfi6=no
-        use_srfi8=no
-        use_srfi9=no
-        use_srfi22=no
-        use_srfi23=no
-        use_srfi28=no
-        use_srfi34=no
-        use_srfi38=no
-        use_srfi43=no
-        use_srfi48=no
-        use_srfi55=no
-        use_srfi60=no
-        use_srfi69=no
-        use_srfi95=no
-        ;;
     esac
 
     # SigScheme-specific extensions
@@ -396,13 +342,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_sscm_format_extension=yes
         use_compat_siod=no
         use_eval_c_string=yes
-        ;;
-      small)
-        use_legacy_macro=no
-        use_sscm_extensions=no
-        use_sscm_format_extension=no
-        use_compat_siod=no
-        use_eval_c_string=no
         ;;
       uim)
         use_legacy_macro=yes
@@ -419,7 +358,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_r6rs_named_chars=yes
         use_r6rs_chars=yes
         ;;
-      r5rs|small)
+      r5rs)
         use_r6rs_named_chars=no
         use_r6rs_chars=no
         ;;

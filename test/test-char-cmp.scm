@@ -36,6 +36,9 @@
 (if (not (symbol-bound? 'char=?))
     (test-skip "R5RS characters is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define tn test-name)
 
 ;; SigScheme's case-insensitive comparison conforms to the foldcase'ed

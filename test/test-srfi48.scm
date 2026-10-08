@@ -42,6 +42,9 @@
 (if (not (provided? "srfi-48"))
     (test-skip "SRFI-48 is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 ;; test SRFI-28 compatible part of SRFI-48
 (load "./test/test-srfi28.scm")
 (newline)

@@ -41,6 +41,9 @@
               (symbol-bound? 'string?)))
     (test-skip "UTF-8 codec is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define tn test-name)
 
 (assert-equal? "string 1" "美人には" (string #\美 #\人 #\に #\は))

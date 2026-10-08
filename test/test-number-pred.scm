@@ -38,6 +38,9 @@
 (if (not (symbol-bound? 'number?))
     (test-skip "R5RS numbers is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define tn test-name)
 
 

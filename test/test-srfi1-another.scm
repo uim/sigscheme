@@ -39,6 +39,9 @@
 (if (not (provided? "srfi-1"))
     (test-skip "SRFI-1 is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define tn test-name)
 
 ;;(define drop list-tail)

@@ -40,6 +40,9 @@
 (if (not (symbol-bound? 'format+))
     (test-skip "format+ is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 ;; test SRFI-48 compatible part of format+
 (define format format+)
 (load "./test/test-srfi48.scm")

@@ -40,6 +40,9 @@
          (not (symbol-bound? 'make-string)))
     (test-skip "non-core string procedures of R5RS is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define tn test-name)
 (define cp string-copy)
 

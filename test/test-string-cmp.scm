@@ -38,6 +38,9 @@
 (if (not (symbol-bound? 'string<?))
     (test-skip "R5RS string procedures are not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define tn test-name)
 (define cp string-copy)
 

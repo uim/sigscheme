@@ -33,6 +33,9 @@
 
 (require-extension (unittest))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip "R6RS characters is not enabled"))
+
 (define *test-track-progress* #f)
 (define tn test-name)
 (define cp string-copy)

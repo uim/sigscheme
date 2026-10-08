@@ -299,11 +299,18 @@
                  (if #t
                      (begin
                        (define x 6)))))
-(assert-equal? (tn)
-               'x
-               (if #t
-                   (eval '(define x 6)
-                         (interaction-environment))))
+(if (provided? "strict-r5rs")
+    ;; R5RS doesn't specify the return value of define.
+    (begin
+      (if #t
+          (eval '(define x 7)
+                (interaction-environment)))
+      (assert-equal? (tn) 7 x))
+    (assert-equal? (tn)
+                   'x
+                   (if #t
+                       (eval '(define x 6)
+                             (interaction-environment)))))
 
 
 (tn "func-form define internal definitions lacking sequence part")

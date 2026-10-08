@@ -17,7 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         libgcroots:
-          - no
           - installed
           - tiny-subst
     runs-on: ubuntu-latest
@@ -61,6 +60,40 @@ jobs:
             --enable-maintainer-mode \
             --prefix=/usr \
             --with-libgcroots=${{ matrix.libgcroots }}
+      - name: Build
+        run: |
+          make -j$(nproc)
+      - name: Test
+        run: |
+          make check -j$(nproc) VERBOSE=1
+  conf:
+    name: conf=${{ matrix.conf }}
+    strategy:
+      fail-fast: false
+      matrix:
+        conf:
+          - regular
+          - full
+          - r5rs
+          - dev
+          - uim
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - name: Setup
+        run: |
+          ./setup.sh
+      - name: Generate configure
+        run: |
+          ./autogen.sh
+      - name: Configure
+        run: |
+          ./configure \
+            --enable-conf=${{ matrix.conf }} \
+            --enable-maintainer-mode
       - name: Build
         run: |
           make -j$(nproc)

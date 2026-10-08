@@ -113,31 +113,27 @@ if not fs.exists(func_tables[0][0])
   ]
 endif
 
-libsscm_sources = files(
-  'alloc.c',
-  'env.c',
-  'error.c',
-  'eval.c',
-  'list.c',
-  'module.c',
-  'procedure.c',
-  'sigscheme.c',
-  'storage-gc.c',
-  'storage.c',
-  'symbol.c',
-  'syntax.c',
-)
-if use['continuation']
-  libsscm_sources += files('continuation.c')
-endif
-if use['port']
-  libsscm_sources += files('scmport-basechar.c', 'scmport-file.c')
-  if use['multibyte_char']
-    libsscm_sources += files('encoding.c', 'scmport-mbchar.c')
-  else
-    libsscm_sources += files('scmport-sbchar.c')
-  endif
-endif
+# [use?, sources]
+libsscm_source_groups = [
+  [true, [
+    'alloc.c',
+    'storage.c',
+    'storage-gc.c',
+    'error.c',
+    'symbol.c',
+    'env.c',
+    'eval.c',
+    'syntax.c',
+    'procedure.c',
+    'list.c',
+    'module.c',
+    'sigscheme.c',
+  ]],
+  [use['continuation'], ['continuation.c']],
+  [use['port'], ['scmport-file.c', 'scmport-basechar.c']],
+  [use['port'] and use['multibyte_char'], ['encoding.c', 'scmport-mbchar.c']],
+  [use['port'] and not use['multibyte_char'], ['scmport-sbchar.c']],
+]
 # [feature, sources]
 foreach optional_sources : [
   ['format', ['format.c']],
@@ -174,14 +170,19 @@ foreach optional_sources : [
   ['srfi55', ['module-srfi55.c']],
   ['srfi60', ['module-srfi60.c']],
 ]
-  if use[optional_sources[0]]
-    libsscm_sources += files(optional_sources[1])
+  libsscm_source_groups += [[use[optional_sources[0]], optional_sources[1]]]
+endforeach
+libsscm_source_groups += [
+  [strcasecmp_replacement, ['strcasecmp.c']],
+  [gc == 'tiny-subst', ['gcroots/gcroots.c']],
+]
+libsscm_source_names = []
+foreach source_group : libsscm_source_groups
+  if source_group[0]
+    libsscm_source_names += source_group[1]
   endif
 endforeach
-if strcasecmp_replacement
-  libsscm_sources += files('strcasecmp.c')
-endif
-libsscm_sources += gcroots_sources
+libsscm_sources = files(libsscm_source_names)
 
 sscm_c_args = [
   '-DPKGDATADIR="@0@"'.format(prefix / pkgdatadir),
@@ -224,3 +225,38 @@ if use['shell']
                     install: true,
                     link_with: libsscm)
 endif
+
+# For packages such as uim that #include sigscheme-combined.c instead
+# of linking libsscm. Use this by
+# dependency('sigscheme-combined', fallback: 'sigscheme').
+sigscheme_combined_includes = []
+foreach source_name : libsscm_source_names
+  sigscheme_combined_includes += ['#include "@0@"'.format(source_name)]
+endforeach
+configure_file(input: 'sigscheme-combined.c.in',
+               output: 'sigscheme-combined.c',
+               configuration: {
+                 'INCLUDES': '\n'.join(sigscheme_combined_includes),
+               })
+# All sources regardless of configuration.
+sigscheme_combined_trim_source_names = ['sigschemeinternal.h']
+foreach source_group : libsscm_source_groups
+  sigscheme_combined_trim_source_names += source_group[1]
+endforeach
+sigscheme_combined_trim_source_names += ['gcroots/gcroots.h']
+sigscheme_combined_trim_h = custom_target(
+  'sigscheme-combined-trim.h',
+  output: 'sigscheme-combined-trim.h',
+  command: [
+    find_program('../tools/build_combined_trim.py'),
+    '@OUTPUT@',
+    meson.current_source_dir(),
+    sigscheme_combined_trim_source_names,
+  ],
+  depend_files: files(sigscheme_combined_trim_source_names))
+sigscheme_combined_dep = declare_dependency(
+  compile_args: sscm_c_args,
+  dependencies: gcroots_dependencies,
+  include_directories: sigscheme_internal_include_directories,
+  sources: [sigscheme_combined_trim_h, func_tables_stamp])
+meson.override_dependency('sigscheme-combined', sigscheme_combined_dep)

@@ -99,6 +99,14 @@ jobs:
           - r5rs
           - dev
           - uim
+        include:
+          # uim #include-s sigscheme-combined.c instead of linking
+          # libsscm.
+          - conf: uim
+            meson-options: >-
+              -Dlibsscm=false
+              -Dmaster_pkg=uim
+              -Dshell=false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -131,6 +139,7 @@ jobs:
             -Dconf=${{ matrix.conf }} \
             -Dgc=gcroots \
             --force-fallback-for=gcroots \
+            ${{ matrix.meson-options }} \
             ../meson-build \
             .
       - name: "Meson: Build"

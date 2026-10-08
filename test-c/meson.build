@@ -6,6 +6,24 @@ if sed.found()
   gnu_sed = (sed_version.returncode() == 0 and
              sed_version.stdout().contains('GNU'))
 endif
+# This doesn't need libsscm. It #include-s sigscheme-combined.c
+# like uim.
+if use['eval_c_string']
+  test_combined = executable(
+    'test-combined',
+    'test-combined.c',
+    c_args: [
+      '-DTST_SCM_SYSTEM_LOAD_PATH="@0@"'.format(
+        meson.project_source_root() / 'lib'),
+      # Functions in sigscheme-combined.c are static. This program
+      # doesn't use most of them.
+      cc.get_supported_arguments('-Wno-unused-function'),
+    ],
+    dependencies: [sigscheme_combined_dep],
+    build_by_default: false)
+  test('test-combined', test_combined)
+endif
+
 if not use['libsscm']
   subdir_done()
 endif

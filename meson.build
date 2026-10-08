@@ -151,7 +151,6 @@ endif
 gc = get_option('gc')
 gcroots_dependencies = []
 gcroots_include_directories = []
-gcroots_sources = []
 use_libgcroots = ''
 if gc in ['auto', 'bdwgc']
   bdwgc = dependency('bdw-gc', version: '>= 8.3.0', required: gc == 'bdwgc')
@@ -173,7 +172,6 @@ endif
 if gc == 'tiny-subst'
   # use src/gcroots/gcroots.[hc]
   gcroots_include_directories += [include_directories('src/gcroots')]
-  gcroots_sources += files('src/gcroots/gcroots.c')
   use_libgcroots = 'tiny substitution in src/gcroots'
 endif
 

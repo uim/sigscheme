@@ -184,7 +184,7 @@ BUILT_DIST = $(FUNC_TABLES) sigscheme-combined-trim.h
 # the file is not listed into *_HEADERS.
 EXTRA_DIST = \
         $(BUILT_DIST) $(BUILD_FUNCTBL_DEPS) \
-        sigscheme-combined.h template.h template.c \
+        sigscheme-combined.h sigscheme-combined.c.in template.h template.c \
         meson.build
 
 # Only works on 'make all', 'make check' and 'make install'.

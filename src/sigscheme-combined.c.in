@@ -1,0 +1,7 @@
+/* This is an auto-generated file. Don't edit directly. */
+
+#include "sigscheme-combined.h"
+
+@INCLUDES@
+
+#include "sigscheme-combined-trim.h"

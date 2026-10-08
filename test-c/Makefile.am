@@ -14,7 +14,8 @@ EXTRA_DIST= meson.build sscm-test.h utils.c \
             test-global.c \
             test-gc.c test-gc-protect.c test-gc-protect-stack.c \
             test-storage.c test-storage-compact.c \
-            test-strcasecmp.c test-length.c test-format.c test-array2list.c
+            test-strcasecmp.c test-length.c test-format.c test-array2list.c \
+            test-combined.c
 
 SUFFIXES= -coll.o -coll.c
 

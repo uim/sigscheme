@@ -256,7 +256,7 @@ scm_expand_macro(ScmObj macro, ScmObj args, ScmEvalState *eval_state)
     DECLARE_INTERNAL_FUNCTION("scm_expand_macro");
 
     eval_state->ret_type = SCM_VALTYPE_NEED_EVAL;
-#if SCM_STRICT_R5RS
+#if SCM_STRICT_ARGCHECK
     if (!SCM_LISTLEN_PROPERP(scm_length(args)))
         ERR_OBJ("bad argument list", args);
 #endif

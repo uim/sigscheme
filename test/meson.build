@@ -36,6 +36,7 @@ sscm_tests = [
   'test-obsolete.scm',
   'test-pair.scm',
   'test-quote.scm',
+  'test-r7rs.scm',
   'test-srfi0.scm',
   'test-srfi1-another.scm',
   'test-srfi1-obsolete.scm',

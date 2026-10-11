@@ -97,6 +97,7 @@ jobs:
           - regular
           - full
           - r5rs
+          - r7rs
           - dev
           - uim
         include:

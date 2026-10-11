@@ -215,8 +215,8 @@ AX_FEATURE_VAR_Y(sigscheme, [pseudo feature for dependency resolution])
 
 # Specify a set of default variable settings
 AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
-                        CONF=(regular|full|r5rs|dev|uim) @<:@regular@:>@],
-                       [regular], [^(regular|full|r5rs|dev|uim)$],
+                        CONF=(regular|full|r5rs|r7rs|dev|uim) @<:@regular@:>@],
+                       [regular], [^(regular|full|r5rs|r7rs|dev|uim)$],
   [
     # multibyte char handlings
     case "$enable_conf" in
@@ -248,7 +248,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         #use_const_list_literal=yes
         use_const_vector_literal=yes
         #use_strict_null_form=yes
-        use_strict_vector_form=yes
         use_strict_argcheck=yes
         use_strict_toplevel_definitions=yes
         use_internal_definitions=yes
@@ -364,6 +363,15 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         ;;
     esac
 
+    # R7RS features
+    case "$enable_conf" in
+      full|r7rs|dev)
+        use_r7rs=yes
+        # R7RS vectors are self-evaluating.
+        use_strict_vector_form=no
+        ;;
+    esac
+
     # Debugging features
     case "$enable_conf" in
       dev)
@@ -464,6 +472,9 @@ AX_FEATURE_ARG_Y(srfi95,         [SRFI-95 sorting and merging])
 # R6RS features (preliminary)
 AX_FEATURE_ARG_Y(r6rs-named-chars, [named characters of R6RS (preliminary)])
 AX_FEATURE_ARG_Y(r6rs-chars,       [R6RS characters (preliminary)])
+
+# R7RS features (preliminary)
+AX_FEATURE_ARG_N(r7rs,             [R7RS features (preliminary)])
 
 # Common Scheme features
 AX_FEATURE_VAR_N(syntax-case,      ['syntax-case' (not implemented yet)])
@@ -586,6 +597,7 @@ storage_compact valuecons
 storage_compact const_list_literal
 debug_no null_capable_string
 strict_r5rs strict_vector_form_no
+r7rs strict_vector_form
 strict_r5rs strict_null_form_no
 strict_r5rs strict_toplevel_definitions_no
 strict_r5rs internal_definitions_no
@@ -689,6 +701,9 @@ AX_FEATURE_DEFINE(srfi95)
 AX_FEATURE_DEFINE(r6rs_named_chars)
 AX_FEATURE_DEFINE(r6rs_chars)
 
+# R7RS features (preliminary)
+AX_FEATURE_DEFINE(r7rs)
+
 # Common Scheme features
 AX_FEATURE_DEFINE(syntax_case)
 AX_FEATURE_DEFINE(unhygienic_macro)
@@ -766,6 +781,7 @@ AC_SUBST(use_srfi69)
 AC_SUBST(use_srfi95)
 AC_SUBST(use_r6rs_chars)
 AC_SUBST(use_r6rs_named_chars)
+AC_SUBST(use_r7rs)
 AC_SUBST(use_legacy_macro)
 AC_SUBST(use_sscm_extensions)
 AC_SUBST(use_sscm_format_extension)
@@ -903,6 +919,9 @@ SRFI-95: $use_srfi95
 [R6RS features (preliminary)]
 R6RS characters:  $use_r6rs_chars
 R6RS named chars: $use_r6rs_named_chars
+
+[R7RS features (preliminary)]
+R7RS:             $use_r7rs
 
 [SigScheme-specific extensions]
 define-macro:         $use_legacy_macro

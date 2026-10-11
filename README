@@ -75,6 +75,7 @@ Run 'meson setup' with some options at the top directory.
     - full:    compile with full features but broken ones
     - regular: (default) compile with typically needed features
     - r5rs:    compile with strict R5RS conformances
+    - r7rs:    compile with R7RS features (preliminary)
     - dev:     developer-friendly configuration
     - uim:     configure for uim
 

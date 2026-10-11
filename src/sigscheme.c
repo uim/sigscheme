@@ -98,6 +98,9 @@
 #if SCM_USE_DEEP_CADRS
 #include "functable-r5rs-deep-cadrs.c"
 #endif
+#if SCM_USE_R7RS
+#include "functable-r7rs.c"
+#endif
 
 SCM_GLOBAL_VARS_BEGIN(static_sigscheme);
 #define static
@@ -144,6 +147,9 @@ static const char *const builtin_features[] = {
 #endif
 #if SCM_USE_R6RS_CHARS
     "r6rs-chars",
+#endif
+#if SCM_USE_R7RS
+    "r7rs",
 #endif
 #if SCM_COMPAT_SIOD
     "compat-siod",
@@ -311,6 +317,9 @@ scm_initialize_internal(const char *const *argv)
 #endif
 #if SCM_USE_DEEP_CADRS
     scm_register_funcs(scm_functable_r5rs_deep_cadrs);
+#endif
+#if SCM_USE_R7RS
+    scm_register_funcs(scm_functable_r7rs);
 #endif
 
     /* for distinction from SRFI-1 versions */

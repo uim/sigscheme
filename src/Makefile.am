@@ -33,6 +33,7 @@ FUNC_TABLES = \
         functable-r5rs-write.c \
         functable-r5rs-load.c \
         functable-r5rs-deep-cadrs.c \
+        functable-r7rs.c \
         functable-legacy-macro.c \
         functable-sscm-ext.c \
         functable-siod.c \
@@ -96,6 +97,9 @@ functable-r5rs-load.c: $(srcdir)/load.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_load" $<
 functable-r5rs-deep-cadrs.c: $(srcdir)/deep-cadrs.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_deep_cadrs" $<
+# R7RS
+functable-r7rs.c: $(srcdir)/r7rs.c $(BUILD_FUNCTBL_DEPS)
+	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r7rs" $<
 # Optional modules
 functable-legacy-macro.c: $(srcdir)/legacy-macro.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_legacy_macro" $<
@@ -262,6 +266,9 @@ if USE_LOAD
 endif
 if USE_DEEP_CADRS
   libsscm_sources += deep-cadrs.c
+endif
+if USE_R7RS
+  libsscm_sources += r7rs.c
 endif
 
 # optional modules

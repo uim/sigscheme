@@ -1609,6 +1609,14 @@ SCM_EXPORT ScmObj scm_p_cdddar(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_cddddr(ScmObj lst);
 #endif /* SCM_USE_DEEP_CADRS */
 
+/* r7rs.c */
+#if SCM_USE_R7RS
+SCM_EXPORT ScmObj scm_p_boolean_equalp(ScmObj boolean1, ScmObj boolean2,
+                                       ScmObj rest);
+SCM_EXPORT ScmObj scm_p_symbol_equalp(ScmObj symbol1, ScmObj symbol2,
+                                      ScmObj rest);
+#endif /* SCM_USE_R7RS */
+
 /* macro.c */
 #if SCM_USE_HYGIENIC_MACRO
 SCM_EXPORT ScmObj scm_s_match(ScmObj form, ScmObj patterns,

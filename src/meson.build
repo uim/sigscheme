@@ -50,6 +50,8 @@ func_tables = [
   ['functable-r5rs-load.c', 'scm_functable_r5rs_load', ['load.c']],
   ['functable-r5rs-deep-cadrs.c', 'scm_functable_r5rs_deep_cadrs',
    ['deep-cadrs.c']],
+  # R7RS
+  ['functable-r7rs.c', 'scm_functable_r7rs', ['r7rs.c']],
   # Optional modules
   ['functable-legacy-macro.c', 'scm_functable_legacy_macro',
    ['legacy-macro.c']],
@@ -153,6 +155,7 @@ foreach optional_sources : [
   ['writer', ['write.c']],
   ['load', ['load.c']],
   ['deep_cadrs', ['deep-cadrs.c']],
+  ['r7rs', ['r7rs.c']],
   # optional modules
   ['sscm_extensions', ['module-sscm-ext.c']],
   ['compat_siod', ['module-siod.c', 'scmport-null.c']],

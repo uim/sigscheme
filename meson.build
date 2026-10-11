@@ -220,10 +220,18 @@ conf_srfis_all = {
   'srfi69': 'yes',
   'srfi95': 'yes',
 }
+conf_r7rs = {
+  'r7rs': 'yes',
+  # R7RS vectors are self-evaluating.
+  'strict_vector_form': 'no',
+}
 conf_presets = {
   'regular': {
     'hygienic_macro': 'no',
   },
+  'r7rs': {
+    'hygienic_macro': 'no',
+  } + conf_r7rs,
   'full': {
     # multibyte char handlings
     'utf8': 'yes',
@@ -234,7 +242,6 @@ conf_presets = {
     # R5RS behaviors
     'strict_r5rs': 'no',
     'const_vector_literal': 'yes',
-    'strict_vector_form': 'yes',
     'strict_argcheck': 'yes',
     'strict_toplevel_definitions': 'yes',
     'internal_definitions': 'yes',
@@ -249,7 +256,7 @@ conf_presets = {
     # R6RS features
     'r6rs_named_chars': 'yes',
     'r6rs_chars': 'yes',
-  } + conf_r5rs_features_all + conf_srfis_all,
+  } + conf_r5rs_features_all + conf_srfis_all + conf_r7rs,
   'r5rs': {
     # R5RS behaviors
     'strict_r5rs': 'yes',
@@ -275,7 +282,6 @@ conf_presets = {
     # R5RS behaviors
     'strict_r5rs': 'no',
     'const_vector_literal': 'yes',
-    'strict_vector_form': 'yes',
     'strict_argcheck': 'yes',
     'strict_toplevel_definitions': 'yes',
     'internal_definitions': 'yes',
@@ -294,7 +300,7 @@ conf_presets = {
     'backtrace': 'yes',
     'debug': 'yes',
     'warning_suppressor': 'yes',
-  } + conf_r5rs_features_all + conf_srfis_all,
+  } + conf_r5rs_features_all + conf_srfis_all + conf_r7rs,
   'uim': {
     # multibyte char handlings
     'default_encoding': 'singlebyte',
@@ -427,6 +433,9 @@ feature_declarations = [
   # R6RS features (preliminary)
   ['r6rs_named_chars', 'yes'],
   ['r6rs_chars', 'yes'],
+
+  # R7RS features (preliminary)
+  ['r7rs', 'no'],
 
   # Common Scheme features
   ['syntax_case', 'no'],
@@ -566,6 +575,7 @@ feature_conflicts = [
   ['storage_compact', 'const_list_literal'],
   ['debug_no', 'null_capable_string'],
   ['strict_r5rs', 'strict_vector_form_no'],
+  ['r7rs', 'strict_vector_form'],
   ['strict_r5rs', 'strict_null_form_no'],
   ['strict_r5rs', 'strict_toplevel_definitions_no'],
   ['strict_r5rs', 'internal_definitions_no'],
@@ -783,6 +793,9 @@ feature_definitions = [
   'r6rs_named_chars',
   'r6rs_chars',
 
+  # R7RS features (preliminary)
+  'r7rs',
+
   # Common Scheme features
   'syntax_case',
   'unhygienic_macro',
@@ -934,6 +947,7 @@ if use['libsscm']
     'srfi95',
     'r6rs_chars',
     'r6rs_named_chars',
+    'r7rs',
     'legacy_macro',
     'sscm_extensions',
     'sscm_format_extension',
@@ -1034,6 +1048,10 @@ summary({
           'R6RS named chars': use['r6rs_named_chars'],
         },
         section: 'R6RS features (preliminary)')
+summary({
+          'R7RS': use['r7rs'],
+        },
+        section: 'R7RS features (preliminary)')
 summary({
           'define-macro': use['legacy_macro'],
           'SigScheme extensions': use['sscm_extensions'],

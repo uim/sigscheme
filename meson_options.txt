@@ -22,7 +22,7 @@ option('gc',
 
 option('conf',
        type: 'combo',
-       choices: ['regular', 'full', 'r5rs', 'dev', 'uim'],
+       choices: ['regular', 'full', 'r5rs', 'r7rs', 'dev', 'uim'],
        value: 'regular',
        description: 'base configuration of SigScheme')
 
@@ -196,6 +196,11 @@ option('r6rs_named_chars',
 option('r6rs_chars',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'R6RS characters (preliminary)')
+
+# R7RS features (preliminary)
+option('r7rs',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R7RS features (preliminary)')
 
 # Common Scheme features
 option('legacy_macro',

@@ -332,6 +332,114 @@ scm_p_boolean_equalp(ScmObj boolean1, ScmObj boolean2, ScmObj rest)
 }
 
 /*===========================================================================
+  R7RS : 6.4 Pairs and lists
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_make_list(ScmObj k, ScmObj args)
+{
+    ScmObj fill, lst;
+    scm_int_t len;
+    DECLARE_FUNCTION("make-list", procedure_variadic_1);
+
+    ENSURE_INT(k);
+    len = SCM_INT_VALUE(k);
+    if (len < 0)
+        ERR_OBJ("non-negative integer required but got", k);
+    fill = NULLP(args) ? SCM_UNDEF : POP(args);
+    ASSERT_NO_MORE_ARG(args);
+
+    lst = SCM_NULL;
+    while (len--)
+        lst = CONS(fill, lst);
+
+    return lst;
+}
+
+SCM_EXPORT ScmObj
+scm_p_list_setx(ScmObj lst, ScmObj k, ScmObj obj)
+{
+    ScmObj pair;
+    scm_int_t i;
+    DECLARE_FUNCTION("list-set!", procedure_fixed_3);
+
+    ENSURE_INT(k);
+    i = SCM_INT_VALUE(k);
+    if (i < 0)
+        ERR_OBJ("index out of range", k);
+    for (pair = lst; i && CONSP(pair); i--)
+        pair = CDR(pair);
+    if (!CONSP(pair))
+        ERR_OBJ("index out of range", k);
+    SET_CAR(pair, obj);
+
+    return SCM_UNDEF;
+}
+
+/* Copies the pairs of OBJ. The last cdr of an improper list is kept.
+ * OBJ is returned as is if it isn't a pair. */
+SCM_EXPORT ScmObj
+scm_p_list_copy(ScmObj obj)
+{
+    ScmQueue q;
+    ScmObj copy, rest;
+    DECLARE_FUNCTION("list-copy", procedure_fixed_1);
+
+    copy = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, copy);
+    for (rest = obj; CONSP(rest); rest = CDR(rest))
+        SCM_QUEUE_ADD(q, CAR(rest));
+    SCM_QUEUE_SLOPPY_APPEND(q, rest);
+
+    return copy;
+}
+
+/* Overrides R5RS member to support COMPARE. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_member(ScmObj obj, ScmObj lst, ScmObj args)
+{
+    ScmObj compare, rest;
+    DECLARE_FUNCTION("member", procedure_variadic_2);
+
+    if (NULLP(args))
+        return scm_p_member(obj, lst);
+
+    compare = POP(args);
+    ASSERT_NO_MORE_ARG(args);
+    ENSURE_PROCEDURE(compare);
+    for (rest = lst; CONSP(rest); rest = CDR(rest)) {
+        if (TRUEP(scm_call(compare, LIST_2(obj, CAR(rest)))))
+            return rest;
+    }
+    CHECK_PROPER_LIST_TERMINATION(rest, lst);
+
+    return SCM_FALSE;
+}
+
+/* Overrides R5RS assoc to support COMPARE. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_assoc(ScmObj obj, ScmObj alist, ScmObj args)
+{
+    ScmObj compare, rest, pair;
+    DECLARE_FUNCTION("assoc", procedure_variadic_2);
+
+    if (NULLP(args))
+        return scm_p_assoc(obj, alist);
+
+    compare = POP(args);
+    ASSERT_NO_MORE_ARG(args);
+    ENSURE_PROCEDURE(compare);
+    for (rest = alist; CONSP(rest); rest = CDR(rest)) {
+        pair = CAR(rest);
+        ENSURE_CONS(pair);
+        if (TRUEP(scm_call(compare, LIST_2(obj, CAR(pair)))))
+            return pair;
+    }
+    CHECK_PROPER_LIST_TERMINATION(rest, alist);
+
+    return SCM_FALSE;
+}
+
+/*===========================================================================
   R7RS : 6.5 Symbols
 ===========================================================================*/
 SCM_EXPORT ScmObj
@@ -853,6 +961,34 @@ scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill, ScmObj args)
     v = SCM_VECTOR_VEC(vec);
     for (i = start; i < end; i++)
         v[i] = fill;
+
+    return SCM_UNDEF;
+}
+
+/*===========================================================================
+  R7RS : 6.10 Control features
+===========================================================================*/
+/* Overrides R5RS map. Lists may have different lengths. It stops when
+ * the shortest list ends. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_map(ScmObj proc, ScmObj lst, ScmObj rest)
+{
+    DECLARE_FUNCTION("map", procedure_variadic_2);
+
+    if (NULLP(rest))
+        return scm_map_single_arg(proc, lst);
+
+    return scm_map_multiple_args(proc, CONS(lst, rest), scm_true);
+}
+
+/* Overrides R5RS for-each. Lists may have different lengths. It stops
+ * when the shortest list ends. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_for_each(ScmObj proc, ScmObj lst, ScmObj rest)
+{
+    DECLARE_FUNCTION("for-each", procedure_variadic_2);
+
+    scm_p_r7rs_map(proc, lst, rest);
 
     return SCM_UNDEF;
 }

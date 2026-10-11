@@ -1640,6 +1640,11 @@ SCM_EXPORT ScmObj scm_p_exact(ScmObj z);
 SCM_EXPORT ScmObj scm_p_inexact(ScmObj z);
 SCM_EXPORT ScmObj scm_p_boolean_equalp(ScmObj boolean1, ScmObj boolean2,
                                        ScmObj rest);
+SCM_EXPORT ScmObj scm_p_make_list(ScmObj k, ScmObj args);
+SCM_EXPORT ScmObj scm_p_list_setx(ScmObj lst, ScmObj k, ScmObj obj);
+SCM_EXPORT ScmObj scm_p_list_copy(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_r7rs_member(ScmObj obj, ScmObj lst, ScmObj args);
+SCM_EXPORT ScmObj scm_p_r7rs_assoc(ScmObj obj, ScmObj alist, ScmObj args);
 SCM_EXPORT ScmObj scm_p_symbol_equalp(ScmObj symbol1, ScmObj symbol2,
                                       ScmObj rest);
 SCM_EXPORT ScmObj scm_p_digit_value(ScmObj ch);
@@ -1683,6 +1688,8 @@ SCM_EXPORT ScmObj scm_p_vector_copyx(ScmObj to, ScmObj at, ScmObj from,
 SCM_EXPORT ScmObj scm_p_vector_append(ScmObj args);
 SCM_EXPORT ScmObj scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill,
                                           ScmObj args);
+SCM_EXPORT ScmObj scm_p_r7rs_map(ScmObj proc, ScmObj lst, ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_for_each(ScmObj proc, ScmObj lst, ScmObj rest);
 #endif /* SCM_USE_R7RS */
 
 /* macro.c */

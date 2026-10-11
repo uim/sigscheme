@@ -35,6 +35,20 @@
 
 (define tn test-name)
 
+;; R5RS: 6.4 Control features
+;; > If more than one list is given, then they must all be the same length.
+;; SigScheme rejects such user-error explicitly.
+;;
+;; R7RS: 6.10 Control features
+;; > If more than one list is given and not all lists have the same
+;; > length, map terminates when the shortest list runs out.
+(define assert-uneven
+  (if (provided? "r7rs")
+      (lambda (name expected thunk)
+        (assert-equal? name expected (thunk)))
+      (lambda (name expected thunk)
+        (assert-error name thunk))))
+
 
 ;;
 ;; map
@@ -117,13 +131,18 @@
 (assert-equal? (tn)
                '((0 . 3) (1 . 4) (2 . 5))
                (map cons '(0 1 2) '(3 4 5)))
-;; R5RS: 6.4 Control features
-;; > If more than one list is given, then they must all be the same length.
-;; SigScheme rejects such user-error explicitly.
-(assert-error  (tn) (lambda () (map cons '(0 1 2) '(3 4 5 6))))
-(assert-error  (tn) (lambda () (map cons '(0 1 2) '(3 4))))
-(assert-error  (tn) (lambda () (map cons '(0) '())))
-(assert-error  (tn) (lambda () (map cons '() '(0))))
+(assert-uneven (tn)
+               '((0 . 3) (1 . 4) (2 . 5))
+               (lambda () (map cons '(0 1 2) '(3 4 5 6))))
+(assert-uneven (tn)
+               '((0 . 3) (1 . 4))
+               (lambda () (map cons '(0 1 2) '(3 4))))
+(assert-uneven (tn)
+               '()
+               (lambda () (map cons '(0) '())))
+(assert-uneven (tn)
+               '()
+               (lambda () (map cons '() '(0))))
 
 (assert-equal? (tn)
                '()
@@ -131,19 +150,19 @@
                     '()
                     '()
                     '()))
-(assert-error  (tn)
+(assert-uneven (tn) '()
                (lambda ()
                  (map +
                       '(0)
                       '()
                       '())))
-(assert-error  (tn)
+(assert-uneven (tn) '()
                (lambda ()
                  (map +
                       '()
                       '(0)
                       '())))
-(assert-error  (tn)
+(assert-uneven (tn) '()
                (lambda ()
                  (map +
                       '()
@@ -156,19 +175,19 @@
                     '(0 1 2)
                     '(3 4 5)
                     '(6 7 8)))
-(assert-error  (tn)
+(assert-uneven (tn) '(9 12 15)
                (lambda ()
                  (map +
                       '(0 1 2 3)
                       '(3 4 5)
                       '(6 7 8))))
-(assert-error  (tn)
+(assert-uneven (tn) '(9 12 15)
                (lambda ()
                  (map +
                       '(0 1 2)
                       '(3 4 5 6)
                       '(6 7 8))))
-(assert-error  (tn)
+(assert-uneven (tn) '(9 12 15)
                (lambda ()
                  (map +
                       '(0 1 2)
@@ -315,13 +334,18 @@
 (assert-equal? (tn)
                (undef)
                (for-each cons '(0 1 2) '(3 4 5)))
-;; R5RS: 6.4 Control features
-;; > If more than one list is given, then they must all be the same length.
-;; SigScheme rejects such user-error explicitly.
-(assert-error  (tn) (lambda () (for-each cons '(0 1 2) '(3 4 5 6))))
-(assert-error  (tn) (lambda () (for-each cons '(0 1 2) '(3 4))))
-(assert-error  (tn) (lambda () (for-each cons '(0) '())))
-(assert-error  (tn) (lambda () (for-each cons '() '(0))))
+(assert-uneven (tn)
+               (undef)
+               (lambda () (for-each cons '(0 1 2) '(3 4 5 6))))
+(assert-uneven (tn)
+               (undef)
+               (lambda () (for-each cons '(0 1 2) '(3 4))))
+(assert-uneven (tn)
+               (undef)
+               (lambda () (for-each cons '(0) '())))
+(assert-uneven (tn)
+               (undef)
+               (lambda () (for-each cons '() '(0))))
 
 (assert-equal? (tn)
                (undef)
@@ -329,19 +353,19 @@
                          '()
                          '()
                          '()))
-(assert-error  (tn)
+(assert-uneven (tn) (undef)
                (lambda ()
                  (for-each +
                            '(0)
                            '()
                            '())))
-(assert-error  (tn)
+(assert-uneven (tn) (undef)
                (lambda ()
                  (for-each +
                            '()
                            '(0)
                            '())))
-(assert-error  (tn)
+(assert-uneven (tn) (undef)
                (lambda ()
                  (for-each +
                            '()
@@ -354,19 +378,19 @@
                          '(0 1 2)
                          '(3 4 5)
                          '(6 7 8)))
-(assert-error  (tn)
+(assert-uneven (tn) (undef)
                (lambda ()
                  (for-each +
                            '(0 1 2 3)
                            '(3 4 5)
                            '(6 7 8))))
-(assert-error  (tn)
+(assert-uneven (tn) (undef)
                (lambda ()
                  (for-each +
                            '(0 1 2)
                            '(3 4 5 6)
                            '(6 7 8))))
-(assert-error  (tn)
+(assert-uneven (tn) (undef)
                (lambda ()
                  (for-each +
                            '(0 1 2)

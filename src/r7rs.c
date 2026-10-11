@@ -111,6 +111,32 @@ parse_range(const char *func_name, ScmObj args, scm_int_t len,
 }
 
 /*===========================================================================
+  R7RS : 4.2 Derived expression types : 4.2.2 Binding constructs
+===========================================================================*/
+/* Each <init> is evaluated after the preceding variables are bound. */
+SCM_EXPORT ScmObj
+scm_s_letrec_star(ScmObj bindings, ScmObj body, ScmEvalState *eval_state)
+{
+    ScmObj binding, var, val, env;
+    DECLARE_FUNCTION("letrec*", syntax_variadic_tailrec_1);
+
+    env = scm_extend_environment(SCM_NULL, SCM_NULL, eval_state->env);
+    FOR_EACH (binding, bindings) {
+        if (!LIST_2_P(binding) || !IDENTIFIERP(var = CAR(binding)))
+            ERR_OBJ("invalid binding form", binding);
+        val = EVAL(CADR(binding), env);
+        CHECK_VALID_EVALED_VALUE(val);
+        env = scm_add_environment(var, val, env);
+    }
+    if (!NULLP(bindings))
+        ERR_OBJ("invalid bindings form", bindings);
+
+    eval_state->env = env;
+
+    return scm_s_body(body, eval_state);
+}
+
+/*===========================================================================
   R7RS : 6.2 Numbers
 ===========================================================================*/
 /* SigScheme supports only exact integers. So the following procedures

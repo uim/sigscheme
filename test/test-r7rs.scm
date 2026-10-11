@@ -42,6 +42,19 @@
 (assert-equal? (tn) '#(1 2) #(1 2))
 (assert-equal? (tn) '#() #())
 
+(tn "letrec*")
+(assert-equal? (tn)
+               5
+               (letrec* ((p (lambda (x) (+ 1 (q (- x 1)))))
+                         (q (lambda (y) (if (zero? y) 0 (+ 1 (p (- y 1))))))
+                         (x (p 5))
+                         (y x))
+                 y))
+(assert-equal? (tn) 3 (letrec* ((a 1) (b (+ a 1))) (+ a b)))
+(assert-equal? (tn) 'ok (letrec* () 'ok))
+(assert-error (tn) (lambda () (letrec* ((a)) a)))
+(assert-error (tn) (lambda () (letrec* (a) a)))
+
 (tn "case =>")
 (assert-equal? (tn)
                'c

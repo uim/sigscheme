@@ -93,3 +93,5 @@ if use['shell']
          workdir: meson.project_source_root())
   endforeach
 endif
+
+subdir('r7rs')

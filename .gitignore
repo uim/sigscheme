@@ -124,11 +124,13 @@
 # /test/
 /test/Makefile
 /test/Makefile.in
+/test/r7rs/__pycache__/
 /test/run-singletest.sh
 
 # /tools/
 /tools/Makefile
 /tools/Makefile.in
+/tools/__pycache__/
 /tools/gnuify-changelog.pl
 
 # /subprojects/

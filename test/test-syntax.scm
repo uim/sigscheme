@@ -347,19 +347,30 @@
                (lambda ()
                  (case 'key
                   (else =>))))
-(assert-error  (tn)
-               (lambda ()
-                 (case 'key
-                  (else => symbol?))))
+;; R7RS supports (else => <expression>) clause.
+(if (provided? "r7rs")
+    (assert-eq?    (tn)
+                   #t
+                   (case 'key
+                     (else => symbol?)))
+    (assert-error  (tn)
+                   (lambda ()
+                     (case 'key
+                       (else => symbol?)))))
 (assert-error  (tn)
                (lambda ()
                  (case 'key
                   (else => #t))))
-;; (<exp1> => <exp2>) clause is not supported by 'case'
-(assert-error  (tn)
-               (lambda ()
-                 (case 'key
-                  ((key) => values))))
+;; R7RS supports ((<datum>*) => <expression>) clause.
+(if (provided? "r7rs")
+    (assert-eq?    (tn)
+                   'key
+                   (case 'key
+                     ((key) => values)))
+    (assert-error  (tn)
+                   (lambda ()
+                     (case 'key
+                       ((key) => values)))))
 (assert-error  (tn)
                (lambda ()
                  (case 'key

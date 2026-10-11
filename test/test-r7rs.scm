@@ -42,6 +42,25 @@
 (assert-equal? (tn) '#(1 2) #(1 2))
 (assert-equal? (tn) '#() #())
 
+(tn "case =>")
+(assert-equal? (tn)
+               'c
+               (case (car '(c d))
+                 ((a b) 'ab)
+                 (else => (lambda (x) x))))
+(assert-equal? (tn)
+               '(vowel . a)
+               (case 'a
+                 ((a e i o u) => (lambda (w) (cons 'vowel w)))
+                 (else 'x)))
+(assert-error (tn) (lambda () (case 'a ((a) => 1))))
+;; The call is in a tail context.
+(define (case-loop n)
+  (case n
+    ((0) 'done)
+    (else => (lambda (n) (case-loop (- n 1))))))
+(assert-equal? (tn) 'done (case-loop 100000))
+
 (tn "number predicates")
 (assert-eq? (tn) #t (exact-integer? 1))
 (assert-eq? (tn) #f (exact-integer? '()))

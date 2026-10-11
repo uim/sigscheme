@@ -372,6 +372,9 @@ SCM_EXPORT ScmObj
 scm_s_case(ScmObj key, ScmObj clauses, ScmEvalState *eval_state)
 {
     ScmObj clause, test, exps;
+#if SCM_USE_R7RS
+    ScmObj proc;
+#endif
     DECLARE_FUNCTION("case", syntax_variadic_tailrec_1);
 
     /*
@@ -409,6 +412,18 @@ scm_s_case(ScmObj key, ScmObj clauses, ScmEvalState *eval_state)
             test = scm_p_memv(key, test);
 
         if (TRUEP(test)) {
+#if SCM_USE_R7RS
+            /* R7RS: ((<datum>*) => <expression>) and
+             * (else => <expression>) call the procedure with the key. The
+             * call is in a tail context like cond. */
+            if (CONSP(exps) && EQ(l_sym_yields, CAR(exps))
+                && LIST_2_P(exps)) {
+                proc = EVAL(CADR(exps), eval_state->env);
+                if (!PROCEDUREP(proc))
+                    ERR_OBJ("exp after => must be a procedure but got", proc);
+                return LIST_2(proc, LIST_2(SYM_QUOTE, key));
+            }
+#endif
 #if SCM_STRICT_TOPLEVEL_DEFINITIONS
             eval_state->nest = SCM_NEST_COMMAND;
 #endif

@@ -1624,6 +1624,20 @@ SCM_EXPORT ScmObj scm_p_cddddr(ScmObj lst);
 
 /* r7rs.c */
 #if SCM_USE_R7RS
+SCM_EXPORT ScmObj scm_p_exact_integerp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_finitep(ScmObj z);
+SCM_EXPORT ScmObj scm_p_infinitep(ScmObj z);
+SCM_EXPORT ScmObj scm_p_nanp(ScmObj z);
+SCM_EXPORT ScmObj scm_p_floor_slash(ScmObj n1, ScmObj n2);
+SCM_EXPORT ScmObj scm_p_floor_quotient(ScmObj n1, ScmObj n2);
+SCM_EXPORT ScmObj scm_p_floor_remainder(ScmObj n1, ScmObj n2);
+SCM_EXPORT ScmObj scm_p_truncate_slash(ScmObj n1, ScmObj n2);
+SCM_EXPORT ScmObj scm_p_truncate_quotient(ScmObj n1, ScmObj n2);
+SCM_EXPORT ScmObj scm_p_truncate_remainder(ScmObj n1, ScmObj n2);
+SCM_EXPORT ScmObj scm_p_square(ScmObj z);
+SCM_EXPORT ScmObj scm_p_exact_integer_sqrt(ScmObj k);
+SCM_EXPORT ScmObj scm_p_exact(ScmObj z);
+SCM_EXPORT ScmObj scm_p_inexact(ScmObj z);
 SCM_EXPORT ScmObj scm_p_boolean_equalp(ScmObj boolean1, ScmObj boolean2,
                                        ScmObj rest);
 SCM_EXPORT ScmObj scm_p_symbol_equalp(ScmObj symbol1, ScmObj symbol2,

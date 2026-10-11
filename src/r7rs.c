@@ -64,6 +64,11 @@ static scm_ichar_t foldcase(scm_ichar_t ch);
 static ScmObj convert_string_case(ScmObj str, case_converter convert);
 static void parse_range(const char *func_name, ScmObj args, scm_int_t len,
                         scm_int_t *start, scm_int_t *end);
+static void get_division_operands(const char *func_name, ScmObj n1,
+                                  ScmObj n2, scm_int_t *dividend,
+                                  scm_int_t *divisor);
+static void floor_divide(scm_int_t dividend, scm_int_t divisor,
+                         scm_int_t *quotient, scm_int_t *remainder);
 static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
 static ScmObj compare_strings(string_comparator compare,
                               ScmObj str1, ScmObj str2, ScmObj rest);
@@ -103,6 +108,205 @@ parse_range(const char *func_name, ScmObj args, scm_int_t len,
     if (!(0 <= *start && *start <= *end && *end <= len))
         scm_error_obj(func_name, "invalid range",
                       LIST_2(MAKE_INT(*start), MAKE_INT(*end)));
+}
+
+/*===========================================================================
+  R7RS : 6.2 Numbers
+===========================================================================*/
+/* SigScheme supports only exact integers. So the following procedures
+ * are trivial. */
+SCM_EXPORT ScmObj
+scm_p_exact_integerp(ScmObj obj)
+{
+    DECLARE_FUNCTION("exact-integer?", procedure_fixed_1);
+
+    return MAKE_BOOL(INTP(obj));
+}
+
+SCM_EXPORT ScmObj
+scm_p_finitep(ScmObj z)
+{
+    DECLARE_FUNCTION("finite?", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return SCM_TRUE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_infinitep(ScmObj z)
+{
+    DECLARE_FUNCTION("infinite?", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return SCM_FALSE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_nanp(ScmObj z)
+{
+    DECLARE_FUNCTION("nan?", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return SCM_FALSE;
+}
+
+/* Ensures that N1 and N2 are integers and N2 isn't zero. */
+static void
+get_division_operands(const char *func_name, ScmObj n1, ScmObj n2,
+                      scm_int_t *dividend, scm_int_t *divisor)
+{
+    if (!INTP(n1))
+        scm_error_obj(func_name, "integer required but got", n1);
+    if (!INTP(n2))
+        scm_error_obj(func_name, "integer required but got", n2);
+    if (SCM_INT_VALUE(n2) == 0)
+        scm_error(func_name, ERRMSG_DIV_BY_ZERO);
+
+    *dividend = SCM_INT_VALUE(n1);
+    *divisor = SCM_INT_VALUE(n2);
+}
+
+/* Returns the quotient and the remainder of floor division. */
+static void
+floor_divide(scm_int_t dividend, scm_int_t divisor,
+             scm_int_t *quotient, scm_int_t *remainder)
+{
+    *quotient = dividend / divisor;
+    *remainder = dividend % divisor;
+    if (*remainder && ((*remainder < 0) != (divisor < 0))) {
+        *quotient -= 1;
+        *remainder += divisor;
+    }
+}
+
+SCM_EXPORT ScmObj
+scm_p_floor_slash(ScmObj n1, ScmObj n2)
+{
+    scm_int_t dividend, divisor, quotient, remainder;
+    DECLARE_FUNCTION("floor/", procedure_fixed_2);
+
+    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
+    floor_divide(dividend, divisor, &quotient, &remainder);
+
+    return scm_p_values(LIST_2(MAKE_INT(quotient), MAKE_INT(remainder)));
+}
+
+SCM_EXPORT ScmObj
+scm_p_floor_quotient(ScmObj n1, ScmObj n2)
+{
+    scm_int_t dividend, divisor, quotient, remainder;
+    DECLARE_FUNCTION("floor-quotient", procedure_fixed_2);
+
+    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
+    floor_divide(dividend, divisor, &quotient, &remainder);
+
+    return MAKE_INT(quotient);
+}
+
+SCM_EXPORT ScmObj
+scm_p_floor_remainder(ScmObj n1, ScmObj n2)
+{
+    scm_int_t dividend, divisor, quotient, remainder;
+    DECLARE_FUNCTION("floor-remainder", procedure_fixed_2);
+
+    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
+    floor_divide(dividend, divisor, &quotient, &remainder);
+
+    return MAKE_INT(remainder);
+}
+
+SCM_EXPORT ScmObj
+scm_p_truncate_slash(ScmObj n1, ScmObj n2)
+{
+    scm_int_t dividend, divisor;
+    DECLARE_FUNCTION("truncate/", procedure_fixed_2);
+
+    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
+
+    return scm_p_values(LIST_2(MAKE_INT(dividend / divisor),
+                               MAKE_INT(dividend % divisor)));
+}
+
+SCM_EXPORT ScmObj
+scm_p_truncate_quotient(ScmObj n1, ScmObj n2)
+{
+    scm_int_t dividend, divisor;
+    DECLARE_FUNCTION("truncate-quotient", procedure_fixed_2);
+
+    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
+
+    return MAKE_INT(dividend / divisor);
+}
+
+SCM_EXPORT ScmObj
+scm_p_truncate_remainder(ScmObj n1, ScmObj n2)
+{
+    scm_int_t dividend, divisor;
+    DECLARE_FUNCTION("truncate-remainder", procedure_fixed_2);
+
+    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
+
+    return MAKE_INT(dividend % divisor);
+}
+
+SCM_EXPORT ScmObj
+scm_p_square(ScmObj z)
+{
+    DECLARE_FUNCTION("square", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return MAKE_INT(SCM_INT_VALUE(z) * SCM_INT_VALUE(z));
+}
+
+/* Returns the largest s that satisfies s * s <= k and k - s * s. */
+SCM_EXPORT ScmObj
+scm_p_exact_integer_sqrt(ScmObj k)
+{
+    scm_int_t n, root, next;
+    DECLARE_FUNCTION("exact-integer-sqrt", procedure_fixed_1);
+
+    ENSURE_INT(k);
+    n = SCM_INT_VALUE(k);
+    if (n < 0)
+        ERR_OBJ("non-negative integer required but got", k);
+
+    /* Newton's method. The first next is (n + n / n) / 2 without
+     * overflow. */
+    root = n;
+    if (1 < n) {
+        next = n / 2 + n % 2;
+        while (next < root) {
+            root = next;
+            next = (root + n / root) / 2;
+        }
+    }
+
+    return scm_p_values(LIST_2(MAKE_INT(root), MAKE_INT(n - root * root)));
+}
+
+SCM_EXPORT ScmObj
+scm_p_exact(ScmObj z)
+{
+    DECLARE_FUNCTION("exact", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return z;
+}
+
+SCM_EXPORT ScmObj
+scm_p_inexact(ScmObj z)
+{
+    DECLARE_FUNCTION("inexact", procedure_fixed_1);
+
+    ENSURE_INT(z);
+    ERR_OBJ(ERRMSG_INEXACT_NOT_SUPPORTED, z);
+    /* NOTREACHED */
+    return SCM_FALSE;
 }
 
 /*===========================================================================

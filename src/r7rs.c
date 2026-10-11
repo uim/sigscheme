@@ -49,6 +49,7 @@
   File Local Type Definitions
 =======================================*/
 typedef scm_ichar_t (*case_converter)(scm_ichar_t ch);
+typedef ScmObj (*string_comparator)(ScmObj str1, ScmObj str2);
 
 /*=======================================
   Variable Definitions
@@ -64,6 +65,10 @@ static ScmObj convert_string_case(ScmObj str, case_converter convert);
 static void parse_range(const char *func_name, ScmObj args, scm_int_t len,
                         scm_int_t *start, scm_int_t *end);
 static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
+static ScmObj compare_strings(string_comparator compare,
+                              ScmObj str1, ScmObj str2, ScmObj rest);
+static ScmObj map_strings(const char *func_name, ScmObj proc, ScmObj strs,
+                          scm_bool collect);
 
 /*=======================================
   Function Definitions
@@ -257,6 +262,246 @@ scm_p_string_foldcase(ScmObj str)
     ENSURE_STRING(str);
 
     return convert_string_case(str, foldcase);
+}
+
+/* Returns #t if all adjacent strings in STR1, STR2 and REST satisfy
+ * COMPARE. */
+static ScmObj
+compare_strings(string_comparator compare,
+                ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    ScmObj str;
+    scm_bool satisfied;
+
+    satisfied = TRUEP(compare(str1, str2));
+    FOR_EACH (str, rest) {
+        if (!TRUEP(compare(str2, str)))
+            satisfied = scm_false;
+        str2 = str;
+    }
+
+    return MAKE_BOOL(satisfied);
+}
+
+/* Overrides R5RS string comparisons to accept more than two strings. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_stringequalp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string=?", procedure_variadic_2);
+
+    return compare_strings(scm_p_stringequalp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_lessp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string<?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_lessp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_greaterp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string>?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_greaterp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_less_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string<=?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_less_equalp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_greater_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string>=?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_greater_equalp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_ci_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-ci=?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_ci_equalp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_ci_lessp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-ci<?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_ci_lessp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_ci_greaterp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-ci>?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_ci_greaterp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_ci_less_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-ci<=?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_ci_less_equalp, str1, str2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_ci_greater_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-ci>=?", procedure_variadic_2);
+
+    return compare_strings(scm_p_string_ci_greater_equalp, str1, str2, rest);
+}
+
+/* Overrides R5RS string->list to support START and END. The R5RS
+ * version is used without them to keep its behavior. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_string2list(ScmObj str, ScmObj args)
+{
+    scm_int_t start, end;
+    DECLARE_FUNCTION("string->list", procedure_variadic_1);
+
+    if (NULLP(args))
+        return scm_p_string2list(str);
+
+    ENSURE_STRING(str);
+    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+
+    return scm_p_string2list(scm_p_substring(str, MAKE_INT(start),
+                                             MAKE_INT(end)));
+}
+
+/* Overrides R5RS string-copy to support START and END. The R5RS
+ * version is used without them to keep its behavior. For example, it
+ * copies the string as is even if the current character codec differs
+ * from the codec of the string. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_copy(ScmObj str, ScmObj args)
+{
+    scm_int_t start, end;
+    DECLARE_FUNCTION("string-copy", procedure_variadic_1);
+
+    if (NULLP(args))
+        return scm_p_string_copy(str);
+
+    ENSURE_STRING(str);
+    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+
+    return scm_p_substring(str, MAKE_INT(start), MAKE_INT(end));
+}
+
+/* string-set! is used to handle multibyte characters. */
+SCM_EXPORT ScmObj
+scm_p_string_copyx(ScmObj to, ScmObj at, ScmObj from, ScmObj args)
+{
+    ScmObj chars, ch;
+    scm_int_t to_start, start, end;
+    DECLARE_FUNCTION("string-copy!", procedure_variadic_3);
+
+    ENSURE_STRING(to);
+    ENSURE_MUTABLE_STRING(to);
+    ENSURE_INT(at);
+    ENSURE_STRING(from);
+    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(from), &start, &end);
+
+    to_start = SCM_INT_VALUE(at);
+    if (!(0 <= to_start && end - start <= SCM_STRING_LEN(to) - to_start))
+        ERR_OBJ("index out of range", at);
+
+    /* Extract characters before modifying TO because TO and FROM may be the
+     * same string. */
+    chars = scm_p_string2list(scm_p_substring(from, MAKE_INT(start),
+                                              MAKE_INT(end)));
+    FOR_EACH (ch, chars)
+        scm_p_string_setx(to, MAKE_INT(to_start++), ch);
+
+    return SCM_UNDEF;
+}
+
+/* Overrides R5RS string-fill! to support START and END. The R5RS
+ * version is used without them. string-set! is used to handle
+ * multibyte characters with them. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_string_fillx(ScmObj str, ScmObj ch, ScmObj args)
+{
+    scm_int_t start, end, i;
+    DECLARE_FUNCTION("string-fill!", procedure_variadic_2);
+
+    if (NULLP(args))
+        return scm_p_string_fillx(str, ch);
+
+    ENSURE_STRING(str);
+    ENSURE_MUTABLE_STRING(str);
+    ENSURE_CHAR(ch);
+    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+
+    for (i = start; i < end; i++)
+        scm_p_string_setx(str, MAKE_INT(i), ch);
+
+    return SCM_UNDEF;
+}
+
+/* Calls PROC with the characters at the same index of STRS until the
+ * shortest string ends. Returns the results as a string if COLLECT. */
+static ScmObj
+map_strings(const char *func_name, ScmObj proc, ScmObj strs,
+            scm_bool collect)
+{
+    ScmObj lists, list, str, args, results, result;
+    ScmQueue lists_q, args_q, results_q;
+
+    if (!PROCEDUREP(proc))
+        scm_error_obj(func_name, "procedure required but got", proc);
+    lists = SCM_NULL;
+    SCM_QUEUE_POINT_TO(lists_q, lists);
+    FOR_EACH (str, strs) {
+        if (!STRINGP(str))
+            scm_error_obj(func_name, "string required but got", str);
+        SCM_QUEUE_ADD(lists_q, scm_p_string2list(str));
+    }
+
+    results = SCM_NULL;
+    SCM_QUEUE_POINT_TO(results_q, results);
+    for (;;) {
+        args = SCM_NULL;
+        SCM_QUEUE_POINT_TO(args_q, args);
+        for (list = lists; CONSP(list); list = CDR(list)) {
+            if (NULLP(CAR(list)))
+                return collect ? scm_p_list2string(results) : SCM_UNDEF;
+            SCM_QUEUE_ADD(args_q, CAR(CAR(list)));
+            SET_CAR(list, CDR(CAR(list)));
+        }
+        result = scm_call(proc, args);
+        if (collect)
+            SCM_QUEUE_ADD(results_q, result);
+    }
+}
+
+SCM_EXPORT ScmObj
+scm_p_string_map(ScmObj proc, ScmObj str, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-map", procedure_variadic_2);
+
+    return map_strings(SCM_MANGLE(name), proc, CONS(str, rest), scm_true);
+}
+
+SCM_EXPORT ScmObj
+scm_p_string_for_each(ScmObj proc, ScmObj str, ScmObj rest)
+{
+    DECLARE_FUNCTION("string-for-each", procedure_variadic_2);
+
+    return map_strings(SCM_MANGLE(name), proc, CONS(str, rest), scm_false);
 }
 
 /*===========================================================================

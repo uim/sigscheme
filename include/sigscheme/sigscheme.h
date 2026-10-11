@@ -1620,6 +1620,33 @@ SCM_EXPORT ScmObj scm_p_char_foldcase(ScmObj ch);
 SCM_EXPORT ScmObj scm_p_string_upcase(ScmObj str);
 SCM_EXPORT ScmObj scm_p_string_downcase(ScmObj str);
 SCM_EXPORT ScmObj scm_p_string_foldcase(ScmObj str);
+SCM_EXPORT ScmObj scm_p_r7rs_stringequalp(ScmObj str1, ScmObj str2,
+                                          ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_lessp(ScmObj str1, ScmObj str2,
+                                          ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_greaterp(ScmObj str1, ScmObj str2,
+                                             ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_less_equalp(ScmObj str1, ScmObj str2,
+                                                ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_greater_equalp(ScmObj str1, ScmObj str2,
+                                                   ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_ci_equalp(ScmObj str1, ScmObj str2,
+                                              ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_ci_lessp(ScmObj str1, ScmObj str2,
+                                             ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_ci_greaterp(ScmObj str1, ScmObj str2,
+                                                ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_ci_less_equalp(ScmObj str1, ScmObj str2,
+                                                   ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string_ci_greater_equalp(ScmObj str1, ScmObj str2,
+                                                      ScmObj rest);
+SCM_EXPORT ScmObj scm_p_r7rs_string2list(ScmObj str, ScmObj args);
+SCM_EXPORT ScmObj scm_p_r7rs_string_copy(ScmObj str, ScmObj args);
+SCM_EXPORT ScmObj scm_p_string_copyx(ScmObj to, ScmObj at, ScmObj from,
+                                     ScmObj args);
+SCM_EXPORT ScmObj scm_p_r7rs_string_fillx(ScmObj str, ScmObj ch, ScmObj args);
+SCM_EXPORT ScmObj scm_p_string_map(ScmObj proc, ScmObj str, ScmObj rest);
+SCM_EXPORT ScmObj scm_p_string_for_each(ScmObj proc, ScmObj str, ScmObj rest);
 SCM_EXPORT ScmObj scm_p_r7rs_vector2list(ScmObj vec, ScmObj args);
 SCM_EXPORT ScmObj scm_p_vector2string(ScmObj vec, ScmObj args);
 SCM_EXPORT ScmObj scm_p_string2vector(ScmObj str, ScmObj args);

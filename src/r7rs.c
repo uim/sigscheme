@@ -74,6 +74,8 @@ static ScmObj compare_strings(string_comparator compare,
                               ScmObj str1, ScmObj str2, ScmObj rest);
 static ScmObj map_strings(const char *func_name, ScmObj proc, ScmObj strs,
                           scm_bool collect);
+static ScmObj bind_values(const char *func_name, ScmObj bindings,
+                          scm_bool sequential, ScmObj env);
 
 /*=======================================
   Function Definitions
@@ -134,6 +136,87 @@ scm_s_letrec_star(ScmObj bindings, ScmObj body, ScmEvalState *eval_state)
     eval_state->env = env;
 
     return scm_s_body(body, eval_state);
+}
+
+/* Binds the formals of each binding in BINDINGS to the values of its <init>
+ * in a new frame. If SEQUENTIAL is true, each <init> is evaluated after the
+ * preceding formals are bound. Otherwise, all <init>s are evaluated in ENV. */
+static ScmObj
+bind_values(const char *func_name, ScmObj bindings, scm_bool sequential,
+            ScmObj env)
+{
+    ScmObj binding, formals, vals, new_env;
+    DECLARE_INTERNAL_FUNCTION(func_name);
+
+    new_env = env;
+    FOR_EACH (binding, bindings) {
+        if (!LIST_2_P(binding)
+            || SCM_LISTLEN_ERRORP(scm_validate_formals(CAR(binding))))
+            ERR_OBJ("invalid binding form", binding);
+        formals = CAR(binding);
+        vals = scm_match_values(func_name, formals,
+                                EVAL(CADR(binding),
+                                     sequential ? new_env : env));
+        new_env = scm_extend_environment(SCM_NULL, SCM_NULL, new_env);
+        for (; CONSP(formals); formals = CDR(formals))
+            new_env = scm_add_environment(CAR(formals), POP(vals), new_env);
+        if (!NULLP(formals))
+            new_env = scm_add_environment(formals, CAR(vals), new_env);
+    }
+    if (!NULLP(bindings))
+        ERR_OBJ("invalid bindings form", bindings);
+
+    return new_env;
+}
+
+SCM_EXPORT ScmObj
+scm_s_let_values(ScmObj bindings, ScmObj body, ScmEvalState *eval_state)
+{
+    DECLARE_FUNCTION("let-values", syntax_variadic_tailrec_1);
+
+    eval_state->env = bind_values("let-values", bindings, scm_false,
+                                  eval_state->env);
+
+    return scm_s_body(body, eval_state);
+}
+
+SCM_EXPORT ScmObj
+scm_s_let_star_values(ScmObj bindings, ScmObj body, ScmEvalState *eval_state)
+{
+    DECLARE_FUNCTION("let*-values", syntax_variadic_tailrec_1);
+
+    eval_state->env = bind_values("let*-values", bindings, scm_true,
+                                  eval_state->env);
+
+    return scm_s_body(body, eval_state);
+}
+
+/*===========================================================================
+  R7RS : 5.3 Variable definitions : 5.3.3 Multiple-value definitions
+===========================================================================*/
+/* Internal definitions are handled in scm_s_body(). */
+SCM_EXPORT ScmObj
+scm_s_define_values(ScmObj formals, ScmObj exp, ScmEvalState *eval_state)
+{
+    ScmObj vals, var;
+    DECLARE_FUNCTION("define-values", syntax_fixed_tailrec_2);
+
+    if (!SCM_DEFINABLE_TOPLEVELP(eval_state))
+        ERR_OBJ("define-values is not allowed here", formals);
+    if (SCM_LISTLEN_ERRORP(scm_validate_formals(formals)))
+        ERR_OBJ("bad formals", formals);
+
+    vals = scm_match_values("define-values", formals,
+                            EVAL(exp, eval_state->env));
+    for (; CONSP(formals); formals = CDR(formals)) {
+        var = SCM_UNWRAP_KEYWORD(CAR(formals));
+        SCM_SYMBOL_SET_VCELL(var, POP(vals));
+    }
+    if (!NULLP(formals))
+        SCM_SYMBOL_SET_VCELL(SCM_UNWRAP_KEYWORD(formals), CAR(vals));
+
+    eval_state->ret_type = SCM_VALTYPE_AS_IS;
+    return SCM_UNDEF;
 }
 
 /*===========================================================================

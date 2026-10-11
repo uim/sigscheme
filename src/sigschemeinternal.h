@@ -197,6 +197,7 @@ extern "C" {
 #define ERRMSG_DIV_BY_ZERO         "division by zero"
 #define ERRMSG_INEXACT_NOT_SUPPORTED "inexact numbers are not supported"
 #define ERRMSG_UNHANDLED_EXCEPTION "unhandled exception"
+#define ERRMSG_UNMATCHED_VALUES    "unmatched number of values for the formals"
 #define SCM_ERRMSG_IMPROPER_ARGS                                             \
     "proper list required for function call but got"
 #define SCM_ERRMSG_NULL_IN_STRING                                            \
@@ -714,6 +715,8 @@ SCM_EXPORT ScmObj scm_s_letrec_internal(enum ScmObjType permitted,
                                         ScmEvalState *eval_state);
 SCM_EXPORT void scm_s_define_internal(enum ScmObjType permitted,
                                       ScmObj var, ScmObj exp, ScmObj env);
+SCM_EXPORT ScmObj scm_match_values(const char *func_name, ScmObj formals,
+                                   ScmObj val);
 
 /* macro.c */
 #if SCM_USE_HYGIENIC_MACRO

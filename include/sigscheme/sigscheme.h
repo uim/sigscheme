@@ -1626,6 +1626,12 @@ SCM_EXPORT ScmObj scm_p_cddddr(ScmObj lst);
 #if SCM_USE_R7RS
 SCM_EXPORT ScmObj scm_s_letrec_star(ScmObj bindings, ScmObj body,
                                     ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_s_let_values(ScmObj bindings, ScmObj body,
+                                   ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_s_let_star_values(ScmObj bindings, ScmObj body,
+                                        ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_s_define_values(ScmObj formals, ScmObj exp,
+                                      ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_p_exact_integerp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_finitep(ScmObj z);
 SCM_EXPORT ScmObj scm_p_infinitep(ScmObj z);

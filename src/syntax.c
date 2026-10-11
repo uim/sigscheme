@@ -102,6 +102,9 @@ SCM_GLOBAL_VARS_BEGIN(static_syntax);
 static ScmObj l_sym_else, l_sym_yields, l_sym_define;
 #if SCM_USE_INTERNAL_DEFINITIONS
 static ScmObj l_sym_begin, l_syn_lambda;
+#if SCM_USE_R7RS
+static ScmObj l_sym_define_values;
+#endif
 #endif /* SCM_USE_INTERNAL_DEFINITIONS */
 #undef static
 SCM_GLOBAL_VARS_END(static_syntax);
@@ -110,6 +113,7 @@ SCM_GLOBAL_VARS_END(static_syntax);
 #define l_sym_define SCM_GLOBAL_VAR(static_syntax, l_sym_define)
 #define l_sym_begin  SCM_GLOBAL_VAR(static_syntax, l_sym_begin)
 #define l_syn_lambda SCM_GLOBAL_VAR(static_syntax, l_syn_lambda)
+#define l_sym_define_values SCM_GLOBAL_VAR(static_syntax, l_sym_define_values)
 SCM_DEFINE_STATIC_VARS(static_syntax);
 
 /*=======================================
@@ -142,6 +146,9 @@ scm_init_syntax(void)
     l_sym_define = scm_intern("define");
 #if SCM_USE_INTERNAL_DEFINITIONS
     l_sym_begin  = scm_intern("begin");
+#if SCM_USE_R7RS
+    l_sym_define_values = scm_intern("define-values");
+#endif
     scm_gc_protect_with_init(&l_syn_lambda,
                              scm_symbol_value(scm_intern("lambda"),
                                               SCM_INTERACTION_ENV));
@@ -743,7 +750,23 @@ filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
             }
             *formals = CONS(var, *formals);
             *actuals = CONS(SCM_UNBOUND, *actuals);
-            SCM_QUEUE_ADD(*def_expq, exp);
+            SCM_QUEUE_ADD(*def_expq, CONS(LIST_1(var), exp));
+#if SCM_USE_R7RS
+        } else if (EQ(sym, l_sym_define_values)) {
+            /* (define-values <formals> <expression>) */
+            if (!LIST_2_P(exp)
+                || SCM_LISTLEN_ERRORP(scm_validate_formals(CAR(exp))))
+                ERR_OBJ("bad define-values form", CAR(body));
+            for (var = CAR(exp); CONSP(var); var = CDR(var)) {
+                *formals = CONS(CAR(var), *formals);
+                *actuals = CONS(SCM_UNBOUND, *actuals);
+            }
+            if (!NULLP(var)) {
+                *formals = CONS(var, *formals);
+                *actuals = CONS(SCM_UNBOUND, *actuals);
+            }
+            SCM_QUEUE_ADD(*def_expq, CONS(CAR(exp), CADR(exp)));
+#endif
         } else {
             break;
         }
@@ -751,7 +774,44 @@ filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
 
     return body;
 }
+#endif /* SCM_USE_INTERNAL_DEFINITIONS */
 
+/* Returns the values of VAL as a list of the values for each variable of
+ * FORMALS. If FORMALS has a rest variable, the last element is the list of the
+ * rest values. FORMALS must be valid. */
+SCM_EXPORT ScmObj
+scm_match_values(const char *func_name, ScmObj formals, ScmObj val)
+{
+    ScmQueue q;
+    ScmObj all_vals, vals, matched;
+    DECLARE_INTERNAL_FUNCTION(func_name);
+
+    if (VALUEPACKETP(val)) {
+        all_vals = SCM_VALUEPACKET_VALUES(val);
+    } else {
+        CHECK_VALID_EVALED_VALUE(val);
+        all_vals = LIST_1(val);
+    }
+
+    vals = all_vals;
+    matched = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, matched);
+    for (; CONSP(formals); formals = CDR(formals)) {
+        if (!CONSP(vals))
+            ERR_OBJ(ERRMSG_UNMATCHED_VALUES, all_vals);
+        SCM_QUEUE_ADD(q, POP(vals));
+    }
+    if (NULLP(formals)) {
+        if (!NULLP(vals))
+            ERR_OBJ(ERRMSG_UNMATCHED_VALUES, all_vals);
+    } else {
+        SCM_QUEUE_ADD(q, vals);
+    }
+
+    return matched;
+}
+
+#if SCM_USE_INTERNAL_DEFINITIONS
 /* <body> part of let, let*, letrec and lambda. This function performs strict
  * form validation for internal definitions as specified in R5RS ("5.2.2
  * Internal definitions" and "7.1.6 Programs and definitions"). */
@@ -761,7 +821,7 @@ SCM_EXPORT ScmObj
 scm_s_body(ScmObj body, ScmEvalState *eval_state)
 {
     ScmQueue def_expq;
-    ScmObj env, formals, actuals, def_exps, exp, val;
+    ScmObj env, formals, actuals, def_exps, def, val, vals;
     DECLARE_INTERNAL_FUNCTION("(body)" /* , syntax_variadic_tailrec_0 */);
 
     if (CONSP(body)) {
@@ -775,12 +835,13 @@ scm_s_body(ScmObj body, ScmEvalState *eval_state)
             env = scm_extend_environment(formals, actuals, eval_state->env);
 
             /* eval the definitions and fill the variables with the results as
-             * if letrec */
+             * if letrec. Each definition is (<formals> . <expression>). */
             actuals = SCM_NULL;
-            FOR_EACH (exp, def_exps) {
-                val = EVAL(exp, env);
-                CHECK_VALID_EVALED_VALUE(val);
-                actuals = CONS(val, actuals);
+            FOR_EACH (def, def_exps) {
+                vals = scm_match_values("(body)", CAR(def),
+                                        EVAL(CDR(def), env));
+                FOR_EACH (val, vals)
+                    actuals = CONS(val, actuals);
             }
             eval_state->env = scm_update_environment(actuals, env);
         }

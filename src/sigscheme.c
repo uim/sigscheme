@@ -318,9 +318,6 @@ scm_initialize_internal(const char *const *argv)
 #if SCM_USE_DEEP_CADRS
     scm_register_funcs(scm_functable_r5rs_deep_cadrs);
 #endif
-#if SCM_USE_R7RS
-    scm_register_funcs(scm_functable_r7rs);
-#endif
 
     /* for distinction from SRFI-1 versions */
     scm_define_alias("r5rs:map",      "map");
@@ -331,6 +328,12 @@ scm_initialize_internal(const char *const *argv)
     /* for distinction from SRFI-9 overridings */
     scm_define_alias("r5rs:vector?", "vector?");
     scm_define_alias("r5rs:eval",    "eval");
+
+#if SCM_USE_R7RS
+    /* Register after the r5rs:* aliases because some R7RS procedures
+     * override the R5RS versions. */
+    scm_register_funcs(scm_functable_r7rs);
+#endif
 
 #if SCM_USE_LEGACY_MACRO
     scm_init_legacy_macro();

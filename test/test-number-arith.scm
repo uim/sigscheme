@@ -1867,4 +1867,37 @@
 (assert-equal? (tn) 100 (lcm 10 2 4 50))
 (assert-error  (tn)     (lambda () (lcm 'a)))
 
+;; SigScheme supports only exact integers.
+(tn "number predicates")
+(assert-eq? (tn) #t (complex? 1))
+(assert-eq? (tn) #t (real? 1))
+(assert-eq? (tn) #t (rational? 1))
+(assert-eq? (tn) #f (complex? 'a))
+(assert-eq? (tn) #f (real? "1"))
+(assert-eq? (tn) #f (rational? '()))
+(assert-eq? (tn) #t (exact? 1))
+(assert-eq? (tn) #f (inexact? 1))
+(assert-error (tn) (lambda () (exact? 'a)))
+(assert-error (tn) (lambda () (inexact? 'a)))
+
+(tn "numerator and denominator")
+(assert-equal? (tn) 6 (numerator 6))
+(assert-equal? (tn) 1 (denominator 6))
+(assert-error (tn) (lambda () (numerator 'a)))
+(assert-error (tn) (lambda () (denominator 'a)))
+
+(tn "rounding")
+(assert-equal? (tn) -4 (floor -4))
+(assert-equal? (tn) -4 (ceiling -4))
+(assert-equal? (tn) -4 (truncate -4))
+(assert-equal? (tn) -4 (round -4))
+(assert-error (tn) (lambda () (floor 'a)))
+(assert-error (tn) (lambda () (ceiling 'a)))
+(assert-error (tn) (lambda () (truncate 'a)))
+(assert-error (tn) (lambda () (round 'a)))
+
+(tn "exactness")
+(assert-equal? (tn) 1 (inexact->exact 1))
+(assert-error (tn) (lambda () (exact->inexact 1)))
+
 (total-report)

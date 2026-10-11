@@ -43,7 +43,6 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
-#define ERRMSG_DIV_BY_ZERO     "division by zero"
 #define ERRMSG_REQ_1_ARG       "at least 1 argument required"
 #define ERRMSG_NEGATIVE_EXP    "negative exponent"
 
@@ -199,6 +198,52 @@ scm_p_integerp(ScmObj obj)
     DECLARE_FUNCTION("integer?", procedure_fixed_1);
 
     return MAKE_BOOL(INTP(obj));
+}
+
+/* SigScheme supports only exact integers. So the following procedures
+ * are trivial. */
+SCM_EXPORT ScmObj
+scm_p_complexp(ScmObj obj)
+{
+    DECLARE_FUNCTION("complex?", procedure_fixed_1);
+
+    return MAKE_BOOL(INTP(obj));
+}
+
+SCM_EXPORT ScmObj
+scm_p_realp(ScmObj obj)
+{
+    DECLARE_FUNCTION("real?", procedure_fixed_1);
+
+    return MAKE_BOOL(INTP(obj));
+}
+
+SCM_EXPORT ScmObj
+scm_p_rationalp(ScmObj obj)
+{
+    DECLARE_FUNCTION("rational?", procedure_fixed_1);
+
+    return MAKE_BOOL(INTP(obj));
+}
+
+SCM_EXPORT ScmObj
+scm_p_exactp(ScmObj z)
+{
+    DECLARE_FUNCTION("exact?", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return SCM_TRUE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_inexactp(ScmObj z)
+{
+    DECLARE_FUNCTION("inexact?", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return SCM_FALSE;
 }
 
 #define COMPARATOR_BODY(op)                                                  \
@@ -510,4 +555,87 @@ scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state)
     }
     if (result < 0) result = -result;
     return MAKE_INT(result);
+}
+
+/* SigScheme supports only exact integers. So the following procedures
+ * are trivial. */
+SCM_EXPORT ScmObj
+scm_p_numerator(ScmObj q)
+{
+    DECLARE_FUNCTION("numerator", procedure_fixed_1);
+
+    ENSURE_INT(q);
+
+    return q;
+}
+
+SCM_EXPORT ScmObj
+scm_p_denominator(ScmObj q)
+{
+    DECLARE_FUNCTION("denominator", procedure_fixed_1);
+
+    ENSURE_INT(q);
+
+    return MAKE_INT(1);
+}
+
+SCM_EXPORT ScmObj
+scm_p_floor(ScmObj x)
+{
+    DECLARE_FUNCTION("floor", procedure_fixed_1);
+
+    ENSURE_INT(x);
+
+    return x;
+}
+
+SCM_EXPORT ScmObj
+scm_p_ceiling(ScmObj x)
+{
+    DECLARE_FUNCTION("ceiling", procedure_fixed_1);
+
+    ENSURE_INT(x);
+
+    return x;
+}
+
+SCM_EXPORT ScmObj
+scm_p_truncate(ScmObj x)
+{
+    DECLARE_FUNCTION("truncate", procedure_fixed_1);
+
+    ENSURE_INT(x);
+
+    return x;
+}
+
+SCM_EXPORT ScmObj
+scm_p_round(ScmObj x)
+{
+    DECLARE_FUNCTION("round", procedure_fixed_1);
+
+    ENSURE_INT(x);
+
+    return x;
+}
+
+SCM_EXPORT ScmObj
+scm_p_inexact2exact(ScmObj z)
+{
+    DECLARE_FUNCTION("inexact->exact", procedure_fixed_1);
+
+    ENSURE_INT(z);
+
+    return z;
+}
+
+SCM_EXPORT ScmObj
+scm_p_exact2inexact(ScmObj z)
+{
+    DECLARE_FUNCTION("exact->inexact", procedure_fixed_1);
+
+    ENSURE_INT(z);
+    ERR_OBJ(ERRMSG_INEXACT_NOT_SUPPORTED, z);
+    /* NOTREACHED */
+    return SCM_FALSE;
 }

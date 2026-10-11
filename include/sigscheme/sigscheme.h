@@ -1484,6 +1484,11 @@ SCM_EXPORT ScmObj scm_p_greater_equal(ScmObj left, ScmObj right,
                                       enum ScmReductionState *state);
 SCM_EXPORT ScmObj scm_p_numberp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_integerp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_complexp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_realp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_rationalp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_exactp(ScmObj z);
+SCM_EXPORT ScmObj scm_p_inexactp(ScmObj z);
 SCM_EXPORT ScmObj scm_p_zerop(ScmObj n);
 SCM_EXPORT ScmObj scm_p_positivep(ScmObj n);
 SCM_EXPORT ScmObj scm_p_negativep(ScmObj n);
@@ -1500,6 +1505,14 @@ SCM_EXPORT ScmObj scm_p_remainder(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_expt(ScmObj _n1, ScmObj _n2);
 SCM_EXPORT ScmObj scm_p_gcd(ScmObj left, ScmObj right, enum ScmReductionState *state);
 SCM_EXPORT ScmObj scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state);
+SCM_EXPORT ScmObj scm_p_numerator(ScmObj q);
+SCM_EXPORT ScmObj scm_p_denominator(ScmObj q);
+SCM_EXPORT ScmObj scm_p_floor(ScmObj x);
+SCM_EXPORT ScmObj scm_p_ceiling(ScmObj x);
+SCM_EXPORT ScmObj scm_p_truncate(ScmObj x);
+SCM_EXPORT ScmObj scm_p_round(ScmObj x);
+SCM_EXPORT ScmObj scm_p_inexact2exact(ScmObj z);
+SCM_EXPORT ScmObj scm_p_exact2inexact(ScmObj z);
 #endif /* SCM_USE_NUMBER */
 
 /* number-io.c */

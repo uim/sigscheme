@@ -27,6 +27,11 @@ user-selected underlying storage implementation. The range can be known via
 R6RS (R5.91RS) compatible `(fixnum-width)`, `(least-fixnum)` and
 `(greatest-fixnum)`.
 
+Inexact numbers, rational numbers and complex numbers are not supported.
+Number procedures such as `real?`, `exact?`, `round` and `numerator` are
+defined only for exact integers. `exact->inexact` (and `inexact` of R7RS)
+raises an error.
+
 
 R5RS conformance
 ----------------
@@ -415,17 +420,6 @@ Following R5RS syntaxes and procedures are not implemented (yet).
 Numbers
 ^^^^^^^
 
-  - *procedure:* complex? obj
-  - *procedure:* real? obj
-  - *procedure:* rational? obj
-  - *procedure:* exact? z
-  - *procedure:* inexact? z
-  - *procedure:* numerator q
-  - *procedure:* denominator q
-  - *procedure:* floor x
-  - *procedure:* ceiling x
-  - *procedure:* truncate x
-  - *procedure:* round x
   - *library procedure:* rationalize x y
   - *procedure:* exp z
   - *procedure:* log z
@@ -443,8 +437,6 @@ Numbers
   - *procedure:* imag-part z
   - *procedure:* magnitude z
   - *procedure:* angle z
-  - *procedure:* exact->inexact z
-  - *procedure:* inexact->exact z
 
 System interface
 ^^^^^^^^^^^^^^^^

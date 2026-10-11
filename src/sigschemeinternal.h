@@ -194,6 +194,8 @@ extern "C" {
 #define ABSOLUTE_PATHP(path) ((path)[0] == '/')
 
 #define ERRMSG_FIXNUM_OVERFLOW     "fixnum overflow"
+#define ERRMSG_DIV_BY_ZERO         "division by zero"
+#define ERRMSG_INEXACT_NOT_SUPPORTED "inexact numbers are not supported"
 #define ERRMSG_UNHANDLED_EXCEPTION "unhandled exception"
 #define SCM_ERRMSG_IMPROPER_ARGS                                             \
     "proper list required for function call but got"

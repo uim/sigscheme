@@ -9,42 +9,31 @@ sscm_tests = \
         test-apply.scm \
         test-assoc.scm \
         test-begin.scm \
-        test-bool.scm \
         test-char-cmp.scm \
-        test-char-pred.scm \
         test-continuation.scm \
         test-define.scm \
         test-define-internal.scm \
         test-do.scm \
         test-dyn-extent.scm \
-        test-eq.scm \
-        test-eqv.scm \
-        test-equal.scm \
         test-eval.scm \
         test-fail.scm \
-        test-formal-syntax.scm \
         test-formatplus.scm \
         test-lambda.scm \
         test-legacy-macro.scm \
         test-let.scm \
         test-letstar.scm \
         test-letrec.scm \
-        test-list.scm \
         test-map.scm \
         test-member.scm \
-        test-misc.scm \
         test-named-let.scm \
         test-number-arith.scm \
         test-number-cmp.scm \
         test-number-literal.scm \
         test-number-io.scm \
-        test-number-pred.scm \
         test-obsolete.scm \
-        test-pair.scm \
         test-quote.scm \
         test-r7rs.scm \
         test-srfi0.scm \
-        test-srfi1-another.scm \
         test-srfi1-obsolete.scm \
         test-srfi2.scm \
         test-srfi6.scm \
@@ -55,28 +44,43 @@ sscm_tests = \
         test-srfi34-2.scm \
         test-srfi38.scm \
         test-srfi43.scm \
-        test-srfi48.scm \
         test-srfi55.scm \
         test-srfi60.scm \
-        test-sscm-ext.scm \
-        test-string-cmp.scm \
-        test-string-core.scm \
         test-string-null.scm \
-        test-string-proc.scm \
         test-string.scm \
-        test-symbol.scm \
         test-syntax-rules.scm \
         test-syntax.scm \
         test-unittest.scm \
-        test-values.scm \
+        test-values.scm
+
+# They specify "-C UTF-8" in their script prelude.
+sscm_utf8_tests = \
+        test-bool.scm \
+        test-char-pred.scm \
+        test-enc-utf8.scm \
+        test-eq.scm \
+        test-equal.scm \
+        test-eqv.scm \
+        test-formal-syntax.scm \
+        test-list.scm \
+        test-misc.scm \
+        test-number-pred.scm \
+        test-pair.scm \
+        test-srfi1-another.scm \
+        test-srfi48.scm \
+        test-sscm-ext.scm \
+        test-string-cmp.scm \
+        test-string-core.scm \
+        test-string-proc.scm \
+        test-symbol.scm \
         test-vector.scm
 
 if USE_UTF8
-sscm_optional_tests += test-enc-utf8.scm
+sscm_optional_tests += $(sscm_utf8_tests)
 else
-sscm_xfail_tests += test-enc-utf8.scm
+sscm_xfail_tests += $(sscm_utf8_tests)
 endif
-EXTRA_DIST += test-enc-utf8.scm
+EXTRA_DIST += $(sscm_utf8_tests)
 
 if USE_EUCCN
 sscm_optional_tests += test-enc-eucgeneric.scm

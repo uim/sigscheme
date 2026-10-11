@@ -523,12 +523,16 @@ vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end)
     return ret;
 }
 
-/* Overrides R5RS vector->list to support START and END. */
+/* Overrides R5RS vector->list to support START and END. The R5RS
+ * version is used without them. */
 SCM_EXPORT ScmObj
 scm_p_r7rs_vector2list(ScmObj vec, ScmObj args)
 {
     scm_int_t start, end;
     DECLARE_FUNCTION("vector->list", procedure_variadic_1);
+
+    if (NULLP(args))
+        return scm_p_vector2list(vec);
 
     ENSURE_VECTOR(vec);
     parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
@@ -626,13 +630,17 @@ scm_p_vector_append(ScmObj args)
     return MAKE_VECTOR(appended, len);
 }
 
-/* Overrides R5RS vector-fill! to support START and END. */
+/* Overrides R5RS vector-fill! to support START and END. The R5RS
+ * version is used without them. */
 SCM_EXPORT ScmObj
 scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill, ScmObj args)
 {
     ScmObj *v;
     scm_int_t start, end, i;
     DECLARE_FUNCTION("vector-fill!", procedure_variadic_2);
+
+    if (NULLP(args))
+        return scm_p_vector_fillx(vec, fill);
 
     ENSURE_VECTOR(vec);
     ENSURE_MUTABLE_VECTOR(vec);

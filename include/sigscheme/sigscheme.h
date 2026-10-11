@@ -1620,6 +1620,15 @@ SCM_EXPORT ScmObj scm_p_char_foldcase(ScmObj ch);
 SCM_EXPORT ScmObj scm_p_string_upcase(ScmObj str);
 SCM_EXPORT ScmObj scm_p_string_downcase(ScmObj str);
 SCM_EXPORT ScmObj scm_p_string_foldcase(ScmObj str);
+SCM_EXPORT ScmObj scm_p_r7rs_vector2list(ScmObj vec, ScmObj args);
+SCM_EXPORT ScmObj scm_p_vector2string(ScmObj vec, ScmObj args);
+SCM_EXPORT ScmObj scm_p_string2vector(ScmObj str, ScmObj args);
+SCM_EXPORT ScmObj scm_p_vector_copy(ScmObj vec, ScmObj args);
+SCM_EXPORT ScmObj scm_p_vector_copyx(ScmObj to, ScmObj at, ScmObj from,
+                                     ScmObj args);
+SCM_EXPORT ScmObj scm_p_vector_append(ScmObj args);
+SCM_EXPORT ScmObj scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill,
+                                          ScmObj args);
 #endif /* SCM_USE_R7RS */
 
 /* macro.c */

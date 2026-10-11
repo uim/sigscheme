@@ -61,10 +61,45 @@ static scm_ichar_t upcase(scm_ichar_t ch);
 static scm_ichar_t downcase(scm_ichar_t ch);
 static scm_ichar_t foldcase(scm_ichar_t ch);
 static ScmObj convert_string_case(ScmObj str, case_converter convert);
+static void parse_range(const char *func_name, ScmObj args, scm_int_t len,
+                        scm_int_t *start, scm_int_t *end);
+static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
 
 /*=======================================
   Function Definitions
 =======================================*/
+/* Parses optional START and END in ARGS for a sequence whose length is
+ * LEN. They must satisfy 0 <= START <= END <= LEN. */
+static void
+parse_range(const char *func_name, ScmObj args, scm_int_t len,
+            scm_int_t *start, scm_int_t *end)
+{
+    ScmObj obj;
+
+    *start = 0;
+    *end = len;
+    if (NULLP(args))
+        return;
+
+    obj = CAR(args);
+    if (!INTP(obj))
+        scm_error_obj(func_name, "integer required but got", obj);
+    *start = SCM_INT_VALUE(obj);
+    args = CDR(args);
+    if (CONSP(args)) {
+        obj = CAR(args);
+        if (!INTP(obj))
+            scm_error_obj(func_name, "integer required but got", obj);
+        *end = SCM_INT_VALUE(obj);
+        args = CDR(args);
+    }
+    if (!NULLP(args))
+        scm_error_obj(func_name, "superfluous argument(s)", args);
+    if (!(0 <= *start && *start <= *end && *end <= len))
+        scm_error_obj(func_name, "invalid range",
+                      LIST_2(MAKE_INT(*start), MAKE_INT(*end)));
+}
+
 /*===========================================================================
   R7RS : 6.3 Booleans
 ===========================================================================*/
@@ -222,4 +257,145 @@ scm_p_string_foldcase(ScmObj str)
     ENSURE_STRING(str);
 
     return convert_string_case(str, foldcase);
+}
+
+/*===========================================================================
+  R7RS : 6.8 Vectors
+===========================================================================*/
+static ScmObj
+vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end)
+{
+    ScmQueue q;
+    ScmObj ret, *v;
+    scm_int_t i;
+
+    v = SCM_VECTOR_VEC(vec);
+    ret = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, ret);
+    for (i = start; i < end; i++)
+        SCM_QUEUE_ADD(q, v[i]);
+
+    return ret;
+}
+
+/* Overrides R5RS vector->list to support START and END. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_vector2list(ScmObj vec, ScmObj args)
+{
+    scm_int_t start, end;
+    DECLARE_FUNCTION("vector->list", procedure_variadic_1);
+
+    ENSURE_VECTOR(vec);
+    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+
+    return vector_to_list(vec, start, end);
+}
+
+SCM_EXPORT ScmObj
+scm_p_vector2string(ScmObj vec, ScmObj args)
+{
+    scm_int_t start, end;
+    DECLARE_FUNCTION("vector->string", procedure_variadic_1);
+
+    ENSURE_VECTOR(vec);
+    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+
+    return scm_p_list2string(vector_to_list(vec, start, end));
+}
+
+SCM_EXPORT ScmObj
+scm_p_string2vector(ScmObj str, ScmObj args)
+{
+    scm_int_t start, end;
+    DECLARE_FUNCTION("string->vector", procedure_variadic_1);
+
+    ENSURE_STRING(str);
+    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+
+    return scm_p_list2vector(
+        scm_p_string2list(scm_p_substring(str, MAKE_INT(start),
+                                          MAKE_INT(end))));
+}
+
+SCM_EXPORT ScmObj
+scm_p_vector_copy(ScmObj vec, ScmObj args)
+{
+    ScmObj *copy;
+    scm_int_t start, end;
+    DECLARE_FUNCTION("vector-copy", procedure_variadic_1);
+
+    ENSURE_VECTOR(vec);
+    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+
+    copy = scm_malloc(sizeof(ScmObj) * (end - start));
+    memcpy(copy, &SCM_VECTOR_VEC(vec)[start], sizeof(ScmObj) * (end - start));
+
+    return MAKE_VECTOR(copy, end - start);
+}
+
+SCM_EXPORT ScmObj
+scm_p_vector_copyx(ScmObj to, ScmObj at, ScmObj from, ScmObj args)
+{
+    scm_int_t to_start, start, end;
+    DECLARE_FUNCTION("vector-copy!", procedure_variadic_3);
+
+    ENSURE_VECTOR(to);
+    ENSURE_MUTABLE_VECTOR(to);
+    ENSURE_INT(at);
+    ENSURE_VECTOR(from);
+    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(from), &start, &end);
+
+    to_start = SCM_INT_VALUE(at);
+    if (!(0 <= to_start && end - start <= SCM_VECTOR_LEN(to) - to_start))
+        ERR_OBJ("index out of range", at);
+
+    /* TO and FROM may be the same vector. */
+    memmove(&SCM_VECTOR_VEC(to)[to_start], &SCM_VECTOR_VEC(from)[start],
+            sizeof(ScmObj) * (end - start));
+
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_p_vector_append(ScmObj args)
+{
+    ScmObj rest, vec, *appended;
+    scm_int_t len, offset;
+    DECLARE_FUNCTION("vector-append", procedure_variadic_0);
+
+    len = 0;
+    rest = args;
+    FOR_EACH (vec, rest) {
+        ENSURE_VECTOR(vec);
+        len += SCM_VECTOR_LEN(vec);
+    }
+
+    appended = scm_malloc(sizeof(ScmObj) * len);
+    offset = 0;
+    FOR_EACH (vec, args) {
+        memcpy(&appended[offset], SCM_VECTOR_VEC(vec),
+               sizeof(ScmObj) * SCM_VECTOR_LEN(vec));
+        offset += SCM_VECTOR_LEN(vec);
+    }
+
+    return MAKE_VECTOR(appended, len);
+}
+
+/* Overrides R5RS vector-fill! to support START and END. */
+SCM_EXPORT ScmObj
+scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill, ScmObj args)
+{
+    ScmObj *v;
+    scm_int_t start, end, i;
+    DECLARE_FUNCTION("vector-fill!", procedure_variadic_2);
+
+    ENSURE_VECTOR(vec);
+    ENSURE_MUTABLE_VECTOR(vec);
+    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+
+    v = SCM_VECTOR_VEC(vec);
+    for (i = start; i < end; i++)
+        v[i] = fill;
+
+    return SCM_UNDEF;
 }

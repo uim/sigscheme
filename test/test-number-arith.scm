@@ -1285,7 +1285,8 @@
 (assert-error  (tn) (lambda () (/ 1 2 #t)))
 (assert-error  (tn) (lambda () (/ 1 2 #f)))
 (assert-error  (tn) (lambda () (/ 1 2 '())))
-(if (symbol-bound? 'inexact?)
+;; Inexact numbers are supported only when "0.5" can be converted.
+(if (string->number "0.5")
     (assert-fail "/" "no tests for inexact results")
     (begin
       (tn "/ 1 arg")

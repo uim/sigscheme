@@ -187,7 +187,8 @@
 (assert-equal? (tn) "010"  (format "~03f" 10))
 (assert-equal? (tn) "100"  (format "~03f" 100))
 
-(if (symbol-bound? 'exact->inexact)
+;; Inexact numbers are supported only when "0.5" can be converted.
+(if (string->number "0.5")
     (begin
       (assert-equal? (tn) "-100.00" (format+ "~06,02f" -100))
       (assert-equal? (tn) "-10.00"  (format+ "~06,02f" -10))

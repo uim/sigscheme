@@ -80,9 +80,9 @@ scm_p_make_string(ScmObj length, ScmObj args)
     ScmObj filler;
     scm_ichar_t filler_val;
     scm_int_t len;
-    int ch_len;
     char *str, *dst;
 #if SCM_USE_MULTIBYTE_CHAR
+    int ch_len;
     const char *next;
     char ch_buf[SCM_MB_CHAR_BUF_SIZE];
 #endif
@@ -108,15 +108,11 @@ scm_p_make_string(ScmObj length, ScmObj args)
        * initialized to char, otherwise the contents of the string are
        * unspecified. */
         filler_val = '?';
-        ch_len = sizeof((char)'?');
     } else {
         filler = POP(args);
         ASSERT_NO_MORE_ARG(args);
         ENSURE_CHAR(filler);
         filler_val = SCM_CHAR_VALUE(filler);
-#if SCM_USE_MULTIBYTE_CHAR
-        ch_len = SCM_CHARCODEC_CHAR_LEN(scm_current_char_codec, filler_val);
-#endif
     }
 #if !SCM_USE_NULL_CAPABLE_STRING
     if (filler_val == '\0')
@@ -130,6 +126,7 @@ scm_p_make_string(ScmObj length, ScmObj args)
         ERR("invalid char 0x~MX for encoding ~S",
             (scm_int_t)filler_val,
             SCM_CHARCODEC_ENCODING(scm_current_char_codec));
+    ch_len = next - ch_buf;
 
     str = scm_malloc(ch_len * len + sizeof(""));
     for (dst = str; dst < &str[ch_len * len]; dst += ch_len)
@@ -622,7 +619,9 @@ scm_p_string_mutablep(ScmObj str)
 SCM_EXPORT ScmObj
 scm_p_string_reconstructx(ScmObj str)
 {
+#if SCM_USE_MULTIBYTE_CHAR
     scm_int_t len;
+#endif
     DECLARE_FUNCTION("%%string-reconstruct!", procedure_fixed_1);
 
     ENSURE_STRING(str);

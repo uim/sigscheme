@@ -144,7 +144,9 @@ scm_p_current_char_codec(void)
 SCM_EXPORT ScmObj
 scm_p_set_current_char_codecx(ScmObj encoding)
 {
-    ScmCharCodec *codec;    
+#if SCM_USE_MULTIBYTE_CHAR
+    ScmCharCodec *codec;
+#endif
     DECLARE_FUNCTION("%%set-current-char-codec!", procedure_fixed_1);
 
     ENSURE_STRING(encoding);

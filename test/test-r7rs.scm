@@ -61,4 +61,49 @@
 (assert-error (tn) (lambda () (symbol=? 'a "a")))
 (assert-error (tn) (lambda () (symbol=? 'a 'a "a")))
 
+(tn "digit-value")
+(assert-equal? (tn) 0 (digit-value #\0))
+(assert-equal? (tn) 9 (digit-value #\9))
+(assert-eq? (tn) #f (digit-value #\a))
+(assert-eq? (tn) #f (digit-value #\.))
+(assert-error (tn) (lambda () (digit-value 0)))
+
+(tn "char-foldcase")
+(assert-equal? (tn) #\a (char-foldcase #\a))
+(assert-equal? (tn) #\a (char-foldcase #\A))
+(assert-equal? (tn) #\1 (char-foldcase #\1))
+(assert-error (tn) (lambda () (char-foldcase "a")))
+
+(tn "string-upcase")
+(assert-equal? (tn) "ABC1" (string-upcase "aBc1"))
+(assert-equal? (tn) "" (string-upcase ""))
+(assert-error (tn) (lambda () (string-upcase #\a)))
+
+(tn "string-downcase")
+(assert-equal? (tn) "abc1" (string-downcase "aBc1"))
+(assert-equal? (tn) "" (string-downcase ""))
+(assert-error (tn) (lambda () (string-downcase #\a)))
+
+(tn "string-foldcase")
+(assert-equal? (tn) "abc1" (string-foldcase "aBc1"))
+(assert-equal? (tn) "" (string-foldcase ""))
+(assert-error (tn) (lambda () (string-foldcase #\a)))
+
+(if (and (symbol-bound? '%%current-char-codec)
+         (equal? (%%current-char-codec) "UTF-8"))
+    (let ((alpha (string (integer->char #x3b1)))
+          (capital-alpha (string (integer->char #x391))))
+      (tn "string case conversion with non-ASCII characters")
+      ;; Only ASCII characters are converted.
+      (assert-equal? (tn)
+                     (string-append "A" alpha "B")
+                     (string-upcase (string-append "a" alpha "b")))
+      (assert-equal? (tn)
+                     (string-append "a" capital-alpha "b")
+                     (string-downcase (string-append "A" capital-alpha "B")))
+      (assert-equal? (tn)
+                     3
+                     (string-length
+                      (string-upcase (string-append "a" alpha "b"))))))
+
 (total-report)

@@ -34,6 +34,8 @@
 
 #include <config.h>
 
+#include <string.h>
+
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
@@ -46,6 +48,7 @@
 /*=======================================
   File Local Type Definitions
 =======================================*/
+typedef scm_ichar_t (*case_converter)(scm_ichar_t ch);
 
 /*=======================================
   Variable Definitions
@@ -54,6 +57,10 @@
 /*=======================================
   File Local Function Declarations
 =======================================*/
+static scm_ichar_t upcase(scm_ichar_t ch);
+static scm_ichar_t downcase(scm_ichar_t ch);
+static scm_ichar_t foldcase(scm_ichar_t ch);
+static ScmObj convert_string_case(ScmObj str, case_converter convert);
 
 /*=======================================
   Function Definitions
@@ -100,4 +107,119 @@ scm_p_symbol_equalp(ScmObj symbol1, ScmObj symbol2, ScmObj rest)
     }
 
     return MAKE_BOOL(equalp);
+}
+
+/*===========================================================================
+  R7RS : 6.6 Characters
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_digit_value(ScmObj ch)
+{
+    scm_ichar_t val;
+    DECLARE_FUNCTION("digit-value", procedure_fixed_1);
+
+    ENSURE_CHAR(ch);
+
+    /* Only ASCII digits are supported. */
+    val = SCM_CHAR_VALUE(ch);
+    if (!ICHAR_NUMERICP(val))
+        return SCM_FALSE;
+
+    return MAKE_INT(val - '0');
+}
+
+SCM_EXPORT ScmObj
+scm_p_char_foldcase(ScmObj ch)
+{
+    DECLARE_FUNCTION("char-foldcase", procedure_fixed_1);
+
+    ENSURE_CHAR(ch);
+
+    return MAKE_CHAR(ICHAR_FOLDCASE(SCM_CHAR_VALUE(ch)));
+}
+
+/*===========================================================================
+  R7RS : 6.7 Strings
+===========================================================================*/
+/* Only ASCII characters are converted like char-upcase and so on. */
+static scm_ichar_t
+upcase(scm_ichar_t ch)
+{
+    return ICHAR_UPCASE(ch);
+}
+
+static scm_ichar_t
+downcase(scm_ichar_t ch)
+{
+    return ICHAR_DOWNCASE(ch);
+}
+
+static scm_ichar_t
+foldcase(scm_ichar_t ch)
+{
+    return ICHAR_FOLDCASE(ch);
+}
+
+/* Only single byte characters are converted. So the conversion doesn't
+ * change the size of the string. */
+static ScmObj
+convert_string_case(ScmObj str, case_converter convert)
+{
+#if SCM_USE_MULTIBYTE_CHAR
+    ScmMultibyteString mbs;
+    scm_ichar_t ch;
+#endif
+    char *new_str, *p;
+    DECLARE_INTERNAL_FUNCTION("convert_string_case");
+
+    new_str = scm_strdup(SCM_STRING_STR(str));
+#if SCM_USE_MULTIBYTE_CHAR
+    SCM_MBS_INIT2(mbs, new_str, strlen(new_str));
+    while (SCM_MBS_GET_SIZE(mbs)) {
+        p = (char *)SCM_MBS_GET_STR(mbs);
+        ch = SCM_CHARCODEC_READ_CHAR(scm_current_char_codec, mbs);
+        if (SCM_MBS_GET_STR(mbs) - p == 1)
+            *p = convert(ch);
+    }
+#else
+    for (p = new_str; *p; p++)
+        *p = convert((unsigned char)*p);
+#endif
+
+#if SCM_USE_NULL_CAPABLE_STRING
+    /* FIXME: the result is truncated at null and incorrect */
+    return MAKE_STRING(new_str, STRLEN_UNKNOWN);
+#else
+    return MAKE_STRING(new_str, SCM_STRING_LEN(str));
+#endif
+}
+
+SCM_EXPORT ScmObj
+scm_p_string_upcase(ScmObj str)
+{
+    DECLARE_FUNCTION("string-upcase", procedure_fixed_1);
+
+    ENSURE_STRING(str);
+
+    return convert_string_case(str, upcase);
+}
+
+SCM_EXPORT ScmObj
+scm_p_string_downcase(ScmObj str)
+{
+    DECLARE_FUNCTION("string-downcase", procedure_fixed_1);
+
+    ENSURE_STRING(str);
+
+    return convert_string_case(str, downcase);
+}
+
+SCM_EXPORT ScmObj
+scm_p_string_foldcase(ScmObj str)
+{
+    DECLARE_FUNCTION("string-foldcase", procedure_fixed_1);
+
+    ENSURE_STRING(str);
+
+    return convert_string_case(str, foldcase);
 }

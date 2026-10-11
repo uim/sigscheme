@@ -541,6 +541,7 @@ srfi69: load int string vector srfi9 srfi23
 srfi95: load int
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
+r7rs: char string
 
 compat_siod: sscm_extensions srfi60 eval_c_string
 strict_r5rs: strict_null_form strict_vector_form strict_argcheck internal_definitions strict_toplevel_definitions const_vector_literal

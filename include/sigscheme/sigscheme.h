@@ -1615,6 +1615,11 @@ SCM_EXPORT ScmObj scm_p_boolean_equalp(ScmObj boolean1, ScmObj boolean2,
                                        ScmObj rest);
 SCM_EXPORT ScmObj scm_p_symbol_equalp(ScmObj symbol1, ScmObj symbol2,
                                       ScmObj rest);
+SCM_EXPORT ScmObj scm_p_digit_value(ScmObj ch);
+SCM_EXPORT ScmObj scm_p_char_foldcase(ScmObj ch);
+SCM_EXPORT ScmObj scm_p_string_upcase(ScmObj str);
+SCM_EXPORT ScmObj scm_p_string_downcase(ScmObj str);
+SCM_EXPORT ScmObj scm_p_string_foldcase(ScmObj str);
 #endif /* SCM_USE_R7RS */
 
 /* macro.c */

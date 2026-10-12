@@ -182,10 +182,10 @@ TST_CASE("closure")
 TST_CASE("int")
 {
     ScmObj obj;
-    /* for suppressing compiler warning on intentional overflowed/underflowed
-     * value */
-    volatile scm_int_t scm_int_min = SCM_INT_MIN;
-    volatile scm_int_t scm_int_max = SCM_INT_MAX;
+    /* Use unsigned integers because overflow of signed integers is undefined
+     * behavior. */
+    scm_int_t underflowed = (scm_int_t)((scm_uint_t)SCM_INT_MIN - 1);
+    scm_int_t overflowed = (scm_int_t)((scm_uint_t)SCM_INT_MAX + 1);
 
 #define INT_TST(tst, val)                       \
     tst(obj, INT,                               \
@@ -194,19 +194,19 @@ TST_CASE("int")
     INT_TST(TST_INIT1, 1);
     INT_TST(TST_INIT1, SCM_INT_MIN);
     INT_TST(TST_INIT1, SCM_INT_MAX);
-    obj = SCM_MAKE_INT(scm_int_min - 1);
+    obj = SCM_MAKE_INT(underflowed);
     TST_COND(INTP(obj), "INTP() on underflowed int");
-    obj = SCM_MAKE_INT(scm_int_max + 1);
+    obj = SCM_MAKE_INT(overflowed);
     TST_COND(INTP(obj), "INTP() on overflowed int");
 }
 
 TST_CASE("char")
 {
     ScmObj obj;
-    /* for suppressing compiler warning on intentional overflowed/underflowed
-     * value */
-    volatile scm_ichar_t scm_char_min = SCM_CHAR_MIN;
-    volatile scm_ichar_t scm_char_max = SCM_CHAR_MAX;
+    /* Use unsigned integers because overflow of signed integers is undefined
+     * behavior. */
+    scm_ichar_t underflowed = (scm_ichar_t)((uint32_t)SCM_CHAR_MIN - 1);
+    scm_ichar_t overflowed = (scm_ichar_t)((uint32_t)SCM_CHAR_MAX + 1);
 
 #define CHAR_TST(tst, val)                      \
     tst(obj, CHAR,                              \
@@ -215,9 +215,9 @@ TST_CASE("char")
     CHAR_TST(TST_INIT1, 0);
     CHAR_TST(TST_INIT1, SCM_CHAR_MIN);
     CHAR_TST(TST_INIT1, SCM_CHAR_MAX);
-    obj = SCM_MAKE_CHAR(scm_char_min - 1);
+    obj = SCM_MAKE_CHAR(underflowed);
     TST_COND(CHARP(obj), "CHARP() on underflowed char");
-    obj = SCM_MAKE_CHAR(scm_char_max + 1);
+    obj = SCM_MAKE_CHAR(overflowed);
     TST_COND(CHARP(obj), "CHARP() on overflowed char");
 }
 
@@ -304,7 +304,7 @@ TST_CASE(vector, "vector")
 #endif /* have immutable string */
 
     p = SCM_VECTOR_VEC(obj);
-    VECTOR_TST(TST_SET2, aligned_dup(buf, sizeof(buf)), len - 8);
+    VECTOR_TST(TST_SET2, aligned_dup(buf, sizeof(buf)), len - 1);
     free(p);
 #if SCM_HAS_IMMUTABLE_VECTOR
     TST_COND(SCM_VECTOR_MUTABLEP(obj), "vector-mutable? after set");

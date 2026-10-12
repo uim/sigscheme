@@ -91,6 +91,10 @@
   File Local Function Declarations
 =======================================*/
 static scm_bool valid_framep(ScmObj frame);
+static ScmRef lookup_frames(ScmObj var, ScmObj env);
+#if SCM_USE_HYGIENIC_MACRO
+static ScmRef lookup_far_symbol(ScmObj var, ScmObj env);
+#endif
 
 /*=======================================
   Function Definitions
@@ -320,50 +324,56 @@ scm_add_environment(ScmObj var, ScmObj val, ScmObj env)
 SCM_EXPORT ScmRef
 scm_lookup_environment(ScmObj var, ScmObj env)
 {
-    ScmObj frame;
     ScmRef ref;
-#if SCM_USE_HYGIENIC_MACRO
-    scm_int_t depth, id_depth;
-    ScmObj env_save;
-#endif /* SCM_USE_HYGIENIC_MACRO */
     DECLARE_INTERNAL_FUNCTION("scm_lookup_environment");
 
     SCM_ASSERT(IDENTIFIERP(var));
     SCM_ASSERT(VALID_ENVP(env));
 
-    /* lookup in frames */
+    ref = lookup_frames(var, env);
 #if SCM_USE_HYGIENIC_MACRO
-    env_save = env;
-    depth = 0;
+    if (ref == SCM_INVALID_REF && FARSYMBOLP(var))
+        ref = lookup_far_symbol(var, env);
 #endif
+    return ref;
+}
+
+/* Lookup a variable in all frames of an env. This is separated from
+ * scm_lookup_environment() to keep the common case fast. */
+static ScmRef
+lookup_frames(ScmObj var, ScmObj env)
+{
+    ScmRef ref;
+
     for (; !NULLP(env); env = CDR(env)) {
-        frame = CAR(env);
-        ref = scm_lookup_frame(var, frame);
+        ref = scm_lookup_frame(var, CAR(env));
         if (ref != SCM_INVALID_REF)
             return ref;
-#if SCM_USE_HYGIENIC_MACRO
-        ++depth;
-#endif
     }
-    SCM_ASSERT(NULLP(env));
-
-#if SCM_USE_HYGIENIC_MACRO
-    if (FARSYMBOLP(var)) {
-        scm_int_t i;
-        id_depth = SCM_FARSYMBOL_ENV(var);
-        if (id_depth > depth)
-            scm_macro_bad_scope(var);
-        for (i = depth - id_depth; i--; )
-            env_save = CDR(env_save);
-        ref = lookup_n_frames(SCM_FARSYMBOL_SYM(var),
-                              id_depth, env_save);
-        SCM_ASSERT(ref != SCM_INVALID_REF || SYMBOLP(SCM_FARSYMBOL_SYM(var)));
-        return ref;
-    }
-#endif
-
     return SCM_INVALID_REF;
 }
+
+#if SCM_USE_HYGIENIC_MACRO
+/* Lookup the symbol of a far symbol in the frames where the far symbol was
+ * created. */
+static ScmRef
+lookup_far_symbol(ScmObj var, ScmObj env)
+{
+    ScmRef ref;
+    scm_int_t depth, id_depth;
+    DECLARE_INTERNAL_FUNCTION("scm_lookup_environment");
+
+    depth = scm_length(env);
+    id_depth = SCM_FARSYMBOL_ENV(var);
+    if (id_depth > depth)
+        scm_macro_bad_scope(var);
+    for (; depth > id_depth; depth--)
+        env = CDR(env);
+    ref = lookup_n_frames(SCM_FARSYMBOL_SYM(var), id_depth, env);
+    SCM_ASSERT(ref != SCM_INVALID_REF || SYMBOLP(SCM_FARSYMBOL_SYM(var)));
+    return ref;
+}
+#endif /* SCM_USE_HYGIENIC_MACRO */
 
 /** Lookup a variable in a frame */
 SCM_EXPORT ScmRef
@@ -399,7 +409,17 @@ scm_symbol_value(ScmObj var, ScmObj env)
 
     SCM_ASSERT(IDENTIFIERP(var));
 
-    ref = scm_lookup_environment(var, env);
+    /* Check far symbols only once here for the common case. */
+#if SCM_USE_HYGIENIC_MACRO
+    if (FARSYMBOLP(var)) {
+        ref = scm_lookup_environment(var, env);
+        var = SCM_FARSYMBOL_SYM(var);
+    } else
+#endif
+    {
+        ref = lookup_frames(var, env);
+    }
+
     if (ref != SCM_INVALID_REF) {
         /* Found in the environment. Since scm_s_body() may produce unbound
          * variables as internal definitions, subsequent error check is
@@ -407,11 +427,7 @@ scm_symbol_value(ScmObj var, ScmObj env)
         val = DEREF(ref);
     } else {
         /* Fallback to top-level binding. */
-#if SCM_USE_HYGIENIC_MACRO
-        if (FARSYMBOLP(var))
-            var = SCM_FARSYMBOL_SYM(var);
         SCM_ASSERT(SYMBOLP(var));
-#endif
         val = SCM_SYMBOL_VCELL(var);
     }
 

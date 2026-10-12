@@ -205,6 +205,27 @@ exit_dynamic_extent(ScmObj dest)
 }
 
 SCM_EXPORT ScmObj
+scm_current_dynamic_extent(void)
+{
+    return l_current_dynamic_extent;
+}
+
+/* Exits to DEST that is an ancestor of the current dynamic extent. */
+SCM_EXPORT void
+scm_exit_dynamic_extent(ScmObj dest)
+{
+    exit_dynamic_extent(dest);
+}
+
+/* Enters DEST that is a descendant of the current dynamic extent. */
+SCM_EXPORT void
+scm_enter_dynamic_extent(ScmObj dest)
+{
+    enter_dynamic_extent(dest);
+    l_current_dynamic_extent = dest;
+}
+
+SCM_EXPORT ScmObj
 scm_dynamic_wind(ScmObj before, ScmObj thunk, ScmObj after)
 {
     ScmObj ret;

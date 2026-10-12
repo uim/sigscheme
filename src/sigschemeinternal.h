@@ -657,6 +657,9 @@ SCM_EXPORT ScmObj scm_call_with_current_continuation(ScmObj proc,
                                                      ScmEvalState *eval_state);
 SCM_EXPORT void scm_call_continuation(ScmObj cont, ScmObj ret) SCM_NORETURN;
 SCM_EXPORT ScmObj scm_dynamic_wind(ScmObj before, ScmObj thunk, ScmObj after);
+SCM_EXPORT ScmObj scm_current_dynamic_extent(void);
+SCM_EXPORT void scm_exit_dynamic_extent(ScmObj dest);
+SCM_EXPORT void scm_enter_dynamic_extent(ScmObj dest);
 #if SCM_USE_BACKTRACE
 SCM_EXPORT void scm_push_trace_frame(ScmObj obj, ScmObj env);
 SCM_EXPORT void scm_pop_trace_frame(void);

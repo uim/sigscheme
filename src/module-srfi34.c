@@ -82,7 +82,7 @@ static ScmObj l_errmsg_fallback_exhausted;
 
 /* symbols */
 static ScmObj l_sym_error, l_sym_raise;
-static ScmObj l_sym_lex_env, l_sym_cond_catch, l_sym_body;
+static ScmObj l_sym_lex_env, l_sym_dyn_ext, l_sym_cond_catch, l_sym_body;
 static ScmObj l_sym_condition, l_sym_guard_k, l_sym_handler_k;
 
 /* procedures and syntaxes */
@@ -104,6 +104,7 @@ SCM_GLOBAL_VARS_END(static_srfi34);
 #define l_sym_error             SCM_GLOBAL_VAR(static_srfi34, l_sym_error)
 #define l_sym_raise             SCM_GLOBAL_VAR(static_srfi34, l_sym_raise)
 #define l_sym_lex_env           SCM_GLOBAL_VAR(static_srfi34, l_sym_lex_env)
+#define l_sym_dyn_ext           SCM_GLOBAL_VAR(static_srfi34, l_sym_dyn_ext)
 #define l_sym_cond_catch        SCM_GLOBAL_VAR(static_srfi34, l_sym_cond_catch)
 #define l_sym_body              SCM_GLOBAL_VAR(static_srfi34, l_sym_body)
 #define l_sym_condition         SCM_GLOBAL_VAR(static_srfi34, l_sym_condition)
@@ -169,6 +170,7 @@ scm_initialize_srfi34(void)
     l_sym_raise      = scm_intern("raise");
 
     l_sym_lex_env    = scm_intern("lex-env");
+    l_sym_dyn_ext    = scm_intern("dyn-ext");
     l_sym_cond_catch = scm_intern("cond-catch");
     l_sym_body       = scm_intern("body");
     l_sym_condition  = scm_intern("condition");
@@ -333,8 +335,10 @@ scm_s_srfi34_guard(ScmObj cond_catch, ScmObj body, ScmEvalState *eval_state)
 
     lex_env = eval_state->env;
     eval_state->env
-        = scm_extend_environment(LIST_3(l_sym_lex_env, l_sym_cond_catch, l_sym_body),
-                                 LIST_3(lex_env, cond_catch, body),
+        = scm_extend_environment(LIST_4(l_sym_lex_env, l_sym_dyn_ext,
+                                        l_sym_cond_catch, l_sym_body),
+                                 LIST_4(lex_env, scm_current_dynamic_extent(),
+                                        cond_catch, body),
                                  lex_env);
     proc_guard_int = scm_s_lambda(LIST_1(l_sym_guard_k),
                                   LIST_1(LIST_2(l_syn_guard_internal, l_sym_guard_k)),
@@ -398,7 +402,7 @@ guard_handler_body(ScmObj q_handler_k, ScmObj env)
 {
     ScmEvalState eval_state;
     ScmObj lex_env, cond_env, condition, cond_catch, guard_k, handler_k;
-    ScmObj sym_var, clauses, caught, reraise;
+    ScmObj sym_var, clauses, caught, reraise, raise_dyn_ext;
     DECLARE_PRIVATE_FUNCTION("guard", syntax_fixed_1);
 
     lex_env    = scm_symbol_value(l_sym_lex_env, env);
@@ -406,6 +410,13 @@ guard_handler_body(ScmObj q_handler_k, ScmObj env)
     cond_catch = scm_symbol_value(l_sym_cond_catch, env);
     guard_k    = scm_symbol_value(l_sym_guard_k, env);
     handler_k  = EVAL(q_handler_k, env);
+
+    /* Evaluate the clauses with the dynamic environment of the guard as the
+     * reference implementation does by escaping to guard-k. Continuations
+     * can't re-enter the raise to re-raise the condition. So this exits the
+     * dynamic extent of the raise without escaping. */
+    raise_dyn_ext = scm_current_dynamic_extent();
+    scm_exit_dynamic_extent(scm_symbol_value(l_sym_dyn_ext, env));
 
     /* eval cond-catch block */
     sym_var = CAR(cond_catch);
@@ -421,6 +432,7 @@ guard_handler_body(ScmObj q_handler_k, ScmObj env)
             caught = EVAL(caught, cond_env);
         scm_call_continuation(guard_k, delay(caught, cond_env));
     } else {
+        scm_enter_dynamic_extent(raise_dyn_ext);
         reraise = enclose(LIST_2(l_sym_raise, LIST_2(SYM_QUOTE, condition)),
                           cond_env);
         scm_call_continuation(handler_k, reraise);

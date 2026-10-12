@@ -506,6 +506,47 @@
                              ((negative? condition) 'negative))
                        (raise 0))))
 
+;; The clauses are evaluated with the dynamic environment of the guard. The
+;; condition is reraised with the dynamic environment of the raise.
+(tn "guard handler dynamic environment")
+(define guard-log '())
+(define (guard-note x)
+  (set! guard-log (cons x guard-log)))
+(define (guard-note-thunk x)
+  (lambda () (guard-note x)))
+(set! guard-log '())
+(assert-equal? (tn)
+               'caught
+               (guard (var
+                       (#t (guard-note 'handler) 'caught))
+                 (dynamic-wind
+                     (guard-note-thunk 'before)
+                     (lambda () (raise 'error))
+                     (guard-note-thunk 'after))))
+(assert-equal? (tn) '(before after handler) (reverse guard-log))
+(set! guard-log '())
+(assert-equal? (tn)
+               'outer
+               (guard (var
+                       (#t (guard-note 'outer) 'outer))
+                 (guard (var
+                         ((begin (guard-note 'test) #f) 'inner))
+                   (dynamic-wind
+                       (guard-note-thunk 'before)
+                       (lambda () (raise 'error))
+                       (guard-note-thunk 'after)))))
+(assert-equal? (tn)
+               '(before after test before after outer)
+               (reverse guard-log))
+;; A raise in a clause is handled by the outer handler.
+(assert-equal? (tn)
+               'again
+               (guard (var
+                       (#t var))
+                 (guard (var
+                         (#t (raise 'again)))
+                   (raise 'error))))
+
 (tn "guard handler tested value as result")
 
 ;; R5RS: If the selected <clause> contains only the <test> and no

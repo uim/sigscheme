@@ -735,5 +735,17 @@
                                    ((_ _) _))))
                        (macro 1)))))
 
+;; A macro use at the toplevel may expand to definitions.
+(define-syntax define-two
+  (syntax-rules ()
+    ((_ a b)
+     (begin
+       (define a 1)
+       (define b 2)))))
+(define-two toplevel-a toplevel-b)
+(assert-equal? "syntax-rules toplevel definitions"
+               '(1 2)
+               (list toplevel-a toplevel-b))
+
 (total-report)
 

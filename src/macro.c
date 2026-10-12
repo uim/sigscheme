@@ -262,6 +262,11 @@ scm_expand_macro(ScmObj macro, ScmObj args, ScmEvalState *eval_state)
     DECLARE_INTERNAL_FUNCTION("scm_expand_macro");
 
     eval_state->ret_type = SCM_VALTYPE_NEED_EVAL;
+#if SCM_STRICT_TOPLEVEL_DEFINITIONS
+    /* The expansion of a macro use at the toplevel may be definitions. */
+    if (SCM_DEFINABLE_TOPLEVELP(eval_state))
+        eval_state->nest = SCM_NEST_RETTYPE_BEGIN;
+#endif
 #if SCM_STRICT_ARGCHECK
     if (!SCM_LISTLEN_PROPERP(scm_length(args)))
         ERR_OBJ("bad argument list", args);

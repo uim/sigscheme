@@ -747,5 +747,35 @@
                '(1 2)
                (list toplevel-a toplevel-b))
 
+;; Identifiers inserted by a macro can be defined and assigned.
+(define-syntax define-square
+  (syntax-rules ()
+    ((_ name)
+     (begin
+       (define (name x)
+         (square-helper x))
+       (define (square-helper x)
+         (* x x))))))
+(define-square my-square)
+(assert-equal? "syntax-rules define inserted procedure name"
+               100
+               (my-square 10))
+(assert-equal? "syntax-rules set! inserted local variable"
+               1
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_) (let ((n 0))
+                                    (set! n (+ n 1))
+                                    n)))))
+                 (macro)))
+(define set-target 0)
+(assert-equal? "syntax-rules set! inserted global variable"
+               5
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ v) (set! set-target v)))))
+                 (macro 5)
+                 set-target))
+
 (total-report)
 

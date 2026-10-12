@@ -243,7 +243,7 @@ scm_s_setx(ScmObj sym, ScmObj exp, ScmObj env)
     ScmRef locally_bound;
     DECLARE_FUNCTION("set!", syntax_fixed_2);
 
-    ENSURE_SYMBOL(sym);
+    ENSURE_IDENTIFIER(sym);
 
     evaled = EVAL(exp, env);
     CHECK_VALID_EVALED_VALUE(evaled);
@@ -251,6 +251,7 @@ scm_s_setx(ScmObj sym, ScmObj exp, ScmObj env)
     if (locally_bound != SCM_INVALID_REF) {
         SET(locally_bound, evaled);
     } else {
+        sym = SCM_UNWRAP_KEYWORD(sym);
         if (!SCM_SYMBOL_BOUNDP(sym))
             ERR_OBJ("unbound variable", sym);
 
@@ -742,7 +743,7 @@ filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
                 lambda_formals = CDR(var);
                 lambda_body    = exp;
 
-                ENSURE_SYMBOL(sym);
+                ENSURE_IDENTIFIER(sym);
                 var = sym;
                 exp = CONS(l_syn_lambda, CONS(lambda_formals, lambda_body));
             } else {
@@ -1062,7 +1063,7 @@ scm_s_define(ScmObj var, ScmObj rest, ScmEvalState *eval_state)
         formals  = CDR(var);
         body     = rest;
 
-        ENSURE_SYMBOL(procname);
+        ENSURE_IDENTIFIER(procname);
         proc = scm_s_lambda(formals, body, env);
         scm_s_define_internal(ScmFirstClassObj, procname, proc, env);
     } else {

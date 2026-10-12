@@ -1631,6 +1631,9 @@ SCM_EXPORT ScmObj scm_s_let_values(ScmObj bindings, ScmObj body,
 SCM_EXPORT ScmObj scm_s_let_star_values(ScmObj bindings, ScmObj body,
                                         ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_s_case_lambda(ScmObj clauses, ScmObj env);
+SCM_EXPORT ScmObj scm_p_make_parameter(ScmObj value, ScmObj args);
+SCM_EXPORT ScmObj scm_s_parameterize(ScmObj bindings, ScmObj body,
+                                     ScmObj env);
 SCM_EXPORT ScmObj scm_s_define_values(ScmObj formals, ScmObj exp,
                                       ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_p_exact_integerp(ScmObj obj);

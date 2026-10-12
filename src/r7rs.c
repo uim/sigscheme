@@ -79,6 +79,10 @@ static ScmObj bind_values(const char *func_name, ScmObj bindings,
                           scm_bool sequential, ScmObj env);
 static ScmObj dispatch_case_lambda(ScmObj clauses, ScmObj args,
                                    ScmEvalState *eval_state);
+static ScmObj make_thunk(ScmObj func, ScmObj data, ScmObj env);
+static ScmObj parameter_value(ScmObj data);
+static ScmObj parameter_data(ScmObj obj);
+static ScmObj swap_parameter_values(ScmObj bindings);
 
 /*=======================================
   Function Definitions
@@ -245,6 +249,110 @@ scm_s_case_lambda(ScmObj clauses, ScmObj env)
                                       scm_p_list2vector(closures),
                                       args)),
                         env);
+}
+
+/*===========================================================================
+  R7RS : 4.2 Derived expression types : 4.2.6 Dynamic bindings
+===========================================================================*/
+/* Returns (lambda () (FUNC DATA)). FUNC and DATA must be evaluated to
+ * themselves. */
+static ScmObj
+make_thunk(ScmObj func, ScmObj data, ScmObj env)
+{
+    return MAKE_CLOSURE(LIST_2(SCM_NULL, LIST_2(func, data)), env);
+}
+
+/* A parameter object is (lambda () (parameter_value DATA)). DATA is
+ * #(VALUE CONVERTER). */
+static ScmObj
+parameter_value(ScmObj data)
+{
+    return SCM_VECTOR_VEC(data)[0];
+}
+
+/* Returns DATA of the parameter object OBJ or #f if OBJ isn't a parameter
+ * object. */
+static ScmObj
+parameter_data(ScmObj obj)
+{
+    ScmObj body;
+
+    if (!CLOSUREP(obj))
+        return SCM_FALSE;
+    body = CDR(SCM_CLOSURE_EXP(obj));
+    if (!LIST_1_P(body) || !LIST_2_P(CAR(body)) || !FUNCP(CAAR(body))
+        || SCM_FUNC_CFUNC(CAAR(body)) != (ScmFuncType)parameter_value)
+        return SCM_FALSE;
+    return CADR(CAR(body));
+}
+
+SCM_EXPORT ScmObj
+scm_p_make_parameter(ScmObj value, ScmObj args)
+{
+    ScmObj converter, func;
+    DECLARE_FUNCTION("make-parameter", procedure_variadic_1);
+
+    if (NULLP(args)) {
+        converter = SCM_FALSE;
+    } else {
+        converter = POP(args);
+        ASSERT_NO_MORE_ARG(args);
+        ENSURE_PROCEDURE(converter);
+        value = scm_call(converter, LIST_1(value));
+    }
+
+    func = MAKE_FUNC(SCM_PROCEDURE_FIXED_1, (ScmFuncType)parameter_value);
+    return make_thunk(func, scm_p_list2vector(LIST_2(value, converter)),
+                      SCM_INTERACTION_ENV);
+}
+
+/* BINDINGS is #((DATA . VALUE) ...). Swaps the value of each parameter
+ * object and VALUE. So calling this twice restores the values. */
+static ScmObj
+swap_parameter_values(ScmObj bindings)
+{
+    ScmObj binding, *value, tmp;
+    scm_int_t i;
+
+    for (i = 0; i < SCM_VECTOR_LEN(bindings); i++) {
+        binding = SCM_VECTOR_VEC(bindings)[i];
+        value = &SCM_VECTOR_VEC(CAR(binding))[0];
+        tmp = *value;
+        *value = CDR(binding);
+        SET_CDR(binding, tmp);
+    }
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_s_parameterize(ScmObj bindings, ScmObj body, ScmObj env)
+{
+    ScmQueue q;
+    ScmObj binding, data, value, converter, swaps, swap;
+    DECLARE_FUNCTION("parameterize", syntax_variadic_1);
+
+    swaps = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, swaps);
+    FOR_EACH (binding, bindings) {
+        if (!LIST_2_P(binding))
+            ERR_OBJ("invalid binding form", binding);
+        data = parameter_data(EVAL(CAR(binding), env));
+        if (FALSEP(data))
+            ERR_OBJ("parameter object required but got", CAR(binding));
+        value = EVAL(CADR(binding), env);
+        CHECK_VALID_EVALED_VALUE(value);
+        converter = SCM_VECTOR_VEC(data)[1];
+        if (!FALSEP(converter))
+            value = scm_call(converter, LIST_1(value));
+        SCM_QUEUE_ADD(q, CONS(data, value));
+    }
+    if (!NULLP(bindings))
+        ERR_OBJ("invalid bindings form", bindings);
+
+    swap = make_thunk(MAKE_FUNC(SCM_PROCEDURE_FIXED_1,
+                                (ScmFuncType)swap_parameter_values),
+                      scm_p_list2vector(swaps), env);
+    return scm_dynamic_wind(swap, scm_s_lambda(SCM_NULL, body, env), swap);
 }
 
 /*===========================================================================

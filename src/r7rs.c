@@ -77,6 +77,8 @@ static ScmObj map_strings(const char *func_name, ScmObj proc, ScmObj strs,
                           scm_bool collect);
 static ScmObj bind_values(const char *func_name, ScmObj bindings,
                           scm_bool sequential, ScmObj env);
+static ScmObj dispatch_case_lambda(ScmObj clauses, ScmObj args,
+                                   ScmEvalState *eval_state);
 
 /*=======================================
   Function Definitions
@@ -190,6 +192,59 @@ scm_s_let_star_values(ScmObj bindings, ScmObj body, ScmEvalState *eval_state)
                                   eval_state->env);
 
     return scm_s_body(body, eval_state);
+}
+
+/*===========================================================================
+  R7RS : 4.2 Derived expression types : 4.2.9 Case-lambda
+===========================================================================*/
+/* Applies the first closure in the vector CLAUSES that accepts ARGS. */
+static ScmObj
+dispatch_case_lambda(ScmObj clauses, ScmObj args, ScmEvalState *eval_state)
+{
+    ScmObj clause;
+    scm_int_t i, args_len;
+    DECLARE_INTERNAL_FUNCTION("case-lambda");
+
+    args_len = scm_length(args);
+    for (i = 0; i < SCM_VECTOR_LEN(clauses); i++) {
+        clause = SCM_VECTOR_VEC(clauses)[i];
+        if (scm_valid_environment_extension_lengthp(
+                scm_length(CAR(SCM_CLOSURE_EXP(clause))), args_len))
+            return scm_p_apply(clause, args, SCM_NULL, eval_state);
+    }
+    ERR_OBJ("no clause matches the arguments", args);
+    /* NOTREACHED */
+    return SCM_FALSE;
+}
+
+SCM_EXPORT ScmObj
+scm_s_case_lambda(ScmObj clauses, ScmObj env)
+{
+    ScmQueue q;
+    ScmObj clause, closures, dispatch, args;
+    DECLARE_FUNCTION("case-lambda", syntax_variadic_0);
+
+    closures = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, closures);
+    FOR_EACH (clause, clauses) {
+        if (!CONSP(clause))
+            ERR_OBJ("invalid clause", clause);
+        SCM_QUEUE_ADD(q, scm_s_lambda(CAR(clause), CDR(clause), env));
+    }
+    if (!NULLP(clauses))
+        ERR_OBJ("invalid clauses", clauses);
+
+    /* (lambda args (DISPATCH #(CLOSURE ...) args)). DISPATCH and the vector
+     * are evaluated to themselves. A vector is self-evaluating because R7RS
+     * conflicts with strict_vector_form. */
+    dispatch = MAKE_FUNC(SCM_PROCEDURE_FIXED_TAILREC_2,
+                         (ScmFuncType)dispatch_case_lambda);
+    args = scm_intern("args");
+    return MAKE_CLOSURE(LIST_2(args,
+                               LIST_3(dispatch,
+                                      scm_p_list2vector(closures),
+                                      args)),
+                        env);
 }
 
 /*===========================================================================

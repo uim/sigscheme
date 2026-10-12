@@ -97,6 +97,37 @@
 (assert-equal? (tn) 'ok (let*-values () 'ok))
 (assert-error (tn) (lambda () (let*-values (((a b) (values 1))) a)))
 
+(tn "case-lambda")
+(define cl-plus
+  (case-lambda
+   (() 0)
+   ((x) x)
+   ((x y) (+ x y))
+   (args (apply + args))))
+(assert-equal? (tn) 0 (cl-plus))
+(assert-equal? (tn) 1 (cl-plus 1))
+(assert-equal? (tn) 3 (cl-plus 1 2))
+(assert-equal? (tn) 6 (cl-plus 1 2 3))
+(define cl-rest
+  (case-lambda
+   ((a) (list 'one a))
+   ((a b . rest) (list 'many a b rest))))
+(assert-equal? (tn) '(one 1) (cl-rest 1))
+(assert-equal? (tn) '(many 1 2 ()) (cl-rest 1 2))
+(assert-equal? (tn) '(many 1 2 (3)) (cl-rest 1 2 3))
+(assert-error (tn) (lambda () (cl-rest)))
+(assert-equal? (tn) 11 (let ((x 10)) ((case-lambda ((a) (+ a x))) 1)))
+(assert-true (tn) (procedure? (case-lambda)))
+(assert-error (tn) (lambda () ((case-lambda))))
+(assert-error (tn) (lambda () (case-lambda (1 2))))
+(assert-error (tn) (lambda () (case-lambda x)))
+;; The call is in a tail context.
+(define cl-loop
+  (case-lambda
+   ((n) (cl-loop n 'done))
+   ((n result) (if (= n 0) result (cl-loop (- n 1) result)))))
+(assert-equal? (tn) 'done (cl-loop 100000))
+
 (tn "define-values")
 (define-values (dv-a dv-b . dv-c) (values 1 2 3 4))
 (assert-equal? (tn) '(1 2 (3 4)) (list dv-a dv-b dv-c))

@@ -243,6 +243,7 @@ struct ScmCell_ {
 #define SCM_MUTABLEP(o)        (!(o)->attr.v.immutable)
 #define SCM_SET_MUTABLE(o)     ((o)->attr.v.immutable = scm_false)
 #define SCM_SET_IMMUTABLE(o)   ((o)->attr.v.immutable = scm_true)
+#define SCM_SET_MUTABILITY(o, mutp) ((o)->attr.v.immutable = !(mutp))
 
 /* Real Accessors */
 #define SCM_SAL_NUMBERP(o)             SCM_SAL_INTP(o)
@@ -300,8 +301,7 @@ struct ScmCell_ {
     (SCM_ENTYPE((o), ScmString),                \
      SCM_STRING_SET_STR((o), (s)),              \
      SCM_STRING_SET_LEN((o), (l)),              \
-     mutp ? SCM_STRING_SET_MUTABLE(o)           \
-          : SCM_STRING_SET_IMMUTABLE(o))
+     SCM_SET_MUTABILITY((o), (mutp)))
 #define SCM_ISAL_MUTABLE_STRING_INIT(o, s, l)           \
     SCM_ISAL_STRING_INIT((o), (s), (l), scm_true)
 #define SCM_ISAL_IMMUTABLE_STRING_INIT(o, s, l)         \
@@ -338,8 +338,7 @@ struct ScmCell_ {
     (SCM_ENTYPE((o), ScmVector),                \
      SCM_VECTOR_SET_VEC((o), (v)),              \
      SCM_VECTOR_SET_LEN((o), (l)),              \
-     mutp ? SCM_VECTOR_SET_MUTABLE(o)           \
-          : SCM_VECTOR_SET_IMMUTABLE(o))
+     SCM_SET_MUTABILITY((o), (mutp)))
 #define SCM_ISAL_MUTABLE_VECTOR_INIT(o, v, l)           \
     SCM_ISAL_VECTOR_INIT((o), (v), (l), scm_true)
 #define SCM_ISAL_IMMUTABLE_VECTOR_INIT(o, v, l)         \

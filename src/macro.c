@@ -118,7 +118,7 @@ SCM_DEFINE_STATIC_VARS(static_macro);
 
 #define SYM_SYNTAX_RULES scm_intern("syntax-rules")
 
-#define ELLIPSISP(o) EQ((o), SYM_ELLIPSIS)
+#define ELLIPSISP(o) ellipsisp(ctx, (o))
 
 #define MAKE_PVAR SCM_SUBPAT_MAKE_PVAR
 #define PVAR_INDEX SCM_SUBPAT_PVAR_INDEX
@@ -195,10 +195,16 @@ typedef struct {
     var_map pvars;              /** Pvar -> level/marker. */
     scm_int_t pvlen;            /** Length of pvars.syms */
     ScmObj literals;
+    ScmObj ellipsis;            /** Unwrapped ellipsis identifier or #f. */
     struct {
         scm_bool pattern;       /* False if compiling template. */
     } mode;
 } compilation_context;
+
+static void init_compilation_context(compilation_context *ctx,
+                                     ScmObj ellipsis, ScmObj literals);
+static scm_bool ellipsisp(compilation_context *ctx, ScmObj obj);
+static scm_bool underscorep(ScmObj obj);
 
 static ScmObj compile(compilation_context *ctx, ScmObj form);
 static ScmObj match(ScmObj pattern, ScmObj form, ScmPackedEnv def_penv, ScmPackedEnv use_penv, ScmObj env);
@@ -279,28 +285,33 @@ scm_s_expand_macro(ScmObj macro, ScmObj args, ScmEvalState *eval_state)
 SCM_EXPORT ScmObj
 scm_s_syntax_rules(ScmObj args, ScmObj env)
 {
-    ScmObj rule, compiled_rules;
+    ScmObj ellipsis, literals, rule, compiled_rules;
     ScmQueue q;
     compilation_context ctx;
     DECLARE_FUNCTION("syntax-rules", syntax_variadic_0);
 
+    ellipsis = SYM_ELLIPSIS;
+#if SCM_USE_R7RS
+    /* (syntax-rules <ellipsis> <literals> <rule> ...) */
+    if (CONSP(args) && IDENTIFIERP(CAR(args)))
+        ellipsis = POP(args);
+#endif
     if (NULLP(args) || NULLP(CDR(args)))
         ERR_OBJ("missing rules", args);
 
-    ctx.literals = CAR(args);
-    args = CDR(args);
+    literals = POP(args);
 #if SCM_STRICT_ARGCHECK
     /* Check literals. */
     {
         ScmObj pair;
-        FOR_EACH_PAIR (pair, ctx.literals)
+        FOR_EACH_PAIR (pair, literals)
             ENSURE_IDENTIFIER(CAR(pair));
         if (!NULLP(pair))
-            ERR_OBJ("bad <literals>", ctx.literals);
+            ERR_OBJ("bad <literals>", literals);
     }
 #endif
 
-    ctx.pvmark = MAKE_PVAR(SCM_NULL, 0);
+    init_compilation_context(&ctx, ellipsis, literals);
     SCM_QUEUE_POINT_TO(q, compiled_rules);
 
     FOR_EACH (rule, args) {
@@ -335,8 +346,7 @@ scm_s_match(ScmObj form, ScmObj clauses, ScmEvalState *state)
     DECLARE_FUNCTION("match", syntax_variadic_tailrec_1);
 
     form             = EVAL(form, state->env);
-    ctx.pvmark       = MAKE_PVAR(SCM_NULL, 0);
-    ctx.literals     = SCM_NULL;
+    init_compilation_context(&ctx, SYM_ELLIPSIS, SCM_NULL);
     ctx.mode.pattern = scm_true;
     /* (match <datum>
      *  (<pattern>)
@@ -409,6 +419,45 @@ scm_s_define_syntax(ScmObj var, ScmObj macro, ScmObj env)
 static ScmObj compile_rec(compilation_context *ctx, ScmObj form,
                           scm_int_t level);
 
+static void
+init_compilation_context(compilation_context *ctx, ScmObj ellipsis,
+                         ScmObj literals)
+{
+#if SCM_USE_R7RS
+    ScmObj literal;
+#endif
+
+    ctx->pvmark = MAKE_PVAR(SCM_NULL, 0);
+    ctx->literals = literals;
+    ctx->ellipsis = SCM_UNWRAP_KEYWORD(ellipsis);
+#if SCM_USE_R7RS
+    /* If the ellipsis is in <literals>, it's treated as a literal. */
+    FOR_EACH (literal, literals) {
+        if (EQ(SCM_UNWRAP_KEYWORD(literal), ctx->ellipsis))
+            ctx->ellipsis = SCM_FALSE;
+    }
+#endif
+}
+
+/* Identifiers are compared without the binding information because a
+ * macro may generate a syntax-rules form. */
+static scm_bool
+ellipsisp(compilation_context *ctx, ScmObj obj)
+{
+    return IDENTIFIERP(obj) && EQ(SCM_UNWRAP_KEYWORD(obj), ctx->ellipsis);
+}
+
+static scm_bool
+underscorep(ScmObj obj)
+{
+#if SCM_USE_R7RS
+    return IDENTIFIERP(obj) && EQ(SCM_UNWRAP_KEYWORD(obj), scm_intern("_"));
+#else
+    /* _ is a pattern variable in R5RS. */
+    return scm_false;
+#endif
+}
+
 static ScmObj
 compile(compilation_context *ctx, ScmObj form)
 {
@@ -431,6 +480,20 @@ compile_rec(compilation_context *ctx, ScmObj form, scm_int_t level)
     if (CONSP(form)) {
         ScmObj out, obj, rest;
         ScmQueue q;
+#if SCM_USE_R7RS
+        ScmObj ellipsis;
+        scm_bool ellipsis_seen;
+
+        /* (... <template>) escapes ellipses in <template>. */
+        if (!ctx->mode.pattern && ELLIPSISP(CAR(form)) && LIST_2_P(form)) {
+            ellipsis = ctx->ellipsis;
+            ctx->ellipsis = SCM_FALSE;
+            out = compile_rec(ctx, CADR(form), level);
+            ctx->ellipsis = ellipsis;
+            return out;
+        }
+        ellipsis_seen = scm_false;
+#endif
 
         rest = out = form;
         SCM_QUEUE_POINT_TO(q, out);
@@ -450,14 +513,26 @@ compile_rec(compilation_context *ctx, ScmObj form, scm_int_t level)
                 SCM_QUEUE_ADD(q, subpat);
 
                 if (ctx->mode.pattern) {
+#if SCM_USE_R7RS
+                    /* R7RS allows <pattern>s after an ellipsis but only
+                     * one ellipsis in a list. */
+                    if (ellipsis_seen)
+                        ERR_OBJ("misplaced ellipsis", form);
+                    ellipsis_seen = scm_true;
+#else
                     if (!NULLP(rest))
                         ERR_OBJ("misplaced ellipsis", form);
-                    return out;
-                }
-                if (ctx->pvlen == pvlen_before)
+#endif
+                } else if (ctx->pvlen == pvlen_before) {
                     ERR_OBJ("constant repeatable subtemplate", form);
+                }
                 if (CONSP(rest))
                     goto restart;
+                if (!NULLP(rest)) {
+                    if (ELLIPSISP(rest))
+                        ERR_OBJ("misplaced ellipsis", form);
+                    SCM_QUEUE_SLOPPY_APPEND(q, compile_rec(ctx, rest, level));
+                }
                 return out;
             } else {
                 SCM_QUEUE_ADD(q, compile_rec(ctx, obj, level));
@@ -546,9 +621,14 @@ compile_rec(compilation_context *ctx, ScmObj form, scm_int_t level)
          */
         if (ctx->mode.pattern) {
             if (FALSEP(scm_p_memq(form, ctx->literals))) {
-                if (TRUEP(scm_p_memq(form, ctx->pvars.syms)))
+                ScmObj pvar;
+
+                /* R7RS: _ matches anything but isn't bound. Use an
+                 * unique object that templates can't refer. */
+                pvar = underscorep(form) ? LIST_1(form) : form;
+                if (TRUEP(scm_p_memq(pvar, ctx->pvars.syms)))
                     ERR_OBJ("duplicate pattern variable", form);
-                ctx->pvars.syms = CONS(form, ctx->pvars.syms);
+                ctx->pvars.syms = CONS(pvar, ctx->pvars.syms);
                 ctx->pvars.vals = CONS(MAKE_INT(level), ctx->pvars.vals);
                 ++ctx->pvlen;
 #if SCM_DEBUG_MACRO
@@ -682,6 +762,14 @@ match_rec(match_context *ctx, ScmObj pat, ScmObj form)
         return scm_true;
     }
 
+    /* The end of a proper list pattern. This is common. So check it before
+     * the slow equal? below. */
+    if (NULLP(pat)) {
+        if (!NULLP(form))
+            MISMATCH("form too long", pat_save, form_save);
+        return scm_true;
+    }
+
     if (VECTORP(pat)) {
         scm_int_t plen, flen, len, i;
         ScmObj *pvec, *fvec;
@@ -724,30 +812,59 @@ match_rec(match_context *ctx, ScmObj pat, ScmObj form)
 }
 
 
+/* Returns the number of pairs in LS. */
+static scm_int_t
+count_pairs(ScmObj ls)
+{
+    scm_int_t n;
+
+    for (n = 0; CONSP(ls); ls = CDR(ls))
+        n++;
+    return n;
+}
+
 /* FIXME: give arg a better name. */
 static scm_bool
 match_reppat(match_context *ctx, ScmObj arg, ScmObj form)
 {
-    ScmObj pat, sub_save, accum, reppat;
+    ScmObj pat, sub_save, accum, reppat, tail, rest;
+    ScmQueue q;
     scm_int_t i = 0;  /* the value is needed only to suppress warning */
+    scm_int_t n = -1; /* -1 means all elements to avoid counting them */
 
     DBG_PRINT((DBG_MATCHER | DBG_FUNCALL, "match_reppat: ~s =~~ ~s\n",
                form, arg));
 
     if (CONSP(arg)) {
+        /* (reppat ... <pattern> ... . <pattern>): The reppat matches
+         * all elements of FORM except ones for the trailing <pattern>s. */
         reppat = CAR(arg);
         pat = REPPAT_PAT(reppat);
+        tail = CDR(arg);
+        if (!NULLP(tail)) {
+            n = count_pairs(form) - count_pairs(tail);
+            if (n < 0)
+                MISMATCH("form too short", arg, form);
+        }
 
         if (SUBPATP(pat)) {
-            /* (pvar ...) */
+            /* (pvar ... . tail) */
             SCM_ASSERT(PVARP(pat));
-            if (!SCM_LISTLEN_PROPERP(scm_length(form)))
-                MISMATCH("repeatable subpattern matched against "
-                         "improper list, vector, or atom",
-                         pat, form);
-            if (VALIDP(ctx->sub))
-                ctx->sub = CONS(form, ctx->sub);
-            return scm_true;
+            if (NULLP(tail)) {
+                for (rest = form; CONSP(rest); rest = CDR(rest))
+                    ;
+                if (VALIDP(ctx->sub))
+                    ctx->sub = CONS(form, ctx->sub);
+            } else {
+                rest = form;
+                accum = SCM_NULL;
+                SCM_QUEUE_POINT_TO(q, accum);
+                for (i = 0; i < n; i++, rest = CDR(rest))
+                    SCM_QUEUE_ADD(q, CAR(rest));
+                if (VALIDP(ctx->sub))
+                    ctx->sub = CONS(accum, ctx->sub);
+            }
+            return match_rec(ctx, tail, rest);
         }
     } else {
         SCM_ASSERT(VECTORP(arg));
@@ -768,16 +885,11 @@ match_reppat(match_context *ctx, ScmObj arg, ScmObj form)
     }
 
     if (CONSP(arg)) {
-        ScmObj subform;
-        FOR_EACH (subform, form) {
+        for (; CONSP(form) && n != 0; n--, form = CDR(form)) {
             ctx->sub = sub_save;
-            MATCH_REC(ctx, pat, subform);
+            MATCH_REC(ctx, pat, CAR(form));
             merge_subs(accum, ctx->sub, sub_save);
         }
-        if (!NULLP(form))
-            MISMATCH("repeatable subpattern matched against "
-                     "improper list, vector, or atom",
-                     pat, form);
     } else {                    /* VECTORP(arg) */
         scm_int_t len;
         ScmObj *vec;
@@ -796,6 +908,8 @@ match_reppat(match_context *ctx, ScmObj arg, ScmObj form)
     for (ctx->sub = accum; !EQ(accum, sub_save); accum = CDR(accum))
         SET_CAR(accum, scm_p_reversex(CAR(accum)));
 
+    if (CONSP(arg))
+        return match_rec(ctx, CDR(arg), form);
     return scm_true;
 }
 

@@ -583,11 +583,13 @@
                             ((_ #(...)) #f))))
                 (macro)))
 
-(assert-error "syntax-rules misplaced ellipsis 3"
-              (let-syntax
-                  ((macro (syntax-rules ()
-                            ((_ a ... b) #f))))
-                (macro 0 1 2)))
+;; R7RS allows them.
+(if (not (provided? "r7rs"))
+    (assert-error "syntax-rules misplaced ellipsis 3"
+                  (let-syntax
+                      ((macro (syntax-rules ()
+                                ((_ a ... b) #f))))
+                    (macro 0 1 2))))
 
 (assert-error "syntax-rules misplaced ellipsis 4"
               (let-syntax
@@ -595,11 +597,12 @@
                             ((_ (a . ...)) #f))))
                 (macro (0 . 1))))
 
-(assert-error "syntax-rules misplaced ellipsis 5"
-              (let-syntax
-                  ((macro (syntax-rules ()
-                            ((_ (a ... . b)) #f))))
-                (macro (0 . 1))))
+(if (not (provided? "r7rs"))
+    (assert-error "syntax-rules misplaced ellipsis 5"
+                  (let-syntax
+                      ((macro (syntax-rules ()
+                                ((_ (a ... . b)) #f))))
+                    (macro (0 . 1)))))
 
 (assert-error "syntax-rules missing ellipsis"
               (let-syntax
@@ -705,6 +708,32 @@
 ;                               '((foo bar) ...))
 ;                              ((_ . _) 'mismatch))))
 ;                  (macro (0 1 2) (3 4))))
+
+(assert-equal? "syntax-rules dotted tail after ellipsis in template"
+               '(1 2 . 3)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ (a ...) b) '(a ... . b)))))
+                 (macro (1 2) 3)))
+
+(if (not (provided? "r7rs"))
+    (begin
+      (assert-error "syntax-rules custom ellipsis"
+                    (let-syntax
+                        ((macro (syntax-rules dots ()
+                                  ((_ x dots) '(x dots)))))
+                      (macro 1 2 3)))
+      (assert-error "syntax-rules ellipsis escape"
+                    (let-syntax
+                        ((macro (syntax-rules ()
+                                  ((_) '(... ...)))))
+                      (macro)))
+      (assert-equal? "syntax-rules underscore is a pattern variable"
+                     1
+                     (let-syntax
+                         ((macro (syntax-rules ()
+                                   ((_ _) _))))
+                       (macro 1)))))
 
 (total-report)
 

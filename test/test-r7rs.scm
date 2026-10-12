@@ -161,6 +161,109 @@
 (assert-error (tn) (lambda () (parameterize ((param-a)) 1)))
 (assert-error (tn) (lambda () (parameterize (param-a) 1)))
 
+(tn "syntax-rules ellipsis followed by patterns")
+(assert-equal? (tn)
+               '((0 1) 2)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ a ... b) '((a ...) b)))))
+                 (macro 0 1 2)))
+(assert-equal? (tn)
+               '((0) 1)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ (a ... . b)) '((a ...) b)))))
+                 (macro (0 . 1))))
+(assert-equal? (tn)
+               '((1 2 3) 4 5 6)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ (a ... b c . d)) '((a ...) b c d)))))
+                 (macro (1 2 3 4 5 . 6))))
+(assert-equal? (tn)
+               '((1 3) (2 4) 5)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ (m n) ... x) '((m ...) (n ...) x)))))
+                 (macro (1 2) (3 4) 5)))
+(assert-equal? (tn)
+               'short
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ a ... b c) 'long)
+                             ((_ . r) 'short))))
+                 (macro 1)))
+(assert-error (tn)
+              (lambda ()
+                (syntax-rules ()
+                  ((_ a ... b ...) #f))))
+
+(tn "syntax-rules custom ellipsis")
+(assert-equal? (tn)
+               '(1 2 3)
+               (let-syntax
+                   ((macro (syntax-rules dots ()
+                             ((_ x dots) '(x dots)))))
+                 (macro 1 2 3)))
+(assert-equal? (tn)
+               '(1 ...)
+               (let-syntax
+                   ((macro (syntax-rules dots ()
+                             ((_ x) '(x ...)))))
+                 (macro 1)))
+(assert-equal? (tn)
+               '(1 ...)
+               (let-syntax
+                   ((macro (syntax-rules ... (...)
+                             ((_ x) '(x ...)))))
+                 (macro 1)))
+
+(tn "syntax-rules ellipsis escape")
+(assert-equal? (tn)
+               '...
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_) '(... ...)))))
+                 (macro)))
+(assert-equal? (tn)
+               '(1 ...)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ x) '(... (x ...))))))
+                 (macro 1)))
+(define-syntax define-my-begin
+  (syntax-rules ()
+    ((_ name)
+     (define-syntax name
+       (syntax-rules ()
+         ((_ expr (... ...))
+          (begin expr (... ...))))))))
+(define-my-begin my-begin)
+(assert-equal? (tn) 3 (my-begin 1 2 3))
+
+(tn "syntax-rules underscore")
+(assert-equal? (tn)
+               '_
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ _) '_))))
+                 (macro 1)))
+(assert-equal? (tn)
+               '(2 0 many)
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_) 0)
+                             ((_ _ _) 2)
+                             ((_ . _) 'many))))
+                 (list (macro a b) (macro) (macro a b c))))
+(assert-equal? (tn)
+               '(2 fail)
+               (let-syntax
+                   ((macro (syntax-rules (_)
+                             ((_ _ _) 2)
+                             ((x . y) 'fail))))
+                 (list (macro _ _) (macro a b))))
+
 (tn "define-values")
 (define-values (dv-a dv-b . dv-c) (values 1 2 3 4))
 (assert-equal? (tn) '(1 2 (3 4)) (list dv-a dv-b dv-c))

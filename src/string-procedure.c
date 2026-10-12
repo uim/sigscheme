@@ -205,6 +205,10 @@ scm_p_string_setx(ScmObj str, ScmObj k, ScmObj ch)
     ENSURE_MUTABLE_STRING(str);
     ENSURE_INT(k);
     ENSURE_CHAR(ch);
+#if !SCM_USE_NULL_CAPABLE_STRING
+    if (SCM_CHAR_VALUE(ch) == '\0')
+        ERR(SCM_ERRMSG_NULL_IN_STRING);
+#endif
 
     idx = SCM_INT_VALUE(k);
     c_str = SCM_STRING_STR(str);
@@ -532,7 +536,7 @@ scm_p_list2string(ScmObj lst)
     dst = str = scm_malloc(str_size);
     FOR_EACH (ch, lst) {
 #if !SCM_USE_NULL_CAPABLE_STRING
-        if (ch == '\0')
+        if (SCM_CHAR_VALUE(ch) == '\0')
             ERR(SCM_ERRMSG_NULL_IN_STRING);
 #endif
 #if SCM_USE_MULTIBYTE_CHAR
@@ -571,6 +575,10 @@ scm_p_string_fillx(ScmObj str, ScmObj ch)
     ENSURE_STRING(str);
     ENSURE_MUTABLE_STRING(str);
     ENSURE_CHAR(ch);
+#if !SCM_USE_NULL_CAPABLE_STRING
+    if (SCM_CHAR_VALUE(ch) == '\0')
+        ERR(SCM_ERRMSG_NULL_IN_STRING);
+#endif
 
     str_len = SCM_STRING_LEN(str);
     if (str_len == 0)

@@ -169,4 +169,10 @@
                  (set! a (* a b))
                  (list a b)))
 
+(tn "require")
+(let ((path (string-append (%%system-load-path) "/srfi-95.scm")))
+  (assert-false (tn) (provided? (string-append "*" path "-loaded*")))
+  (require path)
+  (assert-true (tn) (provided? (string-append "*" path "-loaded*"))))
+
 (total-report)

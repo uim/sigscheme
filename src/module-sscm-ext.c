@@ -263,7 +263,7 @@ make_loaded_str(const char *filename)
     char *loaded_str;
     size_t size;
 
-    size = strlen(filename) + sizeof("*-loaded*") + 1 /* '\0' */;
+    size = strlen(filename) + sizeof("*-loaded*");
     loaded_str = scm_malloc(size);
     sprintf(loaded_str, "*%s-loaded*", filename);
 

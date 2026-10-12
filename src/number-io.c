@@ -112,7 +112,8 @@ scm_int2string(ScmValueFormat vfmt, uintmax_t n, int radix)
 
     SCM_ASSERT(VALID_RADIXP(radix));
     neg = (vfmt.signedp && ((intmax_t)n < 0));
-    un = (neg) ? (uintmax_t)-(intmax_t)n : n;
+    /* Negation of unsigned integers doesn't overflow. */
+    un = (neg) ? -n : n;
 
     end = p = &buf[sizeof(buf) - 1];
     *end = '\0';

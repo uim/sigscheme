@@ -57,10 +57,64 @@
 /*=======================================
   File Local Function Declarations
 =======================================*/
+static scm_int_t gcd(const char *func_name, scm_int_t x, scm_int_t y);
 
 /*=======================================
   Function Definitions
 =======================================*/
+/* The following functions signal an error instead of overflowing. They
+ * don't compute out of range values because overflow of signed integers is
+ * undefined behavior. */
+
+SCM_EXPORT scm_int_t
+scm_int_multiply(const char *func_name, scm_int_t n1, scm_int_t n2)
+{
+    if (n1 > 0
+        ? (n2 > 0 ? n1 > SCM_INT_MAX / n2 : n2 < SCM_INT_MIN / n1)
+        : (n2 > 0 ? n1 < SCM_INT_MIN / n2 : n2 < 0 && n1 < SCM_INT_MAX / n2))
+        scm_error(func_name, ERRMSG_FIXNUM_OVERFLOW);
+
+    return n1 * n2;
+}
+
+/* Returns the quotient truncated toward zero. */
+SCM_EXPORT scm_int_t
+scm_int_quotient(const char *func_name, scm_int_t n1, scm_int_t n2)
+{
+    if (n2 == 0)
+        scm_error(func_name, ERRMSG_DIV_BY_ZERO);
+    if (n1 == SCM_INT_MIN && n2 == -1)
+        scm_error(func_name, ERRMSG_FIXNUM_OVERFLOW);
+
+    return n1 / n2;
+}
+
+/* Returns the remainder that has the same sign as N1. */
+SCM_EXPORT scm_int_t
+scm_int_remainder(const char *func_name, scm_int_t n1, scm_int_t n2)
+{
+    if (n2 == 0)
+        scm_error(func_name, ERRMSG_DIV_BY_ZERO);
+    /* SCM_INT_MIN % -1 may overflow. */
+    if (n2 == -1)
+        return 0;
+
+    return n1 % n2;
+}
+
+/* Returns the remainder that has the same sign as N2. */
+SCM_EXPORT scm_int_t
+scm_int_modulo(const char *func_name, scm_int_t n1, scm_int_t n2)
+{
+    scm_int_t rem;
+
+    rem = scm_int_remainder(func_name, n1, n2);
+    if (rem && ((rem < 0) != (n2 < 0)))
+        rem += n2;
+
+    return rem;
+}
+
 /*===========================================================================
   R5RS : 6.2 Numbers : 6.2.5 Numerical Operations
 ===========================================================================*/
@@ -82,11 +136,9 @@ scm_p_add(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_1:
         ENSURE_INT(right);
         r = SCM_INT_VALUE(right);
-        result = l + r;
-        if (INT_OUT_OF_RANGEP(result)
-            || (r > 0 && result < l)
-            || (r < 0 && result > l))
+        if (r > 0 ? l > SCM_INT_MAX - r : l < SCM_INT_MIN - r)
             ERR(ERRMSG_FIXNUM_OVERFLOW);
+        result = l + r;
         /* Fall through. */
     case SCM_REDUCE_0:
         break;
@@ -97,7 +149,6 @@ scm_p_add(ScmObj left, ScmObj right, enum ScmReductionState *state)
     return MAKE_INT(result);
 }
 
-/* no overflow check */
 SCM_EXPORT ScmObj
 scm_p_multiply(ScmObj left, ScmObj right, enum ScmReductionState *state)
 {
@@ -113,7 +164,8 @@ scm_p_multiply(ScmObj left, ScmObj right, enum ScmReductionState *state)
         /* Fall through. */
     case SCM_REDUCE_1:
         ENSURE_INT(right);
-        result *= SCM_INT_VALUE(right);
+        result = scm_int_multiply(SCM_MANGLE(name), result,
+                                  SCM_INT_VALUE(right));
         /* Fall through. */
     case SCM_REDUCE_0:
         break;
@@ -140,11 +192,9 @@ scm_p_subtract(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_1:
         ENSURE_INT(right);
         r = SCM_INT_VALUE(right);
-        result = l - r;
-        if (INT_OUT_OF_RANGEP(result)
-            || (r > 0 && result > l)
-            || (r < 0 && result < l))
+        if (r < 0 ? l > SCM_INT_MAX + r : l < SCM_INT_MIN + r)
             ERR(ERRMSG_FIXNUM_OVERFLOW);
+        result = l - r;
         break;
 
     case SCM_REDUCE_0:
@@ -171,9 +221,7 @@ scm_p_divide(ScmObj left, ScmObj right, enum ScmReductionState *state)
     case SCM_REDUCE_1:
         ENSURE_INT(right);
         val = SCM_INT_VALUE(right);
-        if (val == 0)
-            ERR(ERRMSG_DIV_BY_ZERO);
-        result /= val;
+        result = scm_int_quotient(SCM_MANGLE(name), result, val);
         break;
 
     case SCM_REDUCE_0:
@@ -410,26 +458,14 @@ scm_p_quotient(ScmObj _n1, ScmObj _n2)
 
     n1 = SCM_INT_VALUE(_n1);
     n2 = SCM_INT_VALUE(_n2);
-    if (n2 == 0)
-        ERR(ERRMSG_DIV_BY_ZERO);
 
-    /*
-     * ISO/IEC 9899:1999(E):
-     *
-     * 6.3.1.4 Real floating and integer
-     * 
-     * 1 When a finite value of real floating type is converted to an integer
-     *   type other than _Bool, the fractional part is discarded (i.e., the
-     *   value is truncated toward zero). If the value of the integral part
-     *   cannot be represented by the integer type, the behavior is undefined.
-     */    
-    return MAKE_INT((scm_int_t)(n1 / n2));
+    return MAKE_INT(scm_int_quotient(SCM_MANGLE(name), n1, n2));
 }
 
 SCM_EXPORT ScmObj
 scm_p_modulo(ScmObj _n1, ScmObj _n2)
 {
-    scm_int_t n1, n2, rem;
+    scm_int_t n1, n2;
     DECLARE_FUNCTION("modulo", procedure_fixed_2);
 
     ENSURE_INT(_n1);
@@ -437,14 +473,8 @@ scm_p_modulo(ScmObj _n1, ScmObj _n2)
 
     n1 = SCM_INT_VALUE(_n1);
     n2 = SCM_INT_VALUE(_n2);
-    if (n2 == 0)
-        ERR(ERRMSG_DIV_BY_ZERO);
 
-    rem = n1 % n2;
-    if (rem && ((n1 < 0 && 0 < n2) || (n2 < 0 && 0 < n1)))
-        rem += n2;
-
-    return MAKE_INT(rem);
+    return MAKE_INT(scm_int_modulo(SCM_MANGLE(name), n1, n2));
 }
 
 SCM_EXPORT ScmObj
@@ -458,10 +488,8 @@ scm_p_remainder(ScmObj _n1, ScmObj _n2)
 
     n1 = SCM_INT_VALUE(_n1);
     n2 = SCM_INT_VALUE(_n2);
-    if (n2 == 0)
-        ERR(ERRMSG_DIV_BY_ZERO);
 
-    return MAKE_INT(n1 % n2);
+    return MAKE_INT(scm_int_remainder(SCM_MANGLE(name), n1, n2));
 }
 
 SCM_EXPORT ScmObj
@@ -483,14 +511,17 @@ scm_p_expt(ScmObj _base, ScmObj _expo)
     result = 1;
     while (expo > 0) {
         if (expo % 2 == 1)
-            result *= base;
-        base *= base;
+            result = scm_int_multiply(SCM_MANGLE(name), result, base);
         expo /= 2;
+        /* Don't compute the unused square to avoid false overflow. */
+        if (expo > 0)
+            base = scm_int_multiply(SCM_MANGLE(name), base, base);
     }
     return MAKE_INT(result);
 }
 
-static scm_int_t gcd(scm_int_t x, scm_int_t y)
+static scm_int_t
+gcd(const char *func_name, scm_int_t x, scm_int_t y)
 {
     /* Note: we do not check the sign of x and y, because
        this does not affect the computation, except maybe
@@ -500,9 +531,11 @@ static scm_int_t gcd(scm_int_t x, scm_int_t y)
     scm_int_t tmp;
     while (x != 0) {
         tmp = x;
-        x = y % x;
+        x = scm_int_remainder(func_name, y, x);
         y = tmp;
     }
+    if (y == SCM_INT_MIN)
+        scm_error(func_name, ERRMSG_FIXNUM_OVERFLOW);
     return (y >= 0) ? y : -y;
 }
 
@@ -521,7 +554,7 @@ ScmObj scm_p_gcd(ScmObj left, ScmObj right, enum ScmReductionState *state)
         /* Fall through. */
     case SCM_REDUCE_1:
         ENSURE_INT(right);
-        result = gcd(result, SCM_INT_VALUE(right));
+        result = gcd(SCM_MANGLE(name), result, SCM_INT_VALUE(right));
         /* Fall through. */
     case SCM_REDUCE_0:
         break;
@@ -534,7 +567,7 @@ ScmObj scm_p_gcd(ScmObj left, ScmObj right, enum ScmReductionState *state)
 SCM_EXPORT ScmObj
 scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state)
 {
-    scm_int_t result;
+    scm_int_t result, r;
     DECLARE_FUNCTION("lcm", reduction_operator);
 
     result = 1;
@@ -546,13 +579,20 @@ scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state)
         /* Fall through. */
     case SCM_REDUCE_1:
         ENSURE_INT(right);
-        result *= SCM_INT_VALUE(right) / gcd(result, SCM_INT_VALUE(right));
+        r = SCM_INT_VALUE(right);
+        if (result == 0 || r == 0)
+            result = 0;
+        else
+            result = scm_int_multiply(SCM_MANGLE(name), result,
+                                      r / gcd(SCM_MANGLE(name), result, r));
         /* Fall through. */
     case SCM_REDUCE_0:
         break;
     default:
         SCM_NOTREACHED;
     }
+    if (result == SCM_INT_MIN)
+        ERR(ERRMSG_FIXNUM_OVERFLOW);
     if (result < 0) result = -result;
     return MAKE_INT(result);
 }

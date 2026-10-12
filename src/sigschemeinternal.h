@@ -730,6 +730,16 @@ SCM_EXPORT void scm_macro_bad_scope(ScmObj sym);
 /* error.c */
 SCM_EXPORT void scm_init_error(void);
 
+/* number.c */
+SCM_EXPORT scm_int_t scm_int_multiply(const char *func_name,
+                                      scm_int_t n1, scm_int_t n2);
+SCM_EXPORT scm_int_t scm_int_quotient(const char *func_name,
+                                      scm_int_t n1, scm_int_t n2);
+SCM_EXPORT scm_int_t scm_int_remainder(const char *func_name,
+                                       scm_int_t n1, scm_int_t n2);
+SCM_EXPORT scm_int_t scm_int_modulo(const char *func_name,
+                                    scm_int_t n1, scm_int_t n2);
+
 /* promise.c */
 SCM_EXPORT void scm_init_promise(void);
 

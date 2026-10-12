@@ -300,9 +300,9 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         ;;
     esac
 
-    # experimental features
+    # R5RS and R7RS require syntax-rules.
     case "$enable_conf" in
-      dev)
+      full|r5rs|r7rs|dev)
         use_hygienic_macro=yes
         ;;
       *)

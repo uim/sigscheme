@@ -222,6 +222,8 @@ conf_srfis_all = {
 }
 conf_r7rs = {
   'r7rs': 'yes',
+  # R7RS requires syntax-rules.
+  'hygienic_macro': 'yes',
   # R7RS vectors are self-evaluating.
   'strict_vector_form': 'no',
 }
@@ -229,9 +231,7 @@ conf_presets = {
   'regular': {
     'hygienic_macro': 'no',
   },
-  'r7rs': {
-    'hygienic_macro': 'no',
-  } + conf_r7rs,
+  'r7rs': conf_r7rs,
   'full': {
     # multibyte char handlings
     'utf8': 'yes',
@@ -245,8 +245,6 @@ conf_presets = {
     'strict_argcheck': 'yes',
     'strict_toplevel_definitions': 'yes',
     'internal_definitions': 'yes',
-    # experimental features
-    'hygienic_macro': 'no',
     # SigScheme-specific extensions
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
@@ -260,8 +258,8 @@ conf_presets = {
   'r5rs': {
     # R5RS behaviors
     'strict_r5rs': 'yes',
-    # experimental features
-    'hygienic_macro': 'no',
+    # R5RS requires syntax-rules.
+    'hygienic_macro': 'yes',
     # SigScheme-specific extensions
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',

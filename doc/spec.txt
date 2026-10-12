@@ -59,8 +59,10 @@ The hygienic macros are fully supported. But although the macro expansion
 engine itself works well and can be expected as R5RS-conformant, its
 integration into SigScheme is not fully validated yet. It is likely having a
 problem on identifier references. So the feature is disabled by default on most
-configurations. It is enabled when R7RS is enabled because R7RS requires
-`syntax-rules`.
+configurations. It is enabled with `--enable-conf=r5rs` and when R7RS is
+enabled because R5RS and R7RS require `syntax-rules`. The R7RS extensions of
+`syntax-rules` such as a custom ellipsis and `_` are available only when R7RS
+is enabled.
 
 In addition to the validity problem, there is an architectural inefficiency.
 Since SigScheme development had been started as macro-less naive system, it

@@ -264,6 +264,57 @@
                              ((x . y) 'fail))))
                  (list (macro _ _) (macro a b))))
 
+(tn "internal define-syntax")
+(assert-equal? (tn)
+               1
+               (let ()
+                 (define-syntax one
+                   (syntax-rules ()
+                     ((_) 1)))
+                 (one)))
+;; It isn't defined globally.
+(assert-false (tn) (symbol-bound? 'one))
+;; A macro defined in the body refers to the definitions in the body.
+(assert-equal? (tn)
+               42
+               (let ()
+                 (define-syntax call-bar
+                   (syntax-rules ()
+                     ((_) (bar))))
+                 (define (quux)
+                   (call-bar))
+                 (define (bar)
+                   42)
+                 (quux)))
+;; A macro defined in the body can define other definitions.
+(assert-equal? (tn)
+               'x
+               (let ()
+                 (define-syntax define-quoter
+                   (syntax-rules ()
+                     ((_ name y)
+                      (define-syntax name
+                        (syntax-rules ()
+                          ((_ x) 'y))))))
+                 (define-quoter quoter x)
+                 (quoter 1)))
+(assert-equal? (tn)
+               '(1 2)
+               (let ()
+                 (define-syntax define-two
+                   (syntax-rules ()
+                     ((_ a b) (begin (define a 1) (define b 2)))))
+                 (define-two x y)
+                 (list x y)))
+(assert-error (tn)
+              (lambda ()
+                (let ()
+                  'expression
+                  (define-syntax one
+                    (syntax-rules ()
+                      ((_) 1)))
+                  (one))))
+
 (tn "define-values")
 (define-values (dv-a dv-b . dv-c) (values 1 2 3 4))
 (assert-equal? (tn) '(1 2 (3 4)) (list dv-a dv-b dv-c))

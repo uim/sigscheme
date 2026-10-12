@@ -269,12 +269,20 @@
 ;; Just as for the equivalent `letrec' expression, it must be possible to
 ;; evaluate each <expression> of every internal definition in a <body> without
 ;; assigning or referring to the value of any <variable> being defined.
-(assert-error  (tn)
-               (lambda ()
-                 (let loop ()
-                   (define var1 1)
-                   (define var2 var1)
-                   'val)))
+;; R7RS: Internal definitions are letrec* and refer to the preceding ones.
+(if (provided? "r7rs")
+    (assert-equal? (tn)
+                   1
+                   (let loop ()
+                     (define var1 1)
+                     (define var2 var1)
+                     var2))
+    (assert-error  (tn)
+                   (lambda ()
+                     (let loop ()
+                       (define var1 1)
+                       (define var2 var1)
+                       'val))))
 (assert-error  (tn)
                (lambda ()
                  (let loop ()

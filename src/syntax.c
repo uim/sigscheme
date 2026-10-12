@@ -103,7 +103,7 @@ static ScmObj l_sym_else, l_sym_yields, l_sym_define;
 #if SCM_USE_INTERNAL_DEFINITIONS
 static ScmObj l_sym_begin, l_syn_lambda;
 #if SCM_USE_R7RS
-static ScmObj l_sym_define_values;
+static ScmObj l_sym_define_values, l_sym_define_syntax;
 #endif
 #endif /* SCM_USE_INTERNAL_DEFINITIONS */
 #undef static
@@ -114,14 +114,31 @@ SCM_GLOBAL_VARS_END(static_syntax);
 #define l_sym_begin  SCM_GLOBAL_VAR(static_syntax, l_sym_begin)
 #define l_syn_lambda SCM_GLOBAL_VAR(static_syntax, l_syn_lambda)
 #define l_sym_define_values SCM_GLOBAL_VAR(static_syntax, l_sym_define_values)
+#define l_sym_define_syntax SCM_GLOBAL_VAR(static_syntax, l_sym_define_syntax)
 SCM_DEFINE_STATIC_VARS(static_syntax);
 
 /*=======================================
   File Local Function Declarations
 =======================================*/
 #if SCM_USE_INTERNAL_DEFINITIONS
-static ScmObj filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
-                                 ScmQueue *def_expq);
+/* Internal definitions found in a <body>. */
+typedef struct {
+    ScmObj outer_env;           /* The environment of the <body>. */
+    ScmObj env;                 /* OUTER_ENV extended with a frame for the
+                                 * definitions if there are definitions. */
+    ScmQueue def_expq;          /* Queue of (<formals> . <expression>). */
+    scm_int_t n_defs;           /* The number of definitions. */
+} body_context;
+
+static void add_internal_variable(body_context *ctx, ScmObj var, ScmObj val);
+static void add_internal_definition(body_context *ctx, ScmObj formals,
+                                    ScmObj exp);
+#if SCM_USE_HYGIENIC_MACRO
+static ScmObj lookup_macro(ScmObj op, ScmObj env);
+#endif
+static ScmObj filter_definitions(body_context *ctx, ScmObj body,
+                                 scm_bool followed);
+static void set_internal_values(ScmObj frame, ScmObj formals, ScmObj vals);
 #endif
 
 /*=======================================
@@ -148,6 +165,7 @@ scm_init_syntax(void)
     l_sym_begin  = scm_intern("begin");
 #if SCM_USE_R7RS
     l_sym_define_values = scm_intern("define-values");
+    l_sym_define_syntax = scm_intern("define-syntax");
 #endif
     scm_gc_protect_with_init(&l_syn_lambda,
                              scm_symbol_value(scm_intern("lambda"),
@@ -708,26 +726,83 @@ scm_s_letrec_internal(enum ScmObjType permitted, ScmObj bindings, ScmObj body,
  */
 
 #if SCM_USE_INTERNAL_DEFINITIONS
-static ScmObj
-filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
-                   ScmQueue *def_expq)
+static void
+add_internal_variable(body_context *ctx, ScmObj var, ScmObj val)
 {
-    ScmObj exp, var, sym, begin_rest, lambda_formals, lambda_body;
+    if (EQ(ctx->env, ctx->outer_env))
+        ctx->env = scm_extend_environment(SCM_NULL, SCM_NULL, ctx->env);
+    ctx->env = scm_add_environment(var, val, ctx->env);
+}
+
+/* Adds the variables of FORMALS whose values are evaluated from EXP later. */
+static void
+add_internal_definition(body_context *ctx, ScmObj formals, ScmObj exp)
+{
+    ScmObj vars;
+
+    for (vars = formals; CONSP(vars); vars = CDR(vars))
+        add_internal_variable(ctx, CAR(vars), SCM_UNBOUND);
+    if (!NULLP(vars))
+        add_internal_variable(ctx, vars, SCM_UNBOUND);
+    SCM_QUEUE_ADD(ctx->def_expq, CONS(formals, exp));
+    ctx->n_defs++;
+}
+
+#if SCM_USE_HYGIENIC_MACRO
+/* Returns the macro bound to OP or #f. */
+static ScmObj
+lookup_macro(ScmObj op, ScmObj env)
+{
+    ScmRef ref;
+    ScmObj val;
+
+    if (!IDENTIFIERP(op))
+        return SCM_FALSE;
+    ref = scm_lookup_environment(op, env);
+    if (ref != SCM_INVALID_REF)
+        val = DEREF(ref);
+    else
+        val = SCM_SYMBOL_VCELL(SCM_UNWRAP_KEYWORD(op));
+    return HMACROP(val) ? val : SCM_FALSE;
+}
+#endif
+
+/* Collects definitions at the beginning of BODY and returns the rest. Macro
+ * uses are expanded to find definitions in them. Keywords are compared
+ * without the binding information because they may be inserted by a
+ * macro. FOLLOWED is true if forms follow BODY in the enclosing <body>. */
+static ScmObj
+filter_definitions(body_context *ctx, ScmObj body, scm_bool followed)
+{
+    ScmObj form, exp, var, sym, begin_rest, lambda_formals, lambda_body;
+    scm_int_t n_defs;
+#if SCM_USE_HYGIENIC_MACRO
+    ScmObj macro;
+    ScmEvalState state;
+#endif
     DECLARE_INTERNAL_FUNCTION("(body)");
 
-    for (; CONSP(body); body = CDR(body)) {
-        exp = CAR(body);
-        if (!CONSP(exp))
+    while (CONSP(body)) {
+        form = CAR(body);
+        if (!CONSP(form))
             break;
-        sym = POP(exp);
+        sym = CAR(form);
+#if SCM_USE_HYGIENIC_MACRO
+        /* Avoid the function call for the common case. */
+        if (FARSYMBOLP(sym))
+            sym = SCM_UNWRAP_KEYWORD(sym);
+#endif
+        exp = CDR(form);
         if (EQ(sym, l_sym_begin)) {
-            begin_rest = filter_definitions(exp, formals, actuals, def_expq);
+            n_defs = ctx->n_defs;
+            begin_rest = filter_definitions(ctx, exp,
+                                            followed || CONSP(CDR(body)));
             if (!NULLP(begin_rest)) {
                 /* no definitions found */
-                if (begin_rest == exp)
+                if (ctx->n_defs == n_defs)
                     return body;
 
-                ERR_OBJ("definitions and expressions intermixed", CAR(body));
+                ERR_OBJ("definitions and expressions intermixed", form);
             }
             /* '(begin)' is a valid R5RS definition form */
         } else if (EQ(sym, l_sym_define)) {
@@ -735,7 +810,7 @@ filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
             if (IDENTIFIERP(var)) {
                 /* (define <variable> <expression>) */
                 if (!LIST_1_P(exp))
-                    ERR_OBJ(ERRMSG_BAD_DEFINE_FORM, CAR(body));
+                    ERR_OBJ(ERRMSG_BAD_DEFINE_FORM, form);
                 exp = CAR(exp);
             } else if (CONSP(var)) {
                 /* (define (<variable> . <formals>) <body>) */
@@ -747,30 +822,47 @@ filter_definitions(ScmObj body, ScmObj *formals, ScmObj *actuals,
                 var = sym;
                 exp = CONS(l_syn_lambda, CONS(lambda_formals, lambda_body));
             } else {
-                ERR_OBJ(ERRMSG_BAD_DEFINE_FORM, CAR(body));
+                ERR_OBJ(ERRMSG_BAD_DEFINE_FORM, form);
             }
-            *formals = CONS(var, *formals);
-            *actuals = CONS(SCM_UNBOUND, *actuals);
-            SCM_QUEUE_ADD(*def_expq, CONS(LIST_1(var), exp));
+            add_internal_definition(ctx, LIST_1(var), exp);
 #if SCM_USE_R7RS
         } else if (EQ(sym, l_sym_define_values)) {
             /* (define-values <formals> <expression>) */
             if (!LIST_2_P(exp)
                 || SCM_LISTLEN_ERRORP(scm_validate_formals(CAR(exp))))
-                ERR_OBJ("bad define-values form", CAR(body));
-            for (var = CAR(exp); CONSP(var); var = CDR(var)) {
-                *formals = CONS(CAR(var), *formals);
-                *actuals = CONS(SCM_UNBOUND, *actuals);
-            }
-            if (!NULLP(var)) {
-                *formals = CONS(var, *formals);
-                *actuals = CONS(SCM_UNBOUND, *actuals);
-            }
-            SCM_QUEUE_ADD(*def_expq, CONS(CAR(exp), CADR(exp)));
+                ERR_OBJ("bad define-values form", form);
+            add_internal_definition(ctx, CAR(exp), CADR(exp));
+        } else if (EQ(sym, l_sym_define_syntax)) {
+            /* (define-syntax <keyword> <transformer spec>): It's evaluated
+             * here because the following forms may use it. */
+            if (!LIST_2_P(exp) || !IDENTIFIERP(CAR(exp)))
+                ERR_OBJ("bad define-syntax form", form);
+            /* Evaluate it in the frame for the definitions. */
+            add_internal_variable(ctx, CAR(exp), SCM_UNBOUND);
+            macro = EVAL(CADR(exp), ctx->env);
+            if (!HMACROP(macro))
+                ERR_OBJ("syntax-rules required but got", macro);
+            SET(scm_lookup_frame(CAR(exp), CAR(ctx->env)), macro);
+            ctx->n_defs++;
 #endif
         } else {
+#if SCM_USE_HYGIENIC_MACRO
+            /* The last form doesn't need to be expanded here because it
+             * must be an expression. This avoids the extra lookup for the
+             * common <body> that has only one expression. */
+            if (!followed && !CONSP(CDR(body)))
+                break;
+            macro = lookup_macro(CAR(form), ctx->env);
+            if (!FALSEP(macro)) {
+                /* Examine the expansion again. */
+                SCM_EVAL_STATE_INIT1(state, ctx->env);
+                body = CONS(scm_expand_macro(macro, exp, &state), CDR(body));
+                continue;
+            }
+#endif
             break;
         }
+        body = CDR(body);
     }
 
     return body;
@@ -813,6 +905,17 @@ scm_match_values(const char *func_name, ScmObj formals, ScmObj val)
 }
 
 #if SCM_USE_INTERNAL_DEFINITIONS
+/* Sets VALS to the variables of FORMALS in FRAME. VALS is a result of
+ * scm_match_values(). */
+static void
+set_internal_values(ScmObj frame, ScmObj formals, ScmObj vals)
+{
+    for (; CONSP(formals); formals = CDR(formals), vals = CDR(vals))
+        SET(scm_lookup_frame(CAR(formals), frame), CAR(vals));
+    if (!NULLP(formals))
+        SET(scm_lookup_frame(formals, frame), CAR(vals));
+}
+
 /* <body> part of let, let*, letrec and lambda. This function performs strict
  * form validation for internal definitions as specified in R5RS ("5.2.2
  * Internal definitions" and "7.1.6 Programs and definitions"). */
@@ -821,30 +924,40 @@ scm_match_values(const char *func_name, ScmObj formals, ScmObj val)
 SCM_EXPORT ScmObj
 scm_s_body(ScmObj body, ScmEvalState *eval_state)
 {
-    ScmQueue def_expq;
-    ScmObj env, formals, actuals, def_exps, def, val, vals;
+    body_context ctx;
+    ScmObj env, frame, def_exps, defs, def, vals;
     DECLARE_INTERNAL_FUNCTION("(body)" /* , syntax_variadic_tailrec_0 */);
 
     if (CONSP(body)) {
         /* collect internal definitions */
-        def_exps = formals = actuals = SCM_NULL;
-        SCM_QUEUE_POINT_TO(def_expq, def_exps);
-        body = filter_definitions(body, &formals, &actuals, &def_expq);
+        ctx.outer_env = ctx.env = eval_state->env;
+        def_exps = SCM_NULL;
+        SCM_QUEUE_POINT_TO(ctx.def_expq, def_exps);
+        ctx.n_defs = 0;
+        body = filter_definitions(&ctx, body, scm_false);
 
-        if (!NULLP(def_exps)) {
-            /* extend env with the unbound variables */
-            env = scm_extend_environment(formals, actuals, eval_state->env);
-
-            /* eval the definitions and fill the variables with the results as
-             * if letrec. Each definition is (<formals> . <expression>). */
-            actuals = SCM_NULL;
-            FOR_EACH (def, def_exps) {
+        if (!EQ(ctx.env, ctx.outer_env)) {
+            /* eval the definitions and fill the variables with the results.
+             * Each definition is (<formals> . <expression>). */
+            env = ctx.env;
+            frame = CAR(env);
+            defs = def_exps;
+            FOR_EACH (def, defs) {
                 vals = scm_match_values("(body)", CAR(def),
                                         EVAL(CDR(def), env));
-                FOR_EACH (val, vals)
-                    actuals = CONS(val, actuals);
+#if SCM_USE_R7RS
+                /* R7RS: as if letrec* */
+                set_internal_values(frame, CAR(def), vals);
+#else
+                /* R5RS: as if letrec */
+                SET_CDR(def, vals);
+#endif
             }
-            eval_state->env = scm_update_environment(actuals, env);
+#if !SCM_USE_R7RS
+            FOR_EACH (def, def_exps)
+                set_internal_values(frame, CAR(def), CDR(def));
+#endif
+            eval_state->env = env;
         }
     }
     /* eval rest of the body */

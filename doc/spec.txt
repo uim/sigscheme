@@ -378,6 +378,12 @@ cost.
   definitions as opposed to the top level definitions described above.
 ----------------------------------------------------------------
 
+Internal definitions are evaluated as if `letrec` as R5RS specifies. They are
+evaluated as if `letrec*` when R7RS is enabled. So a definition can refer to
+the preceding definitions only when R7RS is enabled. Macro uses at the
+beginning of a <body> are expanded to find definitions in them. `define-syntax`
+can be used as an internal definition only when R7RS is enabled.
+
 Superfluous arguments
 ~~~~~~~~~~~~~~~~~~~~~
 

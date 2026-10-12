@@ -410,6 +410,10 @@ scm_s_define_syntax(ScmObj var, ScmObj macro, ScmObj env)
     DECLARE_FUNCTION("define-syntax", syntax_fixed_2);
 
     ENSURE_IDENTIFIER(var);
+    /* Internal syntax definitions of R7RS are handled in scm_s_body(). */
+    if (!scm_toplevel_environmentp(env))
+        ERR_OBJ("syntax definitions are valid only at toplevel or beginning "
+                "of a body", var);
 
     scm_s_define_internal(ScmMacro, var, macro, env);
 

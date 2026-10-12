@@ -716,6 +716,44 @@
                              ((_ (a ...) b) '(a ... . b)))))
                  (macro (1 2) 3)))
 
+;; A macro use at the beginning of a body may expand to definitions.
+(define-syntax define-pair
+  (syntax-rules ()
+    ((_ a b va vb)
+     (begin
+       (define a va)
+       (define b vb)))))
+(assert-equal? "syntax-rules internal definitions"
+               '(1 2)
+               (let ()
+                 (define-pair x y 1 2)
+                 (list x y)))
+(assert-equal? "syntax-rules internal definitions mixed"
+               '(0 1 2 3)
+               (let ()
+                 (define w 0)
+                 (define-pair x y 1 2)
+                 (define z 3)
+                 (list w x y z)))
+(assert-equal? "syntax-rules internal definitions in begin"
+               '(1 2)
+               (let ()
+                 (begin
+                   (define-pair x y 1 2))
+                 (list x y)))
+(define-syntax my-if
+  (syntax-rules ()
+    ((_ c t e) (cond (c t) (else e)))))
+(assert-equal? "syntax-rules expression at the beginning of a body"
+               'yes
+               (let ()
+                 (my-if #t 'yes 'no)))
+(assert-error "syntax-rules definition after expression"
+              (let ()
+                (my-if #t 'yes 'no)
+                (define-pair x y 1 2)
+                (list x y)))
+
 (if (not (provided? "r7rs"))
     (begin
       (assert-error "syntax-rules custom ellipsis"
@@ -727,6 +765,12 @@
                     (let-syntax
                         ((macro (syntax-rules ()
                                   ((_) '(... ...)))))
+                      (macro)))
+      (assert-error "syntax-rules internal define-syntax"
+                    (let ()
+                      (define-syntax macro
+                        (syntax-rules ()
+                          ((_) 1)))
                       (macro)))
       (assert-equal? "syntax-rules underscore is a pattern variable"
                      1

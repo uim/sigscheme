@@ -246,6 +246,11 @@
                  (cond
                   (#t => 1 3))))
 
+(tn "cond locally bound keyword")
+;; R5RS 4.3.2: A locally bound => isn't the keyword.
+(assert-equal? (tn) 'ok (let ((=> #f)) (cond (#t => 'ok))))
+(assert-equal? (tn) 'b (let ((else #f)) (cond (else 'a) (#t 'b))))
+
 
 ;;
 ;; case
@@ -449,6 +454,20 @@
                'else
                (case 'key
                 (else 'else)))
+
+(tn "case locally bound keyword")
+(assert-error  (tn)
+               (lambda ()
+                 (let ((else #f))
+                   (case 3
+                     ((1) 'one)
+                     (else 'x)))))
+(if (provided? "r7rs")
+    (assert-equal? (tn)
+                   'ok
+                   (let ((=> #f))
+                     (case 1
+                       ((1) => 'ok)))))
 
 ;;
 ;; and

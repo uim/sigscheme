@@ -748,6 +748,21 @@
                'yes
                (let ()
                  (my-if #t 'yes 'no)))
+(assert-equal? "syntax-rules else inserted by macro"
+               'no
+               (my-if #f 'yes 'no))
+(assert-equal? "syntax-rules => inserted by macro"
+               20
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ x) (cond (x => (lambda (v) (* v 10))))))))
+                 (macro 2)))
+(assert-equal? "syntax-rules else inserted by macro in case"
+               'other
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ x) (case x ((1) 'one) (else 'other))))))
+                 (macro 2)))
 (assert-error "syntax-rules definition after expression"
               (let ()
                 (my-if #t 'yes 'no)

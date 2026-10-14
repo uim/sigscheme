@@ -120,6 +120,7 @@ SCM_DEFINE_STATIC_VARS(static_syntax);
 /*=======================================
   File Local Function Declarations
 =======================================*/
+static scm_bool keywordp(ScmObj obj, ScmObj keyword, ScmObj env);
 #if SCM_USE_INTERNAL_DEFINITIONS
 /* Internal definitions found in a <body>. */
 typedef struct {
@@ -290,6 +291,26 @@ scm_s_setx(ScmObj sym, ScmObj exp, ScmObj env)
 /*===========================================================================
   R5RS : 4.2 Derived expression types : 4.2.1 Conditionals
 ===========================================================================*/
+/* Returns true if OBJ is the auxiliary syntax KEYWORD such as else and =>.
+ * An identifier inserted by a macro is also the keyword. A locally bound
+ * identifier isn't the keyword:
+ *
+ *   (let ((=> #f)) (cond (#t => 'ok)))  ==>  ok */
+static scm_bool
+keywordp(ScmObj obj, ScmObj keyword, ScmObj env)
+{
+    ScmObj sym;
+
+    sym = obj;
+#if SCM_USE_HYGIENIC_MACRO
+    /* Avoid the function call for the common case. */
+    if (FARSYMBOLP(sym))
+        sym = SCM_UNWRAP_KEYWORD(sym);
+#endif
+    return (EQ(sym, keyword)
+            && scm_lookup_environment(obj, env) == SCM_INVALID_REF);
+}
+
 /* body of 'cond' and 'guard' of SRFI-34 */
 SCM_EXPORT ScmObj
 scm_s_cond_internal(ScmObj clauses, ScmEvalState *eval_state)
@@ -329,7 +350,7 @@ scm_s_cond_internal(ScmObj clauses, ScmEvalState *eval_state)
 #if 0
         test = SCM_UNWRAP_SYNTAX(test);  /* FIXME: needed? */
 #endif
-        if (EQ(test, l_sym_else)) {
+        if (keywordp(test, l_sym_else, env)) {
             ASSERT_NO_MORE_ARG(clauses);
             return scm_s_begin(exps, eval_state);
         }
@@ -354,7 +375,7 @@ scm_s_cond_internal(ScmObj clauses, ScmEvalState *eval_state)
              * of the <test> and the value returned by this procedure is
              * returned by the cond expression.
              */
-            if (EQ(l_sym_yields, CAR(exps)) && LIST_2_P(exps)) {
+            if (LIST_2_P(exps) && keywordp(CAR(exps), l_sym_yields, env)) {
                 proc = EVAL(CADR(exps), env);
                 if (!PROCEDUREP(proc))
                     ERR_OBJ("exp after => must be a procedure but got", proc);
@@ -431,19 +452,18 @@ scm_s_case(ScmObj key, ScmObj clauses, ScmEvalState *eval_state)
         test = CAR(clause);
         exps = CDR(clause);
 
-        test = SCM_UNWRAP_SYNTAX(test);
-        if (EQ(test, l_sym_else))
+        if (keywordp(test, l_sym_else, eval_state->env))
             ASSERT_NO_MORE_ARG(clauses);
         else
-            test = scm_p_memv(key, test);
+            test = scm_p_memv(key, SCM_UNWRAP_SYNTAX(test));
 
         if (TRUEP(test)) {
 #if SCM_USE_R7RS
             /* R7RS: ((<datum>*) => <expression>) and
              * (else => <expression>) call the procedure with the key. The
              * call is in a tail context like cond. */
-            if (CONSP(exps) && EQ(l_sym_yields, CAR(exps))
-                && LIST_2_P(exps)) {
+            if (LIST_2_P(exps)
+                && keywordp(CAR(exps), l_sym_yields, eval_state->env)) {
                 proc = EVAL(CADR(exps), eval_state->env);
                 if (!PROCEDUREP(proc))
                     ERR_OBJ("exp after => must be a procedure but got", proc);

@@ -1,7 +1,7 @@
 ;;  Filename : chibi-test.scm
 ;;  About    : (chibi test) compatible procedures to run r7rs-tests.scm
 ;;
-;;  Copyright (c) 2026 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -105,43 +105,38 @@
       (%r7rs-fail description "no error")
       (%r7rs-pass)))
 
-;; Returns (description arg ...). The first argument is the
-;; description if ARGS has N arguments. Otherwise, the last argument
-;; (the tested expression) is the description.
-(define (%r7rs-named-args args n)
-  (if (= (length args) n)
-      args
-      (cons (list 'quote (list-ref args (- (length args) 1))) args)))
-
 ;; (test expected expr) or (test name expected expr)
-(define-macro test
-  (lambda args
-    (let ((args (%r7rs-named-args args 3)))
-      `(%r7rs-test ,(car args)
-                   (lambda () ,(cadr args))
-                   (lambda () ,(caddr args))))))
+;;
+;; The tested expression is the description if no name is given.
+(define-syntax test
+  (syntax-rules ()
+    ((_ expected expr)
+     (test 'expr expected expr))
+    ((_ name expected expr)
+     (%r7rs-test name (lambda () expected) (lambda () expr)))))
 
 ;; (test-assert expr) or (test-assert name expr)
-(define-macro test-assert
-  (lambda args
-    (let ((args (%r7rs-named-args args 2)))
-      `(%r7rs-test ,(car args)
-                   (lambda () #t)
-                   (lambda () (if ,(cadr args) #t #f))))))
+(define-syntax test-assert
+  (syntax-rules ()
+    ((_ expr)
+     (test-assert 'expr expr))
+    ((_ name expr)
+     (%r7rs-test name (lambda () #t) (lambda () (if expr #t #f))))))
 
 ;; (test-error expr) or (test-error name expr)
-(define-macro test-error
-  (lambda args
-    (let ((args (%r7rs-named-args args 2)))
-      `(%r7rs-test-error ,(car args)
-                         (lambda () ,(cadr args))))))
+(define-syntax test-error
+  (syntax-rules ()
+    ((_ expr)
+     (test-error 'expr expr))
+    ((_ name expr)
+     (%r7rs-test-error name (lambda () expr)))))
 
 ;; (test-values expected expr) or (test-values name expected expr)
-(define-macro test-values
-  (lambda args
-    (let ((args (%r7rs-named-args args 3)))
-      `(%r7rs-test ,(car args)
-                   (lambda ()
-                     (call-with-values (lambda () ,(cadr args)) list))
-                   (lambda ()
-                     (call-with-values (lambda () ,(caddr args)) list))))))
+(define-syntax test-values
+  (syntax-rules ()
+    ((_ expected expr)
+     (test-values 'expr expected expr))
+    ((_ name expected expr)
+     (%r7rs-test name
+                 (lambda () (call-with-values (lambda () expected) list))
+                 (lambda () (call-with-values (lambda () expr) list))))))

@@ -73,6 +73,7 @@ static void floor_divide(const char *func_name, scm_int_t dividend,
 static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
 static ScmObj compare_all(comparator compare,
                           ScmObj obj1, ScmObj obj2, ScmObj rest);
+static ScmObj read_chars(ScmObj port, scm_int_t n, scm_ichar_t end_ch);
 static ScmObj map_sequences(const char *func_name, ScmObj proc, ScmObj seqs,
                             scm_bool vectorp, scm_bool collect);
 static ScmObj bind_values(const char *func_name, ScmObj bindings,
@@ -1373,5 +1374,178 @@ scm_p_r7rs_for_each(ScmObj proc, ScmObj lst, ScmObj rest)
 
     scm_p_r7rs_map(proc, lst, rest);
 
+    return SCM_UNDEF;
+}
+
+/*===========================================================================
+  R7RS : 6.13 Input and output : 6.13.1 Ports
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_portp(ScmObj obj)
+{
+    DECLARE_FUNCTION("port?", procedure_fixed_1);
+
+    return MAKE_BOOL(PORTP(obj));
+}
+
+/* All ports of SigScheme are textual ports. */
+SCM_EXPORT ScmObj
+scm_p_textual_portp(ScmObj obj)
+{
+    DECLARE_FUNCTION("textual-port?", procedure_fixed_1);
+
+    return MAKE_BOOL(PORTP(obj));
+}
+
+SCM_EXPORT ScmObj
+scm_p_binary_portp(ScmObj obj)
+{
+    DECLARE_FUNCTION("binary-port?", procedure_fixed_1);
+
+    return SCM_FALSE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_input_port_openp(ScmObj port)
+{
+    DECLARE_FUNCTION("input-port-open?", procedure_fixed_1);
+
+    ENSURE_PORT(port);
+
+    return MAKE_BOOL(SCM_PORT_FLAG(port) & SCM_PORTFLAG_LIVE_INPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_output_port_openp(ScmObj port)
+{
+    DECLARE_FUNCTION("output-port-open?", procedure_fixed_1);
+
+    ENSURE_PORT(port);
+
+    return MAKE_BOOL(SCM_PORT_FLAG(port) & SCM_PORTFLAG_LIVE_OUTPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_close_port(ScmObj port)
+{
+    DECLARE_FUNCTION("close-port", procedure_fixed_1);
+
+    scm_p_close_input_port(port);
+    return scm_p_close_output_port(port);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_current_error_port(void)
+{
+    DECLARE_FUNCTION("current-error-port", procedure_fixed_0);
+
+    return scm_p_current_error_port();
+}
+
+/*===========================================================================
+  R7RS : 6.13 Input and output : 6.13.2 Input
+===========================================================================*/
+/* Reads characters from PORT until END_CH, that isn't included, or N
+ * characters. N < 0 means no limit. Returns EOF if no character is read
+ * before EOF. */
+static ScmObj
+read_chars(ScmObj port, scm_int_t n, scm_ichar_t end_ch)
+{
+    ScmQueue q;
+    ScmObj chars;
+    scm_ichar_t ch;
+
+    chars = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, chars);
+    for (; n != 0; n--) {
+        ch = scm_port_get_char(port);
+        if (ch == SCM_ICHAR_EOF) {
+            if (NULLP(chars))
+                return SCM_EOF;
+            break;
+        }
+        if (ch == end_ch)
+            break;
+        SCM_QUEUE_ADD(q, MAKE_CHAR(ch));
+    }
+    return scm_p_list2string(chars);
+}
+
+SCM_EXPORT ScmObj
+scm_p_read_line(ScmObj args)
+{
+    DECLARE_FUNCTION("read-line", procedure_variadic_0);
+
+    return read_chars(scm_prepare_port(args, scm_in), -1, '\n');
+}
+
+SCM_EXPORT ScmObj
+scm_p_read_string(ScmObj k, ScmObj args)
+{
+    DECLARE_FUNCTION("read-string", procedure_variadic_1);
+
+    ENSURE_INT(k);
+    if (SCM_INT_VALUE(k) < 0)
+        ERR_OBJ("non-negative integer required but got", k);
+
+    return read_chars(scm_prepare_port(args, scm_in), SCM_INT_VALUE(k),
+                      SCM_ICHAR_EOF);
+}
+
+SCM_EXPORT ScmObj
+scm_p_eof_object(void)
+{
+    DECLARE_FUNCTION("eof-object", procedure_fixed_0);
+
+    return SCM_EOF;
+}
+
+/*===========================================================================
+  R7RS : 6.13 Input and output : 6.13.3 Output
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_write_shared(ScmObj obj, ScmObj args)
+{
+    DECLARE_FUNCTION("write-shared", procedure_variadic_1);
+
+    scm_write_ss(scm_prepare_port(args, scm_out), obj);
+    return SCM_UNDEF;
+}
+
+/* SigScheme's write doesn't use datum labels. */
+SCM_EXPORT ScmObj
+scm_p_write_simple(ScmObj obj, ScmObj args)
+{
+    DECLARE_FUNCTION("write-simple", procedure_variadic_1);
+
+    scm_write(scm_prepare_port(args, scm_out), obj);
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_p_write_string(ScmObj str, ScmObj args)
+{
+    ScmObj port;
+    scm_int_t start, end;
+    DECLARE_FUNCTION("write-string", procedure_variadic_1);
+
+    ENSURE_STRING(str);
+    port = scm_out;
+    if (CONSP(args)) {
+        port = POP(args);
+        ENSURE_PORT(port);
+    }
+    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+
+    scm_display(port, scm_p_substring(str, MAKE_INT(start), MAKE_INT(end)));
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_p_flush_output_port(ScmObj args)
+{
+    DECLARE_FUNCTION("flush-output-port", procedure_variadic_0);
+
+    scm_port_flush(scm_prepare_port(args, scm_out));
     return SCM_UNDEF;
 }

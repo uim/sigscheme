@@ -521,7 +521,7 @@ feature_required_dependencies = {
   'r6rs_named_chars': ['char'],
   'r6rs_chars': ['char', 'utf8', 'reader', 'r6rs_named_chars'],
   'r7rs': ['continuation', 'hygienic_macro', 'int', 'char', 'string',
-           'string_procedure', 'vector'],
+           'string_procedure', 'vector', 'srfi6', 'srfi38'],
 
   'compat_siod': ['sscm_extensions', 'srfi60', 'eval_c_string'],
   'strict_r5rs': ['strict_null_form', 'strict_vector_form', 'strict_argcheck',

@@ -1685,6 +1685,20 @@ SCM_EXPORT ScmObj scm_p_r7rs_char_ci_less_equalp(ScmObj ch1, ScmObj ch2,
 SCM_EXPORT ScmObj scm_p_r7rs_char_ci_greater_equalp(ScmObj ch1, ScmObj ch2,
                                                     ScmObj rest);
 SCM_EXPORT ScmObj scm_p_vector_map(ScmObj proc, ScmObj vec, ScmObj rest);
+SCM_EXPORT ScmObj scm_p_portp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_textual_portp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_binary_portp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_input_port_openp(ScmObj port);
+SCM_EXPORT ScmObj scm_p_output_port_openp(ScmObj port);
+SCM_EXPORT ScmObj scm_p_close_port(ScmObj port);
+SCM_EXPORT ScmObj scm_p_r7rs_current_error_port(void);
+SCM_EXPORT ScmObj scm_p_read_line(ScmObj args);
+SCM_EXPORT ScmObj scm_p_read_string(ScmObj k, ScmObj args);
+SCM_EXPORT ScmObj scm_p_eof_object(void);
+SCM_EXPORT ScmObj scm_p_write_shared(ScmObj obj, ScmObj args);
+SCM_EXPORT ScmObj scm_p_write_simple(ScmObj obj, ScmObj args);
+SCM_EXPORT ScmObj scm_p_write_string(ScmObj str, ScmObj args);
+SCM_EXPORT ScmObj scm_p_flush_output_port(ScmObj args);
 SCM_EXPORT ScmObj scm_p_vector_for_each(ScmObj proc, ScmObj vec,
                                         ScmObj rest);
 SCM_EXPORT ScmObj scm_p_r7rs_stringequalp(ScmObj str1, ScmObj str2,

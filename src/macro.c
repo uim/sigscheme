@@ -3,7 +3,7 @@
  *  About    : R5RS hygienic macros
  *
  *  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -1171,17 +1171,17 @@ transcribe_reppat(transcription_context *ctx, ScmObj template, ScmObj sub,
  * Syntax unwrapping
  * ==============================*/
 
-/* A path from the root object to the object being unwrapped. It's used
- * to detect circular references via CAR and vector elements. */
+/* A path from the root object to the object being examined. It's used to
+ * detect circular references via CAR and vector elements. */
 struct unwrap_path {
     ScmObj obj;
     const struct unwrap_path *parent;
 };
 
 static ScmObj unwrap_farsymbol(ScmObj obj);
-static void unwrap_dispatch(ScmObj obj, const struct unwrap_path *path);
-static void unwrap_listx(ScmObj ls, const struct unwrap_path *path);
-static void unwrap_vectorx(ScmObj obj, const struct unwrap_path *path);
+static scm_bool on_pathp(ScmObj obj, const struct unwrap_path *path);
+static scm_bool wrappedp(ScmObj obj, const struct unwrap_path *path);
+static ScmObj unwrap_copy(ScmObj obj, const struct unwrap_path *path);
 
 static ScmObj
 unwrap_farsymbol(ScmObj obj)
@@ -1193,83 +1193,111 @@ unwrap_farsymbol(ScmObj obj)
     return obj;
 }
 
-/* Unwraps a list or a vector destructively. Circular references are not
- * followed. */
-static void
-unwrap_dispatch(ScmObj obj, const struct unwrap_path *path)
+static scm_bool
+on_pathp(ScmObj obj, const struct unwrap_path *path)
 {
-    const struct unwrap_path *ancestor;
-    struct unwrap_path current;
-
-    if (!CONSP(obj) && !VECTORP(obj))
-        return;
-
-    for (ancestor = path; ancestor; ancestor = ancestor->parent) {
-        if (EQ(ancestor->obj, obj))
-            return;
+    for (; path; path = path->parent) {
+        if (EQ(path->obj, obj))
+            return scm_true;
     }
-
-    current.obj = obj;
-    current.parent = path;
-    if (CONSP(obj))
-        unwrap_listx(obj, &current);
-    else
-        unwrap_vectorx(obj, &current);
+    return scm_false;
 }
 
-static void
-unwrap_listx(ScmObj ls, const struct unwrap_path *path)
+/* Returns true if OBJ contains a far symbol. Circular references are not
+ * followed. */
+static scm_bool
+wrappedp(ScmObj obj, const struct unwrap_path *path)
 {
+    struct unwrap_path current;
     ScmObj slow;
+    scm_int_t i;
     scm_bool advance_slow;
 
+    if (FARSYMBOLP(obj))
+        return scm_true;
+    if (!CONSP(obj) && !VECTORP(obj))
+        return scm_false;
+    if (on_pathp(obj, path))
+        return scm_false;
+    current.obj = obj;
+    current.parent = path;
+
+    if (VECTORP(obj)) {
+        for (i = 0; i < SCM_VECTOR_LEN(obj); i++) {
+            if (wrappedp(SCM_VECTOR_VEC(obj)[i], &current))
+                return scm_true;
+        }
+        return scm_false;
+    }
+
     /* Detect a circular list by Floyd's cycle-finding algorithm. */
-    slow = ls;
+    slow = obj;
     advance_slow = scm_false;
-    for (;;) {
-        if (FARSYMBOLP(CAR(ls)))
-            SET_CAR(ls, unwrap_farsymbol(CAR(ls)));
-        else
-            unwrap_dispatch(CAR(ls), path);
-        if (!CONSP(CDR(ls)))
-            break;
-        ls = CDR(ls);
+    for (; CONSP(obj); obj = CDR(obj)) {
+        if (wrappedp(CAR(obj), &current))
+            return scm_true;
         if (advance_slow)
             slow = CDR(slow);
         advance_slow = !advance_slow;
-        if (EQ(ls, slow))
-            return;
+        if (EQ(CDR(obj), slow))
+            return scm_false;
     }
-    if (FARSYMBOLP(CDR(ls)))
-        SET_CDR(ls, unwrap_farsymbol(CDR(ls)));
-    else
-        unwrap_dispatch(CDR(ls), path);
+    return wrappedp(obj, &current);
 }
 
-static void
-unwrap_vectorx(ScmObj obj, const struct unwrap_path *path)
+/* Returns a copy of OBJ whose far symbols are unwrapped. Objects that don't
+ * contain a far symbol are shared. A circular list is copied until the
+ * cycle is detected. */
+static ScmObj
+unwrap_copy(ScmObj obj, const struct unwrap_path *path)
 {
-    ScmObj *vec;
-    scm_int_t i;
+    struct unwrap_path current;
+    ScmObj copy, slow, *vec;
+    ScmQueue q;
+    scm_int_t i, len;
+    scm_bool advance_slow;
 
-    i = SCM_VECTOR_LEN(obj);
-    vec = SCM_VECTOR_VEC(obj);
-    while (i--) {
-        if (FARSYMBOLP(vec[i]))
-            vec[i] = unwrap_farsymbol(vec[i]);
-        else
-            unwrap_dispatch(vec[i], path);
+    if (FARSYMBOLP(obj))
+        return unwrap_farsymbol(obj);
+    if (!wrappedp(obj, path))
+        return obj;
+    current.obj = obj;
+    current.parent = path;
+
+    if (VECTORP(obj)) {
+        len = SCM_VECTOR_LEN(obj);
+        vec = scm_malloc(sizeof(ScmObj) * len);
+        for (i = 0; i < len; i++)
+            vec[i] = unwrap_copy(SCM_VECTOR_VEC(obj)[i], &current);
+        return MAKE_VECTOR(vec, len);
     }
+
+    copy = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, copy);
+    slow = obj;
+    advance_slow = scm_false;
+    for (; CONSP(obj); obj = CDR(obj)) {
+        SCM_QUEUE_ADD(q, unwrap_copy(CAR(obj), &current));
+        if (advance_slow)
+            slow = CDR(slow);
+        advance_slow = !advance_slow;
+        if (EQ(CDR(obj), slow)) {
+            obj = CDR(obj);
+            break;
+        }
+    }
+    SCM_QUEUE_SLOPPY_APPEND(q, CONSP(obj) ? obj : unwrap_copy(obj, &current));
+    return copy;
 }
 
+/* The argument isn't modified because it may be shared. For example, a
+ * pattern variable may be used both in a quote and in an expression in a
+ * template. */
 SCM_EXPORT ScmObj
-scm_unwrap_syntaxx(ScmObj arg)
+scm_unwrap_syntax(ScmObj arg)
 {
-    DBG_PRINT((DBG_UNWRAP, "unwrap-syntax!: ~s\n", arg));
-    if (FARSYMBOLP(arg))
-        return unwrap_farsymbol(arg);
-    unwrap_dispatch(arg, NULL);
-    return arg;
+    DBG_PRINT((DBG_UNWRAP, "unwrap-syntax: ~s\n", arg));
+    return unwrap_copy(arg, NULL);
 }
 
 SCM_EXPORT ScmObj

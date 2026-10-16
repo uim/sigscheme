@@ -963,12 +963,11 @@ struct ScmStorageConf_ {
 /**
  * Strips the argument of binding information.  Syntaxes that take
  * verbatim data as their argument (e.g. quote, case) must unwrap that
- * argument before using it.  UNWRAP_SYNTAX() may or may not
- * destructively unwrap the input, so the return value must always be
- * used.  The caller shouldn't assume the input is equal? before and
- * after unwrapping.
+ * argument before using it.  UNWRAP_SYNTAX() doesn't modify the input
+ * because it may be shared.  It returns a copy if the input has binding
+ * information.
  */
-#define SCM_UNWRAP_SYNTAX(o)  scm_unwrap_syntaxx((o))
+#define SCM_UNWRAP_SYNTAX(o)  scm_unwrap_syntax((o))
 
 /**
  * If the argument is an identifier, it is stripped of binding
@@ -1753,7 +1752,7 @@ SCM_EXPORT ScmObj scm_s_let_syntax(ScmObj bindings, ScmObj body,
 SCM_EXPORT ScmObj scm_s_letrec_syntax(ScmObj bindings, ScmObj body,
                                       ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_s_define_syntax(ScmObj var, ScmObj macro, ScmObj env);
-SCM_EXPORT ScmObj scm_unwrap_syntaxx(ScmObj obj);
+SCM_EXPORT ScmObj scm_unwrap_syntax(ScmObj obj);
 SCM_EXPORT ScmObj scm_unwrap_keyword(ScmObj obj);
 #endif
 

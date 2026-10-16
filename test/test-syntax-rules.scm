@@ -2,7 +2,7 @@
 ;;  About    : unit test for R5RS hygienic macro
 ;;
 ;;  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -768,6 +768,20 @@
                 (my-if #t 'yes 'no)
                 (define-pair x y 1 2)
                 (list x y)))
+
+;; A pattern variable used both in a quote and in an expression shares the
+;; form. Quoting it must not modify the shared form.
+(assert-equal? "syntax-rules quote doesn't modify a shared form"
+               '((+ x 1) 2)
+               (let-syntax
+                   ((quote-and-eval
+                     (syntax-rules ()
+                       ((_ expr) (list 'expr expr)))))
+                 (let-syntax
+                     ((with-x
+                       (syntax-rules ()
+                         ((_) (let ((x 1)) (quote-and-eval (+ x 1)))))))
+                   (with-x))))
 
 (if (not (provided? "r7rs"))
     (begin

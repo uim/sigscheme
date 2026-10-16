@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -134,6 +134,10 @@ static void write_char     (ScmObj port, ScmObj obj, enum ScmOutputType otype);
 #if SCM_USE_STRING
 static void write_string   (ScmObj port, ScmObj obj, enum ScmOutputType otype);
 #endif
+static void write_symbol   (ScmObj port, ScmObj sym, enum ScmOutputType otype);
+#if SCM_USE_R7RS
+static scm_bool plain_symbol_namep(const char *name);
+#endif
 static void write_list     (ScmObj port, ScmObj lst, enum ScmOutputType otype);
 #if SCM_USE_VECTOR
 static void write_vector   (ScmObj port, ScmObj vec, enum ScmOutputType otype);
@@ -233,7 +237,7 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
             write_list(port, obj, otype);
         break;
     case ScmSymbol:
-        scm_port_puts(port, SCM_SYMBOL_NAME(obj));
+        write_symbol(port, obj, otype);
         break;
 #if SCM_USE_CHAR
     case ScmChar:
@@ -342,6 +346,72 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
     default:
         SCM_NOTREACHED;
     }
+}
+
+#if SCM_USE_R7RS
+/* Returns true if the reader reads NAME as the symbol without vertical
+ * lines. */
+static scm_bool
+plain_symbol_namep(const char *name)
+{
+    const char *p;
+    int c;
+
+    if (strcmp(name, "+") == 0 || strcmp(name, "-") == 0
+        || strcmp(name, "...") == 0)
+        return scm_true;
+    /* They start a number, a peculiar identifier or a # notation. */
+    if (name[0] == '\0' || ICHAR_NUMERICP(name[0])
+        || strchr("+-.@#", name[0]))
+        return scm_false;
+    for (p = name; *p; p++) {
+        c = (unsigned char)*p;
+        if (ICHAR_WHITESPACEP(c) || ICHAR_CONTROLP(c)
+            || strchr("()\";|'`,\\[]{}", c))
+            return scm_false;
+    }
+    return scm_true;
+}
+#endif
+
+static void
+write_symbol(ScmObj port, ScmObj sym, enum ScmOutputType otype)
+{
+    const char *name;
+#if SCM_USE_R7RS
+    const char *p;
+    char *buf, *q;
+    int c;
+#endif
+
+    name = SCM_SYMBOL_NAME(sym);
+#if SCM_USE_R7RS
+    /* R7RS: |symbol| */
+    if (otype == AS_WRITE && !plain_symbol_namep(name)) {
+        /* "\x7f;" is the longest escaped form of a byte. */
+        buf = scm_malloc(strlen(name) * (sizeof("\\x7f;") - sizeof(""))
+                         + sizeof("||"));
+        q = buf;
+        *q++ = '|';
+        for (p = name; *p; p++) {
+            c = (unsigned char)*p;
+            if (c == '|' || c == '\\') {
+                *q++ = '\\';
+                *q++ = c;
+            } else if (ICHAR_CONTROLP(c)) {
+                q += sprintf(q, "\\x%x;", c);
+            } else {
+                *q++ = c;
+            }
+        }
+        *q++ = '|';
+        *q = '\0';
+        scm_port_puts(port, buf);
+        free(buf);
+        return;
+    }
+#endif
+    scm_port_puts(port, name);
 }
 
 #if SCM_USE_CHAR

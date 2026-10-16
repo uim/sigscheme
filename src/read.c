@@ -6,7 +6,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -200,6 +200,12 @@
 
 #define DISCARD_LOOKAHEAD(port) (scm_port_get_char(port))
 
+#if SCM_USE_R7RS
+/* Returned by skip_comment_and_space() when it consumed '#' that doesn't
+ * start a comment. It's distinct from any char and SCM_ICHAR_EOF. */
+#define HASH_CONSUMED (-2)
+#endif
+
 /* accepts SCM_ICHAR_EOF */
 #define ICHAR_ASCII_CLASS(c)                                                 \
     (ICHAR_ASCIIP(c) ? scm_char_class_table[c] : SCM_CH_INVALID)
@@ -382,11 +388,15 @@ static const unsigned char scm_char_class_table[] = {
   File Local Function Declarations
 =======================================*/
 static scm_ichar_t skip_comment_and_space(ScmObj port);
+#if SCM_USE_R7RS
+static void skip_block_comment(ScmObj port);
+#endif
 static size_t read_token(ScmObj port, int *err,
                          char *buf, size_t buf_size, enum ScmCharClass delim);
 
 static ScmObj read_sexpression(ScmObj port);
 static ScmObj read_list(ScmObj port, scm_ichar_t closing_paren);
+static ScmObj read_hash(ScmObj port);
 #if SCM_USE_R6RS_CHARS
 static scm_ichar_t parse_unicode_sequence(const char *seq, int len);
 static scm_ichar_t read_unicode_sequence(ScmObj port);
@@ -395,7 +405,7 @@ static scm_ichar_t read_unicode_sequence(ScmObj port);
 static ScmObj read_char(ScmObj port);
 #endif /* SCM_USE_CHAR */
 #if SCM_USE_STRING
-static ScmObj read_string(ScmObj port);
+static ScmObj read_string(ScmObj port, scm_ichar_t closing_char);
 #endif /* SCM_USE_STRING */
 static ScmObj read_symbol(ScmObj port);
 static ScmObj read_number_or_peculiar(ScmObj port);
@@ -434,15 +444,34 @@ skip_comment_and_space(ScmObj port)
 {
     scm_ichar_t c;
     int state;
+    DECLARE_INTERNAL_FUNCTION("read");
 
     for (state = LEX_ST_NORMAL;;) {
         c = scm_port_peek_char(port);
         switch (state) {
         case LEX_ST_NORMAL:
-            if (c == ';')
+            if (c == ';') {
                 state = LEX_ST_COMMENT;
-            else if (!ICHAR_WHITESPACEP(c) || c == SCM_ICHAR_EOF)
+#if SCM_USE_R7RS
+            } else if (c == '#') {
+                /* #| ... |# and #; <datum> are comments too. */
+                DISCARD_LOOKAHEAD(port);
+                c = scm_port_peek_char(port);
+                if (c == '|') {
+                    DISCARD_LOOKAHEAD(port);
+                    skip_block_comment(port);
+                } else if (c == ';') {
+                    DISCARD_LOOKAHEAD(port);
+                    if (EOFP(read_sexpression(port)))
+                        ERR("EOF in datum comment");
+                } else {
+                    return HASH_CONSUMED;
+                }
+                continue;
+#endif
+            } else if (!ICHAR_WHITESPACEP(c) || c == SCM_ICHAR_EOF) {
                 return c;  /* peeked */
+            }
             break;
 
         case LEX_ST_COMMENT:
@@ -455,6 +484,30 @@ skip_comment_and_space(ScmObj port)
         scm_port_get_char(port);  /* skip the char */
     }
 }
+
+#if SCM_USE_R7RS
+/* Skips a nested block comment after '#|'. */
+static void
+skip_block_comment(ScmObj port)
+{
+    scm_ichar_t c;
+    int depth;
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    for (depth = 1; depth > 0;) {
+        c = scm_port_get_char(port);
+        if (c == SCM_ICHAR_EOF)
+            ERR("EOF in block comment");
+        if (c == '|' && scm_port_peek_char(port) == '#') {
+            DISCARD_LOOKAHEAD(port);
+            depth--;
+        } else if (c == '#' && scm_port_peek_char(port) == '|') {
+            DISCARD_LOOKAHEAD(port);
+            depth++;
+        }
+    }
+}
+#endif
 
 static size_t
 read_token(ScmObj port, int *err,
@@ -519,9 +572,6 @@ read_token(ScmObj port, int *err,
 static ScmObj
 read_sexpression(ScmObj port)
 {
-#if SCM_USE_VECTOR
-    ScmObj ret;
-#endif
     enum ScmCharClass ch_class;
     scm_ichar_t c;
     DECLARE_INTERNAL_FUNCTION("read");
@@ -533,6 +583,10 @@ read_sexpression(ScmObj port)
 
         CDBG((SCM_DBG_PARSER, "read_sexpression c = ~C", c));
 
+#if SCM_USE_R7RS
+        if (c == HASH_CONSUMED)
+            return read_hash(port);
+#endif
         ch_class = ICHAR_CLASS(c);
         if (ch_class & (SCM_CH_INITIAL | SCM_CH_NONASCII))
             return read_symbol(port);
@@ -550,44 +604,14 @@ read_sexpression(ScmObj port)
 
 #if SCM_USE_STRING
         case '\"':
-            return read_string(port);
+            return read_string(port, '\"');
 #endif
 
         case '\'':
             return read_quoted(port, SYM_QUOTE);
 
         case '#':
-            c = scm_port_get_char(port);
-            switch (c) {
-            case 't':
-                return SCM_TRUE;
-            case 'f':
-                return SCM_FALSE;
-#if SCM_USE_VECTOR
-            case '(':
-                ret = scm_p_list2vector(read_list(port, ')'));
-#if SCM_CONST_VECTOR_LITERAL
-                SCM_VECTOR_SET_IMMUTABLE(ret);
-#endif
-                return ret;
-#endif /* SCM_USE_VECTOR */
-#if SCM_USE_CHAR
-            case '\\':
-                return read_char(port);
-#endif
-#if SCM_USE_NUMBER
-            /* TODO: support exactness prefixes 'i' and 'e' */
-            case 'b': case 'o': case 'd': case 'x':
-                return read_number(port, c);
-#endif
-            case SCM_ICHAR_EOF:
-                ERR("EOF in #");
-                /* NOTREACHED */
-            default:
-                ERR("unsupported # notation: ~C", c);
-                /* NOTREACHED */
-            }
-            /* NOTREACHED */
+            return read_hash(port);
 
         case '`':
             return read_quoted(port, SYM_QUASIQUOTE);
@@ -615,7 +639,12 @@ read_sexpression(ScmObj port)
         case SCM_ICHAR_EOF:
             return SCM_EOF;
 
+#if SCM_USE_R7RS && SCM_USE_STRING
         case '|':
+            return read_string(port, '|');
+#else
+        case '|':
+#endif
         case '[':
         case ']':
         case '{':
@@ -709,11 +738,73 @@ read_list(ScmObj port, scm_ichar_t closing_paren)
             } else {
                 ERR("bad dot syntax");
             }
+#if SCM_USE_R7RS
+        } else if (c == HASH_CONSUMED) {
+            elm = read_hash(port);
+#endif
         } else {
             elm = read_sexpression(port);
         }
     }
 }
+
+/* Reads a datum after '#'. */
+static ScmObj
+read_hash(ScmObj port)
+{
+#if SCM_USE_VECTOR
+    ScmObj ret;
+#endif
+#if SCM_USE_R7RS
+    int err;
+    char buf[sizeof("false")];
+#endif
+    scm_ichar_t c;
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    c = scm_port_get_char(port);
+    switch (c) {
+    case 't':
+    case 'f':
+#if SCM_USE_R7RS
+        /* #true and #false */
+        if (!(ICHAR_CLASS(scm_port_peek_char(port)) & SCM_CH_DELIMITER)
+            && scm_port_peek_char(port) != SCM_ICHAR_EOF) {
+            buf[0] = c;
+            read_token(port, &err, &buf[1], sizeof(buf) - 1,
+                       SCM_CH_DELIMITER);
+            if (err == TOKEN_BUF_EXCEEDED
+                || strcmp(buf, (c == 't') ? "true" : "false") != 0)
+                ERR("invalid boolean: #~S", buf);
+        }
+#endif
+        return (c == 't') ? SCM_TRUE : SCM_FALSE;
+#if SCM_USE_VECTOR
+    case '(':
+        ret = scm_p_list2vector(read_list(port, ')'));
+#if SCM_CONST_VECTOR_LITERAL
+        SCM_VECTOR_SET_IMMUTABLE(ret);
+#endif
+        return ret;
+#endif /* SCM_USE_VECTOR */
+#if SCM_USE_CHAR
+    case '\\':
+        return read_char(port);
+#endif
+#if SCM_USE_NUMBER
+    /* TODO: support exactness prefixes 'i' and 'e' */
+    case 'b': case 'o': case 'd': case 'x':
+        return read_number(port, c);
+#endif
+    case SCM_ICHAR_EOF:
+        ERR("EOF in #");
+        /* NOTREACHED */
+    default:
+        ERR("unsupported # notation: ~C", c);
+        /* NOTREACHED */
+    }
+}
+
 
 #if SCM_USE_R6RS_CHARS
 static scm_ichar_t
@@ -817,8 +908,32 @@ read_char(ScmObj port)
 #endif /* SCM_USE_CHAR */
 
 #if SCM_USE_STRING
+#if SCM_USE_R7RS
+/* Skips a line continuation after '\\' in a string:
+ * \<intraline whitespace>*<line ending><intraline whitespace>*
+ * C is the char after '\\'. Returns false if it isn't a line
+ * continuation. */
+static scm_bool
+skip_line_continuation(ScmObj port, scm_ichar_t c)
+{
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    while (c == ' ' || c == '\t')
+        c = scm_port_get_char(port);
+    if (c == '\r' && scm_port_peek_char(port) == '\n')
+        c = scm_port_get_char(port);
+    if (c != '\n' && c != '\r')
+        return scm_false;
+    for (c = scm_port_peek_char(port); c == ' ' || c == '\t';
+         c = scm_port_peek_char(port))
+        DISCARD_LOOKAHEAD(port);
+    return scm_true;
+}
+#endif
+
+/* Reads a string until CLOSING_CHAR. It's '|' for |symbol| of R7RS. */
 static ScmObj
-read_string(ScmObj port)
+read_string(ScmObj port, scm_ichar_t closing_char)
 {
     ScmObj obj;
     const ScmSpecialCharInfo *info;
@@ -842,11 +957,24 @@ read_string(ScmObj port)
 
     for (offset = 0, p = LBUF_BUF(lbuf), len = 0;
          ;
-         offset = p - LBUF_BUF(lbuf), len++)
+         offset = p - LBUF_BUF(lbuf))
     {
         c = scm_port_get_char(port);
 
         CDBG((SCM_DBG_PARSER, "read_string c = ~C", c));
+
+        if (c == closing_char) {
+            LBUF_EXTEND(lbuf, SCM_LBUF_F_STRING, offset + 1);
+            LBUF_BUF(lbuf)[offset] = '\0';
+#if SCM_USE_R7RS
+            if (closing_char == '|')
+                obj = scm_intern(LBUF_BUF(lbuf));
+            else
+#endif
+                obj = MAKE_IMMUTABLE_STRING_COPYING(LBUF_BUF(lbuf), len);
+            LBUF_FREE(lbuf);
+            return obj;
+        }
 
         switch (c) {
         case SCM_ICHAR_EOF:
@@ -854,15 +982,18 @@ read_string(ScmObj port)
             ERR("EOF in string");
             /* NOTREACHED */
 
-        case '\"':
-            LBUF_EXTEND(lbuf, SCM_LBUF_F_STRING, offset + 1);
-            LBUF_BUF(lbuf)[offset] = '\0';
-            obj = MAKE_IMMUTABLE_STRING_COPYING(LBUF_BUF(lbuf), len);
-            LBUF_FREE(lbuf);
-            return obj;
-
         case '\\':
             c = scm_port_get_char(port);
+#if SCM_USE_R7RS
+            if (c == '|') {
+                LBUF_EXTEND(lbuf, SCM_LBUF_F_STRING, offset + 1);
+                p = &LBUF_BUF(lbuf)[offset];
+                *p++ = c;
+                goto found;
+            }
+            if (skip_line_continuation(port, c))
+                continue;  /* nothing is added */
+#endif
 #if SCM_USE_R6RS_CHARS
             if (c == 'x') {
                 c = read_unicode_sequence(port);
@@ -908,6 +1039,7 @@ read_string(ScmObj port)
 #endif
             break;
         }
+        len++;
 #if !SCM_USE_NULL_CAPABLE_STRING
         if (c == '\0')
             ERR(SCM_ERRMSG_NULL_IN_STRING);

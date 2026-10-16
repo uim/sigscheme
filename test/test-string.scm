@@ -2,7 +2,7 @@
 ;;  About    : unit test for R5RS string
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -202,7 +202,10 @@
 (assert-parse-error (tn) "\"\\z\"")  ;; 122
 (assert-parse-error (tn) "\"\\{\"")  ;; 123
 ;; "\|" is removed from final R6RS
-(assert-parse-error (tn) "\"\\|\"")  ;; 124
+;; R7RS allows \|.
+(if (not (provided? "r7rs"))
+    (assert-parse-error (tn) "\"\\|\"")  ;; 124
+    )
 (assert-parse-error (tn) "\"\\}\"")  ;; 125
 (assert-parse-error (tn) "\"\\~\"")  ;; 126
 
@@ -255,11 +258,16 @@
 (assert-parse-error (tn) "\"\\\"")  ;; 7
 (assert-parse-error (tn) "\"\\\"")  ;; 8  ;; DON'T EDIT THIS LINE!
 (assert-parse-error (tn) "\"\\	\"")  ;; 9
-(assert-parse-error (tn) "\"\\
+;; R7RS allows a line continuation.
+(if (not (provided? "r7rs"))
+    (assert-parse-error (tn) "\"\\
 \"")  ;; 10  ;; DON'T EDIT THIS LINE!
+    )
 (assert-parse-error (tn) "\"\\\"")  ;; 11
 (assert-parse-error (tn) "\"\\\"")  ;; 12
-(assert-parse-error (tn) "\"\\\"")  ;; 13  ;; DON'T EDIT THIS LINE!
+(if (not (provided? "r7rs"))
+    (assert-parse-error (tn) "\"\\\"")  ;; 13  ;; DON'T EDIT THIS LINE!
+    )
 (assert-parse-error (tn) "\"\\\"")  ;; 14
 (assert-parse-error (tn) "\"\\\"")  ;; 15
 (assert-parse-error (tn) "\"\\\"")  ;; 16

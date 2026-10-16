@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -93,6 +93,11 @@ SCM_EXPORT const ScmSpecialCharInfo scm_special_char_table[] = {
     {0x1b,   "\\x1b", "esc"},        /*  27 */
     {0x7f,   "\\x7f", "delete"},     /* 127 */
 #endif /* SCM_USE_R6RS_NAMED_CHARS */
+#if SCM_USE_R7RS
+    /* After the R6RS names to write the R6RS names. */
+    {'\0',   "\\x00", "null"},       /*   0 */
+    {0x1b,   "\\x1b", "escape"},     /*  27 */
+#endif /* SCM_USE_R7RS */
     {0, NULL, NULL}
 };
 #endif /* (SCM_USE_READER || SCM_USE_WRITER) */

@@ -2,7 +2,7 @@
  *  Filename : r7rs.c
  *  About    : R7RS procedures (preliminary)
  *
- *  Copyright (c) 2026 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -49,7 +49,7 @@
   File Local Type Definitions
 =======================================*/
 typedef scm_ichar_t (*case_converter)(scm_ichar_t ch);
-typedef ScmObj (*string_comparator)(ScmObj str1, ScmObj str2);
+typedef ScmObj (*comparator)(ScmObj obj1, ScmObj obj2);
 
 /*=======================================
   Variable Definitions
@@ -71,10 +71,10 @@ static void floor_divide(const char *func_name, scm_int_t dividend,
                          scm_int_t divisor, scm_int_t *quotient,
                          scm_int_t *remainder);
 static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
-static ScmObj compare_strings(string_comparator compare,
-                              ScmObj str1, ScmObj str2, ScmObj rest);
-static ScmObj map_strings(const char *func_name, ScmObj proc, ScmObj strs,
-                          scm_bool collect);
+static ScmObj compare_all(comparator compare,
+                          ScmObj obj1, ScmObj obj2, ScmObj rest);
+static ScmObj map_sequences(const char *func_name, ScmObj proc, ScmObj seqs,
+                            scm_bool vectorp, scm_bool collect);
 static ScmObj bind_values(const char *func_name, ScmObj bindings,
                           scm_bool sequential, ScmObj env);
 static ScmObj dispatch_case_lambda(ScmObj clauses, ScmObj args,
@@ -738,6 +738,86 @@ scm_p_symbol_equalp(ScmObj symbol1, ScmObj symbol2, ScmObj rest)
   R7RS : 6.6 Characters
 ===========================================================================*/
 SCM_EXPORT ScmObj
+scm_p_r7rs_char_equalp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char=?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_equalp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_lessp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char<?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_lessp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_greaterp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char>?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_greaterp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_less_equalp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char<=?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_less_equalp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_greater_equalp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char>=?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_greater_equalp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_ci_equalp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char-ci=?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_ci_equalp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_ci_lessp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char-ci<?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_ci_lessp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_ci_greaterp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char-ci>?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_ci_greaterp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_ci_less_equalp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char-ci<=?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_ci_less_equalp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_char_ci_greater_equalp(ScmObj ch1, ScmObj ch2, ScmObj rest)
+{
+    DECLARE_FUNCTION("char-ci>=?", procedure_variadic_2);
+
+    return compare_all(scm_p_char_ci_greater_equalp, ch1, ch2, rest);
+}
+
+SCM_EXPORT ScmObj
 scm_p_digit_value(ScmObj ch)
 {
     scm_ichar_t val;
@@ -849,20 +929,20 @@ scm_p_string_foldcase(ScmObj str)
     return convert_string_case(str, foldcase);
 }
 
-/* Returns #t if all adjacent strings in STR1, STR2 and REST satisfy
- * COMPARE. */
+/* Returns #t if all adjacent objects in OBJ1, OBJ2 and REST satisfy
+ * COMPARE. All objects are checked by COMPARE even if the result is
+ * determined. */
 static ScmObj
-compare_strings(string_comparator compare,
-                ScmObj str1, ScmObj str2, ScmObj rest)
+compare_all(comparator compare, ScmObj obj1, ScmObj obj2, ScmObj rest)
 {
-    ScmObj str;
+    ScmObj obj;
     scm_bool satisfied;
 
-    satisfied = TRUEP(compare(str1, str2));
-    FOR_EACH (str, rest) {
-        if (!TRUEP(compare(str2, str)))
+    satisfied = TRUEP(compare(obj1, obj2));
+    FOR_EACH (obj, rest) {
+        if (!TRUEP(compare(obj2, obj)))
             satisfied = scm_false;
-        str2 = str;
+        obj2 = obj;
     }
 
     return MAKE_BOOL(satisfied);
@@ -874,7 +954,7 @@ scm_p_r7rs_stringequalp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string=?", procedure_variadic_2);
 
-    return compare_strings(scm_p_stringequalp, str1, str2, rest);
+    return compare_all(scm_p_stringequalp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -882,7 +962,7 @@ scm_p_r7rs_string_lessp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string<?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_lessp, str1, str2, rest);
+    return compare_all(scm_p_string_lessp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -890,7 +970,7 @@ scm_p_r7rs_string_greaterp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string>?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_greaterp, str1, str2, rest);
+    return compare_all(scm_p_string_greaterp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -898,7 +978,7 @@ scm_p_r7rs_string_less_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string<=?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_less_equalp, str1, str2, rest);
+    return compare_all(scm_p_string_less_equalp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -906,7 +986,7 @@ scm_p_r7rs_string_greater_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string>=?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_greater_equalp, str1, str2, rest);
+    return compare_all(scm_p_string_greater_equalp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -914,7 +994,7 @@ scm_p_r7rs_string_ci_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string-ci=?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_ci_equalp, str1, str2, rest);
+    return compare_all(scm_p_string_ci_equalp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -922,7 +1002,7 @@ scm_p_r7rs_string_ci_lessp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string-ci<?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_ci_lessp, str1, str2, rest);
+    return compare_all(scm_p_string_ci_lessp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -930,7 +1010,7 @@ scm_p_r7rs_string_ci_greaterp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string-ci>?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_ci_greaterp, str1, str2, rest);
+    return compare_all(scm_p_string_ci_greaterp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -938,7 +1018,7 @@ scm_p_r7rs_string_ci_less_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string-ci<=?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_ci_less_equalp, str1, str2, rest);
+    return compare_all(scm_p_string_ci_less_equalp, str1, str2, rest);
 }
 
 SCM_EXPORT ScmObj
@@ -946,7 +1026,7 @@ scm_p_r7rs_string_ci_greater_equalp(ScmObj str1, ScmObj str2, ScmObj rest)
 {
     DECLARE_FUNCTION("string-ci>=?", procedure_variadic_2);
 
-    return compare_strings(scm_p_string_ci_greater_equalp, str1, str2, rest);
+    return compare_all(scm_p_string_ci_greater_equalp, str1, str2, rest);
 }
 
 /* Overrides R5RS string->list to support START and END. The R5RS
@@ -1040,20 +1120,26 @@ scm_p_r7rs_string_fillx(ScmObj str, ScmObj ch, ScmObj args)
 /* Calls PROC with the characters at the same index of STRS until the
  * shortest string ends. Returns the results as a string if COLLECT. */
 static ScmObj
-map_strings(const char *func_name, ScmObj proc, ScmObj strs,
-            scm_bool collect)
+map_sequences(const char *func_name, ScmObj proc, ScmObj seqs,
+              scm_bool vectorp, scm_bool collect)
 {
-    ScmObj lists, list, str, args, results, result;
+    ScmObj lists, list, seq, args, results, result;
     ScmQueue lists_q, args_q, results_q;
 
     if (!PROCEDUREP(proc))
         scm_error_obj(func_name, "procedure required but got", proc);
     lists = SCM_NULL;
     SCM_QUEUE_POINT_TO(lists_q, lists);
-    FOR_EACH (str, strs) {
-        if (!STRINGP(str))
-            scm_error_obj(func_name, "string required but got", str);
-        SCM_QUEUE_ADD(lists_q, scm_p_string2list(str));
+    FOR_EACH (seq, seqs) {
+        if (vectorp) {
+            if (!VECTORP(seq))
+                scm_error_obj(func_name, "vector required but got", seq);
+            SCM_QUEUE_ADD(lists_q, scm_p_vector2list(seq));
+        } else {
+            if (!STRINGP(seq))
+                scm_error_obj(func_name, "string required but got", seq);
+            SCM_QUEUE_ADD(lists_q, scm_p_string2list(seq));
+        }
     }
 
     results = SCM_NULL;
@@ -1062,8 +1148,12 @@ map_strings(const char *func_name, ScmObj proc, ScmObj strs,
         args = SCM_NULL;
         SCM_QUEUE_POINT_TO(args_q, args);
         for (list = lists; CONSP(list); list = CDR(list)) {
-            if (NULLP(CAR(list)))
-                return collect ? scm_p_list2string(results) : SCM_UNDEF;
+            if (NULLP(CAR(list))) {
+                if (!collect)
+                    return SCM_UNDEF;
+                return vectorp ? scm_p_list2vector(results)
+                               : scm_p_list2string(results);
+            }
             SCM_QUEUE_ADD(args_q, CAR(CAR(list)));
             SET_CAR(list, CDR(CAR(list)));
         }
@@ -1078,7 +1168,8 @@ scm_p_string_map(ScmObj proc, ScmObj str, ScmObj rest)
 {
     DECLARE_FUNCTION("string-map", procedure_variadic_2);
 
-    return map_strings(SCM_MANGLE(name), proc, CONS(str, rest), scm_true);
+    return map_sequences(SCM_MANGLE(name), proc, CONS(str, rest), scm_false,
+                         scm_true);
 }
 
 SCM_EXPORT ScmObj
@@ -1086,7 +1177,8 @@ scm_p_string_for_each(ScmObj proc, ScmObj str, ScmObj rest)
 {
     DECLARE_FUNCTION("string-for-each", procedure_variadic_2);
 
-    return map_strings(SCM_MANGLE(name), proc, CONS(str, rest), scm_false);
+    return map_sequences(SCM_MANGLE(name), proc, CONS(str, rest), scm_false,
+                         scm_false);
 }
 
 /*===========================================================================
@@ -1241,6 +1333,24 @@ scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill, ScmObj args)
 /*===========================================================================
   R7RS : 6.10 Control features
 ===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_vector_map(ScmObj proc, ScmObj vec, ScmObj rest)
+{
+    DECLARE_FUNCTION("vector-map", procedure_variadic_2);
+
+    return map_sequences(SCM_MANGLE(name), proc, CONS(vec, rest), scm_true,
+                         scm_true);
+}
+
+SCM_EXPORT ScmObj
+scm_p_vector_for_each(ScmObj proc, ScmObj vec, ScmObj rest)
+{
+    DECLARE_FUNCTION("vector-for-each", procedure_variadic_2);
+
+    return map_sequences(SCM_MANGLE(name), proc, CONS(vec, rest), scm_true,
+                         scm_false);
+}
+
 /* Overrides R5RS map. Lists may have different lengths. It stops when
  * the shortest list ends. */
 SCM_EXPORT ScmObj

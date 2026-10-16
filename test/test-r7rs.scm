@@ -1,7 +1,7 @@
 ;;  Filename : test-r7rs.scm
 ;;  About    : unit test for R7RS (preliminary)
 ;;
-;;  Copyright (c) 2026 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -517,6 +517,24 @@
 (assert-eq? (tn) #f (digit-value #\.))
 (assert-error (tn) (lambda () (digit-value 0)))
 
+(tn "char comparisons")
+(assert-eq? (tn) #t (char=? #\a #\a #\a))
+(assert-eq? (tn) #f (char=? #\a #\a #\b))
+(assert-eq? (tn) #t (char<? #\a #\b #\c))
+(assert-eq? (tn) #f (char<? #\a #\c #\b))
+(assert-eq? (tn) #t (char>? #\c #\b #\a))
+(assert-eq? (tn) #t (char<=? #\a #\a #\b))
+(assert-eq? (tn) #f (char<=? #\a #\b #\a))
+(assert-eq? (tn) #t (char>=? #\b #\b #\a))
+(assert-eq? (tn) #t (char-ci=? #\a #\A #\a))
+(assert-eq? (tn) #t (char-ci<? #\a #\B #\c))
+(assert-eq? (tn) #t (char-ci>? #\C #\b #\A))
+(assert-eq? (tn) #t (char-ci<=? #\a #\A #\b))
+(assert-eq? (tn) #t (char-ci>=? #\b #\B #\a))
+(assert-eq? (tn) #t (char=? #\a #\a))
+(assert-error (tn) (lambda () (char=? #\a #\a 'a)))
+(assert-error (tn) (lambda () (char=? #\a)))
+
 (tn "char-foldcase")
 (assert-equal? (tn) #\a (char-foldcase #\a))
 (assert-equal? (tn) #\a (char-foldcase #\A))
@@ -684,6 +702,21 @@
   (vector-fill! vec 'x 1 3)
   (assert-equal? (tn) #(1 x x 4 5) vec))
 (assert-error (tn) (lambda () (vector-fill! (vector 1 2) 'x 3)))
+
+(tn "vector-map")
+(assert-equal? (tn) #(b e h) (vector-map cadr '#((a b) (d e) (g h))))
+(assert-equal? (tn) #(5 7 9) (vector-map + #(1 2 3) #(4 5 6 7)))
+(assert-equal? (tn) #() (vector-map + #() #(1)))
+(assert-error (tn) (lambda () (vector-map + #(1) '(1))))
+(assert-error (tn) (lambda () (vector-map 1 #(1))))
+
+(tn "vector-for-each")
+(let ((result '()))
+  (vector-for-each (lambda (x y) (set! result (cons (list x y) result)))
+                   #(1 2 3)
+                   #(a b))
+  (assert-equal? (tn) '((2 b) (1 a)) result))
+(assert-error (tn) (lambda () (vector-for-each display "abc")))
 
 (if (and (symbol-bound? '%%current-char-codec)
          (equal? (%%current-char-codec) "UTF-8"))

@@ -1684,6 +1684,12 @@ SCM_EXPORT ScmObj scm_p_r7rs_char_ci_less_equalp(ScmObj ch1, ScmObj ch2,
 SCM_EXPORT ScmObj scm_p_r7rs_char_ci_greater_equalp(ScmObj ch1, ScmObj ch2,
                                                     ScmObj rest);
 SCM_EXPORT ScmObj scm_p_vector_map(ScmObj proc, ScmObj vec, ScmObj rest);
+SCM_EXPORT ScmObj scm_p_raise_continuable(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_r7rs_error_objectp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_error_object_message(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_error_object_irritants(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_file_errorp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_read_errorp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_portp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_textual_portp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_binary_portp(ScmObj obj);

@@ -872,6 +872,7 @@ SCM_EXPORT void scm_initialize_srfi28(void);
 /* module-srfi34.c */
 #if SCM_USE_SRFI34
 SCM_EXPORT void scm_initialize_srfi34(void);
+SCM_EXPORT ScmObj scm_raise_continuable(ScmObj obj);
 #endif
 
 /* module-srfi38.c */

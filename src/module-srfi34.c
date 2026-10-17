@@ -3,7 +3,7 @@
  *  About    : SRFI-34 Exception Handling for Programs
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -135,6 +135,7 @@ static ScmObj raw_quote(ScmObj datum, ScmObj env);
 static ScmObj enclose(ScmObj exp, ScmObj env);
 static ScmObj set_cur_handlers(ScmObj handlers, ScmObj env);
 static ScmObj with_exception_handlers(ScmObj new_handlers, ScmObj thunk);
+static ScmObj raise_internal(ScmObj obj, scm_bool continuable);
 static ScmObj guard_internal(ScmObj q_guard_k, ScmObj env);
 static ScmObj guard_handler(ScmObj q_condition, ScmEvalState *eval_state);
 static ScmObj delay(ScmObj evaled_obj, ScmObj env);
@@ -297,8 +298,23 @@ scm_p_srfi34_with_exception_handler(ScmObj handler, ScmObj thunk)
 SCM_EXPORT ScmObj
 scm_p_srfi34_raise(ScmObj obj)
 {
-    ScmObj handler, rest_handlers, thunk, err_obj;
     DECLARE_FUNCTION("raise", procedure_fixed_1);
+
+    return raise_internal(obj, scm_false);
+}
+
+/* raise-continuable of R7RS: The value of the handler is returned. */
+SCM_EXPORT ScmObj
+scm_raise_continuable(ScmObj obj)
+{
+    return raise_internal(obj, scm_true);
+}
+
+static ScmObj
+raise_internal(ScmObj obj, scm_bool continuable)
+{
+    ScmObj handler, rest_handlers, thunk, err_obj, body;
+    DECLARE_INTERNAL_FUNCTION("raise");
 
     if (NULLP(l_current_exception_handlers)) {
         if (ERROBJP(obj))
@@ -313,12 +329,11 @@ scm_p_srfi34_raise(ScmObj obj)
     handler = CAR(l_current_exception_handlers);
     rest_handlers = CDR(l_current_exception_handlers);
     obj = LIST_2(SYM_QUOTE, obj);
-    thunk = scm_s_lambda(SCM_NULL,
-                         LIST_2(LIST_2(handler, obj),
-                                LIST_4(l_sym_error,
-                                       l_errmsg_handler_returned,
-                                       handler, obj)),
-                         SCM_INTERACTION_ENV);
+    body = LIST_1(LIST_2(handler, obj));
+    if (!continuable)
+        SET_CDR(body, LIST_1(LIST_4(l_sym_error, l_errmsg_handler_returned,
+                                    handler, obj)));
+    thunk = scm_s_lambda(SCM_NULL, body, SCM_INTERACTION_ENV);
     return with_exception_handlers(rest_handlers, thunk);
 }
 

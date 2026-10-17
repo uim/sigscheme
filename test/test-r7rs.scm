@@ -873,13 +873,64 @@
                  (display '|a b| out)
                  (get-output-string out)))
 
+(tn "raise-continuable")
+(assert-equal? (tn)
+               65
+               (with-exception-handler
+                (lambda (con) 42)
+                (lambda ()
+                  (+ (raise-continuable "should be a number") 23))))
+(assert-equal? (tn)
+               '(outer inner)
+               (with-exception-handler
+                (lambda (con) (list 'outer con))
+                (lambda ()
+                  (with-exception-handler
+                   (lambda (con) (raise-continuable 'inner))
+                   (lambda ()
+                     (raise-continuable 'x))))))
+
+(tn "error objects")
+(let ((err (guard (exn (else exn)) (error "BOOM!" 1 2 3))))
+  (assert-eq? (tn) #t (error-object? err))
+  (assert-equal? (tn) "BOOM!" (error-object-message err))
+  (assert-equal? (tn) '(1 2 3) (error-object-irritants err))
+  (assert-eq? (tn) #f (file-error? err))
+  (assert-eq? (tn) #f (read-error? err)))
+(assert-eq? (tn) #f (error-object? (guard (exn (else exn)) (raise 'sym))))
+(assert-eq? (tn) #t (error-object? (guard (exn (else exn)) (car 1))))
+(assert-error (tn) (lambda () (error-object-message 'sym)))
+
+(tn "file-error?")
+(assert-eq? (tn)
+            #t
+            (file-error?
+             (guard (exn (else exn)) (open-input-file " no such file "))))
+(assert-eq? (tn)
+            #t
+            (file-error?
+             (guard (exn (else exn)) (delete-file " no such file "))))
+(assert-eq? (tn)
+            #t
+            (file-error? (guard (exn (else exn)) (load " no such file "))))
+(assert-eq? (tn) #f (file-error? (guard (exn (else exn)) (car 1))))
+(assert-eq? (tn) #f (file-error? 'sym))
+
+(tn "read-error?")
+(assert-eq? (tn)
+            #t
+            (read-error? (guard (exn (else exn))
+                           (read (open-input-string ")")))))
+(assert-eq? (tn)
+            #t
+            (read-error? (guard (exn (else exn))
+                           (read (open-input-string "\"")))))
+(assert-eq? (tn) #f (read-error? (guard (exn (else exn)) (car 1))))
+
 (tn "file-exists?")
 (assert-eq? (tn) #t (file-exists? "."))
 (assert-eq? (tn) #f (file-exists? " no such file "))
 (assert-error (tn) (lambda () (file-exists? 'file)))
-
-(tn "delete-file")
-(assert-error (tn) (lambda () (delete-file " no such file ")))
 
 (tn "command-line")
 (assert-true (tn) (list? (command-line)))

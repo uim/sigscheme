@@ -1418,6 +1418,61 @@ scm_p_r7rs_for_each(ScmObj proc, ScmObj lst, ScmObj rest)
 }
 
 /*===========================================================================
+  R7RS : 6.11 Exceptions
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_raise_continuable(ScmObj obj)
+{
+    DECLARE_FUNCTION("raise-continuable", procedure_fixed_1);
+
+    return scm_raise_continuable(obj);
+}
+
+SCM_EXPORT ScmObj
+scm_p_r7rs_error_objectp(ScmObj obj)
+{
+    DECLARE_FUNCTION("error-object?", procedure_fixed_1);
+
+    return MAKE_BOOL(ERROBJP(obj));
+}
+
+SCM_EXPORT ScmObj
+scm_p_error_object_message(ScmObj obj)
+{
+    DECLARE_FUNCTION("error-object-message", procedure_fixed_1);
+
+    ENSURE_ERROBJ(obj);
+
+    return ERROBJ_REASON(obj);
+}
+
+SCM_EXPORT ScmObj
+scm_p_error_object_irritants(ScmObj obj)
+{
+    DECLARE_FUNCTION("error-object-irritants", procedure_fixed_1);
+
+    ENSURE_ERROBJ(obj);
+
+    return ERROBJ_IRRITANTS(obj);
+}
+
+SCM_EXPORT ScmObj
+scm_p_file_errorp(ScmObj obj)
+{
+    DECLARE_FUNCTION("file-error?", procedure_fixed_1);
+
+    return MAKE_BOOL(ERROBJP(obj) && ERROBJ_KIND(obj) == SCM_ERRKIND_FILE);
+}
+
+SCM_EXPORT ScmObj
+scm_p_read_errorp(ScmObj obj)
+{
+    DECLARE_FUNCTION("read-error?", procedure_fixed_1);
+
+    return MAKE_BOOL(ERROBJP(obj) && ERROBJ_KIND(obj) == SCM_ERRKIND_READ);
+}
+
+/*===========================================================================
   R7RS : 6.13 Input and output : 6.13.1 Ports
 ===========================================================================*/
 SCM_EXPORT ScmObj
@@ -1612,7 +1667,8 @@ scm_p_delete_file(ScmObj filename)
     ENSURE_STRING(filename);
 
     if (remove(SCM_STRING_STR(filename)) != 0)
-        ERR_OBJ("cannot delete file", filename);
+        scm_kind_error_obj(SCM_ERRKIND_FILE, SCM_MANGLE(name),
+                           "cannot delete file", filename);
     return SCM_UNDEF;
 }
 

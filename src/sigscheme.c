@@ -98,9 +98,6 @@
 #if SCM_USE_DEEP_CADRS
 #include "functable-r5rs-deep-cadrs.c"
 #endif
-#if SCM_USE_R7RS
-#include "functable-r7rs.c"
-#endif
 
 SCM_GLOBAL_VARS_BEGIN(static_sigscheme);
 #define static
@@ -329,12 +326,6 @@ scm_initialize_internal(const char *const *argv)
     scm_define_alias("r5rs:vector?", "vector?");
     scm_define_alias("r5rs:eval",    "eval");
 
-#if SCM_USE_R7RS
-    /* Register after the r5rs:* aliases because some R7RS procedures
-     * override the R5RS versions. */
-    scm_register_funcs(scm_functable_r7rs);
-#endif
-
 #if SCM_USE_LEGACY_MACRO
     scm_init_legacy_macro();
 #endif
@@ -344,6 +335,11 @@ scm_initialize_internal(const char *const *argv)
 #if SCM_USE_EVAL_C_STRING || SCM_USE_R7RS
     /* R7RS: string ports */
     scm_require_module("srfi-6");
+#endif
+#if SCM_USE_R7RS
+    /* Initialize after the r5rs:* aliases because some R7RS procedures
+     * override the R5RS versions. */
+    scm_init_r7rs();
 #endif
 
     /*=======================================================================
@@ -360,6 +356,9 @@ scm_initialize_internal(const char *const *argv)
 
     if (argv)
         rest_argv = scm_interpret_argv((char **)argv);  /* safe cast */
+#if SCM_USE_R7RS
+    scm_set_command_line((const char *const *)rest_argv);
+#endif
 
 #if SCM_USE_PORT
     /* To apply -C <encoding> option for scm_{in,out,err} ports, this

@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005      Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -181,6 +181,13 @@ SCM_EXPORT scm_bool
 scm_providedp(ScmObj feature)
 {
     return TRUEP(scm_p_member(feature, l_features));
+}
+
+/* Returns the list of the provided feature names. */
+SCM_EXPORT ScmObj
+scm_features(void)
+{
+    return l_features;
 }
 
 #if 1  /* 'use' is deprecated and will be removed in SigScheme 0.9 */

@@ -1698,6 +1698,16 @@ SCM_EXPORT ScmObj scm_p_write_shared(ScmObj obj, ScmObj args);
 SCM_EXPORT ScmObj scm_p_write_simple(ScmObj obj, ScmObj args);
 SCM_EXPORT ScmObj scm_p_write_string(ScmObj str, ScmObj args);
 SCM_EXPORT ScmObj scm_p_flush_output_port(ScmObj args);
+SCM_EXPORT ScmObj scm_p_file_existsp(ScmObj filename);
+SCM_EXPORT ScmObj scm_p_delete_file(ScmObj filename);
+SCM_EXPORT ScmObj scm_p_command_line(void);
+SCM_EXPORT ScmObj scm_p_emergency_exit(ScmObj args);
+SCM_EXPORT ScmObj scm_p_get_environment_variable(ScmObj name);
+SCM_EXPORT ScmObj scm_p_get_environment_variables(void);
+SCM_EXPORT ScmObj scm_p_current_second(void);
+SCM_EXPORT ScmObj scm_p_current_jiffy(void);
+SCM_EXPORT ScmObj scm_p_jiffies_per_second(void);
+SCM_EXPORT ScmObj scm_p_features(void);
 SCM_EXPORT ScmObj scm_p_vector_for_each(ScmObj proc, ScmObj vec,
                                         ScmObj rest);
 SCM_EXPORT ScmObj scm_p_r7rs_stringequalp(ScmObj str1, ScmObj str2,

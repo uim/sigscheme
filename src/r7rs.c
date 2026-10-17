@@ -34,7 +34,12 @@
 
 #include <config.h>
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
@@ -54,6 +59,20 @@ typedef ScmObj (*comparator)(ScmObj obj1, ScmObj obj2);
 /*=======================================
   Variable Definitions
 =======================================*/
+#include "functable-r7rs.c"
+
+/* POSIX doesn't declare it in any header. */
+extern char **environ;
+
+SCM_GLOBAL_VARS_BEGIN(static_r7rs);
+#define static
+static const char *const *l_command_line;
+static time_t l_jiffy_epoch;
+#undef static
+SCM_GLOBAL_VARS_END(static_r7rs);
+#define l_command_line SCM_GLOBAL_VAR(static_r7rs, l_command_line)
+#define l_jiffy_epoch  SCM_GLOBAL_VAR(static_r7rs, l_jiffy_epoch)
+SCM_DEFINE_STATIC_VARS(static_r7rs);
 
 /*=======================================
   File Local Function Declarations
@@ -88,6 +107,27 @@ static ScmObj swap_parameter_values(ScmObj bindings);
 /*=======================================
   Function Definitions
 =======================================*/
+SCM_EXPORT void
+scm_init_r7rs(void)
+{
+    struct timeval now;
+
+    SCM_GLOBAL_VARS_INIT(static_r7rs);
+
+    scm_register_funcs(scm_functable_r7rs);
+
+    gettimeofday(&now, NULL);
+    l_jiffy_epoch = now.tv_sec;
+}
+
+/* ARGV is the arguments after the options of sscm. The first one is the
+ * script name. */
+SCM_EXPORT void
+scm_set_command_line(const char *const *argv)
+{
+    l_command_line = argv;
+}
+
 /* Parses optional START and END in ARGS for a sequence whose length is
  * LEN. They must satisfy 0 <= START <= END <= LEN. */
 static void
@@ -1548,4 +1588,137 @@ scm_p_flush_output_port(ScmObj args)
 
     scm_port_flush(scm_prepare_port(args, scm_out));
     return SCM_UNDEF;
+}
+
+/*===========================================================================
+  R7RS : 6.14 System interface
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_p_file_existsp(ScmObj filename)
+{
+    struct stat st;
+    DECLARE_FUNCTION("file-exists?", procedure_fixed_1);
+
+    ENSURE_STRING(filename);
+
+    return MAKE_BOOL(stat(SCM_STRING_STR(filename), &st) == 0);
+}
+
+SCM_EXPORT ScmObj
+scm_p_delete_file(ScmObj filename)
+{
+    DECLARE_FUNCTION("delete-file", procedure_fixed_1);
+
+    ENSURE_STRING(filename);
+
+    if (remove(SCM_STRING_STR(filename)) != 0)
+        ERR_OBJ("cannot delete file", filename);
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_p_command_line(void)
+{
+    ScmQueue q;
+    ScmObj args;
+    const char *const *argp;
+    DECLARE_FUNCTION("command-line", procedure_fixed_0);
+
+    args = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, args);
+    for (argp = l_command_line; argp && *argp; argp++)
+        SCM_QUEUE_ADD(q, CONST_STRING(*argp));
+    return args;
+}
+
+SCM_EXPORT ScmObj
+scm_p_emergency_exit(ScmObj args)
+{
+    DECLARE_FUNCTION("emergency-exit", procedure_variadic_0);
+
+    exit(scm_exit_status(SCM_MANGLE(name), args));
+}
+
+SCM_EXPORT ScmObj
+scm_p_get_environment_variable(ScmObj name)
+{
+    const char *value;
+    DECLARE_FUNCTION("get-environment-variable", procedure_fixed_1);
+
+    ENSURE_STRING(name);
+
+    value = getenv(SCM_STRING_STR(name));
+    return value ? MAKE_STRING_COPYING(value, STRLEN_UNKNOWN) : SCM_FALSE;
+}
+
+SCM_EXPORT ScmObj
+scm_p_get_environment_variables(void)
+{
+    ScmQueue q;
+    ScmObj vars;
+    char **envp, *name;
+    const char *sep;
+    DECLARE_FUNCTION("get-environment-variables", procedure_fixed_0);
+
+    vars = SCM_NULL;
+    SCM_QUEUE_POINT_TO(q, vars);
+    for (envp = environ; *envp; envp++) {
+        sep = strchr(*envp, '=');
+        if (!sep)
+            continue;
+        name = scm_malloc(sep - *envp + sizeof(""));
+        memcpy(name, *envp, sep - *envp);
+        name[sep - *envp] = '\0';
+        SCM_QUEUE_ADD(q, CONS(MAKE_STRING(name, STRLEN_UNKNOWN),
+                              MAKE_STRING_COPYING(sep + 1, STRLEN_UNKNOWN)));
+    }
+    return vars;
+}
+
+/* SigScheme doesn't support inexact numbers. So it's an exact integer. */
+SCM_EXPORT ScmObj
+scm_p_current_second(void)
+{
+    DECLARE_FUNCTION("current-second", procedure_fixed_0);
+
+    return MAKE_INT(time(NULL));
+}
+
+/* Jiffies are milliseconds since the initialization to avoid overflow. */
+SCM_EXPORT ScmObj
+scm_p_current_jiffy(void)
+{
+    struct timeval now;
+    DECLARE_FUNCTION("current-jiffy", procedure_fixed_0);
+
+    gettimeofday(&now, NULL);
+    return MAKE_INT((scm_int_t)(now.tv_sec - l_jiffy_epoch) * 1000
+                    + now.tv_usec / 1000);
+}
+
+SCM_EXPORT ScmObj
+scm_p_jiffies_per_second(void)
+{
+    DECLARE_FUNCTION("jiffies-per-second", procedure_fixed_0);
+
+    return MAKE_INT(1000);
+}
+
+/* Returns the provided features as symbols. require's records such as
+ * "*foo.scm-loaded*" aren't features. */
+SCM_EXPORT ScmObj
+scm_p_features(void)
+{
+    ScmObj provided, features, feature;
+    const char *name;
+    DECLARE_FUNCTION("features", procedure_fixed_0);
+
+    provided = scm_features();
+    features = SCM_NULL;
+    FOR_EACH (feature, provided) {
+        name = SCM_STRING_STR(feature);
+        if (name[0] != '*')
+            features = CONS(scm_intern(name), features);
+    }
+    return features;
 }

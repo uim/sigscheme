@@ -873,6 +873,41 @@
                  (display '|a b| out)
                  (get-output-string out)))
 
+(tn "file-exists?")
+(assert-eq? (tn) #t (file-exists? "."))
+(assert-eq? (tn) #f (file-exists? " no such file "))
+(assert-error (tn) (lambda () (file-exists? 'file)))
+
+(tn "delete-file")
+(assert-error (tn) (lambda () (delete-file " no such file ")))
+
+(tn "command-line")
+(assert-true (tn) (list? (command-line)))
+
+(tn "get-environment-variable")
+(assert-true (tn) (string? (get-environment-variable "PATH")))
+(assert-eq? (tn) #f (get-environment-variable " no such variable "))
+(assert-error (tn) (lambda () (get-environment-variable 'PATH)))
+
+(tn "get-environment-variables")
+(let ((vars (get-environment-variables)))
+  (assert-true (tn) (list? vars))
+  (assert-equal? (tn)
+                 (get-environment-variable "PATH")
+                 (cdr (assoc "PATH" vars))))
+
+(tn "time")
+(assert-true (tn) (exact? (current-second)))
+(assert-true (tn) (exact? (current-jiffy)))
+(assert-equal? (tn) 1000 (jiffies-per-second))
+(let ((jiffy (current-jiffy)))
+  (assert-true (tn) (<= jiffy (current-jiffy))))
+
+(tn "features")
+(assert-true (tn) (list? (features)))
+(assert-true (tn) (and (memq 'r7rs (features)) #t))
+(assert-false (tn) (memq '|*test-r7rs.scm-loaded*| (features)))
+
 (if (and (symbol-bound? '%%current-char-codec)
          (equal? (%%current-char-codec) "UTF-8"))
     (let ((alpha (string (integer->char #x3b1)))

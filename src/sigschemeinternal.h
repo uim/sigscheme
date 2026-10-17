@@ -780,6 +780,14 @@ SCM_EXPORT void scm_load_system_file(const char *file);
 #endif /* SCM_USE_LOAD */
 
 /* module.c */
+SCM_EXPORT ScmObj scm_features(void);
+
+/* r7rs.c */
+#if SCM_USE_R7RS
+SCM_EXPORT void scm_init_r7rs(void);
+SCM_EXPORT void scm_set_command_line(const char *const *argv);
+#endif
+
 SCM_EXPORT void scm_init_module(void);
 SCM_EXPORT void scm_fin_module(void);
 

@@ -5,7 +5,7 @@
  *  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -363,18 +363,15 @@ scm_p_lengthstar(ScmObj lst)
 SCM_EXPORT ScmObj
 scm_p_exit(ScmObj args)
 {
-    ScmObj explicit_status;
     int status;
     DECLARE_FUNCTION("exit", procedure_variadic_0);
 
-    if (NULLP(args)) {
-        status = EXIT_SUCCESS;
-    } else {
-        explicit_status = POP(args);
-        ASSERT_NO_MORE_ARG(args);
-        ENSURE_INT(explicit_status);
-        status = SCM_INT_VALUE(explicit_status);
-    }
+    /* R7RS compatible: #t, #f and an integer are accepted. */
+    status = scm_exit_status(SCM_MANGLE(name), args);
+#if SCM_USE_CONTINUATION
+    /* R7RS: Run all outstanding dynamic-wind after procedures. */
+    scm_exit_dynamic_extent(SCM_NULL);
+#endif
 
     scm_finalize();
     exit(status);

@@ -483,6 +483,27 @@ argv_err(char **argv, const char *err_msg)
 
 /* TODO: parse properly */
 /* don't access ScmObj if (!l_scm_initialized) */
+/* Returns the exit status for (exit [obj]): no obj and #t are success,
+ * #f is failure and an integer is the status. */
+SCM_EXPORT int
+scm_exit_status(const char *func_name, ScmObj args)
+{
+    ScmObj obj;
+
+    if (NULLP(args))
+        return EXIT_SUCCESS;
+    obj = CAR(args);
+    if (!NULLP(CDR(args)))
+        scm_error_obj(func_name, "superfluous argument(s)", CDR(args));
+    if (EQ(obj, SCM_TRUE))
+        return EXIT_SUCCESS;
+    if (EQ(obj, SCM_FALSE))
+        return EXIT_FAILURE;
+    if (!INTP(obj))
+        scm_error_obj(func_name, "integer or boolean required but got", obj);
+    return SCM_INT_VALUE(obj);
+}
+
 SCM_EXPORT char **
 scm_interpret_argv(char **argv)
 {

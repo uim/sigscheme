@@ -315,6 +315,25 @@ SCM_EXPORT void scm_error_with_implicit_func(const char *msg, ...) SCM_NORETURN;
  * the error port. */
 #define ERR_OBJ(msg, obj) scm_error_obj(SCM_MANGLE(name), (msg), (obj))
 
+/* Kinds of error objects for file-error? and read-error? of R7RS. */
+enum ScmErrorKind {
+    SCM_ERRKIND_GENERIC,
+    SCM_ERRKIND_FILE,
+    SCM_ERRKIND_READ
+};
+
+/* An error object is (tag reason irritants trace-stack kind). */
+#define ERROBJ_REASON(o)    CAR(CDR(o))
+#define ERROBJ_IRRITANTS(o) CAR(CDR(CDR(o)))
+#define ERROBJ_KIND(o)                                                       \
+    ((enum ScmErrorKind)SCM_INT_VALUE(CAR(CDR(CDR(CDR(CDR(o)))))))
+
+SCM_EXPORT void scm_kind_error(enum ScmErrorKind kind, const char *func_name,
+                               const char *msg, ...) SCM_NORETURN;
+SCM_EXPORT void scm_kind_error_obj(enum ScmErrorKind kind,
+                                   const char *func_name, const char *msg,
+                                   ScmObj obj) SCM_NORETURN;
+
 #define SCM_ENSURE_PROPER_LIST_TERMINATION(term, lst)                        \
     (NULLP(term) || (ERR_OBJ("proper list required but got", (lst)), 1))
 

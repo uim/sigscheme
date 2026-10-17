@@ -200,6 +200,11 @@
 
 #define DISCARD_LOOKAHEAD(port) (scm_port_get_char(port))
 
+/* All errors in the reader are read errors for read-error? of R7RS. */
+#undef ERR
+#define ERR(...)                                                             \
+    (scm_kind_error(SCM_ERRKIND_READ, SCM_MANGLE(name), __VA_ARGS__))
+
 #if SCM_USE_R7RS
 /* Returned by skip_comment_and_space() when it consumed '#' that doesn't
  * start a comment. It's distinct from any char and SCM_ICHAR_EOF. */

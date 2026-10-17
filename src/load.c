@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -210,7 +210,8 @@ scm_load_internal(const char *filename)
 
     c_path = find_path(filename);
     if (!c_path)
-        ERR("file \"~S\" not found", filename);
+        scm_kind_error(SCM_ERRKIND_FILE, SCM_MANGLE(name),
+                       "file \"~S\" not found", filename);
 
     path = MAKE_IMMUTABLE_STRING(c_path, STRLEN_UNKNOWN);
     port = scm_p_open_input_file(path);

@@ -4,7 +4,7 @@
  *
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -89,10 +89,14 @@ SCM_DEFINE_STATIC_VARS(static_error);
 #if SCM_USE_SRFI34
 static scm_bool srfi34_providedp(void);
 #endif
-static void scm_error_obj_internal(const char *func_name, const char *msg,
+static ScmObj make_error_obj(ScmObj reason, ScmObj objs,
+                             enum ScmErrorKind kind);
+static void scm_error_obj_internal(enum ScmErrorKind kind,
+                                   const char *func_name, const char *msg,
                                    ScmObj obj, ...) SCM_NORETURN;
-static void scm_error_internal(const char *func_name, ScmObj obj,
-                               const char *msg, va_list args) SCM_NORETURN;
+static void scm_error_internal(enum ScmErrorKind kind, const char *func_name,
+                               ScmObj obj, const char *msg,
+                               va_list args) SCM_NORETURN;
 #if (SCM_USE_BACKTRACE && SCM_DEBUG_BACKTRACE_VAL)
 static void show_arg(ScmObj arg, ScmObj env);
 #endif
@@ -199,6 +203,13 @@ scm_p_error_objectp(ScmObj obj)
 }
 
 /* FIXME: make (pair? err-obj) #f */
+static ScmObj
+make_error_obj(ScmObj reason, ScmObj objs, enum ScmErrorKind kind)
+{
+    return LIST_5(l_err_obj_tag, reason, objs, scm_trace_stack(),
+                  MAKE_INT(kind));
+}
+
 SCM_EXPORT ScmObj
 scm_make_error_obj(ScmObj reason, ScmObj objs)
 {
@@ -210,7 +221,7 @@ scm_make_error_obj(ScmObj reason, ScmObj objs)
 #endif
     ENSURE_LIST(objs);
 
-    return LIST_4(l_err_obj_tag, reason, objs, scm_trace_stack());
+    return make_error_obj(reason, objs, SCM_ERRKIND_GENERIC);
 }
 
 SCM_EXPORT void
@@ -291,6 +302,7 @@ scm_p_inspect_error(ScmObj err_obj)
 #else
         MUST_POP_ARG(rest);
 #endif
+        MUST_POP_ARG(rest);  /* kind */
         ASSERT_NO_MORE_ARG(rest);
     } else {
 #if SCM_USE_BACKTRACE
@@ -350,7 +362,7 @@ scm_die(const char *msg, const char *filename, int line)
 }
 
 static void
-scm_error_internal(const char *func_name, ScmObj obj,
+scm_error_internal(enum ScmErrorKind kind, const char *func_name, ScmObj obj,
                    const char *msg, va_list args)
 {
     ScmObj reason, err_obj;
@@ -373,8 +385,9 @@ scm_error_internal(const char *func_name, ScmObj obj,
     reason = CONST_STRING(msg);
 #endif
 
-    err_obj = scm_make_error_obj(reason,
-                                 (EQ(obj, NO_ERR_OBJ)) ? SCM_NULL : LIST_1(obj));
+    err_obj = make_error_obj(reason,
+                             (EQ(obj, NO_ERR_OBJ)) ? SCM_NULL : LIST_1(obj),
+                             kind);
     l_error_looped = scm_false;
 
     scm_raise_error(err_obj);
@@ -387,7 +400,7 @@ scm_plain_error(const char *msg, ...)
     va_list va;
 
     va_start(va, msg);
-    scm_error_internal(NULL, NO_ERR_OBJ, msg, va);
+    scm_error_internal(SCM_ERRKIND_GENERIC, NULL, NO_ERR_OBJ, msg, va);
     /* va_end(va); */
     /* NOTREACHED */
 }
@@ -401,7 +414,8 @@ scm_error_with_implicit_func(const char *msg, ...)
     va_list va;
 
     va_start(va, msg);
-    scm_error_internal(scm_err_funcname, NO_ERR_OBJ, msg, va);
+    scm_error_internal(SCM_ERRKIND_GENERIC, scm_err_funcname, NO_ERR_OBJ, msg,
+                       va);
     /* va_end(va); */
     /* NOTREACHED */
 }
@@ -413,7 +427,7 @@ scm_error(const char *func_name, const char *msg, ...)
     va_list va;
 
     va_start(va, msg);
-    scm_error_internal(func_name, NO_ERR_OBJ, msg, va);
+    scm_error_internal(SCM_ERRKIND_GENERIC, func_name, NO_ERR_OBJ, msg, va);
     /* va_end(va); */
     /* NOTREACHED */
 }
@@ -421,16 +435,36 @@ scm_error(const char *func_name, const char *msg, ...)
 SCM_EXPORT void
 scm_error_obj(const char *func_name, const char *msg, ScmObj obj)
 {
-    scm_error_obj_internal(func_name, msg, obj);
+    scm_error_obj_internal(SCM_ERRKIND_GENERIC, func_name, msg, obj);
+}
+
+SCM_EXPORT void
+scm_kind_error(enum ScmErrorKind kind, const char *func_name,
+               const char *msg, ...)
+{
+    va_list va;
+
+    va_start(va, msg);
+    scm_error_internal(kind, func_name, NO_ERR_OBJ, msg, va);
+    /* va_end(va); */
+    /* NOTREACHED */
+}
+
+SCM_EXPORT void
+scm_kind_error_obj(enum ScmErrorKind kind, const char *func_name,
+                   const char *msg, ScmObj obj)
+{
+    scm_error_obj_internal(kind, func_name, msg, obj);
 }
 
 static void
-scm_error_obj_internal(const char *func_name, const char *msg, ScmObj obj, ...)
+scm_error_obj_internal(enum ScmErrorKind kind, const char *func_name,
+                       const char *msg, ScmObj obj, ...)
 {
     va_list dummy_va;
 
     va_start(dummy_va, obj);
-    scm_error_internal(func_name, obj, msg, dummy_va);
+    scm_error_internal(kind, func_name, obj, msg, dummy_va);
     /* NOTREACHED */
 }
 

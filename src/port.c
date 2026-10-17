@@ -361,7 +361,8 @@ scm_p_open_input_file(ScmObj filepath)
 
     bport = ScmFilePort_open_input_file(SCM_STRING_STR(filepath));
     if (!bport)
-        ERR_OBJ(ERRMSG_CANNOT_OPEN_FILE, filepath);
+        scm_kind_error_obj(SCM_ERRKIND_FILE, SCM_MANGLE(name),
+                           ERRMSG_CANNOT_OPEN_FILE, filepath);
     cport = scm_make_char_port(bport);
 
     return MAKE_PORT(cport, SCM_PORTFLAG_INPUT);
@@ -378,7 +379,8 @@ scm_p_open_output_file(ScmObj filepath)
 
     bport = ScmFilePort_open_output_file(SCM_STRING_STR(filepath));
     if (!bport)
-        ERR_OBJ(ERRMSG_CANNOT_OPEN_FILE, filepath);
+        scm_kind_error_obj(SCM_ERRKIND_FILE, SCM_MANGLE(name),
+                           ERRMSG_CANNOT_OPEN_FILE, filepath);
     cport = scm_make_char_port(bport);
 
     return MAKE_PORT(cport, SCM_PORTFLAG_OUTPUT);

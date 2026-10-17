@@ -651,7 +651,8 @@ write_errobj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
     MUST_POP_ARG(obj);
     reason      = MUST_POP_ARG(obj);
     objs        = MUST_POP_ARG(obj);
-    MUST_POP_ARG(obj);
+    MUST_POP_ARG(obj);  /* trace stack */
+    MUST_POP_ARG(obj);  /* kind */
     ASSERT_NO_MORE_ARG(obj);
 
     switch (otype) {
@@ -781,7 +782,8 @@ write_ss_scan(ScmObj obj, scm_write_ss_context *ctx)
         MUST_POP_ARG(obj);
         reason      = MUST_POP_ARG(obj);
         objs        = MUST_POP_ARG(obj);
-        MUST_POP_ARG(obj);
+        MUST_POP_ARG(obj);  /* trace stack */
+        MUST_POP_ARG(obj);  /* kind */
         ASSERT_NO_MORE_ARG(obj);
 
         write_ss_scan(reason, ctx);

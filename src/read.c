@@ -830,7 +830,9 @@ read_hash(ScmObj port)
     scm_ichar_t c;
     DECLARE_INTERNAL_FUNCTION("read");
 
+    /* Case is insignificant in '#' notations such as #T and #X1A. */
     c = scm_port_get_char(port);
+    c = ICHAR_DOWNCASE(c);
     switch (c) {
     case 't':
     case 'f':
@@ -842,7 +844,7 @@ read_hash(ScmObj port)
             read_token(port, &err, &buf[1], sizeof(buf) - 1,
                        SCM_CH_DELIMITER);
             if (err == TOKEN_BUF_EXCEEDED
-                || strcmp(buf, (c == 't') ? "true" : "false") != 0)
+                || strcasecmp(buf, (c == 't') ? "true" : "false") != 0)
                 ERR("invalid boolean: #~S", buf);
         }
 #endif

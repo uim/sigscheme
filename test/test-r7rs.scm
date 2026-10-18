@@ -1248,6 +1248,11 @@
              (file-error? (guard (e (#t e))
                             (open-binary-input-file " no such file "))))
 
+(tn "case-insensitive # notations")
+(assert-equal? (tn) '(#t #f #t #f) (list #T #F #TRUE #False))
+(assert-equal? (tn) '(26 3 15 9) (list #X1a #B11 #O17 #D9))
+(assert-equal? (tn) #u8(1 2) #U8(1 2))
+
 ;; Records are available without requiring SRFI-9.
 (tn "define-record-type")
 (define-record-type <r7rs-pare> (r7rs-kons x y) r7rs-pare?

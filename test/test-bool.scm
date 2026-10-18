@@ -5,7 +5,7 @@
 ;;  About    : unit tests for boolean
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -45,14 +45,8 @@
 ;; #t #f))' form to test a boolean expression instead of '(assert-true <exp>)'
 ;; of '(assert-equal? #t <exp>)'.  -- YamaKen 2006-09-07
 (tn "R5RS upper-case boolean literal")
-(if (provided? "sigscheme")
-    (begin
-      ;; not supported by SigScheme
-      (assert-parse-error (tn) "#F")
-      (assert-parse-error (tn) "#T"))
-    (begin
-      (assert-false (tn) (if (string-read "#F") #t #f))
-      (assert-true  (tn) (if (string-read "#T") #t #f))))
+(assert-false (tn) (if (string-read "#F") #t #f))
+(assert-true  (tn) (if (string-read "#T") #t #f))
 
 (tn "boolean self-evaluation")
 (assert-true   (tn) (eq? #f '#f))

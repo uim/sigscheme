@@ -5,7 +5,7 @@
 ;;  About    : unit test for R5RS formal syntax
 ;;
 ;;  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -42,14 +42,9 @@
 ;; See "7.1 Formal syntax" of R5RS
 ;; See also test-number-literal.scm
 
-(tn "invalid boolean")
-(if sigscheme?
-    (begin
-      (assert-parse-error (tn) "#F")
-      (assert-parse-error (tn) "#T"))
-    (begin
-      (assert-true (tn) (boolean? (string-read "#F")))
-      (assert-true (tn) (boolean? (string-read "#T")))))
+(tn "upper-case boolean")
+(assert-true (tn) (boolean? (string-read "#F")))
+(assert-true (tn) (boolean? (string-read "#T")))
 
 (tn "boolean")
 (assert-true (tn) (boolean? (string-read "#f")))

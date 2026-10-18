@@ -407,6 +407,7 @@ static const unsigned char scm_char_class_table[] = {
 static scm_ichar_t skip_comment_and_space(ScmObj port);
 #if SCM_USE_R7RS
 static void skip_block_comment(ScmObj port);
+static void read_directive(ScmObj port);
 #endif
 static size_t read_token(ScmObj port, int *err,
                          char *buf, size_t buf_size, enum ScmCharClass delim);
@@ -497,12 +498,16 @@ skip_comment_and_space(ScmObj port)
                 state = LEX_ST_COMMENT;
 #if SCM_USE_R7RS
             } else if (c == '#') {
-                /* #| ... |# and #; <datum> are comments too. */
+                /* #| ... |#, #; <datum> and #!fold-case are comments
+                 * too. */
                 DISCARD_LOOKAHEAD(port);
                 c = scm_port_peek_char(port);
                 if (c == '|') {
                     DISCARD_LOOKAHEAD(port);
                     skip_block_comment(port);
+                } else if (c == '!') {
+                    DISCARD_LOOKAHEAD(port);
+                    read_directive(port);
                 } else if (c == ';') {
                     DISCARD_LOOKAHEAD(port);
                     if (EOFP(read_sexpression(port)))
@@ -549,6 +554,26 @@ skip_block_comment(ScmObj port)
             depth++;
         }
     }
+}
+#endif
+
+#if SCM_USE_R7RS
+/* Reads #!fold-case or #!no-fold-case after '#!'. They change how the
+ * following symbols are read from PORT. */
+static void
+read_directive(ScmObj port)
+{
+    int err;
+    char buf[sizeof("no-fold-case")];
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);
+    if (err != TOKEN_BUF_EXCEEDED && strcmp(buf, "fold-case") == 0)
+        SCM_PORT_SET_FLAG(port, SCM_PORT_FLAG(port) | SCM_PORTFLAG_FOLD_CASE);
+    else if (err != TOKEN_BUF_EXCEEDED && strcmp(buf, "no-fold-case") == 0)
+        SCM_PORT_SET_FLAG(port, SCM_PORT_FLAG(port) & ~SCM_PORTFLAG_FOLD_CASE);
+    else
+        ERR("unsupported directive: #!~S", buf);
 }
 #endif
 
@@ -1199,6 +1224,9 @@ static ScmObj
 read_symbol(ScmObj port)
 {
     ScmObj sym;
+#if SCM_USE_R7RS
+    char *p;
+#endif
     size_t offset, tail_len;
     int err;
     ScmLBuf(char) lbuf;
@@ -1220,6 +1248,15 @@ read_symbol(ScmObj port)
                     LBUF_SIZE(lbuf) + SCM_MB_CHAR_BUF_SIZE);
     }
 
+#if SCM_USE_R7RS
+    /* #!fold-case: Only ASCII characters are folded like char-foldcase. */
+    if (SCM_PORT_FLAG(port) & SCM_PORTFLAG_FOLD_CASE) {
+        for (p = LBUF_BUF(lbuf); *p; p++) {
+            if ('A' <= *p && *p <= 'Z')
+                *p += 'a' - 'A';
+        }
+    }
+#endif
     sym = scm_intern(LBUF_BUF(lbuf));
     LBUF_FREE(lbuf);
 

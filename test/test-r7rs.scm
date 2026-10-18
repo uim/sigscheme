@@ -843,6 +843,17 @@
 (assert-error (tn) (lambda () (read-from-string "#0x")))
 (assert-error (tn) (lambda () (read-from-string "#0=")))
 
+(tn "read #!fold-case")
+(assert-eq? (tn) 'abc (read-from-string "#!fold-case ABC"))
+(assert-eq? (tn) 'ABC (read-from-string "#!fold-case #!no-fold-case ABC"))
+(let ((in (open-input-string "#!fold-case Foo |Bar| #\\A (List X)")))
+  (assert-eq? (tn) 'foo (read in))
+  (assert-eq? (tn) '|Bar| (read in))
+  (assert-equal? (tn) #\A (read in))
+  (assert-equal? (tn) '(list x) (read in)))
+(assert-eq? (tn) 'ABC (read-from-string "ABC"))
+(assert-error (tn) (lambda () (read-from-string "#!foo x")))
+
 (tn "read character names")
 (assert-equal? (tn) 0 (char->integer (read-from-string "#\\null")))
 (assert-equal? (tn) 27 (char->integer (read-from-string "#\\escape")))

@@ -222,6 +222,7 @@ conf_srfis_all = {
 }
 conf_r7rs = {
   'r7rs': 'yes',
+  'bytevector': 'yes',
   # R7RS vectors are self-evaluating.
   'strict_vector_form': 'no',
 }
@@ -424,6 +425,7 @@ feature_declarations = [
 
   # R7RS features (preliminary)
   ['r7rs', 'no'],
+  ['bytevector', 'no'],
 
   # Common Scheme features
   ['syntax_case', 'no'],
@@ -511,8 +513,9 @@ feature_required_dependencies = {
   'r6rs_named_chars': ['char'],
   'r6rs_chars': ['char', 'utf8', 'reader', 'r6rs_named_chars'],
   'r7rs': ['continuation', 'hygienic_macro', 'int', 'char', 'string',
-           'string_procedure', 'vector', 'promise', 'srfi6', 'srfi9',
-           'srfi34', 'srfi38', 'r6rs_named_chars'],
+           'string_procedure', 'vector', 'bytevector', 'promise', 'srfi6',
+           'srfi9', 'srfi34', 'srfi38', 'r6rs_named_chars'],
+  'bytevector': ['int', 'string'],
 
   'compat_siod': ['sscm_extensions', 'srfi60', 'eval_c_string'],
   'strict_r5rs': ['strict_null_form', 'strict_vector_form', 'strict_argcheck',
@@ -786,6 +789,7 @@ feature_definitions = [
 
   # R7RS features (preliminary)
   'r7rs',
+  'bytevector',
 
   # Common Scheme features
   'syntax_case',
@@ -939,6 +943,7 @@ if use['libsscm']
     'r6rs_chars',
     'r6rs_named_chars',
     'r7rs',
+    'bytevector',
     'legacy_macro',
     'sscm_extensions',
     'sscm_format_extension',
@@ -1041,6 +1046,7 @@ summary({
         section: 'R6RS features (preliminary)')
 summary({
           'R7RS': use['r7rs'],
+          'Bytevectors': use['bytevector'],
         },
         section: 'R7RS features (preliminary)')
 summary({

@@ -37,6 +37,8 @@
 
 #include <config.h>
 
+#include <string.h>
+
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
@@ -194,6 +196,14 @@ scm_p_equalp(ScmObj obj1, ScmObj obj2)
                 return SCM_FALSE;
         }
         return SCM_TRUE;
+#endif
+
+#if SCM_USE_BYTEVECTOR
+    case ScmBytevector:
+        len = SCM_BYTEVECTOR_LEN(obj1);
+        return MAKE_BOOL(len == SCM_BYTEVECTOR_LEN(obj2)
+                         && memcmp(SCM_BYTEVECTOR_VEC(obj1),
+                                   SCM_BYTEVECTOR_VEC(obj2), len) == 0);
 #endif
 
 #if SCM_USE_SSCM_EXTENSIONS

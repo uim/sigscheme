@@ -855,6 +855,16 @@ read_hash(ScmObj port)
 #endif
         return ret;
 #endif /* SCM_USE_VECTOR */
+#if SCM_USE_BYTEVECTOR
+    case 'u':
+        if (scm_port_get_char(port) != '8' || scm_port_get_char(port) != '(')
+            ERR("invalid bytevector literal: expected #u8(");
+        ret = scm_p_bytevector(read_list(port, ')'));
+#if SCM_CONST_VECTOR_LITERAL
+        SCM_BYTEVECTOR_SET_IMMUTABLE(ret);
+#endif
+        return ret;
+#endif /* SCM_USE_BYTEVECTOR */
 #if SCM_USE_CHAR
     case '\\':
         return read_char(port);

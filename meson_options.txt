@@ -201,6 +201,9 @@ option('r6rs_chars',
 option('r7rs',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'R7RS features (preliminary)')
+option('bytevector',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'R7RS bytevectors')
 
 # Common Scheme features
 option('legacy_macro',

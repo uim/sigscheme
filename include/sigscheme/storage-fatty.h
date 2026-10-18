@@ -4,7 +4,7 @@
  *
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -136,6 +136,11 @@ struct ScmCell_ {
             ScmObj *vec;
             scm_int_t len;
         } vector;
+
+        struct {
+            scm_byte_t *vec;
+            scm_int_t len;
+        } bytevector;
 
         struct {
             struct ScmCharPort_ *impl;
@@ -343,6 +348,22 @@ struct ScmCell_ {
     SCM_ISAL_VECTOR_INIT((o), (v), (l), scm_true)
 #define SCM_ISAL_IMMUTABLE_VECTOR_INIT(o, v, l)         \
     SCM_ISAL_VECTOR_INIT((o), (v), (l), scm_false)
+
+#define SCM_SAL_BYTEVECTORP(o)           (SCM_TYPE(o) == ScmBytevector)
+#define SCM_SAL_BYTEVECTOR_VEC(o)                                            \
+    (SCM_AS_BYTEVECTOR(o)->obj.bytevector.vec)
+#define SCM_SAL_BYTEVECTOR_SET_VEC(o, vec)  (SCM_BYTEVECTOR_VEC(o) = (vec))
+#define SCM_SAL_BYTEVECTOR_LEN(o)                                            \
+    (SCM_AS_BYTEVECTOR(o)->obj.bytevector.len)
+#define SCM_SAL_BYTEVECTOR_SET_LEN(o, len)  (SCM_BYTEVECTOR_LEN(o) = (len))
+#define SCM_SAL_BYTEVECTOR_MUTABLEP(o)      (SCM_MUTABLEP(o))
+#define SCM_SAL_BYTEVECTOR_SET_MUTABLE(o)   (SCM_SET_MUTABLE(o))
+#define SCM_SAL_BYTEVECTOR_SET_IMMUTABLE(o) (SCM_SET_IMMUTABLE(o))
+#define SCM_ISAL_BYTEVECTOR_INIT(o, v, l)       \
+    (SCM_ENTYPE((o), ScmBytevector),            \
+     SCM_BYTEVECTOR_SET_VEC((o), (v)),          \
+     SCM_BYTEVECTOR_SET_LEN((o), (l)),          \
+     SCM_SET_MUTABILITY((o), scm_true))
 
 #define SCM_SAL_PORTP(o)               (SCM_TYPE(o) == ScmPort)
 #define SCM_SAL_PORT_FLAG(o)           (SCM_AS_PORT(o)->obj.port.flag)

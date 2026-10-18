@@ -5,7 +5,7 @@
  *  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -142,6 +142,11 @@
 #define SCM_IMMUTABLE_VECTOR_INIT(obj, vec, len)                \
     SCM_TYPESAFE_MACRO_VOID(SCM_ISAL_IMMUTABLE_VECTOR_INIT,     \
                             (ScmObj, ScmObj *, scm_int_t),      \
+                            ((obj), (vec), (len)))
+
+#define SCM_BYTEVECTOR_INIT(obj, vec, len)                      \
+    SCM_TYPESAFE_MACRO_VOID(SCM_ISAL_BYTEVECTOR_INIT,           \
+                            (ScmObj, scm_byte_t *, scm_int_t),  \
                             ((obj), (vec), (len)))
 
 #define SCM_PORT_INIT(obj, cport, flag)                         \
@@ -491,6 +496,18 @@ scm_make_immutable_vector(ScmObj *vec, scm_int_t len)
 #endif /* SCM_HAS_IMMUTABLE_VECTOR */
 #endif /* SCM_USE_VECTOR */
 
+#if SCM_USE_BYTEVECTOR
+SCM_EXPORT ScmObj
+scm_make_bytevector(scm_byte_t *vec, scm_int_t len)
+{
+    ScmObj obj;
+
+    obj = scm_alloc_cell();
+    SCM_BYTEVECTOR_INIT(obj, vec, len);
+    return obj;
+}
+#endif /* SCM_USE_BYTEVECTOR */
+
 #if SCM_USE_PORT
 SCM_EXPORT ScmObj
 scm_make_port(ScmCharPort *cport, enum ScmPortFlag flag)
@@ -576,6 +593,10 @@ scm_type(ScmObj obj)
 #if SCM_USE_VECTOR
         else if (VECTORP(obj))
             return ScmVector;
+#endif
+#if SCM_USE_BYTEVECTOR
+        else if (BYTEVECTORP(obj))
+            return ScmBytevector;
 #endif
         else if (VALUEPACKETP(obj))
             return ScmValuePacket;

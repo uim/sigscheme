@@ -118,6 +118,7 @@ extern "C" {
 #define MAKE_CLOSURE                  SCM_MAKE_CLOSURE
 #define MAKE_VECTOR                   SCM_MAKE_VECTOR
 #define MAKE_IMMUTABLE_VECTOR         SCM_MAKE_IMMUTABLE_VECTOR
+#define MAKE_BYTEVECTOR               SCM_MAKE_BYTEVECTOR
 #define MAKE_PORT                     SCM_MAKE_PORT
 #define MAKE_CONTINUATION             SCM_MAKE_CONTINUATION
 #define MAKE_C_POINTER                SCM_MAKE_C_POINTER
@@ -141,6 +142,7 @@ extern "C" {
 #define PROCEDUREP     SCM_PROCEDUREP
 #define SYNTACTIC_OBJECTP SCM_SYNTACTIC_OBJECTP
 #define VECTORP        SCM_VECTORP
+#define BYTEVECTORP    SCM_BYTEVECTORP
 #define PORTP          SCM_PORTP
 #define CONTINUATIONP  SCM_CONTINUATIONP
 #define NULLVALUESP    SCM_NULLVALUESP
@@ -408,6 +410,7 @@ SCM_EXPORT void scm_kind_error_obj(enum ScmErrorKind kind,
 #define ENSURE_FUNC(o)         ENSURE_TYPE(FUNCP,         "function",     (o))
 #define ENSURE_CLOSURE(o)      ENSURE_TYPE(CLOSUREP,      "closure",      (o))
 #define ENSURE_VECTOR(o)       ENSURE_TYPE(VECTORP,       "vector",       (o))
+#define ENSURE_BYTEVECTOR(o)   ENSURE_TYPE(BYTEVECTORP,   "bytevector",   (o))
 #define ENSURE_PORT(o)         ENSURE_TYPE(PORTP,         "port",         (o))
 #define ENSURE_CONTINUATION(o) ENSURE_TYPE(CONTINUATIONP, "continuation", (o))
 #define ENSURE_PROCEDURE(o)    ENSURE_TYPE(PROCEDUREP,    "procedure",    (o))

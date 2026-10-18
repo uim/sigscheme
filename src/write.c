@@ -142,6 +142,9 @@ static void write_list     (ScmObj port, ScmObj lst, enum ScmOutputType otype);
 #if SCM_USE_VECTOR
 static void write_vector   (ScmObj port, ScmObj vec, enum ScmOutputType otype);
 #endif
+#if SCM_USE_BYTEVECTOR
+static void write_bytevector(ScmObj port, ScmObj bv);
+#endif
 static void write_port     (ScmObj port, ScmObj obj, enum ScmOutputType otype);
 static void write_constant (ScmObj port, ScmObj obj, enum ScmOutputType otype);
 static void write_errobj   (ScmObj port, ScmObj obj, enum ScmOutputType otype);
@@ -302,6 +305,11 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 #if SCM_USE_VECTOR
     case ScmVector:
         write_vector(port, obj, otype);
+        break;
+#endif
+#if SCM_USE_BYTEVECTOR
+    case ScmBytevector:
+        write_bytevector(port, obj);
         break;
 #endif
     case ScmPort:
@@ -602,6 +610,22 @@ write_vector(ScmObj port, ScmObj vec, enum ScmOutputType otype)
     scm_port_put_char(port, ')');
 }
 #endif /* SCM_USE_VECTOR */
+
+#if SCM_USE_BYTEVECTOR
+static void
+write_bytevector(ScmObj port, ScmObj bv)
+{
+    scm_int_t i;
+
+    scm_port_puts(port, "#u8(");
+    for (i = 0; i < SCM_BYTEVECTOR_LEN(bv); i++) {
+        if (i)
+            scm_port_put_char(port, ' ');
+        scm_format(port, SCM_FMT_RAW_C, "~D", (int)SCM_BYTEVECTOR_VEC(bv)[i]);
+    }
+    scm_port_put_char(port, ')');
+}
+#endif /* SCM_USE_BYTEVECTOR */
 
 static void
 write_port(ScmObj port, ScmObj obj, enum ScmOutputType otype)

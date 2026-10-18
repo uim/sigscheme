@@ -333,6 +333,7 @@ enum ScmObjType {
     ScmMacro        = 16,
     ScmFarsymbol    = 17,
     ScmSubpat       = 18,
+    ScmBytevector   = 19,
 
     ScmCFuncPointer = 30,
     ScmCPointer     = 31, 
@@ -706,6 +707,14 @@ struct ScmStorageConf_ {
                        ((vec), (len)))
 #endif /* SCM_USE_VECTOR */
 
+#if SCM_USE_BYTEVECTOR
+#define SCM_MAKE_BYTEVECTOR(vec, len)                                        \
+    SCM_TYPESAFE_MACRO(SCM_SAL_MAKE_BYTEVECTOR,                              \
+                       ScmObj,                                               \
+                       (scm_byte_t *, scm_int_t),                            \
+                       ((vec), (len)))
+#endif /* SCM_USE_BYTEVECTOR */
+
 #if (SCM_USE_CONTINUATION || SCM_USE_VALUES_APPLIER)
 #define SCM_MAKE_CONTINUATION()                                              \
     SCM_TYPESAFE_MACRO(SCM_SAL_MAKE_CONTINUATION,                            \
@@ -783,6 +792,7 @@ struct ScmStorageConf_ {
 #define SCM_AS_FUNC(o)          (SCM_ASSERT_TYPE(SCM_FUNCP(o),          (o)))
 #define SCM_AS_CLOSURE(o)       (SCM_ASSERT_TYPE(SCM_CLOSUREP(o),       (o)))
 #define SCM_AS_VECTOR(o)        (SCM_ASSERT_TYPE(SCM_VECTORP(o),        (o)))
+#define SCM_AS_BYTEVECTOR(o)    (SCM_ASSERT_TYPE(SCM_BYTEVECTORP(o),    (o)))
 #define SCM_AS_PORT(o)          (SCM_ASSERT_TYPE(SCM_PORTP(o),          (o)))
 #define SCM_AS_CONTINUATION(o)  (SCM_ASSERT_TYPE(SCM_CONTINUATIONP(o),  (o)))
 #define SCM_AS_VALUEPACKET(o)   (SCM_ASSERT_TYPE(SCM_VALUEPACKETP(o),   (o)))
@@ -881,6 +891,19 @@ struct ScmStorageConf_ {
 #define SCM_VECTOR_SET_IMMUTABLE(o)     SCM_SAL_VECTOR_SET_IMMUTABLE(o)
 #define SCM_VECTOR_VALID_INDEXP(o, i)   (0 <= (i) && (i) < SCM_VECTOR_LEN(o))
 #endif /* SCM_USE_VECTOR */
+
+#if SCM_USE_BYTEVECTOR
+#define SCM_BYTEVECTORP(o)              SCM_SAL_BYTEVECTORP(o)
+#define SCM_BYTEVECTOR_VEC(o)           SCM_SAL_BYTEVECTOR_VEC(o)
+#define SCM_BYTEVECTOR_LEN(o)           SCM_SAL_BYTEVECTOR_LEN(o)
+#define SCM_BYTEVECTOR_SET_VEC(o, vec)  SCM_SAL_BYTEVECTOR_SET_VEC((o), (vec))
+#define SCM_BYTEVECTOR_SET_LEN(o, len)  SCM_SAL_BYTEVECTOR_SET_LEN((o), (len))
+#define SCM_BYTEVECTOR_MUTABLEP(o)      SCM_SAL_BYTEVECTOR_MUTABLEP(o)
+#define SCM_BYTEVECTOR_SET_MUTABLE(o)   SCM_SAL_BYTEVECTOR_SET_MUTABLE(o)
+#define SCM_BYTEVECTOR_SET_IMMUTABLE(o) SCM_SAL_BYTEVECTOR_SET_IMMUTABLE(o)
+#define SCM_BYTEVECTOR_VALID_INDEXP(o, i)                                    \
+    (0 <= (i) && (i) < SCM_BYTEVECTOR_LEN(o))
+#endif /* SCM_USE_BYTEVECTOR */
 
 #if SCM_USE_PORT
 #define SCM_PORTP(o)                    SCM_SAL_PORTP(o)
@@ -1596,6 +1619,22 @@ SCM_EXPORT ScmObj scm_p_list2vector(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_vector_fillx(ScmObj vec, ScmObj fill);
 SCM_EXPORT ScmObj scm_p_vector_mutablep(ScmObj vec);
 #endif /* SCM_USE_VECTOR */
+
+/* bytevector.c */
+#if SCM_USE_BYTEVECTOR
+SCM_EXPORT ScmObj scm_p_bytevectorp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_make_bytevector(ScmObj scm_len, ScmObj args);
+SCM_EXPORT ScmObj scm_p_bytevector(ScmObj args);
+SCM_EXPORT ScmObj scm_p_bytevector_u8_ref(ScmObj bv, ScmObj k);
+SCM_EXPORT ScmObj scm_p_bytevector_u8_setx(ScmObj bv, ScmObj k, ScmObj byte);
+SCM_EXPORT ScmObj scm_p_bytevector_length(ScmObj bv);
+SCM_EXPORT ScmObj scm_p_bytevector_copy(ScmObj bv, ScmObj args);
+SCM_EXPORT ScmObj scm_p_bytevector_copyx(ScmObj to, ScmObj at, ScmObj from,
+                                         ScmObj args);
+SCM_EXPORT ScmObj scm_p_bytevector_append(ScmObj args);
+SCM_EXPORT ScmObj scm_p_utf82string(ScmObj bv, ScmObj args);
+SCM_EXPORT ScmObj scm_p_string2utf8(ScmObj str, ScmObj args);
+#endif /* SCM_USE_BYTEVECTOR */
 
 /* deep-cadrs.c */
 #if SCM_USE_DEEP_CADRS

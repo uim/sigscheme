@@ -34,6 +34,7 @@ FUNC_TABLES = \
         functable-r5rs-load.c \
         functable-r5rs-deep-cadrs.c \
         functable-r7rs.c \
+        functable-r7rs-bytevector.c \
         functable-legacy-macro.c \
         functable-sscm-ext.c \
         functable-siod.c \
@@ -100,6 +101,8 @@ functable-r5rs-deep-cadrs.c: $(srcdir)/deep-cadrs.c $(BUILD_FUNCTBL_DEPS)
 # R7RS
 functable-r7rs.c: $(srcdir)/r7rs.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r7rs" $<
+functable-r7rs-bytevector.c: $(srcdir)/bytevector.c $(BUILD_FUNCTBL_DEPS)
+	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r7rs_bytevector" $<
 # Optional modules
 functable-legacy-macro.c: $(srcdir)/legacy-macro.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_legacy_macro" $<
@@ -269,6 +272,9 @@ if USE_DEEP_CADRS
 endif
 if USE_R7RS
   libsscm_sources += r7rs.c
+endif
+if USE_BYTEVECTOR
+  libsscm_sources += bytevector.c
 endif
 
 # optional modules

@@ -4,7 +4,7 @@
  *
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -128,6 +128,7 @@
 #define SCM_SAL_MAKE_IMMUTABLE_VECTOR         scm_make_vector
 #endif
 
+#define SCM_SAL_MAKE_BYTEVECTOR               scm_make_bytevector
 #define SCM_SAL_MAKE_PORT                     scm_make_port
 #define SCM_SAL_MAKE_CONTINUATION             scm_make_continuation
 
@@ -176,6 +177,9 @@ SCM_EXPORT ScmObj scm_make_vector(ScmObj *vec, scm_int_t len);
 SCM_EXPORT ScmObj scm_make_immutable_vector(ScmObj *vec, scm_int_t len);
 #endif
 #endif /* SCM_USE_VECTOR */
+#if SCM_USE_BYTEVECTOR
+SCM_EXPORT ScmObj scm_make_bytevector(scm_byte_t *vec, scm_int_t len);
+#endif
 #if SCM_USE_PORT
 SCM_EXPORT ScmObj scm_make_port(struct ScmCharPort_ *cport,
                                 enum ScmPortFlag flag);

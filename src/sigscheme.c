@@ -92,6 +92,9 @@
 #if SCM_USE_VECTOR
 #include "functable-r5rs-vector.c"
 #endif
+#if SCM_USE_BYTEVECTOR
+#include "functable-r7rs-bytevector.c"
+#endif
 #if SCM_USE_DEEP_CADRS
 #include "functable-r5rs-deep-cadrs.c"
 #endif
@@ -308,6 +311,9 @@ scm_initialize_internal(const char *const *argv)
 #endif
 #if SCM_USE_VECTOR
     scm_register_funcs(scm_functable_r5rs_vector);
+#endif
+#if SCM_USE_BYTEVECTOR
+    scm_register_funcs(scm_functable_r7rs_bytevector);
 #endif
 #if SCM_USE_DEEP_CADRS
     scm_register_funcs(scm_functable_r5rs_deep_cadrs);

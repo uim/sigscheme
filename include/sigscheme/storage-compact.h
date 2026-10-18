@@ -5,7 +5,7 @@
  *  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C)      2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -95,6 +95,7 @@
  *     ...........|G : symbol       : symbol value (ScmObj)
  *     ...........|G : string       : C string (char *)
  *     ...........|G : vector       : vector objects (ScmObj *)
+ *     ...........|G : bytevector   : bytes (scm_byte_t *)
  *     ...........|G : valuepacket  : values list (ScmObj)
  *     ...........|G : func         : function pointer (LSB is stored in S->Y)
  *     ...........|G : port         : char port instance (ScmCharPort *)
@@ -127,7 +128,7 @@
  *     .|01|101|11|1 :  - far symbol: [#if !SCM_USE_UNHYGIENIC_MACRO] env depth
  *     .|10|101|11|1 :  - macro     : [#if !SCM_USE_UNHYGIENIC_MACRO] env depth
  *     .|11|101|11|1 :  - (reserved):
- *     ....|110|11|1 : (reserved)   :
+ *     ...M|110|11|1 : bytevector   : bytevector length, 'mutable' bit M
  *     ....|111|11|1 : freecell     : unused (all 0)
  *
  *     Misc. types' tags come in several levels, including the GC bit:
@@ -144,6 +145,8 @@
  *           str (char *)         : 2 byte (S->X)
  *       vector
  *           vec (ScmObj *)       : 2 byte (S->X)
+ *       bytevector
+ *           vec (scm_byte_t *)   : 2 byte (S->X)
  *       port
  *           impl (ScmCharPort *) : 2 byte (S->X)
  *       continuation
@@ -737,6 +740,47 @@ SCM_MISC_DECLARE_TYPE(VECTOR, L1(2),
     do {                                                        \
         ScmObj *_vec = SCM_MISC_X_NASSERT(&(c), VECTOR);        \
         free(_vec);                                             \
+    } while (0)
+
+/* Bytevectors. */
+SCM_MISC_DECLARE_TYPE(BYTEVECTOR, L2(6, 3),
+                      SCM_MISC_XTYPE(scm_byte_t *), SCM_MISC_XALIGN(1),
+                      SCM_MISC_YTYPE(scm_int_t));
+
+#define SCM_BYTEVECTOR_PTR(o)            SCM_MISC_PTR((o), BYTEVECTOR)
+#define SCM_SAL_BYTEVECTORP(o)           SCM_MISC_TYPEP((o), BYTEVECTOR)
+#define SCM_BYTEVECTOR_MUTABLE_BIT       ((scm_int_t)1)
+#define SCM_BYTEVECTOR_MUTABLE_BIT_WIDTH 1
+#define SCM_BYTEVECTOR_MUTABILITY(o)                               \
+    (SCM_MISC_Y((o), BYTEVECTOR) & SCM_BYTEVECTOR_MUTABLE_BIT)
+#define SCM_SAL_BYTEVECTOR_MUTABLEP(o)   SCM_BYTEVECTOR_MUTABILITY(o)
+#define SCM_SAL_BYTEVECTOR_SET_MUTABLE(o)                                    \
+    SCM_MISC_SET_Y((o),                                                      \
+                   SCM_MISC_Y((o), BYTEVECTOR) | SCM_BYTEVECTOR_MUTABLE_BIT, \
+                   BYTEVECTOR)
+#define SCM_SAL_BYTEVECTOR_SET_IMMUTABLE(o)                                  \
+    SCM_MISC_SET_Y((o),                                                      \
+                   SCM_MISC_Y((o), BYTEVECTOR) & ~SCM_BYTEVECTOR_MUTABLE_BIT, \
+                   BYTEVECTOR)
+#define SCM_SAL_BYTEVECTOR_VEC(o)        SCM_MISC_X((o), BYTEVECTOR)
+#define SCM_SAL_BYTEVECTOR_LEN(o)        (SCM_MISC_Y((o), BYTEVECTOR)        \
+                                          >> SCM_BYTEVECTOR_MUTABLE_BIT_WIDTH)
+#define SCM_SAL_BYTEVECTOR_SET_VEC(o, v) SCM_MISC_SET_X((o), (v), BYTEVECTOR)
+#define SCM_SAL_BYTEVECTOR_SET_LEN(o, l)                                     \
+    SCM_MISC_SET_Y((o),                                                      \
+                   (((scm_int_t)(l) << SCM_BYTEVECTOR_MUTABLE_BIT_WIDTH)     \
+                    | SCM_BYTEVECTOR_MUTABILITY(o)),                         \
+                   BYTEVECTOR)
+#define SCM_ISAL_BYTEVECTOR_INIT(o, v, l)                                    \
+    SCM_MISC_INIT((o), (v),                                                  \
+                  (((scm_int_t)(l) << SCM_BYTEVECTOR_MUTABLE_BIT_WIDTH)      \
+                   | SCM_BYTEVECTOR_MUTABLE_BIT),                            \
+                  BYTEVECTOR)
+#define SCM_CELL_BYTEVECTORP(c)      SCM_MISC_CELL_TYPEP((c), BYTEVECTOR)
+#define SCM_CELL_BYTEVECTOR_FIN(c)                                  \
+    do {                                                            \
+        scm_byte_t *_vec = SCM_MISC_X_NASSERT(&(c), BYTEVECTOR);    \
+        free(_vec);                                                 \
     } while (0)
 
 /* Multiple Values. */

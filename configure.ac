@@ -357,6 +357,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
     case "$enable_conf" in
       full|r7rs|dev)
         use_r7rs=yes
+        use_bytevector=yes
         # R7RS vectors are self-evaluating.
         use_strict_vector_form=no
         ;;
@@ -465,6 +466,7 @@ AX_FEATURE_ARG_Y(r6rs-chars,       [R6RS characters (preliminary)])
 
 # R7RS features (preliminary)
 AX_FEATURE_ARG_N(r7rs,             [R7RS features (preliminary)])
+AX_FEATURE_ARG_N(bytevector,       [R7RS bytevectors])
 
 # Common Scheme features
 AX_FEATURE_VAR_N(syntax-case,      ['syntax-case' (not implemented yet)])
@@ -531,7 +533,8 @@ srfi69: load int string vector srfi9 srfi23
 srfi95: load int
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
-r7rs: continuation hygienic_macro int char string string_procedure vector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars
+r7rs: continuation hygienic_macro int char string string_procedure vector bytevector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars
+bytevector: int string
 
 compat_siod: sscm_extensions srfi60 eval_c_string
 strict_r5rs: strict_null_form strict_vector_form strict_argcheck internal_definitions strict_toplevel_definitions const_vector_literal
@@ -694,6 +697,7 @@ AX_FEATURE_DEFINE(r6rs_chars)
 
 # R7RS features (preliminary)
 AX_FEATURE_DEFINE(r7rs)
+AX_FEATURE_DEFINE(bytevector)
 
 # Common Scheme features
 AX_FEATURE_DEFINE(syntax_case)
@@ -773,6 +777,7 @@ AC_SUBST(use_srfi95)
 AC_SUBST(use_r6rs_chars)
 AC_SUBST(use_r6rs_named_chars)
 AC_SUBST(use_r7rs)
+AC_SUBST(use_bytevector)
 AC_SUBST(use_legacy_macro)
 AC_SUBST(use_sscm_extensions)
 AC_SUBST(use_sscm_format_extension)
@@ -913,6 +918,7 @@ R6RS named chars: $use_r6rs_named_chars
 
 [R7RS features (preliminary)]
 R7RS:             $use_r7rs
+Bytevectors:      $use_bytevector
 
 [SigScheme-specific extensions]
 define-macro:         $use_legacy_macro

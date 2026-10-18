@@ -507,6 +507,38 @@ scm_exit_status(const char *func_name, ScmObj args)
     return SCM_INT_VALUE(obj);
 }
 
+/* Parses optional START and END in ARGS for a sequence whose length is
+ * LEN. They must satisfy 0 <= START <= END <= LEN. */
+SCM_EXPORT void
+scm_parse_range(const char *func_name, ScmObj args, scm_int_t len,
+                scm_int_t *start, scm_int_t *end)
+{
+    ScmObj obj;
+
+    *start = 0;
+    *end = len;
+    if (NULLP(args))
+        return;
+
+    obj = CAR(args);
+    if (!INTP(obj))
+        scm_error_obj(func_name, "integer required but got", obj);
+    *start = SCM_INT_VALUE(obj);
+    args = CDR(args);
+    if (CONSP(args)) {
+        obj = CAR(args);
+        if (!INTP(obj))
+            scm_error_obj(func_name, "integer required but got", obj);
+        *end = SCM_INT_VALUE(obj);
+        args = CDR(args);
+    }
+    if (!NULLP(args))
+        scm_error_obj(func_name, "superfluous argument(s)", args);
+    if (!(0 <= *start && *start <= *end && *end <= len))
+        scm_error_obj(func_name, "invalid range",
+                      LIST_2(MAKE_INT(*start), MAKE_INT(*end)));
+}
+
 SCM_EXPORT char **
 scm_interpret_argv(char **argv)
 {

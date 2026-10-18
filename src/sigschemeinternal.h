@@ -821,6 +821,9 @@ SCM_EXPORT void scm_fin_module(void);
 /* sigscheme.c */
 SCM_EXPORT char **scm_interpret_argv(char **argv);
 SCM_EXPORT int scm_exit_status(const char *func_name, ScmObj args);
+SCM_EXPORT void scm_parse_range(const char *func_name, ScmObj args,
+                                scm_int_t len, scm_int_t *start,
+                                scm_int_t *end);
 SCM_EXPORT void scm_free_argv(char **argv);
 
 /* legacy-macro.c */

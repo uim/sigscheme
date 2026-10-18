@@ -81,8 +81,6 @@ static scm_ichar_t upcase(scm_ichar_t ch);
 static scm_ichar_t downcase(scm_ichar_t ch);
 static scm_ichar_t foldcase(scm_ichar_t ch);
 static ScmObj convert_string_case(ScmObj str, case_converter convert);
-static void parse_range(const char *func_name, ScmObj args, scm_int_t len,
-                        scm_int_t *start, scm_int_t *end);
 static void get_division_operands(const char *func_name, ScmObj n1,
                                   ScmObj n2, scm_int_t *dividend,
                                   scm_int_t *divisor);
@@ -126,38 +124,6 @@ SCM_EXPORT void
 scm_set_command_line(const char *const *argv)
 {
     l_command_line = argv;
-}
-
-/* Parses optional START and END in ARGS for a sequence whose length is
- * LEN. They must satisfy 0 <= START <= END <= LEN. */
-static void
-parse_range(const char *func_name, ScmObj args, scm_int_t len,
-            scm_int_t *start, scm_int_t *end)
-{
-    ScmObj obj;
-
-    *start = 0;
-    *end = len;
-    if (NULLP(args))
-        return;
-
-    obj = CAR(args);
-    if (!INTP(obj))
-        scm_error_obj(func_name, "integer required but got", obj);
-    *start = SCM_INT_VALUE(obj);
-    args = CDR(args);
-    if (CONSP(args)) {
-        obj = CAR(args);
-        if (!INTP(obj))
-            scm_error_obj(func_name, "integer required but got", obj);
-        *end = SCM_INT_VALUE(obj);
-        args = CDR(args);
-    }
-    if (!NULLP(args))
-        scm_error_obj(func_name, "superfluous argument(s)", args);
-    if (!(0 <= *start && *start <= *end && *end <= len))
-        scm_error_obj(func_name, "invalid range",
-                      LIST_2(MAKE_INT(*start), MAKE_INT(*end)));
 }
 
 /*===========================================================================
@@ -1110,7 +1076,7 @@ scm_p_r7rs_string2list(ScmObj str, ScmObj args)
         return scm_p_string2list(str);
 
     ENSURE_STRING(str);
-    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
 
     return scm_p_string2list(scm_p_substring(str, MAKE_INT(start),
                                              MAKE_INT(end)));
@@ -1130,7 +1096,7 @@ scm_p_r7rs_string_copy(ScmObj str, ScmObj args)
         return scm_p_string_copy(str);
 
     ENSURE_STRING(str);
-    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
 
     return scm_p_substring(str, MAKE_INT(start), MAKE_INT(end));
 }
@@ -1147,7 +1113,8 @@ scm_p_string_copyx(ScmObj to, ScmObj at, ScmObj from, ScmObj args)
     ENSURE_MUTABLE_STRING(to);
     ENSURE_INT(at);
     ENSURE_STRING(from);
-    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(from), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(from),
+                    &start, &end);
 
     to_start = SCM_INT_VALUE(at);
     if (!(0 <= to_start && end - start <= SCM_STRING_LEN(to) - to_start))
@@ -1178,7 +1145,7 @@ scm_p_r7rs_string_fillx(ScmObj str, ScmObj ch, ScmObj args)
     ENSURE_STRING(str);
     ENSURE_MUTABLE_STRING(str);
     ENSURE_CHAR(ch);
-    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
 
     for (i = start; i < end; i++)
         scm_p_string_setx(str, MAKE_INT(i), ch);
@@ -1281,7 +1248,7 @@ scm_p_r7rs_vector2list(ScmObj vec, ScmObj args)
         return scm_p_vector2list(vec);
 
     ENSURE_VECTOR(vec);
-    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
 
     return vector_to_list(vec, start, end);
 }
@@ -1293,7 +1260,7 @@ scm_p_vector2string(ScmObj vec, ScmObj args)
     DECLARE_FUNCTION("vector->string", procedure_variadic_1);
 
     ENSURE_VECTOR(vec);
-    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
 
     return scm_p_list2string(vector_to_list(vec, start, end));
 }
@@ -1305,7 +1272,7 @@ scm_p_string2vector(ScmObj str, ScmObj args)
     DECLARE_FUNCTION("string->vector", procedure_variadic_1);
 
     ENSURE_STRING(str);
-    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
 
     return scm_p_list2vector(
         scm_p_string2list(scm_p_substring(str, MAKE_INT(start),
@@ -1320,7 +1287,7 @@ scm_p_vector_copy(ScmObj vec, ScmObj args)
     DECLARE_FUNCTION("vector-copy", procedure_variadic_1);
 
     ENSURE_VECTOR(vec);
-    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
 
     copy = scm_malloc(sizeof(ScmObj) * (end - start));
     memcpy(copy, &SCM_VECTOR_VEC(vec)[start], sizeof(ScmObj) * (end - start));
@@ -1338,7 +1305,8 @@ scm_p_vector_copyx(ScmObj to, ScmObj at, ScmObj from, ScmObj args)
     ENSURE_MUTABLE_VECTOR(to);
     ENSURE_INT(at);
     ENSURE_VECTOR(from);
-    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(from), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(from),
+                    &start, &end);
 
     to_start = SCM_INT_VALUE(at);
     if (!(0 <= to_start && end - start <= SCM_VECTOR_LEN(to) - to_start))
@@ -1390,7 +1358,7 @@ scm_p_r7rs_vector_fillx(ScmObj vec, ScmObj fill, ScmObj args)
 
     ENSURE_VECTOR(vec);
     ENSURE_MUTABLE_VECTOR(vec);
-    parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_VECTOR_LEN(vec), &start, &end);
 
     v = SCM_VECTOR_VEC(vec);
     for (i = start; i < end; i++)
@@ -1658,7 +1626,7 @@ scm_p_write_string(ScmObj str, ScmObj args)
         port = POP(args);
         ENSURE_PORT(port);
     }
-    parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
 
     scm_display(port, scm_p_substring(str, MAKE_INT(start), MAKE_INT(end)));
     return SCM_UNDEF;

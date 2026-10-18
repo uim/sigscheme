@@ -3,7 +3,7 @@
  *  About    : R5RS delayed evaluation
  *
  *  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -41,7 +41,22 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
-#define PROMISE_FORCEDP(p) (!EQ(CAR(p), l_tag_unforced))
+/*
+ * A promise is (box . tag) like chibi-scheme. tag is the unique object to
+ * distinguish promises. box is (state . value) and it's shared by promises
+ * chained by delay-force of R7RS:
+ *
+ *   PROMISE_DONE:        value is the forced value
+ *   PROMISE_DELAY:       value is a thunk that returns the value
+ *   PROMISE_DELAY_FORCE: value is a thunk that returns a promise
+ */
+#define PROMISE_DONE        0
+#define PROMISE_DELAY       1
+#define PROMISE_DELAY_FORCE 2
+
+#define PROMISE_BOX(p)   CAR(p)
+#define PROMISE_STATE(p) SCM_INT_VALUE(CAR(PROMISE_BOX(p)))
+#define PROMISE_VALUE(p) CDR(PROMISE_BOX(p))
 
 /*=======================================
   File Local Type Definitions
@@ -54,15 +69,16 @@
 
 SCM_GLOBAL_VARS_BEGIN(static_promise);
 #define static
-static ScmObj l_tag_unforced;
+static ScmObj l_promise_tag;
 #undef static
 SCM_GLOBAL_VARS_END(static_promise);
-#define l_tag_unforced SCM_GLOBAL_VAR(static_promise, l_tag_unforced)
+#define l_promise_tag SCM_GLOBAL_VAR(static_promise, l_promise_tag)
 SCM_DEFINE_STATIC_VARS(static_promise);
 
 /*=======================================
   File Local Function Declarations
 =======================================*/
+static ScmObj make_promise(int state, ScmObj value);
 
 /*=======================================
   Function Definitions
@@ -74,10 +90,35 @@ scm_init_promise(void)
 
     scm_register_funcs(scm_functable_r5rs_promise);
 
-    /* Use a pair as the unique tag. The symbol %%unforced-promise is only for
+    /* Use a pair as the unique tag. The symbol %%promise is only for
      * human-readability. */
-    scm_gc_protect_with_init(&l_tag_unforced,
-                             LIST_1(scm_intern("%%unforced-promise")));
+    scm_gc_protect_with_init(&l_promise_tag, LIST_1(scm_intern("%%promise")));
+}
+
+static ScmObj
+make_promise(int state, ScmObj value)
+{
+    return CONS(CONS(MAKE_INT(state), value), l_promise_tag);
+}
+
+SCM_EXPORT scm_bool
+scm_promisep(ScmObj obj)
+{
+    return CONSP(obj) && EQ(CDR(obj), l_promise_tag);
+}
+
+/* make-promise of R7RS without the check whether VALUE is a promise. */
+SCM_EXPORT ScmObj
+scm_make_forced_promise(ScmObj value)
+{
+    return make_promise(PROMISE_DONE, value);
+}
+
+/* delay-force of R7RS: THUNK returns a promise. */
+SCM_EXPORT ScmObj
+scm_make_delay_force_promise(ScmObj thunk)
+{
+    return make_promise(PROMISE_DELAY_FORCE, thunk);
 }
 
 /*===========================================================================
@@ -86,40 +127,54 @@ scm_init_promise(void)
 SCM_EXPORT ScmObj
 scm_s_delay(ScmObj exp, ScmObj env)
 {
-    ScmObj proc;
     DECLARE_FUNCTION("delay", syntax_fixed_1);
 
-    proc = scm_s_lambda(SCM_NULL, LIST_1(exp), env);
-
-    /* (result . proc) */
-    return CONS(l_tag_unforced, proc);
+    return make_promise(PROMISE_DELAY,
+                        scm_s_lambda(SCM_NULL, LIST_1(exp), env));
 }
 
 /*===========================================================================
   R5RS : 6.4 Control features
 ===========================================================================*/
+/* This is the iterative version of force of the R7RS reference
+ * implementation. So a long chain of delay-force runs in constant space. */
 SCM_EXPORT ScmObj
 scm_p_force(ScmObj promise)
 {
-    ScmObj proc, result;
+    ScmObj thunk, result;
+    int state;
     DECLARE_FUNCTION("force", procedure_fixed_1);
 
-    ENSURE_CONS(promise);
+    if (!scm_promisep(promise))
+        ERR_OBJ("promise required but got", promise);
 
-    proc = CDR(promise);
-    ENSURE_PROCEDURE(proc);
+    for (;;) {
+        state = PROMISE_STATE(promise);
+        if (state == PROMISE_DONE)
+            return PROMISE_VALUE(promise);
 
-    if (PROMISE_FORCEDP(promise))
-        return CAR(promise);
+        thunk = PROMISE_VALUE(promise);
+        result = scm_call(thunk, SCM_NULL);
 
-    /* R5RS:
-     *   Rationale: A promise may refer to its own value, as in the last
-     *   example above. Forcing such a promise may cause the promise to be
-     *   forced a second time before the value of the first force has been
-     *   computed. This complicates the definition of `make-promise'. */
-    result = scm_call(proc, SCM_NULL);
-    if (PROMISE_FORCEDP(promise))
-        return CAR(promise);
-    SET_CAR(promise, result);
-    return result;
+        /* R5RS:
+         *   Rationale: A promise may refer to its own value, as in the last
+         *   example above. Forcing such a promise may cause the promise to be
+         *   forced a second time before the value of the first force has been
+         *   computed. This complicates the definition of `make-promise'. */
+        if (PROMISE_STATE(promise) == PROMISE_DONE)
+            return PROMISE_VALUE(promise);
+
+        if (state == PROMISE_DELAY) {
+            SET_CAR(PROMISE_BOX(promise), MAKE_INT(PROMISE_DONE));
+            SET_CDR(PROMISE_BOX(promise), result);
+            return result;
+        }
+
+        /* delay-force: Share the box of RESULT and force it. */
+        if (!scm_promisep(result))
+            ERR_OBJ("delay-force requires a promise but got", result);
+        SET_CAR(PROMISE_BOX(promise), CAR(PROMISE_BOX(result)));
+        SET_CDR(PROMISE_BOX(promise), CDR(PROMISE_BOX(result)));
+        SET_CAR(result, PROMISE_BOX(promise));
+    }
 }

@@ -764,6 +764,9 @@ SCM_EXPORT scm_int_t scm_int_modulo(const char *func_name,
 
 /* promise.c */
 SCM_EXPORT void scm_init_promise(void);
+SCM_EXPORT scm_bool scm_promisep(ScmObj obj);
+SCM_EXPORT ScmObj scm_make_forced_promise(ScmObj value);
+SCM_EXPORT ScmObj scm_make_delay_force_promise(ScmObj thunk);
 
 /* procedure.c */
 SCM_EXPORT ScmObj scm_map_single_arg(ScmObj proc, ScmObj lst);

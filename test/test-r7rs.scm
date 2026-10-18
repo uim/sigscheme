@@ -315,6 +315,42 @@
                       ((_) 1)))
                   (one))))
 
+(tn "promise?")
+(assert-eq? (tn) #t (promise? (delay 1)))
+(assert-eq? (tn) #t (promise? (delay-force (delay 1))))
+(assert-eq? (tn) #t (promise? (make-promise 1)))
+(assert-eq? (tn) #f (promise? '(1 . 2)))
+(assert-eq? (tn) #f (promise? 1))
+
+(tn "make-promise")
+(assert-equal? (tn) 4 (force (make-promise (+ 2 2))))
+(let ((promise (delay 1)))
+  (assert-eq? (tn) promise (make-promise promise)))
+
+(tn "delay-force")
+(assert-equal? (tn) 1 (force (delay-force (delay 1))))
+;; delay doesn't force the result but delay-force does.
+(assert-eq? (tn) #t (promise? (force (delay (delay 1)))))
+(define (promise-chain n)
+  (delay-force (if (= n 0) (make-promise 'done) (promise-chain (- n 1)))))
+;; A long chain runs in constant space.
+(assert-eq? (tn) 'done (force (promise-chain 100000)))
+(assert-error (tn) (lambda () (force (delay-force 1))))
+
+(tn "force reentrancy")
+;; R7RS 4.2.5: A promise may refer to its own value.
+(define promise-count 0)
+(define promise-x 5)
+(define reentrant-promise
+  (delay (begin
+           (set! promise-count (+ promise-count 1))
+           (if (> promise-count promise-x)
+               promise-count
+               (force reentrant-promise)))))
+(assert-equal? (tn) 6 (force reentrant-promise))
+(set! promise-x 10)
+(assert-equal? (tn) 6 (force reentrant-promise))
+
 (tn "define-values")
 (define-values (dv-a dv-b . dv-c) (values 1 2 3 4))
 (assert-equal? (tn) '(1 2 (3 4)) (list dv-a dv-b dv-c))

@@ -397,6 +397,34 @@ scm_s_parameterize(ScmObj bindings, ScmObj body, ScmObj env)
 }
 
 /*===========================================================================
+  R7RS : 4.2 Derived expression types : 4.2.5 Delayed evaluation
+===========================================================================*/
+SCM_EXPORT ScmObj
+scm_s_delay_force(ScmObj exp, ScmObj env)
+{
+    DECLARE_FUNCTION("delay-force", syntax_fixed_1);
+
+    return scm_make_delay_force_promise(scm_s_lambda(SCM_NULL, LIST_1(exp),
+                                                     env));
+}
+
+SCM_EXPORT ScmObj
+scm_p_make_promise(ScmObj obj)
+{
+    DECLARE_FUNCTION("make-promise", procedure_fixed_1);
+
+    return scm_promisep(obj) ? obj : scm_make_forced_promise(obj);
+}
+
+SCM_EXPORT ScmObj
+scm_p_promisep(ScmObj obj)
+{
+    DECLARE_FUNCTION("promise?", procedure_fixed_1);
+
+    return MAKE_BOOL(scm_promisep(obj));
+}
+
+/*===========================================================================
   R7RS : 5.3 Variable definitions : 5.3.3 Multiple-value definitions
 ===========================================================================*/
 /* Internal definitions are handled in scm_s_body(). */

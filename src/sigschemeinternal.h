@@ -780,6 +780,11 @@ SCM_EXPORT ScmObj scm_prepare_port(ScmObj args, ScmObj default_port);
 SCM_EXPORT ScmCharPort *scm_make_char_port(ScmBytePort *bport);
 #endif /* SCM_USE_PORT */
 
+/* read.c */
+#if SCM_USE_READER
+SCM_EXPORT void scm_init_read(void);
+#endif /* SCM_USE_READER */
+
 /* write.c */
 #if SCM_USE_WRITER
 SCM_EXPORT void scm_init_writer(void);

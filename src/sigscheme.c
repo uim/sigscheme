@@ -71,9 +71,6 @@
 =======================================*/
 #include "functable-sscm-core.c"
 #include "functable-r5rs-core.c"
-#if SCM_USE_READER
-#include "functable-r5rs-read.c"
-#endif
 #if SCM_USE_QUASIQUOTE
 #include "functable-r5rs-qquote.c"
 #endif
@@ -256,7 +253,7 @@ scm_initialize_internal(const char *const *argv)
     scm_init_format();
 #endif
 #if SCM_USE_READER
-    scm_register_funcs(scm_functable_r5rs_read);
+    scm_init_read();
 #endif
 #if SCM_USE_LOAD
     scm_init_load();

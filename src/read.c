@@ -258,6 +258,18 @@ enum ScmCharClass {
 /*=======================================
   Variable Definitions
 =======================================*/
+#include "functable-r5rs-read.c"
+
+#if SCM_USE_R7RS
+SCM_GLOBAL_VARS_BEGIN(static_read);
+#define static
+/* Datum labels in the datum being read: ((n placeholder . datum) ...) */
+static ScmObj l_labels;
+#undef static
+SCM_GLOBAL_VARS_END(static_read);
+#define l_labels SCM_GLOBAL_VAR(static_read, l_labels)
+SCM_DEFINE_STATIC_VARS(static_read);
+#endif
 static const unsigned char scm_char_class_table[] = {
     SCM_CH_CONTROL,            /*   0  nul       */
     SCM_CH_CONTROL,            /*   1  x01       */
@@ -402,6 +414,11 @@ static size_t read_token(ScmObj port, int *err,
 static ScmObj read_sexpression(ScmObj port);
 static ScmObj read_list(ScmObj port, scm_ichar_t closing_paren);
 static ScmObj read_hash(ScmObj port);
+#if SCM_USE_R7RS
+static ScmObj read_label(ScmObj port, scm_ichar_t c);
+static ScmObj resolve_label(ScmObj obj);
+static ScmObj resolve_labels(ScmObj obj);
+#endif
 #if SCM_USE_R6RS_CHARS
 static scm_ichar_t parse_unicode_sequence(const char *seq, int len);
 static scm_ichar_t read_unicode_sequence(ScmObj port);
@@ -427,13 +444,34 @@ static ScmObj read_quoted(ScmObj port, ScmObj quoter);
 /*===========================================================================
   S-Expression Parser
 ===========================================================================*/
+SCM_EXPORT void
+scm_init_read(void)
+{
+#if SCM_USE_R7RS
+    SCM_GLOBAL_VARS_INIT(static_read);
+    scm_gc_protect_with_init(&l_labels, SCM_NULL);
+#endif
+
+    scm_register_funcs(scm_functable_r5rs_read);
+}
+
 SCM_EXPORT ScmObj
 scm_read(ScmObj port)
 {
     ScmObj sexp;
     DECLARE_INTERNAL_FUNCTION("scm_read");
 
+#if SCM_USE_R7RS
+    /* Labels may remain after an error. */
+    l_labels = SCM_NULL;
     sexp = read_sexpression(port);
+    if (!NULLP(l_labels)) {
+        sexp = resolve_labels(sexp);
+        l_labels = SCM_NULL;
+    }
+#else
+    sexp = read_sexpression(port);
+#endif
 #if SCM_DEBUG
     if ((scm_debug_categories() & SCM_DBG_READ) && !EOFP(sexp)) {
         scm_write(scm_err, sexp);
@@ -801,6 +839,11 @@ read_hash(ScmObj port)
     case 'b': case 'o': case 'd': case 'x':
         return read_number(port, c);
 #endif
+#if SCM_USE_R7RS
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+        return read_label(port, c);
+#endif
     case SCM_ICHAR_EOF:
         ERR("EOF in #");
         /* NOTREACHED */
@@ -809,6 +852,100 @@ read_hash(ScmObj port)
         /* NOTREACHED */
     }
 }
+
+#if SCM_USE_R7RS
+/* Reads a datum label #n=<datum> or a reference #n#. C is the first digit.
+ * A reference in its own datum is a placeholder that is replaced by
+ * resolve_labels() after the whole datum is read. */
+static ScmObj
+read_label(ScmObj port, scm_ichar_t c)
+{
+    ScmObj n, label, datum;
+    scm_int_t value;
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    value = c - '0';
+    for (;;) {
+        c = scm_port_get_char(port);
+        if (!ICHAR_NUMERICP(c))
+            break;
+        if (value > (SCM_INT_MAX - (c - '0')) / 10)
+            ERR("too large datum label");
+        value = value * 10 + (c - '0');
+    }
+    n = MAKE_INT(value);
+
+    if (c == '=') {
+        /* The placeholder is a fresh pair that isn't EQ to any datum. */
+        label = CONS(n, CONS(CONS(SCM_UNDEF, SCM_UNDEF), SCM_UNBOUND));
+        l_labels = CONS(label, l_labels);
+        datum = read_sexpression(port);
+        if (EOFP(datum))
+            ERR("EOF in datum label");
+        SET_CDR(CDR(label), datum);
+        return datum;
+    }
+    if (c == '#') {
+        label = scm_p_assv(n, l_labels);
+        if (FALSEP(label))
+            ERR("undefined datum label: #~MD#", value);
+        /* The placeholder if the datum isn't read yet. */
+        return EQ(CDDR(label), SCM_UNBOUND) ? CADR(label) : CDDR(label);
+    }
+    ERR("invalid datum label: #~MD~C", value, c);
+}
+
+/* Returns the datum for OBJ if OBJ is a placeholder. */
+static ScmObj
+resolve_label(ScmObj obj)
+{
+    ScmObj labels, label;
+    DECLARE_INTERNAL_FUNCTION("read");
+
+    if (!CONSP(obj))
+        return obj;
+    labels = l_labels;
+    FOR_EACH (label, labels) {
+        if (EQ(obj, CADR(label))) {
+            if (EQ(CDDR(label), obj))
+                ERR("invalid datum label: #~MD#", SCM_INT_VALUE(CAR(label)));
+            return CDDR(label);
+        }
+    }
+    return obj;
+}
+
+/* Replaces placeholders in OBJ with their datums. Pairs and vectors are
+ * visited only once because the datum may be circular. */
+static ScmObj
+resolve_labels(ScmObj obj)
+{
+    ScmObj visited, pending, elm, *vec;
+    scm_int_t i;
+
+    obj = resolve_label(obj);
+    visited = SCM_NULL;
+    for (pending = LIST_1(obj); CONSP(pending);) {
+        elm = CAR(pending);
+        pending = CDR(pending);
+        if ((!CONSP(elm) && !VECTORP(elm)) || TRUEP(scm_p_memq(elm, visited)))
+            continue;
+        visited = CONS(elm, visited);
+        if (CONSP(elm)) {
+            SET_CAR(elm, resolve_label(CAR(elm)));
+            SET_CDR(elm, resolve_label(CDR(elm)));
+            pending = CONS(CAR(elm), CONS(CDR(elm), pending));
+        } else {
+            vec = SCM_VECTOR_VEC(elm);
+            for (i = 0; i < SCM_VECTOR_LEN(elm); i++) {
+                vec[i] = resolve_label(vec[i]);
+                pending = CONS(vec[i], pending);
+            }
+        }
+    }
+    return obj;
+}
+#endif
 
 
 #if SCM_USE_R6RS_CHARS

@@ -1248,6 +1248,43 @@
              (file-error? (guard (e (#t e))
                             (open-binary-input-file " no such file "))))
 
+(tn "when")
+(assert-equal? (tn) 2 (when #t 1 2))
+(assert-equal? (tn) (undef) (when #f 1 2))
+(assert-equal? (tn) 'a (when (= 1 1) 'a))
+(assert-equal? (tn)
+               (undef)
+               (let loop ((n 100000))
+                 (when (> n 0) (loop (- n 1)))))
+
+(tn "unless")
+(assert-equal? (tn) 2 (unless #f 1 2))
+(assert-equal? (tn) (undef) (unless #t 1 2))
+
+(tn "syntax-error")
+(define-syntax r7rs-must-be-pair
+  (syntax-rules ()
+    ((_ (a . b)) 'ok)
+    ((_ x) (syntax-error "pair required" x))))
+(assert-equal? (tn) 'ok (r7rs-must-be-pair (1 . 2)))
+(assert-equal? (tn)
+               '("pair required" (3))
+               (guard (e (#t (list (error-object-message e)
+                                   (error-object-irritants e))))
+                 (r7rs-must-be-pair 3)))
+
+(tn "call-with-port")
+(let ((port (open-input-string "ab")))
+  (assert-equal? (tn) #\a (call-with-port port read-char))
+  (assert-false (tn) (input-port-open? port)))
+(assert-equal? (tn)
+               '(1 2)
+               (call-with-values
+                   (lambda ()
+                     (call-with-port (open-input-string "")
+                                     (lambda (port) (values 1 2))))
+                 list))
+
 (tn "case-insensitive # notations")
 (assert-equal? (tn) '(#t #f #t #f) (list #T #F #TRUE #False))
 (assert-equal? (tn) '(26 3 15 9) (list #X1a #B11 #O17 #D9))

@@ -1666,6 +1666,10 @@ SCM_EXPORT ScmObj scm_p_cddddr(ScmObj lst);
 
 /* r7rs.c */
 #if SCM_USE_R7RS
+SCM_EXPORT ScmObj scm_s_when(ScmObj test, ScmObj body,
+                             ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_s_unless(ScmObj test, ScmObj body,
+                               ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_s_letrec_star(ScmObj bindings, ScmObj body,
                                     ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_s_let_values(ScmObj bindings, ScmObj body,
@@ -1674,6 +1678,7 @@ SCM_EXPORT ScmObj scm_s_let_star_values(ScmObj bindings, ScmObj body,
                                         ScmEvalState *eval_state);
 SCM_EXPORT ScmObj scm_s_case_lambda(ScmObj clauses, ScmObj env);
 SCM_EXPORT ScmObj scm_s_delay_force(ScmObj exp, ScmObj env);
+SCM_EXPORT ScmObj scm_s_syntax_error(ScmObj message, ScmObj args, ScmObj env);
 SCM_EXPORT ScmObj scm_p_make_promise(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_promisep(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_make_parameter(ScmObj value, ScmObj args);
@@ -1746,6 +1751,7 @@ SCM_EXPORT ScmObj scm_p_open_output_bytevector(void);
 SCM_EXPORT ScmObj scm_p_get_output_bytevector(ScmObj port);
 SCM_EXPORT ScmObj scm_p_input_port_openp(ScmObj port);
 SCM_EXPORT ScmObj scm_p_output_port_openp(ScmObj port);
+SCM_EXPORT ScmObj scm_p_call_with_port(ScmObj port, ScmObj proc);
 SCM_EXPORT ScmObj scm_p_close_port(ScmObj port);
 SCM_EXPORT ScmObj scm_p_r7rs_current_error_port(void);
 SCM_EXPORT ScmObj scm_p_read_line(ScmObj args);

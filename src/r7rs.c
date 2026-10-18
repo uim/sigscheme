@@ -139,6 +139,53 @@ scm_set_command_line(const char *const *argv)
 }
 
 /*===========================================================================
+  R7RS : 4.2 Derived expression types : 4.2.1 Conditionals
+===========================================================================*/
+/* Evaluates BODY when TEST is EXPECTED. */
+static ScmObj
+eval_body_when(const char *func_name, ScmObj test, ScmObj body,
+               scm_bool expected, ScmEvalState *eval_state)
+{
+    ScmObj expr, env;
+    DECLARE_INTERNAL_FUNCTION(func_name);
+
+    env = eval_state->env;
+    test = EVAL(test, env);
+    CHECK_VALID_EVALED_VALUE(test);
+    if (TRUEP(test) != expected) {
+        eval_state->ret_type = SCM_VALTYPE_AS_IS;
+        return SCM_UNDEF;
+    }
+
+    if (!CONSP(body))
+        ERR_OBJ("at least 1 expression required", body);
+    FOR_EACH_BUTLAST (expr, body) {
+        expr = EVAL(expr, env);
+        CHECK_VALID_EVALED_VALUE(expr);
+    }
+    ASSERT_NO_MORE_ARG(body);
+
+    return expr;
+}
+
+SCM_EXPORT ScmObj
+scm_s_when(ScmObj test, ScmObj body, ScmEvalState *eval_state)
+{
+    DECLARE_FUNCTION("when", syntax_variadic_tailrec_1);
+
+    return eval_body_when(SCM_MANGLE(name), test, body, scm_true, eval_state);
+}
+
+SCM_EXPORT ScmObj
+scm_s_unless(ScmObj test, ScmObj body, ScmEvalState *eval_state)
+{
+    DECLARE_FUNCTION("unless", syntax_variadic_tailrec_1);
+
+    return eval_body_when(SCM_MANGLE(name), test, body, scm_false,
+                          eval_state);
+}
+
+/*===========================================================================
   R7RS : 4.2 Derived expression types : 4.2.2 Binding constructs
 ===========================================================================*/
 /* Each <init> is evaluated after the preceding variables are bound. */
@@ -400,6 +447,21 @@ scm_p_promisep(ScmObj obj)
     DECLARE_FUNCTION("promise?", procedure_fixed_1);
 
     return MAKE_BOOL(scm_promisep(obj));
+}
+
+/*===========================================================================
+  R7RS : 4.3 Macros : 4.3.3 Signaling errors in macro transformers
+===========================================================================*/
+/* Macros are expanded when they are evaluated. So it's signaled when the
+ * expansion is evaluated. ARGS aren't evaluated. */
+SCM_EXPORT ScmObj
+scm_s_syntax_error(ScmObj message, ScmObj args, ScmObj env)
+{
+    DECLARE_FUNCTION("syntax-error", syntax_variadic_1);
+
+    ENSURE_STRING(message);
+
+    return scm_p_srfi23_error(message, args);
 }
 
 /*===========================================================================
@@ -1630,6 +1692,20 @@ scm_p_output_port_openp(ScmObj port)
     ENSURE_PORT(port);
 
     return MAKE_BOOL(SCM_PORT_FLAG(port) & SCM_PORTFLAG_LIVE_OUTPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_call_with_port(ScmObj port, ScmObj proc)
+{
+    ScmObj ret;
+    DECLARE_FUNCTION("call-with-port", procedure_fixed_2);
+
+    ENSURE_PORT(port);
+    ENSURE_PROCEDURE(proc);
+
+    ret = scm_call(proc, LIST_1(port));
+    scm_p_close_port(port);
+    return ret;
 }
 
 SCM_EXPORT ScmObj

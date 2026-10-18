@@ -3,7 +3,7 @@
  *  About    : A ScmBytePort implementation for string
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -65,6 +65,7 @@ struct ScmInputStrPort_ {  /* inherits ScmBytePort */
 
     scm_byte_t *str;
     const scm_byte_t *cur;
+    const scm_byte_t *end;  /* str may contain '\0' */
     scm_bool has_str_ownership;
     void *opaque;  /* client-specific opaque information */
     ScmInputStrPort_finalizer finalize;
@@ -84,7 +85,8 @@ struct ScmOutputStrPort_ {  /* inherits ScmBytePort */
   File Local Function Declarations
 =======================================*/
 /* input port */
-static ScmBytePort *istrport_new(scm_byte_t *str, scm_bool ownership,
+static ScmBytePort *istrport_new(scm_byte_t *str, size_t size,
+                                 scm_bool ownership,
                                  ScmInputStrPort_finalizer finalize);
 static void istrport_finalize(char **str, scm_bool ownership, void **opaque);
 
@@ -163,7 +165,7 @@ scm_strport_init(void)
 }
 
 static ScmBytePort *
-istrport_new(scm_byte_t *str, scm_bool ownership,
+istrport_new(scm_byte_t *str, size_t size, scm_bool ownership,
              ScmInputStrPort_finalizer finalize)
 {
     ScmInputStrPort *port;
@@ -174,6 +176,7 @@ istrport_new(scm_byte_t *str, scm_bool ownership,
 
     port->vptr = ScmInputStrPort_vptr;
     port->cur = port->str = str;
+    port->end = str + size;
     port->has_str_ownership = ownership;
     port->opaque = NULL;
     port->finalize = (finalize) ? finalize : &istrport_finalize;
@@ -184,14 +187,14 @@ istrport_new(scm_byte_t *str, scm_bool ownership,
 SCM_EXPORT ScmBytePort *
 ScmInputStrPort_new(char *str, ScmInputStrPort_finalizer finalize)
 {
-    return istrport_new((scm_byte_t *)str, scm_true, finalize);
+    return istrport_new((scm_byte_t *)str, strlen(str), scm_true, finalize);
 }
 
 SCM_EXPORT ScmBytePort *
 ScmInputStrPort_new_copying(const char *str,
                             ScmInputStrPort_finalizer finalize)
 {
-    return istrport_new((scm_byte_t *)SCM_PORT_STRDUP(str),
+    return istrport_new((scm_byte_t *)SCM_PORT_STRDUP(str), strlen(str),
                         scm_true, finalize);
 }
 
@@ -199,7 +202,15 @@ SCM_EXPORT ScmBytePort *
 ScmInputStrPort_new_const(const char *str, ScmInputStrPort_finalizer finalize)
 {
     /* str is actually treated as const */
-    return istrport_new((scm_byte_t *)str, scm_false, finalize);
+    return istrport_new((scm_byte_t *)str, strlen(str), scm_false, finalize);
+}
+
+/* STR of SIZE bytes may contain '\0'. The port takes the ownership of STR. */
+SCM_EXPORT ScmBytePort *
+ScmInputStrPort_new_bytes(char *str, size_t size,
+                          ScmInputStrPort_finalizer finalize)
+{
+    return istrport_new((scm_byte_t *)str, size, scm_true, finalize);
 }
 
 SCM_EXPORT void **
@@ -248,13 +259,13 @@ istrport_inspect(ScmInputStrPort *port)
 static scm_ichar_t
 istrport_get_byte(ScmInputStrPort *port)
 {
-    return (*port->cur) ? *port->cur++ : SCM_ICHAR_EOF;
+    return (port->cur < port->end) ? *port->cur++ : SCM_ICHAR_EOF;
 }
 
 static scm_ichar_t
 istrport_peek_byte(ScmInputStrPort *port)
 {
-    return (*port->cur) ? *port->cur : SCM_ICHAR_EOF;
+    return (port->cur < port->end) ? *port->cur : SCM_ICHAR_EOF;
 }
 
 static scm_bool

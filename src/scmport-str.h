@@ -3,7 +3,7 @@
  *  About    : A ScmBytePort implementation for string
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -73,6 +73,7 @@ SCM_EXPORT void scm_strport_init(void);
 SCM_EXPORT ScmBytePort *ScmInputStrPort_new(char *str, ScmInputStrPort_finalizer finalize);
 SCM_EXPORT ScmBytePort *ScmInputStrPort_new_copying(const char *str, ScmInputStrPort_finalizer finalize);
 SCM_EXPORT ScmBytePort *ScmInputStrPort_new_const(const char *str, ScmInputStrPort_finalizer finalize);
+SCM_EXPORT ScmBytePort *ScmInputStrPort_new_bytes(char *str, size_t size, ScmInputStrPort_finalizer finalize);
 SCM_EXPORT void **ScmInputStrPort_ref_opaque(ScmBytePort *bport);
 
 SCM_EXPORT ScmBytePort *ScmOutputStrPort_new(ScmOutputStrPort_finalizer finalize);

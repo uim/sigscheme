@@ -165,6 +165,22 @@
                               '(((a ... a ... b) ...) ...)))))
                  (macro ((0 1 2) (3 4)) ((5 6 7) (8)))))
 
+(assert-equal? "syntax-rules pattern variable at deeper level"
+               '((x 1) (x 2) (x 3))
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ a b ...)
+                              '((a b) ...)))))
+                 (macro x 1 2 3)))
+
+(assert-equal? "syntax-rules pattern variable at deeper level 2"
+               '(((x 1) (x 2)) ((y 3)) ())
+               (let-syntax
+                   ((macro (syntax-rules ()
+                             ((_ (a b ...) ...)
+                              '(((a b) ...) ...)))))
+                 (macro (x 1 2) (y 3) (z))))
+
 (assert-equal? "syntax-rules repeatable subpattern matched against improper list"
                'mismatch
                (let-syntax

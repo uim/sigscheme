@@ -121,6 +121,11 @@ SCM_DEFINE_STATIC_VARS(static_macro);
 #define ELLIPSISP(o) ellipsisp(ctx, (o))
 
 #define MAKE_PVAR SCM_SUBPAT_MAKE_PVAR
+/* A pattern variable in a template knows the level of the pattern variable
+ * because it may be used at a deeper level. */
+#define MAKE_TEMPLATE_PVAR(index, level)                                     \
+    MAKE_SUBPAT(MAKE_INT(level), (index))
+#define TEMPLATE_PVAR_LEVEL(pvar) SCM_INT_VALUE(SCM_SUBPAT_OBJ(pvar))
 #define PVAR_INDEX SCM_SUBPAT_PVAR_INDEX
 #define PVARP SCM_SUBPAT_PVARP
 
@@ -658,7 +663,6 @@ compile_rec(compilation_context *ctx, ScmObj form, scm_int_t level)
                 ScmObj tail, ret;
                 scm_int_t pvlevel;
 
-                ++ctx->pvlen;
                 tail = scm_list_tail(ctx->pvars.vals, index);
                 SCM_ASSERT(CONSP(tail));
                 if (CONSP(CAR(tail))) {
@@ -668,10 +672,17 @@ compile_rec(compilation_context *ctx, ScmObj form, scm_int_t level)
                 } else {
                     SCM_ASSERT(INTP(CAR(tail)));
                     pvlevel = SCM_INT_VALUE(CAR(tail));
-                    ret = MAKE_PVAR(form, index);
+                    ret = MAKE_TEMPLATE_PVAR(index, pvlevel);
                     SET_CAR(tail, CONS(ret, CAR(tail)));
                 }
-                if (level != pvlevel) {
+                /* R5RS: Pattern variables that occur in subpatterns followed
+                 * by one or more instances of the identifier <ellipsis> are
+                 * allowed only in subtemplates that are followed by (at
+                 * least) as many instances of <ellipsis>. Only variables at
+                 * the same level control repetitions. */
+                if (level == pvlevel)
+                    ++ctx->pvlen;
+                if (level < pvlevel) {
                     ERR_OBJ("pattern variable used at wrong level", form);
                 }
                 return ret;
@@ -1075,7 +1086,7 @@ transcribe_rec(transcription_context *ctx, ScmObj template, ScmObj sub,
             sub = scm_list_tail(sub, PVAR_INDEX(template));
             SCM_ASSERT(CONSP(sub));
             sub = CAR(sub);
-            for (i = 0; i < level; i++) {
+            for (i = 0; i < TEMPLATE_PVAR_LEVEL(template); i++) {
                 DBG_PRINT((DBG_TRANSCRIPTOR, "ref (~MD) ; ~s\n",
                            ctx->indices[i], sub));
                 sub = scm_list_tail(sub, ctx->indices[i]);

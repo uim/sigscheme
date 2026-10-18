@@ -300,16 +300,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         ;;
     esac
 
-    # R5RS and R7RS require syntax-rules.
-    case "$enable_conf" in
-      full|r5rs|r7rs|dev)
-        use_hygienic_macro=yes
-        ;;
-      *)
-        use_hygienic_macro=no
-        ;;
-    esac
-
     # SRFIs
     case "$enable_conf" in
       full|r5rs|dev|uim)
@@ -432,7 +422,7 @@ AX_FEATURE_ARG_Y(internal-definitions, [R5RS internal definitions])
 # R5RS features
 AX_FEATURE_ARG_Y(continuation,   [R5RS continuation])
 AX_FEATURE_ARG_Y(quasiquote,     [R5RS quasiquotation])
-AX_FEATURE_ARG_N(hygienic-macro, [R5RS hygienic macros (experimental)])
+AX_FEATURE_ARG_Y(hygienic-macro, [R5RS hygienic macros])
 AX_FEATURE_ARG_Y(promise,        [R5RS promises])
 AX_FEATURE_VAR_N(number,         [R5RS numbers])
 AX_FEATURE_ARG_Y(int,            [R5RS integer numbers])

@@ -222,15 +222,11 @@ conf_srfis_all = {
 }
 conf_r7rs = {
   'r7rs': 'yes',
-  # R7RS requires syntax-rules.
-  'hygienic_macro': 'yes',
   # R7RS vectors are self-evaluating.
   'strict_vector_form': 'no',
 }
 conf_presets = {
-  'regular': {
-    'hygienic_macro': 'no',
-  },
+  'regular': {},
   'r7rs': conf_r7rs,
   'full': {
     # multibyte char handlings
@@ -258,8 +254,6 @@ conf_presets = {
   'r5rs': {
     # R5RS behaviors
     'strict_r5rs': 'yes',
-    # R5RS requires syntax-rules.
-    'hygienic_macro': 'yes',
     # SigScheme-specific extensions
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
@@ -283,8 +277,6 @@ conf_presets = {
     'strict_argcheck': 'yes',
     'strict_toplevel_definitions': 'yes',
     'internal_definitions': 'yes',
-    # experimental features
-    'hygienic_macro': 'yes',
     # SigScheme-specific extensions
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
@@ -331,8 +323,6 @@ conf_presets = {
     'reader': 'yes',
     'writer': 'yes',
     'load': 'yes',
-    # experimental features
-    'hygienic_macro': 'no',
     # SigScheme-specific extensions
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
@@ -391,7 +381,7 @@ feature_declarations = [
   # R5RS features
   ['continuation', 'yes'],
   ['quasiquote', 'yes'],
-  ['hygienic_macro', 'no'],
+  ['hygienic_macro', 'yes'],
   ['promise', 'yes'],
   ['number', 'no'],
   ['int', 'yes'],

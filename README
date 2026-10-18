@@ -26,7 +26,7 @@ Features
 --------
 
 - Conforms to R5RS basically (not fully)
-- R5RS hygienic macros (experimental)
+- R5RS hygienic macros
 - Supports Following SRFIs
   - SRFI-0  : Feature-based conditional expansion construct
   - SRFI-1  : List Library

@@ -98,7 +98,7 @@ option('quasiquote',
        description: 'R5RS quasiquotation')
 option('hygienic_macro',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
-       description: 'R5RS hygienic macros (experimental)')
+       description: 'R5RS hygienic macros')
 option('promise',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'R5RS promises')

@@ -865,6 +865,9 @@ SCM_EXPORT void scm_initialize_srfi8(void);
 /* module-srfi9.c */
 #if SCM_USE_SRFI9
 SCM_EXPORT void scm_initialize_srfi9(void);
+SCM_EXPORT scm_bool scm_recordp(ScmObj obj);
+SCM_EXPORT scm_bool scm_record_typep(ScmObj obj);
+SCM_EXPORT ScmObj scm_record_type_name(ScmObj obj);
 #endif
 
 /* module-srfi23.c */

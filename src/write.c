@@ -579,6 +579,16 @@ write_vector(ScmObj port, ScmObj vec, enum ScmOutputType otype)
     ScmObj *v;
     scm_int_t len, i;
 
+#if SCM_USE_SRFI9
+    /* Records are vectors but their contents aren't written. */
+    if (scm_recordp(vec) || scm_record_typep(vec)) {
+        scm_port_puts(port, scm_recordp(vec) ? "#<record " : "#<record-type ");
+        write_obj(port, scm_record_type_name(vec), otype);
+        scm_port_put_char(port, '>');
+        return;
+    }
+#endif
+
     scm_port_puts(port, "#(");
 
     v = SCM_VECTOR_VEC(vec);
@@ -832,6 +842,11 @@ write_ss_scan(ScmObj obj, scm_write_ss_context *ctx)
 
 #if SCM_USE_VECTOR
         case ScmVector:
+#if SCM_USE_SRFI9
+            /* The contents of records aren't written. */
+            if (scm_recordp(obj) || scm_record_typep(obj))
+                break;
+#endif
             for (i = 0, len = SCM_VECTOR_LEN(obj); i < len; i++)
                 write_ss_scan(SCM_VECTOR_VEC(obj)[i], ctx);
             break;

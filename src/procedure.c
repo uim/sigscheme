@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -173,6 +173,12 @@ scm_p_equalp(ScmObj obj1, ScmObj obj2)
 
 #if SCM_USE_VECTOR
     case ScmVector:
+#if SCM_USE_SRFI9
+        /* Records are compared by eqv? like R7RS. */
+        if (scm_recordp(obj1) || scm_recordp(obj2)
+            || scm_record_typep(obj1) || scm_record_typep(obj2))
+            return SCM_FALSE;
+#endif
         len = SCM_VECTOR_LEN(obj1);
         if (len != SCM_VECTOR_LEN(obj2))
             return SCM_FALSE;

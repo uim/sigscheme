@@ -1,7 +1,7 @@
 ;;  Filename : test-srfi9.scm
 ;;  About    : unit tests for SRFI-9
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -30,29 +30,14 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(define orig-vector? vector?)
-(define orig-eval    eval)
+(require-extension (unittest) (srfi 6 9))
 
-(require-extension (unittest) (srfi 9))
+(if (not (provided? "srfi-9"))
+    (test-skip "SRFI-9 is not enabled"))
 
-
-(test-begin "SRFI-9 overridden R5RS procedures")
-(test-false (eq? vector? orig-vector?))
-(cond-expand
- (sigscheme
-  (test-true  (eq? eval orig-eval)))
- (else
-  (test-false (eq? eval orig-eval))))
+(test-begin "SRFI-9 vector?")
 (test-eq    #t (vector? (vector)))
 (test-eq    #f (vector? (list)))
-;; Overridden 'eval' must be capable of (interaction-environment).
-(test-read-eval-string "(define foo 3)")
-;; Original reference implementation of SRFI-9 lacks environment argument
-;; handling.
-(test-error (eval '(+ 2 3)))
-(test-eqv   5 (eval '(+ 2 3) (interaction-environment)))
-;; 'vector? must be evaluated to the redefined vector?.
-(test-eq    vector? (eval 'vector? (interaction-environment)))
 (test-end)
 
 (test-begin "SRFI-9 invalid forms")
@@ -83,12 +68,10 @@
 (test-begin "SRFI-9 no-field record")
 (test-false (symbol-bound? 'make-my-null))
 (test-false (symbol-bound? 'my-null?))
-(test-eq    (undef)
-            (define-record-type my-null (make-my-null) my-null?))
+(define-record-type my-null (make-my-null) my-null?)
 (test-true  (procedure? make-my-null))
 (test-true  (procedure? my-null?))
 (test-error (make-my-null 0))
-(test-eq    #t (record? (make-my-null)))
 (test-true  (not (vector? (make-my-null))))
 (test-eq    #t (my-null? (make-my-null)))
 (test-false (my-null? (vector)))
@@ -104,10 +87,9 @@
 (test-false (symbol-bound? 'my-pair-kdr))
 (test-false (symbol-bound? 'my-pair-set-kar!))
 (test-false (symbol-bound? 'my-pair-set-kdr!))
-(test-eq    (undef)
-            (define-record-type my-pair (make-my-pair kar kdr) my-pair?
-              (kar my-pair-kar my-pair-set-kar!)
-              (kdr my-pair-kdr my-pair-set-kdr!)))
+(define-record-type my-pair (make-my-pair kar kdr) my-pair?
+  (kar my-pair-kar my-pair-set-kar!)
+  (kdr my-pair-kdr my-pair-set-kdr!))
 (test-true  (procedure? make-my-pair))
 (test-true  (procedure? my-pair?))
 (test-true  (procedure? my-pair-kar))
@@ -117,7 +99,6 @@
 (test-error (make-my-pair))
 (test-error (make-my-pair x))
 (test-error (make-my-pair x y z))
-(test-eq    #t (record? (make-my-pair x y)))
 (test-true  (not (vector? (make-my-pair x y))))
 (test-eq    #t (my-pair? (make-my-pair x y)))
 (test-false (my-pair? (vector x y)))
@@ -145,10 +126,9 @@
 (test-false (symbol-bound? 'my-pair2-kdr))
 (test-false (symbol-bound? 'my-pair2-set-kar!))
 (test-false (symbol-bound? 'my-pair2-set-kdr!))
-(test-eq    (undef)
-            (define-record-type my-pair2 (make-my-pair2 kdr kar) my-pair2?
-              (kar my-pair2-kar my-pair2-set-kar!)
-              (kdr my-pair2-kdr my-pair2-set-kdr!)))
+(define-record-type my-pair2 (make-my-pair2 kdr kar) my-pair2?
+  (kar my-pair2-kar my-pair2-set-kar!)
+  (kdr my-pair2-kdr my-pair2-set-kdr!))
 (test-true  (procedure? make-my-pair2))
 (test-true  (procedure? my-pair2?))
 (test-true  (procedure? my-pair2-kar))
@@ -158,7 +138,6 @@
 (test-error (make-my-pair2))
 (test-error (make-my-pair2 x))
 (test-error (make-my-pair2 x y z))
-(test-eq    #t (record? (make-my-pair2 x y)))
 (test-true  (not (vector? (make-my-pair2 x y))))
 (test-eq    #t (my-pair2? (make-my-pair2 x y)))
 (test-false (my-pair2? (vector x y)))
@@ -185,10 +164,9 @@
 (test-false (symbol-bound? 'my-pair3-kdr))
 (test-false (symbol-bound? 'my-pair3-set-kar!))
 (test-false (symbol-bound? 'my-pair3-set-kdr!))
-(test-eq    (undef)
-            (define-record-type my-pair3 (make-my-pair3 kdr) my-pair3?
-              (kar my-pair3-kar my-pair3-set-kar!)
-              (kdr my-pair3-kdr my-pair3-set-kdr!)))
+(define-record-type my-pair3 (make-my-pair3 kdr) my-pair3?
+  (kar my-pair3-kar my-pair3-set-kar!)
+  (kdr my-pair3-kdr my-pair3-set-kdr!))
 (test-true  (procedure? make-my-pair3))
 (test-true  (procedure? my-pair3?))
 (test-true  (procedure? my-pair3-kar))
@@ -198,7 +176,6 @@
 (test-error (make-my-pair3))
 (test-error (make-my-pair3 x y))
 (test-error (make-my-pair3 x y z))
-(test-eq    #t (record? (make-my-pair3 x)))
 (test-true  (not (vector? (make-my-pair3 x))))
 (test-eq    #t (my-pair3? (make-my-pair3 x)))
 (test-false (my-pair3? (vector x y)))
@@ -226,10 +203,9 @@
 (test-false (symbol-bound? 'my-pair4-kdr))
 (test-false (symbol-bound? 'my-pair4-set-kar!))
 (test-false (symbol-bound? 'my-pair4-set-kdr!))
-(test-eq    (undef)
-            (define-record-type my-pair4 (make-my-pair4) my-pair4?
-              (kar my-pair4-kar my-pair4-set-kar!)
-              (kdr my-pair4-kdr my-pair4-set-kdr!)))
+(define-record-type my-pair4 (make-my-pair4) my-pair4?
+  (kar my-pair4-kar my-pair4-set-kar!)
+  (kdr my-pair4-kdr my-pair4-set-kdr!))
 (test-true  (procedure? make-my-pair4))
 (test-true  (procedure? my-pair4?))
 (test-true  (procedure? my-pair4-kar))
@@ -239,7 +215,6 @@
 (test-error (make-my-pair4 x))
 (test-error (make-my-pair4 x y))
 (test-error (make-my-pair4 x y z))
-(test-eq    #t (record? (make-my-pair4)))
 (test-true  (not (vector? (make-my-pair4))))
 (test-eq    #t (my-pair4? (make-my-pair4)))
 (test-false (my-pair4? (vector x y)))
@@ -261,14 +236,41 @@
 (test-false (symbol-bound? 'my-pair5?))
 (test-false (symbol-bound? 'my-pair5-kar))
 (test-false (symbol-bound? 'my-pair5-kdr))
-(test-eq    (undef)
-            (define-record-type my-pair5 (make-my-pair5 kar kdr) my-pair5?
-              (kar my-pair5-kar)
-              (kdr my-pair5-kdr)))
+(define-record-type my-pair5 (make-my-pair5 kar kdr) my-pair5?
+  (kar my-pair5-kar)
+  (kdr my-pair5-kdr))
 (test-true  (procedure? make-my-pair5))
 (test-true  (procedure? my-pair5?))
 (test-true  (procedure? my-pair5-kar))
 (test-true  (procedure? my-pair5-kdr))
+(test-end)
+
+(test-begin "SRFI-9 type errors")
+(define-record-type my-cell (make-my-cell v) my-cell?
+  (v my-cell-v my-cell-set-v!))
+(test-error (my-pair-kar (make-my-cell 1)))
+(test-error (my-pair-set-kar! (make-my-cell 1) 2))
+(test-error (my-cell-v (vector 1)))
+(test-error (my-cell-v '(1)))
+(test-false (my-cell? (make-my-pair 1 2)))
+(test-end)
+
+(test-begin "SRFI-9 records are not vectors")
+(test-false (vector? (make-my-cell 1)))
+(test-false (vector? my-cell))
+(test-false (equal? (make-my-cell 1) (make-my-cell 1)))
+(test-false (equal? (make-my-cell 1) (vector 1)))
+(let ((c (make-my-cell 1)))
+  (test-true (equal? c c))
+  (test-true (eqv? c c)))
+(if (provided? "srfi-6")
+    (let ((write-to-string
+           (lambda (obj)
+             (let ((port (open-output-string)))
+               (write obj port)
+               (get-output-string port)))))
+      (test-equal "#<record my-cell>" (write-to-string (make-my-cell 1)))
+      (test-equal "#<record-type my-cell>" (write-to-string my-cell))))
 (test-end)
 
 (test-report-result)

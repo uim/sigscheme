@@ -1928,11 +1928,13 @@ SCM_EXPORT ScmObj scm_s_srfi8_receive(ScmObj formals, ScmObj expr, ScmObj body,
 
 /* module-srfi9.c */
 #if SCM_USE_SRFI9
-SCM_EXPORT ScmObj scm_s_srfi9_define_record_type(ScmObj type_name,
-                                                 ScmObj ctor_spec,
-                                                 ScmObj pred_name,
-                                                 ScmObj field_specs,
-                                                 ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_p_srfi9_make_record_type(ScmObj name,
+                                               ScmObj field_specs);
+SCM_EXPORT ScmObj scm_p_srfi9_record_constructor(ScmObj type, ScmObj fields);
+SCM_EXPORT ScmObj scm_p_srfi9_record_predicate(ScmObj type);
+SCM_EXPORT ScmObj scm_p_srfi9_record_accessor(ScmObj type, ScmObj field);
+SCM_EXPORT ScmObj scm_p_srfi9_record_modifier(ScmObj type, ScmObj field);
+SCM_EXPORT ScmObj scm_p_srfi9_vectorp(ScmObj obj);
 #endif
 
 /* module-srfi23.c */

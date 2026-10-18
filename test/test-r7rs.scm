@@ -1053,4 +1053,36 @@
         (assert-equal? (tn) (string-append "a" alpha capital-alpha "d") str)
         (assert-equal? (tn) 4 (string-length str)))))
 
+;; Records are available without requiring SRFI-9.
+(tn "define-record-type")
+(define-record-type <r7rs-pare> (r7rs-kons x y) r7rs-pare?
+  (x r7rs-kar r7rs-set-kar!)
+  (y r7rs-kdr))
+(assert-true (tn) (r7rs-pare? (r7rs-kons 1 2)))
+(assert-false (tn) (r7rs-pare? (cons 1 2)))
+(assert-false (tn) (r7rs-pare? (vector <r7rs-pare> 1 2)))
+(assert-equal? (tn) 1 (r7rs-kar (r7rs-kons 1 2)))
+(assert-equal? (tn) 2 (r7rs-kdr (r7rs-kons 1 2)))
+(assert-equal? (tn)
+               3
+               (let ((k (r7rs-kons 1 2)))
+                 (r7rs-set-kar! k 3)
+                 (r7rs-kar k)))
+(assert-error (tn) (lambda () (r7rs-kar (cons 1 2))))
+(assert-false (tn) (vector? (r7rs-kons 1 2)))
+(assert-false (tn) (equal? (r7rs-kons 1 2) (r7rs-kons 1 2)))
+(assert-equal? (tn)
+               "#<record <r7rs-pare>>"
+               (let ((port (open-output-string)))
+                 (write (r7rs-kons 1 2) port)
+                 (get-output-string port)))
+(assert-equal? (tn)
+               '(#t 5)
+               (let ()
+                 (define-record-type point (make-point x y) point?
+                   (x point-x)
+                   (y point-y))
+                 (list (point? (make-point 5 6)) (point-x (make-point 5 6)))))
+(assert-false (tn) (symbol-bound? 'point?))
+
 (total-report)

@@ -521,7 +521,7 @@ eval_c_string: reader srfi6
 srfi0: load srfi55 legacy_macro srfi1 srfi23
 srfi1: continuation deep_cadrs load sscm_extensions srfi8 srfi23
 srfi6: port string
-srfi9: load vector srfi23
+srfi9: hygienic_macro load vector srfi23
 srfi34: continuation srfi23
 srfi38: writer
 srfi43: load vector srfi8 srfi23 sscm_extensions
@@ -531,7 +531,7 @@ srfi69: load int string vector srfi9 srfi23
 srfi95: load int
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
-r7rs: continuation hygienic_macro int char string string_procedure vector promise srfi6 srfi34 srfi38 r6rs_named_chars
+r7rs: continuation hygienic_macro int char string string_procedure vector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars
 
 compat_siod: sscm_extensions srfi60 eval_c_string
 strict_r5rs: strict_null_form strict_vector_form strict_argcheck internal_definitions strict_toplevel_definitions const_vector_literal

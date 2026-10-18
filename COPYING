@@ -2,7 +2,7 @@
   Copyright (C) 2005,2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
                 2005,2006 Jun Inoue <jun.lambda AT gmail.com>
                 2005,2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-                2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+                2007-2026 SigScheme Project https://github.com/uim/sigscheme
 
   All rights reserved.
 
@@ -67,31 +67,6 @@ lib/srfi-1.scm is covered by:
 ;;;     -Olin
 
 ;;; Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
------------------------------------------------------------------------------
-
-
-lib/srfi-9.scm is covered by:
------------------------------------------------------------------------------
-Copyright (C) Richard Kelsey (1999). All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------
 
 

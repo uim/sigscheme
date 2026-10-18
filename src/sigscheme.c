@@ -368,6 +368,11 @@ scm_initialize_internal(const char *const *argv)
     /* Load additional procedures written in Scheme */
     scm_load_system_file("sigscheme-init.scm");
 #endif
+#if SCM_USE_R7RS
+    /* R7RS: define-record-type. It loads a file after the port and the
+     * system load path are initialized. */
+    scm_require_module("srfi-9");
+#endif
 
 #if SCM_USE_SRFI55
     /* require-extension is enabled by default */

@@ -134,9 +134,9 @@ libsscm_source_groups = [
     'sigscheme.c',
   ]],
   [use['continuation'], ['continuation.c']],
-  [use['port'], ['scmport-file.c', 'scmport-basechar.c']],
+  # scmport-sbchar.c is also used for binary ports.
+  [use['port'], ['scmport-file.c', 'scmport-basechar.c', 'scmport-sbchar.c']],
   [use['port'] and use['multibyte_char'], ['encoding.c', 'scmport-mbchar.c']],
-  [use['port'] and not use['multibyte_char'], ['scmport-sbchar.c']],
 ]
 # [feature, sources]
 foreach optional_sources : [

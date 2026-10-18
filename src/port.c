@@ -44,9 +44,8 @@
 #include "sigschemeinternal.h"
 #if SCM_USE_MULTIBYTE_CHAR
 #include "scmport-mbchar.h"
-#else /* SCM_USE_MULTIBYTE_CHAR */
-#include "scmport-sbchar.h"
 #endif /* SCM_USE_MULTIBYTE_CHAR */
+#include "scmport-sbchar.h"
 #include "scmport-file.h"
 
 /*=======================================
@@ -126,9 +125,9 @@ scm_init_port(void)
     scm_fileport_init();
 #if SCM_USE_MULTIBYTE_CHAR
     scm_mbcport_init();
-#else
-    scm_sbcport_init();
 #endif
+    /* It's also used for binary ports. */
+    scm_sbcport_init();
 
     scm_gc_protect_with_init(&scm_in,
                              scm_make_shared_file_port(stdin, "stdin",

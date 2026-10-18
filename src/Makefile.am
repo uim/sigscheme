@@ -213,12 +213,11 @@ if USE_PORT
   libsscm_sources += \
         scmport.h scmport-config.h \
         scmport-file.h scmport-file.c \
-        scmport-basechar.c
+        scmport-basechar.c \
+        scmport-sbchar.h scmport-sbchar.c
 if USE_MULTIBYTE_CHAR
   libsscm_sources    += encoding-config.h encoding.c \
                         scmport-mbchar.h scmport-mbchar.c
-else
-  libsscm_sources    += scmport-sbchar.h scmport-sbchar.c
 endif
 endif
 if USE_FORMAT

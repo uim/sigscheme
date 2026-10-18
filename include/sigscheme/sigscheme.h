@@ -463,6 +463,8 @@ enum ScmPortFlag {
     SCM_PORTFLAG_LIVE_INPUT  = 1 << 3,
     /* #!fold-case of R7RS */
     SCM_PORTFLAG_FOLD_CASE   = 1 << 4,
+    /* Binary port of R7RS. It reads and writes bytes as characters. */
+    SCM_PORTFLAG_BINARY      = 1 << 5,
 
     SCM_PORTFLAG_DIR_MASK = (SCM_PORTFLAG_INPUT | SCM_PORTFLAG_OUTPUT),
     SCM_PORTFLAG_ALIVENESS_MASK = (SCM_PORTFLAG_LIVE_INPUT
@@ -1737,16 +1739,28 @@ SCM_EXPORT ScmObj scm_p_read_errorp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_portp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_textual_portp(ScmObj obj);
 SCM_EXPORT ScmObj scm_p_binary_portp(ScmObj obj);
+SCM_EXPORT ScmObj scm_p_open_binary_input_file(ScmObj filepath);
+SCM_EXPORT ScmObj scm_p_open_binary_output_file(ScmObj filepath);
+SCM_EXPORT ScmObj scm_p_open_input_bytevector(ScmObj bv);
+SCM_EXPORT ScmObj scm_p_open_output_bytevector(void);
+SCM_EXPORT ScmObj scm_p_get_output_bytevector(ScmObj port);
 SCM_EXPORT ScmObj scm_p_input_port_openp(ScmObj port);
 SCM_EXPORT ScmObj scm_p_output_port_openp(ScmObj port);
 SCM_EXPORT ScmObj scm_p_close_port(ScmObj port);
 SCM_EXPORT ScmObj scm_p_r7rs_current_error_port(void);
 SCM_EXPORT ScmObj scm_p_read_line(ScmObj args);
 SCM_EXPORT ScmObj scm_p_read_string(ScmObj k, ScmObj args);
+SCM_EXPORT ScmObj scm_p_read_u8(ScmObj args);
+SCM_EXPORT ScmObj scm_p_peek_u8(ScmObj args);
+SCM_EXPORT ScmObj scm_p_u8_readyp(ScmObj args);
+SCM_EXPORT ScmObj scm_p_read_bytevector(ScmObj k, ScmObj args);
+SCM_EXPORT ScmObj scm_p_read_bytevectorx(ScmObj bv, ScmObj args);
 SCM_EXPORT ScmObj scm_p_eof_object(void);
 SCM_EXPORT ScmObj scm_p_write_shared(ScmObj obj, ScmObj args);
 SCM_EXPORT ScmObj scm_p_write_simple(ScmObj obj, ScmObj args);
 SCM_EXPORT ScmObj scm_p_write_string(ScmObj str, ScmObj args);
+SCM_EXPORT ScmObj scm_p_write_u8(ScmObj byte, ScmObj args);
+SCM_EXPORT ScmObj scm_p_write_bytevector(ScmObj bv, ScmObj args);
 SCM_EXPORT ScmObj scm_p_flush_output_port(ScmObj args);
 SCM_EXPORT ScmObj scm_p_file_existsp(ScmObj filename);
 SCM_EXPORT ScmObj scm_p_delete_file(ScmObj filename);

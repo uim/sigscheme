@@ -43,12 +43,20 @@
 
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
+#include "scmport-config.h"
+#include "scmport.h"
+#include "scmport-file.h"
+#include "scmport-sbchar.h"
+#include "scmport-str.h"
 
 /*=======================================
   File Local Macro Definitions
 =======================================*/
 #define BOOLEANP(o)       (EQ((o), SCM_FALSE) || EQ((o), SCM_TRUE))
 #define ENSURE_BOOLEAN(o) ENSURE_TYPE(BOOLEANP, "boolean", (o))
+#define BINARY_PORTP(o)                                                      \
+    (PORTP(o) && (SCM_PORT_FLAG(o) & SCM_PORTFLAG_BINARY))
+#define ENSURE_BINARY_PORT(o) ENSURE_TYPE(BINARY_PORTP, "binary port", (o))
 
 /*=======================================
   File Local Type Definitions
@@ -91,6 +99,10 @@ static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
 static ScmObj compare_all(comparator compare,
                           ScmObj obj1, ScmObj obj2, ScmObj rest);
 static ScmObj read_chars(ScmObj port, scm_int_t n, scm_ichar_t end_ch);
+static ScmObj make_binary_port(ScmBytePort *bport, enum ScmPortFlag flag);
+static ScmObj prepare_binary_port(const char *func_name, ScmObj args,
+                                  ScmObj default_port);
+static ScmBytePort *binary_port_byte_port(ScmObj port);
 static ScmObj map_sequences(const char *func_name, ScmObj proc, ScmObj seqs,
                             scm_bool vectorp, scm_bool collect);
 static ScmObj bind_values(const char *func_name, ScmObj bindings,
@@ -1479,13 +1491,12 @@ scm_p_portp(ScmObj obj)
     return MAKE_BOOL(PORTP(obj));
 }
 
-/* All ports of SigScheme are textual ports. */
 SCM_EXPORT ScmObj
 scm_p_textual_portp(ScmObj obj)
 {
     DECLARE_FUNCTION("textual-port?", procedure_fixed_1);
 
-    return MAKE_BOOL(PORTP(obj));
+    return MAKE_BOOL(PORTP(obj) && !BINARY_PORTP(obj));
 }
 
 SCM_EXPORT ScmObj
@@ -1493,7 +1504,112 @@ scm_p_binary_portp(ScmObj obj)
 {
     DECLARE_FUNCTION("binary-port?", procedure_fixed_1);
 
-    return SCM_FALSE;
+    return MAKE_BOOL(BINARY_PORTP(obj));
+}
+
+/* A binary port is a port whose character is a byte. */
+static ScmObj
+make_binary_port(ScmBytePort *bport, enum ScmPortFlag flag)
+{
+    return MAKE_PORT(ScmSingleByteCharPort_new(bport),
+                     flag | SCM_PORTFLAG_BINARY);
+}
+
+/* Returns the binary port in optional ARGS. */
+static ScmObj
+prepare_binary_port(const char *func_name, ScmObj args, ScmObj default_port)
+{
+    ScmObj port;
+
+    port = scm_prepare_port(args, default_port);
+    if (!BINARY_PORTP(port))
+        scm_error_obj(func_name, "binary port required but got", port);
+    return port;
+}
+
+static ScmBytePort *
+binary_port_byte_port(ScmObj port)
+{
+    ScmBaseCharPort *cport;
+
+    SCM_ENSURE_LIVE_PORT(port);
+    cport = SCM_CHARPORT_DYNAMIC_CAST(ScmBaseCharPort, SCM_PORT_IMPL(port));
+    return cport->bport;
+}
+
+SCM_EXPORT ScmObj
+scm_p_open_binary_input_file(ScmObj filepath)
+{
+    ScmBytePort *bport;
+    DECLARE_FUNCTION("open-binary-input-file", procedure_fixed_1);
+
+    ENSURE_STRING(filepath);
+
+    bport = ScmFilePort_open_input_file(SCM_STRING_STR(filepath));
+    if (!bport)
+        scm_kind_error_obj(SCM_ERRKIND_FILE, SCM_MANGLE(name),
+                           "cannot open file", filepath);
+
+    return make_binary_port(bport, SCM_PORTFLAG_INPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_open_binary_output_file(ScmObj filepath)
+{
+    ScmBytePort *bport;
+    DECLARE_FUNCTION("open-binary-output-file", procedure_fixed_1);
+
+    ENSURE_STRING(filepath);
+
+    bport = ScmFilePort_open_output_file(SCM_STRING_STR(filepath));
+    if (!bport)
+        scm_kind_error_obj(SCM_ERRKIND_FILE, SCM_MANGLE(name),
+                           "cannot open file", filepath);
+
+    return make_binary_port(bport, SCM_PORTFLAG_OUTPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_open_input_bytevector(ScmObj bv)
+{
+    char *bytes;
+    scm_int_t len;
+    DECLARE_FUNCTION("open-input-bytevector", procedure_fixed_1);
+
+    ENSURE_BYTEVECTOR(bv);
+
+    len = SCM_BYTEVECTOR_LEN(bv);
+    bytes = scm_malloc(len);
+    memcpy(bytes, SCM_BYTEVECTOR_VEC(bv), len);
+
+    return make_binary_port(ScmInputStrPort_new_bytes(bytes, len, NULL),
+                            SCM_PORTFLAG_INPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_open_output_bytevector(void)
+{
+    DECLARE_FUNCTION("open-output-bytevector", procedure_fixed_0);
+
+    return make_binary_port(ScmOutputStrPort_new(NULL), SCM_PORTFLAG_OUTPUT);
+}
+
+SCM_EXPORT ScmObj
+scm_p_get_output_bytevector(ScmObj port)
+{
+    ScmBytePort *bport;
+    scm_byte_t *bytes;
+    size_t len;
+    DECLARE_FUNCTION("get-output-bytevector", procedure_fixed_1);
+
+    ENSURE_BINARY_PORT(port);
+
+    bport = binary_port_byte_port(port);
+    len = ScmOutputStrPort_c_strlen(bport);
+    bytes = scm_malloc(len);
+    memcpy(bytes, ScmOutputStrPort_str(bport), len);
+
+    return MAKE_BYTEVECTOR(bytes, len);
 }
 
 SCM_EXPORT ScmObj
@@ -1584,6 +1700,96 @@ scm_p_read_string(ScmObj k, ScmObj args)
 }
 
 SCM_EXPORT ScmObj
+scm_p_read_u8(ScmObj args)
+{
+    scm_ichar_t byte;
+    DECLARE_FUNCTION("read-u8", procedure_variadic_0);
+
+    byte = scm_port_get_char(prepare_binary_port(SCM_MANGLE(name), args,
+                                                 scm_in));
+    return (byte == SCM_ICHAR_EOF) ? SCM_EOF : MAKE_INT(byte);
+}
+
+SCM_EXPORT ScmObj
+scm_p_peek_u8(ScmObj args)
+{
+    scm_ichar_t byte;
+    DECLARE_FUNCTION("peek-u8", procedure_variadic_0);
+
+    byte = scm_port_peek_char(prepare_binary_port(SCM_MANGLE(name), args,
+                                                  scm_in));
+    return (byte == SCM_ICHAR_EOF) ? SCM_EOF : MAKE_INT(byte);
+}
+
+SCM_EXPORT ScmObj
+scm_p_u8_readyp(ScmObj args)
+{
+    DECLARE_FUNCTION("u8-ready?", procedure_variadic_0);
+
+    return MAKE_BOOL(scm_port_char_readyp(
+                         prepare_binary_port(SCM_MANGLE(name), args, scm_in)));
+}
+
+SCM_EXPORT ScmObj
+scm_p_read_bytevector(ScmObj k, ScmObj args)
+{
+    ScmObj port;
+    scm_byte_t *bytes;
+    scm_int_t len, n;
+    scm_ichar_t byte;
+    DECLARE_FUNCTION("read-bytevector", procedure_variadic_1);
+
+    ENSURE_INT(k);
+    len = SCM_INT_VALUE(k);
+    if (len < 0)
+        ERR_OBJ("non-negative integer required but got", k);
+    port = prepare_binary_port(SCM_MANGLE(name), args, scm_in);
+
+    bytes = scm_malloc(len);
+    for (n = 0; n < len; n++) {
+        byte = scm_port_get_char(port);
+        if (byte == SCM_ICHAR_EOF)
+            break;
+        bytes[n] = byte;
+    }
+    if (n == 0 && len > 0) {
+        free(bytes);
+        return SCM_EOF;
+    }
+
+    return MAKE_BYTEVECTOR(bytes, n);
+}
+
+SCM_EXPORT ScmObj
+scm_p_read_bytevectorx(ScmObj bv, ScmObj args)
+{
+    ScmObj port;
+    scm_int_t start, end, i;
+    scm_ichar_t byte;
+    DECLARE_FUNCTION("read-bytevector!", procedure_variadic_1);
+
+    ENSURE_BYTEVECTOR(bv);
+    ENSURE_MUTABLE_BYTEVECTOR(bv);
+    port = scm_in;
+    if (CONSP(args))
+        port = POP(args);
+    port = prepare_binary_port(SCM_MANGLE(name), LIST_1(port), scm_in);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_BYTEVECTOR_LEN(bv),
+                    &start, &end);
+
+    for (i = start; i < end; i++) {
+        byte = scm_port_get_char(port);
+        if (byte == SCM_ICHAR_EOF)
+            break;
+        SCM_BYTEVECTOR_VEC(bv)[i] = byte;
+    }
+    if (i == start && start < end)
+        return SCM_EOF;
+
+    return MAKE_INT(i - start);
+}
+
+SCM_EXPORT ScmObj
 scm_p_eof_object(void)
 {
     DECLARE_FUNCTION("eof-object", procedure_fixed_0);
@@ -1629,6 +1835,39 @@ scm_p_write_string(ScmObj str, ScmObj args)
     scm_parse_range(SCM_MANGLE(name), args, SCM_STRING_LEN(str), &start, &end);
 
     scm_display(port, scm_p_substring(str, MAKE_INT(start), MAKE_INT(end)));
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_p_write_u8(ScmObj byte, ScmObj args)
+{
+    DECLARE_FUNCTION("write-u8", procedure_variadic_1);
+
+    ENSURE_BYTE(byte);
+    scm_port_put_char(prepare_binary_port(SCM_MANGLE(name), args, scm_out),
+                      SCM_INT_VALUE(byte));
+    return SCM_UNDEF;
+}
+
+SCM_EXPORT ScmObj
+scm_p_write_bytevector(ScmObj bv, ScmObj args)
+{
+    ScmObj port;
+    scm_int_t start, end;
+    DECLARE_FUNCTION("write-bytevector", procedure_variadic_1);
+
+    ENSURE_BYTEVECTOR(bv);
+    port = scm_out;
+    if (CONSP(args))
+        port = POP(args);
+    port = prepare_binary_port(SCM_MANGLE(name), LIST_1(port), scm_out);
+    scm_parse_range(SCM_MANGLE(name), args, SCM_BYTEVECTOR_LEN(bv),
+                    &start, &end);
+
+    /* The single byte character port has no buffer. So we can write bytes
+     * to the byte port directly. */
+    SCM_BYTEPORT_WRITE(binary_port_byte_port(port), end - start,
+                       (const char *)&SCM_BYTEVECTOR_VEC(bv)[start]);
     return SCM_UNDEF;
 }
 

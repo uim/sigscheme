@@ -143,6 +143,8 @@ extern "C" {
 #define SYNTACTIC_OBJECTP SCM_SYNTACTIC_OBJECTP
 #define VECTORP        SCM_VECTORP
 #define BYTEVECTORP    SCM_BYTEVECTORP
+#define BYTEP(o)                                                             \
+    (INTP(o) && 0 <= SCM_INT_VALUE(o) && SCM_INT_VALUE(o) <= 255)
 #define PORTP          SCM_PORTP
 #define CONTINUATIONP  SCM_CONTINUATIONP
 #define NULLVALUESP    SCM_NULLVALUESP
@@ -411,6 +413,7 @@ SCM_EXPORT void scm_kind_error_obj(enum ScmErrorKind kind,
 #define ENSURE_CLOSURE(o)      ENSURE_TYPE(CLOSUREP,      "closure",      (o))
 #define ENSURE_VECTOR(o)       ENSURE_TYPE(VECTORP,       "vector",       (o))
 #define ENSURE_BYTEVECTOR(o)   ENSURE_TYPE(BYTEVECTORP,   "bytevector",   (o))
+#define ENSURE_BYTE(o)         ENSURE_TYPE(BYTEP,         "byte",         (o))
 #define ENSURE_PORT(o)         ENSURE_TYPE(PORTP,         "port",         (o))
 #define ENSURE_CONTINUATION(o) ENSURE_TYPE(CONTINUATIONP, "continuation", (o))
 #define ENSURE_PROCEDURE(o)    ENSURE_TYPE(PROCEDUREP,    "procedure",    (o))
@@ -444,6 +447,10 @@ SCM_EXPORT void scm_kind_error_obj(enum ScmErrorKind kind,
 #else /* SCM_HAS_IMMUTABLE_VECTOR */
 #define ENSURE_MUTABLE_VECTOR(vec) SCM_EMPTY_EXPR
 #endif /* SCM_HAS_IMMUTABLE_VECTOR */
+
+#define ENSURE_MUTABLE_BYTEVECTOR(bv)                                        \
+    (SCM_BYTEVECTOR_MUTABLEP(bv)                                             \
+     || (ERR_OBJ("attempted to modify immutable bytevector", (bv)), 1))
 
 #if SCM_USE_MULTIBYTE_CHAR
 #define ENSURE_STATEFUL_CODEC(codec)                                         \

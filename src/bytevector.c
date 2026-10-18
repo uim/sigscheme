@@ -42,9 +42,6 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
-#define ENSURE_MUTABLE_BYTEVECTOR(bv)                                        \
-    (SCM_BYTEVECTOR_MUTABLEP(bv)                                             \
-     || (ERR_OBJ("attempted to modify immutable bytevector", (bv)), 1))
 
 /*=======================================
   File Local Type Definitions
@@ -57,21 +54,12 @@
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static scm_byte_t get_byte(const char *func_name, ScmObj obj);
 static ScmObj make_bytevector_copying(const scm_byte_t *bytes, scm_int_t len);
 static void ensure_utf8_codec(const char *func_name);
 
 /*=======================================
   Function Definitions
 =======================================*/
-static scm_byte_t
-get_byte(const char *func_name, ScmObj obj)
-{
-    if (!INTP(obj) || SCM_INT_VALUE(obj) < 0 || 255 < SCM_INT_VALUE(obj))
-        scm_error_obj(func_name, "byte required but got", obj);
-    return (scm_byte_t)SCM_INT_VALUE(obj);
-}
-
 static ScmObj
 make_bytevector_copying(const scm_byte_t *bytes, scm_int_t len)
 {
@@ -108,7 +96,8 @@ scm_p_bytevectorp(ScmObj obj)
 SCM_EXPORT ScmObj
 scm_p_make_bytevector(ScmObj scm_len, ScmObj args)
 {
-    scm_byte_t *vec, fill;
+    ScmObj fill;
+    scm_byte_t *vec;
     scm_int_t len;
     DECLARE_FUNCTION("make-bytevector", procedure_variadic_1);
 
@@ -119,13 +108,14 @@ scm_p_make_bytevector(ScmObj scm_len, ScmObj args)
         ERR_OBJ("length must be a non-negative integer", scm_len);
 
     if (NULLP(args)) {
-        fill = 0;
+        fill = MAKE_INT(0);
     } else {
-        fill = get_byte(SCM_MANGLE(name), POP(args));
+        fill = POP(args);
         ASSERT_NO_MORE_ARG(args);
+        ENSURE_BYTE(fill);
     }
     vec = scm_malloc(len);
-    memset(vec, fill, len);
+    memset(vec, SCM_INT_VALUE(fill), len);
 
     return MAKE_BYTEVECTOR(vec, len);
 }
@@ -145,8 +135,10 @@ scm_p_bytevector(ScmObj args)
     vec = scm_malloc(len);
     i = 0;
     rest = args;
-    FOR_EACH (obj, rest)
-        vec[i++] = get_byte(SCM_MANGLE(name), obj);
+    FOR_EACH (obj, rest) {
+        ENSURE_BYTE(obj);
+        vec[i++] = SCM_INT_VALUE(obj);
+    }
 
     return MAKE_BYTEVECTOR(vec, len);
 }
@@ -172,10 +164,11 @@ scm_p_bytevector_u8_setx(ScmObj bv, ScmObj k, ScmObj byte)
     ENSURE_BYTEVECTOR(bv);
     ENSURE_MUTABLE_BYTEVECTOR(bv);
     ENSURE_INT(k);
+    ENSURE_BYTE(byte);
     if (!SCM_BYTEVECTOR_VALID_INDEXP(bv, SCM_INT_VALUE(k)))
         ERR_OBJ("index out of range", k);
 
-    SCM_BYTEVECTOR_VEC(bv)[SCM_INT_VALUE(k)] = get_byte(SCM_MANGLE(name), byte);
+    SCM_BYTEVECTOR_VEC(bv)[SCM_INT_VALUE(k)] = SCM_INT_VALUE(byte);
 
     return SCM_UNDEF;
 }

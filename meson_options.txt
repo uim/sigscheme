@@ -223,9 +223,6 @@ option('sscm_extensions',
 option('sscm_format_extension',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'SigScheme-specific \'format+\'')
-option('compat_siod',
-       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
-       description: 'some SIOD compatible features')
 option('eval_c_string',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'eval_c_string() of libsscm')

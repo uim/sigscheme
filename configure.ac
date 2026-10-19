@@ -347,14 +347,12 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_legacy_macro=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
-        use_compat_siod=no
         use_eval_c_string=yes
         ;;
       uim)
         use_legacy_macro=yes
         use_sscm_extensions=yes
         use_sscm_format_extension=yes
-        use_compat_siod=yes
         use_eval_c_string=yes
         ;;
     esac
@@ -498,7 +496,6 @@ AX_FEATURE_ARG_Y(legacy-macro,     ['define-macro' syntactic closure])
 # SigScheme-specific features
 AX_FEATURE_ARG_Y(sscm-extensions,     [SigScheme-specific extensions])
 AX_FEATURE_ARG_Y(sscm-format-extension, [SigScheme-specific 'format+'])
-AX_FEATURE_ARG_N(compat-siod,         [some SIOD compatible features])
 AX_FEATURE_ARG_Y(eval-c-string,       [eval_c_string() of libsscm])
 AX_FEATURE_ARG_N(backtrace,           [showing backtrace on error])
 AX_FEATURE_ARG_Y(libsscm,             [building libsscm])
@@ -559,7 +556,6 @@ r6rs_chars: char utf8 reader r6rs_named_chars
 r7rs: continuation hygienic_macro int char string string_procedure vector bytevector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars
 bytevector: int string
 
-compat_siod: sscm_extensions srfi60 eval_c_string
 strict_r5rs: strict_null_form strict_vector_form strict_argcheck internal_definitions strict_toplevel_definitions const_vector_literal
 
 int:        number
@@ -731,7 +727,6 @@ AX_FEATURE_DEFINE(legacy_macro)
 # SigScheme-specific features
 AX_FEATURE_DEFINE(sscm_extensions)
 AX_FEATURE_DEFINE(sscm_format_extension)
-AX_FEATURE_DEFINE(compat_siod,        SCM_COMPAT_SIOD,      COMPAT_SIOD)
 AX_FEATURE_DEFINE(eval_c_string)
 AX_FEATURE_DEFINE(backtrace)
 AX_FEATURE_DEFINE(libsscm)
@@ -807,7 +802,6 @@ AC_SUBST(use_bytevector)
 AC_SUBST(use_legacy_macro)
 AC_SUBST(use_sscm_extensions)
 AC_SUBST(use_sscm_format_extension)
-AC_SUBST(use_compat_siod)
 AC_SUBST(use_eval_c_string)
 AC_SUBST(use_backtrace)
 AC_SUBST(use_debug)
@@ -952,7 +946,6 @@ Bytevectors:      $use_bytevector
 define-macro:         $use_legacy_macro
 SigScheme extensions: $use_sscm_extensions
 format+ procedure:    $use_sscm_format_extension
-SIOD compatibilities: $use_compat_siod
 eval_c_string():      $use_eval_c_string
 Backtrace:            $use_backtrace
 Library:              $use_libsscm

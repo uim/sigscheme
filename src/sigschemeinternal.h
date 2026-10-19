@@ -908,11 +908,6 @@ SCM_EXPORT void scm_init_legacy_macro(void);
 SCM_EXPORT void scm_initialize_sscm_extensions(void);
 #endif
 
-/* module-siod.c */
-#if SCM_COMPAT_SIOD
-SCM_EXPORT void scm_initialize_siod(void);
-#endif
-
 /* module-srfi1.c */
 #if SCM_USE_SRFI1
 SCM_EXPORT void scm_initialize_srfi1(void);

@@ -152,9 +152,6 @@ static const char *const builtin_features[] = {
 #if SCM_USE_R7RS
     "r7rs",
 #endif
-#if SCM_COMPAT_SIOD
-    "compat-siod",
-#endif
 #if SCM_USE_NULL_CAPABLE_STRING
     "null-capable-string",
 #endif

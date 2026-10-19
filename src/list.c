@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -142,11 +142,7 @@ scm_p_set_carx(ScmObj pair, ScmObj car)
 
     SET_CAR(pair, car);
 
-#if SCM_COMPAT_SIOD
-    return car;
-#else
     return SCM_UNDEF;
-#endif
 }
 
 SCM_EXPORT ScmObj
@@ -159,11 +155,7 @@ scm_p_set_cdrx(ScmObj pair, ScmObj cdr)
 
     SET_CDR(pair, cdr);
 
-#if SCM_COMPAT_SIOD
-    return cdr;
-#else
     return SCM_UNDEF;
-#endif
 }
 
 SCM_EXPORT ScmObj

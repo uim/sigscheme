@@ -39,7 +39,6 @@ FUNC_TABLES = \
         functable-r7rs-bytevector.c \
         functable-legacy-macro.c \
         functable-sscm-ext.c \
-        functable-siod.c \
         functable-srfi1.c \
         functable-srfi2.c \
         functable-srfi6.c \
@@ -114,8 +113,6 @@ functable-legacy-macro.c: $(srcdir)/legacy-macro.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_legacy_macro" $<
 functable-sscm-ext.c: $(srcdir)/module-sscm-ext.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_sscm_ext" $<
-functable-siod.c: $(srcdir)/module-siod.c $(BUILD_FUNCTBL_DEPS)
-	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_siod" $<
 functable-srfi1.c: $(srcdir)/module-srfi1.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_srfi1" $<
 functable-srfi2.c: $(srcdir)/module-srfi2.c $(BUILD_FUNCTBL_DEPS)
@@ -177,7 +174,6 @@ sigscheme-combined-trim.h: $(DIST_SOURCES)
 	    encoding-config.h)  ;;              \
 	    scmport.h)          ;;              \
 	    scmport-config.h)   ;;              \
-	    scmport-null.h)     ;;              \
 	    scmport-file.h)     ;;              \
 	    scmport-str.h)      ;;              \
 	    scmport-sbchar.h)   ;;              \
@@ -288,9 +284,6 @@ endif
 # optional modules
 if USE_SSCM_EXTENSIONS
   libsscm_sources += module-sscm-ext.c
-endif
-if COMPAT_SIOD
-  libsscm_sources += module-siod.c scmport-null.h scmport-null.c
 endif
 if USE_SRFI1
   libsscm_sources += module-srfi1.c

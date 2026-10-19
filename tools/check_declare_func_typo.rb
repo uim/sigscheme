@@ -3,7 +3,7 @@
 #  Filename : check_declare_func_typo.rb
 #
 #  Copyright (C) 2005-2006 Kazuki Ohta <mover at hct.zaq.ne.jp>
-#  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+#  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 #
 #  All rights reserved.
 #
@@ -45,7 +45,7 @@ def build_orig_info
   files = ["sigscheme.c", "operations-srfi1.c",
            "operations-srfi2.c", "operations-srfi6.c", "operations-srfi8.c", 
            "operations-srfi23.c", "operations-srfi34.c", "operations-srfi38.c",
-           "operations-srfi60.c", "operations-siod.c"]
+           "operations-srfi60.c"]
 
   files.each { |file|
     IO.readlines(file).each { |line|
@@ -238,11 +238,6 @@ build_functable("_SRFI38_",
 build_functable("_SRFI60_",
                 "srfi60_func_info_table",
                 ["operations-srfi60.c"])
-
-# SIOD
-build_functable("",
-                "siod_func_info_table",
-                ["operations-siod.c"])
 
 # Footer
 print_footer

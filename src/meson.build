@@ -61,7 +61,6 @@ func_tables = [
   ['functable-legacy-macro.c', 'scm_functable_legacy_macro',
    ['legacy-macro.c']],
   ['functable-sscm-ext.c', 'scm_functable_sscm_ext', ['module-sscm-ext.c']],
-  ['functable-siod.c', 'scm_functable_siod', ['module-siod.c']],
   ['functable-srfi1.c', 'scm_functable_srfi1', ['module-srfi1.c']],
   ['functable-srfi2.c', 'scm_functable_srfi2', ['module-srfi2.c']],
   ['functable-srfi6.c', 'scm_functable_srfi6', ['module-srfi6.c']],
@@ -165,7 +164,6 @@ foreach optional_sources : [
   ['bytevector', ['bytevector.c']],
   # optional modules
   ['sscm_extensions', ['module-sscm-ext.c']],
-  ['compat_siod', ['module-siod.c', 'scmport-null.c']],
   ['srfi1', ['module-srfi1.c']],
   ['srfi2', ['module-srfi2.c']],
   ['srfi6', ['module-srfi6.c', 'scmport-str.c']],

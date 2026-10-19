@@ -810,24 +810,3 @@ let-optionals*
 `let-optionals*` is provided for optional argument processing. The
 specification is exactly same as Gauche 0.8.8. See `test-sscm-ext.scm` for
 further information.
-
-
-SIOD compatibility
-------------------
-
-SIOD specific features
-~~~~~~~~~~~~~~~~~~~~~~
-
-If `--enable-compat-siod` is specified for configure script explicitly or
-implicitly, some SIOD compatible features are provided.
-
-  - symbol-value
-  - set-symbol-value!
-  - verbose
-  - undefine
-  - eof-val
-  - %%closure-code
-  - bit-and
-  - bit-or
-  - bit-xor
-  - bit-not

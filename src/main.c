@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005      Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -52,10 +52,6 @@
 =======================================*/
 #define PROMPT_STR "sscm> "
 
-#if SCM_COMPAT_SIOD
-#define FEATURE_ID_SIOD "siod"
-#endif
-
 #if !defined(MAXPATHLEN)
 #define MAXPATHLEN 1024 /* GNU Hurd doesn't have MAXPATHLEN */
 #endif
@@ -64,9 +60,6 @@
   File Local Type Definitions
 =======================================*/
 struct g_sscm {
-#if SCM_COMPAT_SIOD
-    ScmObj feature_id_siod;
-#endif
     char lib_path[MAXPATHLEN + sizeof("")];
 };
 
@@ -81,7 +74,6 @@ static struct g_sscm sscm;
 =======================================*/
 static void *repl(void *dummy);
 static void repl_loop(void);
-static scm_bool show_promptp(void);
 
 /*=======================================
   Function Definitions
@@ -117,8 +109,7 @@ repl_loop(void)
 #endif /* SCM_USE_SRFI34 */
 
     for (;;) {
-        if (show_promptp())
-            scm_port_puts(scm_out, PROMPT_STR);
+        scm_port_puts(scm_out, PROMPT_STR);
 
 #if SCM_USE_SRFI34
         /* error-proof read */
@@ -180,17 +171,6 @@ repl_loop(void)
     }
 }
 
-static scm_bool
-show_promptp(void)
-{
-#if SCM_COMPAT_SIOD
-    return (FALSEP(scm_p_providedp(sscm.feature_id_siod))
-            || scm_get_verbose_level() >= 2);
-#else
-    return scm_true;
-#endif
-}
-
 int
 main(int argc, char **argv)
 {
@@ -215,11 +195,6 @@ main(int argc, char **argv)
 
 #if SCM_USE_SRFI34
     scm_require_module("srfi-34");
-#endif
-
-#if SCM_COMPAT_SIOD
-    scm_gc_protect_with_init(&sscm.feature_id_siod,
-                             CONST_STRING(FEATURE_ID_SIOD));
 #endif
 
     if (filename) {

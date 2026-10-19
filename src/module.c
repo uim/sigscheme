@@ -113,9 +113,6 @@ static const struct scm_module_info module_info_table[] = {
 #if SCM_USE_SRFI60
     {"srfi-60", scm_initialize_srfi60, NULL},
 #endif
-#if SCM_COMPAT_SIOD
-    {"siod", scm_initialize_siod, NULL},
-#endif
     {NULL, NULL, NULL}
 };
 

@@ -237,24 +237,13 @@ scm_require_internal(const char *filename)
 SCM_EXPORT ScmObj
 scm_p_require(volatile ScmObj filename)
 {
-#if SCM_COMPAT_SIOD
-    ScmObj loaded_str, retsym;
-#endif
     DECLARE_FUNCTION("require", procedure_fixed_1);
 
     ENSURE_STRING(filename);
 
     scm_require_internal(SCM_STRING_STR(filename));
 
-#if SCM_COMPAT_SIOD
-    loaded_str = make_loaded_str(SCM_STRING_STR(filename));
-    retsym = scm_intern(SCM_STRING_STR(loaded_str));
-    scm_define_toplevel(retsym, SCM_TRUE, SCM_INTERACTION_ENV);
-
-    return retsym;
-#else
     return SCM_TRUE;
-#endif
 }
 
 static ScmObj

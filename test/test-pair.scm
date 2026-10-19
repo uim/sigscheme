@@ -5,7 +5,7 @@
 ;;  About    : unit tests for pairs
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -211,11 +211,6 @@
     kons))
 (assert-error  (tn) (lambda()  (set-car! '() 2)))
 (assert-error  (tn) (lambda()  (set-car! (list) 2)))
-(if (and (provided? "sigscheme")
-         (provided? "compat-siod"))
-    (assert-equal? (tn) 2 (set-car! (list 0) 2))
-    (undef))
-
 (assert-equal? (tn) '(2)       (my-set-car! (list 0) 2))
 (assert-equal? (tn) '(2 . 1)   (my-set-car! (cons 0 1) 2))
 (assert-equal? (tn) '(2 1)     (my-set-car! (list 0 1) 2))
@@ -240,11 +235,6 @@
     kons))
 (assert-error  (tn) (lambda()  (set-cdr! '() 2)))
 (assert-error  (tn) (lambda()  (set-cdr! (list) 2)))
-(if (and (provided? "sigscheme")
-         (provided? "compat-siod"))
-    (assert-equal? (tn) 2 (set-cdr! (list 0) 2))
-    (undef))
-
 (assert-equal? (tn) '(0 . 2)   (my-set-cdr! (list 0) 2))
 (assert-equal? (tn) '(0 . 2)   (my-set-cdr! (cons 0 1) 2))
 (assert-equal? (tn) '(0 . 2)   (my-set-cdr! (list 0 1) 2))

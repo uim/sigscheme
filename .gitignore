@@ -85,7 +85,6 @@
 /src/functable-r5rs-vector.c
 /src/functable-r5rs-write.c
 /src/functable-r7rs.c
-/src/functable-siod.c
 /src/functable-srfi1.c
 /src/functable-srfi2.c
 /src/functable-srfi23.c

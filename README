@@ -49,7 +49,6 @@ Features
 - Multibyte character encodings support
 - define-macro
 - let-optionals* for optional argument processing
-- Partial SIOD compatibility
 
 See doc/spec.txt and doc/design.txt for furtuer information.
 

@@ -255,7 +255,6 @@ conf_presets = {
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
     'sscm_format_extension': 'yes',
-    'compat_siod': 'no',
     'eval_c_string': 'yes',
     # R6RS features
     'r6rs_named_chars': 'yes',
@@ -268,7 +267,6 @@ conf_presets = {
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
     'sscm_format_extension': 'yes',
-    'compat_siod': 'no',
     'eval_c_string': 'yes',
     # R6RS features
     'r6rs_named_chars': 'no',
@@ -291,7 +289,6 @@ conf_presets = {
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
     'sscm_format_extension': 'yes',
-    'compat_siod': 'no',
     'eval_c_string': 'yes',
     # R6RS features
     'r6rs_named_chars': 'yes',
@@ -338,7 +335,6 @@ conf_presets = {
     'legacy_macro': 'yes',
     'sscm_extensions': 'yes',
     'sscm_format_extension': 'yes',
-    'compat_siod': 'yes',
     'eval_c_string': 'yes',
     # R6RS features
     'r6rs_named_chars': 'yes',
@@ -448,7 +444,6 @@ feature_declarations = [
   # SigScheme-specific features
   ['sscm_extensions', 'yes'],
   ['sscm_format_extension', 'yes'],
-  ['compat_siod', 'no'],
   ['eval_c_string', 'yes'],
   ['backtrace', 'no'],
   ['libsscm', 'yes'],
@@ -531,7 +526,6 @@ feature_required_dependencies = {
            'srfi9', 'srfi34', 'srfi38', 'r6rs_named_chars'],
   'bytevector': ['int', 'string'],
 
-  'compat_siod': ['sscm_extensions', 'srfi60', 'eval_c_string'],
   'strict_r5rs': ['strict_null_form', 'strict_vector_form', 'strict_argcheck',
                   'internal_definitions', 'strict_toplevel_definitions',
                   'const_vector_literal'],
@@ -814,7 +808,6 @@ feature_definitions = [
   # SigScheme-specific features
   'sscm_extensions',
   'sscm_format_extension',
-  'compat_siod',
   'eval_c_string',
   'backtrace',
   'libsscm',
@@ -842,7 +835,6 @@ feature_macros = {
   'strict_vector_form': 'SCM_STRICT_VECTOR_FORM',
   'strict_argcheck': 'SCM_STRICT_ARGCHECK',
   'strict_toplevel_definitions': 'SCM_STRICT_TOPLEVEL_DEFINITIONS',
-  'compat_siod': 'SCM_COMPAT_SIOD',
   'debug': 'SCM_DEBUG',
   'debug_port': 'SCM_DEBUG_PORT',
   'debug_parser': 'SCM_DEBUG_PARSER',
@@ -964,8 +956,7 @@ if use['libsscm']
     'legacy_macro',
     'sscm_extensions',
     'sscm_format_extension',
-    'compat_siod',
-    'eval_c_string',
+      'eval_c_string',
     'backtrace',
     'debug',
   ]
@@ -1072,7 +1063,6 @@ summary({
           'define-macro': use['legacy_macro'],
           'SigScheme extensions': use['sscm_extensions'],
           'format+ procedure': use['sscm_format_extension'],
-          'SIOD compatibilities': use['compat_siod'],
           'eval_c_string()': use['eval_c_string'],
           'Backtrace': use['backtrace'],
           'Library': use['libsscm'],

@@ -1986,19 +1986,6 @@ SCM_EXPORT ScmObj scm_s_let_optionalsstar(ScmObj args,
                                           ScmEvalState *eval_state);
 #endif /* SCM_USE_SSCM_EXTENSIONS */
 
-/* module-siod.c */
-#if SCM_COMPAT_SIOD
-SCM_EXPORT ScmObj scm_p_symbol_value(ScmObj var);
-SCM_EXPORT ScmObj scm_p_set_symbol_valuex(ScmObj var, ScmObj val);
-SCM_EXPORT ScmObj scm_p_siod_equal(ScmObj obj1, ScmObj obj2);
-SCM_EXPORT ScmObj scm_p_closure_code(ScmObj closure);
-SCM_EXPORT ScmObj scm_p_verbose(ScmObj args);
-SCM_EXPORT ScmObj scm_p_eof_val(void);
-SCM_EXPORT ScmObj scm_s_undefine(ScmObj var, ScmObj env);
-SCM_EXPORT long   scm_get_verbose_level(void);
-SCM_EXPORT void   scm_set_verbose_level(long level);
-#endif /* SCM_COMPAT_SIOD */
-
 /* module-srfi1.c */
 #if SCM_USE_SRFI1
 SCM_EXPORT ScmObj scm_p_srfi1_circular_listp(ScmObj obj);

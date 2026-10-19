@@ -39,6 +39,7 @@
 
 #include <config.h>
 
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -141,6 +142,9 @@ static void write_symbol   (ScmObj port, ScmObj sym, enum ScmOutputType otype);
 #if SCM_USE_R7RS
 static scm_bool plain_symbol_namep(const char *name);
 #endif
+#if SCM_USE_INT
+static void write_int      (ScmObj port, scm_int_t n);
+#endif
 static void write_list     (ScmObj port, ScmObj lst, enum ScmOutputType otype);
 #if SCM_USE_VECTOR
 static void write_vector   (ScmObj port, ScmObj vec, enum ScmOutputType otype);
@@ -239,7 +243,7 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
     switch (SCM_TYPE(obj)) {
 #if SCM_USE_INT
     case ScmInt:
-        scm_format(port, SCM_FMT_RAW_C, "~MD", SCM_INT_VALUE(obj));
+        write_int(port, SCM_INT_VALUE(obj));
         break;
 #endif
 #if SCM_USE_REAL
@@ -441,6 +445,18 @@ write_symbol(ScmObj port, ScmObj sym, enum ScmOutputType otype)
 }
 
 #if SCM_USE_CHAR
+#if SCM_USE_INT
+/* It's faster than scm_format() because it doesn't parse a format. */
+static void
+write_int(ScmObj port, scm_int_t n)
+{
+    char buf[sizeof("-") + sizeof(intmax_t) * CHAR_BIT];
+
+    snprintf(buf, sizeof(buf), "%jd", (intmax_t)n);
+    scm_port_puts(port, buf);
+}
+#endif
+
 static void
 write_char(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 {
@@ -639,7 +655,7 @@ write_bytevector(ScmObj port, ScmObj bv)
     for (i = 0; i < SCM_BYTEVECTOR_LEN(bv); i++) {
         if (i)
             scm_port_put_char(port, ' ');
-        scm_format(port, SCM_FMT_RAW_C, "~D", (int)SCM_BYTEVECTOR_VEC(bv)[i]);
+        write_int(port, SCM_BYTEVECTOR_VEC(bv)[i]);
     }
     scm_port_put_char(port, ')');
 }

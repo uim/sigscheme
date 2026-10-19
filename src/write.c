@@ -1001,11 +1001,13 @@ static void
 write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype,
                   scm_bool cycles_only)
 {
-    scm_write_ss_context ctx = {{0}};
+    scm_write_ss_context ctx;
     size_t i;
 
     ctx.next_index = 1;
     ctx.cycles_only = cycles_only;
+    ctx.labeled = scm_false;
+    ctx.seen.used = 0;
     /* arbitrary initial size. Most objects to be written are small. */
     ctx.seen.size = 1 << 5;
     ctx.seen.ents = scm_malloc(ctx.seen.size * sizeof(scm_hash_entry));

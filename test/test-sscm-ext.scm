@@ -3,7 +3,7 @@
 ;;  Filename : test-sscm-ext.scm
 ;;  About    : unit tests for SigScheme specific extensions
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -43,7 +43,16 @@
 (define ud (undef))
 
 (tn "sscm-version")
-(assert-equal? (tn) "0.9.0"      (sscm-version))
+;; MAJOR.MINOR.PATCHLEVEL
+(let ((n-dots 0)
+      (n-others 0))
+  (for-each (lambda (c)
+              (cond
+               ((char=? c #\.) (set! n-dots (+ n-dots 1)))
+               ((not (char-numeric? c)) (set! n-others (+ n-others 1)))))
+            (string->list (sscm-version)))
+  (assert-equal? (tn) 2 n-dots)
+  (assert-equal? (tn) 0 n-others))
 
 (tn "%%current-char-codec")
 (assert-equal? (tn) "UTF-8"      (%%current-char-codec))

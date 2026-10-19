@@ -83,14 +83,15 @@
           (#t (cons #f err)))
     (cons #t (thunk))))
 
-;; Inexact numbers are compared approximately like (chibi test).
+;; Inexact numbers are compared approximately like (chibi test). 1e-5 is
+;; read only with inexact numbers.
 (define (%r7rs-equal? expected result)
   (or (equal? expected result)
       (and (real? expected)
            (inexact? expected)
            (real? result)
            (<= (abs (- expected result))
-               (* 1e-5 (max 1 (abs expected)))))))
+               (* (string->number "1e-5") (max 1 (abs expected)))))))
 
 (define (%r7rs-test description expected-thunk thunk)
   (let ((expected (expected-thunk))

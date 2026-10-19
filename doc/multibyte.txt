@@ -13,7 +13,8 @@ of SigScheme].
 In addition to R6RS Unicode character handlings, SigScheme supports EUC-JP,
 EUC-CN, EUC-KR and Shift_JIS character encoding schemes and they can be used
 simultaneously. But no character encoding conversion method such as iconv is
-provided at now.
+provided at now except for source files with a coding declaration. See
+"Ports" section.
 
 
 Current character codec
@@ -243,4 +244,14 @@ expressions from the file.
 
 ----------------------------------------------------------------
 #! /usr/bin/env sscm -C UTF-8
+----------------------------------------------------------------
+
+The `load` procedure also detects a coding declaration in the first 2 lines
+of the file like Emacs. If it's different from `%%current-char-codec`, the
+file is converted to `%%current-char-codec` by iconv(3). It's available only
+if iconv(3) is found on build. The generic singlebyte codec `ISO-8859-1`
+reads the file as is.
+
+----------------------------------------------------------------
+;; -*- coding: euc-jp -*-
 ----------------------------------------------------------------

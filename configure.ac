@@ -123,6 +123,18 @@ AH_VERBATIM(_XOPEN_SOURCE,
 
 AC_CHECK_FUNCS(strcasecmp, [], [AC_LIBOBJ(strcasecmp)])
 
+# For coding declarations in source files.
+have_iconv=no
+AC_CHECK_HEADER(iconv.h,
+  [
+    AC_SEARCH_LIBS(iconv_open, iconv,
+      [
+        have_iconv=yes
+        AC_DEFINE(HAVE_ICONV, 1, [Define to 1 if you have iconv(3).])
+      ])
+  ])
+AM_CONDITIONAL(HAVE_ICONV, test "x$have_iconv" = "xyes")
+
 
 #####################
 # Optional packages #

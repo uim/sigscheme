@@ -76,6 +76,10 @@ if use['utf8']
     'test-vector.scm',
   ]
 endif
+if use['utf8'] and use['srfi6'] and iconv_dependency.found()
+  # It specifies "-C UTF-8" in its script prelude.
+  sscm_tests += ['test-coding.scm']
+endif
 if use['srfi180']
   sscm_tests += ['test-srfi180.scm']
 endif

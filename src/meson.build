@@ -209,6 +209,10 @@ if use['real']
   # floor(), sqrt() and so on for inexact real numbers.
   sscm_dependencies += [cc.find_library('m', required: false)]
 endif
+if use['multibyte_char']
+  # Source files in other encodings are converted by iconv(3).
+  sscm_dependencies += [iconv_dependency]
+endif
 
 if use['libsscm']
   # To take precedence over installed gcroots.h by the bundled

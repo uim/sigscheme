@@ -134,6 +134,11 @@ if cc.has_function('strdup')
   # Overrides _POSIX_C_SOURCE
   libsscm_c_args += ['-D_XOPEN_SOURCE=500']
 endif
+# For coding declarations in source files.
+iconv_dependency = dependency('iconv', required: false)
+if iconv_dependency.found()
+  config_data.set('HAVE_ICONV', 1)
+endif
 strcasecmp_replacement = false
 if cc.has_function('strcasecmp')
   config_data.set('HAVE_STRCASECMP', 1)

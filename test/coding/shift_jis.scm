@@ -1,0 +1,2 @@
+;; coding=shift_jis
+(define coding-shift-jis "“ú–{Œê")

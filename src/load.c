@@ -37,6 +37,7 @@
 
 #include <config.h>
 
+#include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -49,12 +50,29 @@
 #include "scmport.h"
 #include "scmport-mbchar.h"
 #endif
+/* A file in another encoding is converted by iconv(3) and read from a
+ * string port. */
+#define USE_CODING_CONVERSION                                                \
+    (SCM_USE_MULTIBYTE_CHAR && SCM_USE_SRFI6 && HAVE_ICONV)
+#if USE_CODING_CONVERSION
+#include <errno.h>
+#include <iconv.h>
+#include "scmport-str.h"
+#endif
 
 /*=======================================
   File Local Macro Definitions
 =======================================*/
 /* FIXME: only supports UNIX flavors */
 #define PATH_SEPARATOR ':'
+
+#if SCM_USE_MULTIBYTE_CHAR
+/* The coding declaration such as ";; -*- coding: euc-jp -*-" must be in
+ * the first 2 lines like Emacs. */
+#define CODING_DECLARATION_LINES 2
+#define CODING_DECLARATION_MAXLEN 512
+#define CODING_NAME_MAXLEN 63
+#endif
 
 #if SCM_USE_SRFI22
 /* SRFI-22: The <script prelude> line may not be longer than 64 characters. */
@@ -85,6 +103,16 @@ SCM_DEFINE_STATIC_VARS(static_load);
 =======================================*/
 static void *scm_load_internal(const char *filename);
 static void load_file(const char *filename, ScmObj env);
+#if SCM_USE_MULTIBYTE_CHAR
+static ScmObj open_source_file(ScmObj path);
+static scm_bool read_coding(FILE *file, char *coding);
+static scm_bool same_encodingp(const char *encoding1, const char *encoding2);
+#endif
+#if USE_CODING_CONVERSION
+static char *read_converted_file(FILE *file, const char *path,
+                                 const char *from, const char *to,
+                                 size_t *size);
+#endif
 static char *find_path(const char *filename);
 static scm_bool file_existsp(const char *filepath);
 #if SCM_USE_SRFI22
@@ -228,7 +256,11 @@ load_file(const char *filename, ScmObj env)
                        "file \"~S\" not found", filename);
 
     path = MAKE_IMMUTABLE_STRING(c_path, STRLEN_UNKNOWN);
+#if SCM_USE_MULTIBYTE_CHAR
+    port = open_source_file(path);
+#else
     port = scm_p_open_input_file(path);
+#endif
 
 #if SCM_USE_MULTIBYTE_CHAR
     saved_codec = scm_current_char_codec;
@@ -249,6 +281,177 @@ load_file(const char *filename, ScmObj env)
 
     CDBG((SCM_DBG_FILE, "done."));
 }
+
+#if SCM_USE_MULTIBYTE_CHAR
+/* Opens the source file PATH. It's converted to the current codec if it
+ * has a coding declaration of another encoding. The generic singlebyte
+ * codec ISO-8859-1 reads bytes as is. */
+static ScmObj
+open_source_file(ScmObj path)
+{
+    FILE *file;
+    char coding[CODING_NAME_MAXLEN + sizeof("")];
+    const char *encoding;
+#if USE_CODING_CONVERSION
+    char *str;
+    size_t size;
+    ScmBytePort *bport;
+#endif
+    DECLARE_INTERNAL_FUNCTION("load");
+
+    encoding = SCM_CHARCODEC_ENCODING(scm_current_char_codec);
+    file = fopen(SCM_STRING_STR(path), "rb");
+    if (file
+        && read_coding(file, coding)
+        && !same_encodingp(coding, encoding)
+        && !same_encodingp(encoding, "ISO-8859-1")) {
+#if USE_CODING_CONVERSION
+        str = read_converted_file(file, SCM_STRING_STR(path), coding,
+                                  encoding, &size);
+        bport = ScmInputStrPort_new_bytes(str, size, NULL);
+        return MAKE_PORT(scm_make_char_port(bport), SCM_PORTFLAG_INPUT);
+#else
+        fclose(file);
+        ERR("encoding conversion isn't supported: ~S", coding);
+#endif
+    }
+    if (file)
+        fclose(file);
+    return scm_p_open_input_file(path);
+}
+
+/* Reads the encoding name of the coding declaration into CODING. */
+static scm_bool
+read_coding(FILE *file, char *coding)
+{
+    char buf[CODING_DECLARATION_MAXLEN + sizeof("")];
+    char *p;
+    size_t len;
+    int c, n_lines;
+
+    len = 0;
+    n_lines = 0;
+    while (len < CODING_DECLARATION_MAXLEN
+           && (c = getc(file)) != EOF) {
+        if (c == '\n' && ++n_lines == CODING_DECLARATION_LINES)
+            break;
+        buf[len++] = c;
+    }
+    buf[len] = '\0';
+    rewind(file);
+
+    for (p = buf; (p = strstr(p, "coding")); ) {
+        p += sizeof("coding") - sizeof("");
+        if (*p != ':' && *p != '=')
+            continue;
+        for (p++; *p == ' ' || *p == '\t'; p++)
+            ;
+        for (len = 0;
+             len < CODING_NAME_MAXLEN
+                 && (isalnum((unsigned char)*p)
+                     || *p == '-' || *p == '_' || *p == '.');
+             p++)
+            coding[len++] = *p;
+        coding[len] = '\0';
+        /* Emacs' end-of-line suffix such as utf-8-unix */
+        p = strrchr(coding, '-');
+        if (p && (strcmp(p, "-unix") == 0 || strcmp(p, "-dos") == 0
+                  || strcmp(p, "-mac") == 0))
+            *p = '\0';
+        return (len > 0);
+    }
+    return scm_false;
+}
+
+/* Compares encoding names ignoring case, '-' and '_': utf8 = UTF-8 */
+static scm_bool
+same_encodingp(const char *encoding1, const char *encoding2)
+{
+    for (;;) {
+        while (*encoding1 == '-' || *encoding1 == '_')
+            encoding1++;
+        while (*encoding2 == '-' || *encoding2 == '_')
+            encoding2++;
+        if (tolower((unsigned char)*encoding1)
+            != tolower((unsigned char)*encoding2))
+            return scm_false;
+        if (*encoding1 == '\0')
+            return scm_true;
+        encoding1++;
+        encoding2++;
+    }
+}
+#endif /* SCM_USE_MULTIBYTE_CHAR */
+
+#if USE_CODING_CONVERSION
+/* Returns the content of FILE converted from FROM to TO. FILE is closed. */
+static char *
+read_converted_file(FILE *file, const char *path, const char *from,
+                    const char *to, size_t *size)
+{
+    iconv_t cd;
+    char *in, *out, *in_p, *out_p;
+    size_t in_size, in_len, in_left, out_size, out_left, out_len, ret;
+    scm_bool flushed, failed;
+    DECLARE_INTERNAL_FUNCTION("load");
+
+    /* read the whole file */
+    in_size = BUFSIZ;
+    in = scm_malloc(in_size);
+    in_len = 0;
+    while ((ret = fread(in + in_len, 1, in_size - in_len, file)) > 0) {
+        in_len += ret;
+        if (in_len == in_size) {
+            in_size *= 2;
+            in = scm_realloc(in, in_size);
+        }
+    }
+    fclose(file);
+
+    cd = iconv_open(to, from);
+    if (cd == (iconv_t)-1) {
+        free(in);
+        ERR("unsupported encoding conversion from ~S to ~S", from, to);
+    }
+
+    out_size = in_len * 2 + 1;
+    out = scm_malloc(out_size);
+    in_p = in;
+    in_left = in_len;
+    out_p = out;
+    out_left = out_size;
+    flushed = failed = scm_false;
+    while (!flushed && !failed) {
+        if (in_left > 0) {
+            ret = iconv(cd, &in_p, &in_left, &out_p, &out_left);
+        } else {
+            /* Flush the shift state of a stateful encoding. */
+            ret = iconv(cd, NULL, NULL, &out_p, &out_left);
+            flushed = (ret != (size_t)-1);
+        }
+        if (ret == (size_t)-1) {
+            if (errno == E2BIG) {
+                out_len = out_p - out;
+                out_size *= 2;
+                out = scm_realloc(out, out_size);
+                out_p = out + out_len;
+                out_left = out_size - out_len;
+            } else {
+                failed = scm_true;
+            }
+        }
+    }
+    iconv_close(cd);
+    free(in);
+    if (failed) {
+        free(out);
+        ERR("invalid ~S character sequence in file: ~S", from, path);
+    }
+
+    *size = out_p - out;
+    return out;
+}
+#endif /* USE_CODING_CONVERSION */
 
 #if SCM_USE_R7RS
 /* Returns the absolute path of FILENAME searched in the library path or

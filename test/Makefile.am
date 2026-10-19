@@ -84,6 +84,21 @@ sscm_xfail_tests += $(sscm_utf8_tests)
 endif
 EXTRA_DIST += $(sscm_utf8_tests)
 
+if USE_UTF8
+if USE_SRFI6
+if HAVE_ICONV
+sscm_optional_tests += test-coding.scm
+endif
+endif
+endif
+EXTRA_DIST += \
+	test-coding.scm \
+	coding/euc-jp.scm \
+	coding/invalid.scm \
+	coding/shift_jis.scm \
+	coding/unknown.scm \
+	coding/utf-8.scm
+
 if USE_SRFI180
 sscm_optional_tests += test-srfi180.scm
 else

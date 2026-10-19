@@ -1,0 +1,2 @@
+;; -*- coding: euc-jp -*-
+(define coding-euc-jp "ฦüหÜธ์")

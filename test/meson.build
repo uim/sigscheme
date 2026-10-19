@@ -15,6 +15,7 @@ sscm_tests = [
   'test-lambda.scm',
   'test-legacy-macro.scm',
   'test-let.scm',
+  'test-library.scm',
   'test-letstar.scm',
   'test-letrec.scm',
   'test-map.scm',

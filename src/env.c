@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -53,6 +53,10 @@
  *   In this case, rest1 is bound to (var4 var5 ...) and rest2 is bound to
  *   (val1 val2 val3 var4 var5 ...).
  *
+ *   The tail of env is '() for the global environment. It's a module for a
+ *   library (see library.c) instead of '(). The toplevel environment is the
+ *   tail itself.
+ *
  *   The environment object should not be manipulated manually, to allow
  *   replacing with another implementation. Use the function interfaces.
  *
@@ -91,7 +95,11 @@
   File Local Function Declarations
 =======================================*/
 static scm_bool valid_framep(ScmObj frame);
-static ScmRef lookup_frames(ScmObj var, ScmObj env);
+static scm_int_t env_depth(ScmObj env);
+static inline ScmRef lookup_frames(ScmObj var, ScmObj env);
+#if SCM_USE_R7RS
+static ScmRef lookup_module(ScmObj var, ScmObj module);
+#endif
 #if SCM_USE_HYGIENIC_MACRO
 static ScmRef lookup_far_symbol(ScmObj var, ScmObj env);
 #endif
@@ -102,7 +110,22 @@ static ScmRef lookup_far_symbol(ScmObj var, ScmObj env);
 SCM_EXPORT scm_bool
 scm_toplevel_environmentp(ScmObj env)
 {
+#if SCM_USE_R7RS
+    return NULLP(env) || (!CONSP(env) && scm_modulep(env));
+#else
     return NULLP(env);
+#endif
+}
+
+/* Returns the number of frames of ENV. */
+static scm_int_t
+env_depth(ScmObj env)
+{
+    scm_int_t depth;
+
+    for (depth = 0; CONSP(env); env = CDR(env))
+        depth++;
+    return depth;
 }
 
 #if SCM_USE_HYGIENIC_MACRO
@@ -112,12 +135,7 @@ scm_toplevel_environmentp(ScmObj env)
 SCM_EXPORT ScmPackedEnv
 scm_pack_env(ScmObj env)
 {
-    scm_int_t depth;
-    DECLARE_INTERNAL_FUNCTION("scm_env_depth");
-
-    depth = scm_length(env);
-    SCM_ASSERT(SCM_LISTLEN_PROPERP(depth));
-    return depth;
+    return env_depth(env);
 }
 
 /* Not used. */
@@ -126,7 +144,7 @@ scm_unpack_env(ScmPackedEnv packed, ScmObj context)
 {
     scm_int_t depth;
 
-    depth = scm_length(context);
+    depth = env_depth(context);
     while (depth-- > packed)
         context = CDR(context);
     return context;
@@ -301,9 +319,9 @@ scm_add_environment(ScmObj var, ScmObj val, ScmObj env)
     SCM_ASSERT(VALID_ENVP(env));
 
     /* add (var, val) pair to recentmost frame of the env */
-    if (NULLP(env)) {
+    if (scm_toplevel_environmentp(env)) {
         frame = CONS(LIST_1(var), LIST_1(val));
-        env = LIST_1(frame);
+        env = CONS(frame, env);
     } else if (CONSP(env)) {
         frame = CAR(env);
         formals = CONS(var, CAR(frame));
@@ -340,18 +358,33 @@ scm_lookup_environment(ScmObj var, ScmObj env)
 
 /* Lookup a variable in all frames of an env. This is separated from
  * scm_lookup_environment() to keep the common case fast. */
-static ScmRef
+static inline ScmRef
 lookup_frames(ScmObj var, ScmObj env)
 {
     ScmRef ref;
 
-    for (; !NULLP(env); env = CDR(env)) {
+    for (; CONSP(env); env = CDR(env)) {
         ref = scm_lookup_frame(var, CAR(env));
         if (ref != SCM_INVALID_REF)
             return ref;
     }
+#if SCM_USE_R7RS
+    if (!NULLP(env))
+        return lookup_module(var, env);
+#endif
     return SCM_INVALID_REF;
 }
+
+#if SCM_USE_R7RS
+/* Lookup a variable in the module that is the tail of an env. This is
+ * separated from lookup_frames() to keep lookup_frames() small enough to be
+ * inlined. */
+static ScmRef
+lookup_module(ScmObj var, ScmObj module)
+{
+    return (SYMBOLP(var)) ? scm_module_lookup(module, var) : SCM_INVALID_REF;
+}
+#endif
 
 #if SCM_USE_HYGIENIC_MACRO
 /* Lookup the symbol of a far symbol in the frames where the far symbol was
@@ -363,7 +396,7 @@ lookup_far_symbol(ScmObj var, ScmObj env)
     scm_int_t depth, id_depth;
     DECLARE_INTERNAL_FUNCTION("scm_lookup_environment");
 
-    depth = scm_length(env);
+    depth = env_depth(env);
     id_depth = SCM_FARSYMBOL_ENV(var);
     if (id_depth > depth)
         scm_macro_bad_scope(var);
@@ -371,6 +404,15 @@ lookup_far_symbol(ScmObj var, ScmObj env)
         env = CDR(env);
     ref = lookup_n_frames(SCM_FARSYMBOL_SYM(var), id_depth, env);
     SCM_ASSERT(ref != SCM_INVALID_REF || SYMBOLP(SCM_FARSYMBOL_SYM(var)));
+#if SCM_USE_R7RS
+    /* The toplevel of a module. */
+    if (ref == SCM_INVALID_REF) {
+        for (; CONSP(env); env = CDR(env))
+            ;
+        if (!NULLP(env))
+            ref = scm_module_lookup(env, SCM_FARSYMBOL_SYM(var));
+    }
+#endif
     return ref;
 }
 #endif /* SCM_USE_HYGIENIC_MACRO */
@@ -454,15 +496,13 @@ scm_valid_environmentp(ScmObj env)
      * ordinary codes, the expensive validation cost is acceptable.
      */
 
-    if (!PROPER_LISTP(env))
-        return scm_false;
-    for (rest = env; !NULLP(rest); rest = CDR(rest)) {
+    for (rest = env; CONSP(rest); rest = CDR(rest)) {
         frame = CAR(rest);
         if (!valid_framep(frame))
             return scm_false;
     }
 
-    return scm_true;
+    return scm_toplevel_environmentp(rest);
 }
 
 static scm_bool
@@ -565,4 +605,20 @@ scm_validate_actuals(ScmObj actuals)
     if (SCM_LISTLEN_DOTTEDP(len))
         return SCM_LISTLEN_ENCODE_ERROR(len);
     return len;
+}
+
+/* Defines VAR as VAL in the toplevel environment ENV. */
+SCM_EXPORT void
+scm_define_toplevel(ScmObj var, ScmObj val, ScmObj env)
+{
+    SCM_ASSERT(scm_toplevel_environmentp(env));
+    SCM_ASSERT(SYMBOLP(var));
+
+#if SCM_USE_R7RS
+    if (!NULLP(env)) {
+        scm_module_define(env, var, val);
+        return;
+    }
+#endif
+    SCM_SYMBOL_SET_VCELL(var, val);
 }

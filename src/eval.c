@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -717,13 +717,25 @@ scm_eval(ScmObj obj, ScmObj env)
 
 #if SCM_STRICT_TOPLEVEL_DEFINITIONS
     /* FIXME: temporary hack */
-    if (EQ(env, SCM_INTERACTION_ENV_INDEFINABLE)) {
+    if (CONSP(env)) {
+        /* Most environments are pairs, which aren't toplevel ones. */
+        SCM_EVAL_STATE_INIT1(state, env);
+    } else if (EQ(env, SCM_INTERACTION_ENV_INDEFINABLE)) {
         env = SCM_INTERACTION_ENV;
         SCM_EVAL_STATE_INIT1(state, env);
         state.nest = SCM_NEST_COMMAND;
     } else if (EQ(env, SCM_INTERACTION_ENV)) {
         SCM_EVAL_STATE_INIT1(state, env);
         state.nest = SCM_NEST_PROGRAM;
+#if SCM_USE_R7RS
+    } else if (scm_modulep(env)) {
+        SCM_EVAL_STATE_INIT1(state, env);
+        state.nest = SCM_NEST_PROGRAM;
+    } else if (!FALSEP(scm_indefinable_module(env))) {
+        env = scm_indefinable_module(env);
+        SCM_EVAL_STATE_INIT1(state, env);
+        state.nest = SCM_NEST_COMMAND;
+#endif
     } else {
         SCM_EVAL_STATE_INIT1(state, env);
     }

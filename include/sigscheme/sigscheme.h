@@ -1692,6 +1692,11 @@ SCM_EXPORT ScmObj scm_p_cdddar(ScmObj lst);
 SCM_EXPORT ScmObj scm_p_cddddr(ScmObj lst);
 #endif /* SCM_USE_DEEP_CADRS */
 
+/* library.c */
+#if SCM_USE_R7RS
+SCM_EXPORT ScmObj scm_p_make_module(ScmObj name);
+#endif
+
 /* r7rs.c */
 #if SCM_USE_R7RS
 SCM_EXPORT ScmObj scm_s_when(ScmObj test, ScmObj body,

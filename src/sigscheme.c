@@ -349,6 +349,7 @@ scm_initialize_internal(const char *const *argv)
     /* Initialize after the r5rs:* aliases because some R7RS procedures
      * override the R5RS versions. */
     scm_init_r7rs();
+    scm_init_library();
     /* R7RS: guard, raise and with-exception-handler */
     scm_require_module("srfi-34");
 #endif

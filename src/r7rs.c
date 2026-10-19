@@ -480,10 +480,11 @@ scm_s_define_values(ScmObj formals, ScmObj exp, ScmEvalState *eval_state)
                             EVAL(exp, eval_state->env));
     for (; CONSP(formals); formals = CDR(formals)) {
         var = SCM_UNWRAP_KEYWORD(CAR(formals));
-        SCM_SYMBOL_SET_VCELL(var, POP(vals));
+        scm_define_toplevel(var, POP(vals), eval_state->env);
     }
     if (!NULLP(formals))
-        SCM_SYMBOL_SET_VCELL(SCM_UNWRAP_KEYWORD(formals), CAR(vals));
+        scm_define_toplevel(SCM_UNWRAP_KEYWORD(formals), CAR(vals),
+                            eval_state->env);
 
     eval_state->ret_type = SCM_VALTYPE_AS_IS;
     return SCM_UNDEF;

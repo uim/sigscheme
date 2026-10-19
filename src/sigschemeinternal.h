@@ -708,6 +708,7 @@ SCM_EXPORT void scm_fin_symbol(void);
 
 /* env.c */
 SCM_EXPORT scm_bool scm_toplevel_environmentp(ScmObj env);
+SCM_EXPORT void scm_define_toplevel(ScmObj var, ScmObj val, ScmObj env);
 SCM_EXPORT ScmObj scm_extend_environment(ScmObj formals, ScmObj actuals,
                                          ScmObj env);
 SCM_EXPORT ScmObj scm_replace_environment(ScmObj formals, ScmObj actuals,
@@ -843,6 +844,18 @@ SCM_EXPORT ScmObj scm_features(void);
 #if SCM_USE_R7RS
 SCM_EXPORT void scm_init_r7rs(void);
 SCM_EXPORT void scm_set_command_line(const char *const *argv);
+#endif
+
+/* library.c */
+#if SCM_USE_R7RS
+SCM_EXPORT void scm_init_library(void);
+SCM_EXPORT ScmObj scm_make_module(ScmObj name);
+SCM_EXPORT scm_bool scm_modulep(ScmObj obj);
+SCM_EXPORT ScmObj scm_module_indefinable(ScmObj module);
+SCM_EXPORT ScmObj scm_indefinable_module(ScmObj obj);
+SCM_EXPORT ScmRef scm_module_lookup(ScmObj module, ScmObj sym);
+SCM_EXPORT void scm_module_bind(ScmObj module, ScmObj sym, ScmObj location);
+SCM_EXPORT void scm_module_define(ScmObj module, ScmObj sym, ScmObj val);
 #endif
 
 SCM_EXPORT void scm_init_module(void);

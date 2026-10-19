@@ -54,6 +54,7 @@ func_tables = [
    ['deep-cadrs.c']],
   # R7RS
   ['functable-r7rs.c', 'scm_functable_r7rs', ['r7rs.c']],
+  ['functable-r7rs-library.c', 'scm_functable_r7rs_library', ['library.c']],
   ['functable-r7rs-bytevector.c', 'scm_functable_r7rs_bytevector',
    ['bytevector.c']],
   # Optional modules
@@ -160,7 +161,7 @@ foreach optional_sources : [
   ['writer', ['write.c']],
   ['load', ['load.c']],
   ['deep_cadrs', ['deep-cadrs.c']],
-  ['r7rs', ['r7rs.c']],
+  ['r7rs', ['r7rs.c', 'library.c']],
   ['bytevector', ['bytevector.c']],
   # optional modules
   ['sscm_extensions', ['module-sscm-ext.c']],

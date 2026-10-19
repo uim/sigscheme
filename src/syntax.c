@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -60,8 +60,16 @@
 
 /* FIXME: temporary hack */
 #if SCM_STRICT_TOPLEVEL_DEFINITIONS
+#if SCM_USE_R7RS
+/* Most environments are pairs, which aren't toplevel ones. */
+#define FORBID_TOPLEVEL_DEFINITIONS(env)                                     \
+    (CONSP(env) ? (env)                                                      \
+     : EQ((env), SCM_INTERACTION_ENV) ? SCM_INTERACTION_ENV_INDEFINABLE      \
+     : scm_modulep(env) ? scm_module_indefinable(env) : (env))
+#else
 #define FORBID_TOPLEVEL_DEFINITIONS(env)                                     \
     (EQ((env), SCM_INTERACTION_ENV) ? SCM_INTERACTION_ENV_INDEFINABLE : (env))
+#endif
 #else
 #define FORBID_TOPLEVEL_DEFINITIONS(env) (env)
 #endif
@@ -1152,7 +1160,7 @@ scm_s_define_internal(enum ScmObjType permitted,
     val = EVAL(exp, env);
     CHECK_VALID_BINDEE(permitted, val);
 
-    SCM_SYMBOL_SET_VCELL(var, val);
+    scm_define_toplevel(var, val, env);
 }
 
 /* To test ScmNestState, scm_s_define() needs eval_state although this is not a

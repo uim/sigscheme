@@ -112,6 +112,7 @@ static ScmObj l_sym_else, l_sym_yields, l_sym_define;
 static ScmObj l_sym_begin, l_syn_lambda;
 #if SCM_USE_R7RS
 static ScmObj l_sym_define_values, l_sym_define_syntax;
+static ScmObj l_sym_include, l_sym_include_ci;
 #endif
 #endif /* SCM_USE_INTERNAL_DEFINITIONS */
 #undef static
@@ -123,6 +124,8 @@ SCM_GLOBAL_VARS_END(static_syntax);
 #define l_syn_lambda SCM_GLOBAL_VAR(static_syntax, l_syn_lambda)
 #define l_sym_define_values SCM_GLOBAL_VAR(static_syntax, l_sym_define_values)
 #define l_sym_define_syntax SCM_GLOBAL_VAR(static_syntax, l_sym_define_syntax)
+#define l_sym_include       SCM_GLOBAL_VAR(static_syntax, l_sym_include)
+#define l_sym_include_ci    SCM_GLOBAL_VAR(static_syntax, l_sym_include_ci)
 SCM_DEFINE_STATIC_VARS(static_syntax);
 
 /*=======================================
@@ -175,6 +178,8 @@ scm_init_syntax(void)
 #if SCM_USE_R7RS
     l_sym_define_values = scm_intern("define-values");
     l_sym_define_syntax = scm_intern("define-syntax");
+    l_sym_include       = scm_intern("include");
+    l_sym_include_ci    = scm_intern("include-ci");
 #endif
     scm_gc_protect_with_init(&l_syn_lambda,
                              scm_symbol_value(scm_intern("lambda"),
@@ -312,6 +317,7 @@ static scm_bool
 keywordp(ScmObj obj, ScmObj keyword, ScmObj env)
 {
     ScmObj sym;
+    ScmRef ref;
 
     sym = obj;
 #if SCM_USE_HYGIENIC_MACRO
@@ -319,8 +325,16 @@ keywordp(ScmObj obj, ScmObj keyword, ScmObj env)
     if (FARSYMBOLP(sym))
         sym = SCM_UNWRAP_KEYWORD(sym);
 #endif
-    return (EQ(sym, keyword)
-            && scm_lookup_environment(obj, env) == SCM_INVALID_REF);
+    if (!EQ(sym, keyword))
+        return scm_false;
+    ref = scm_lookup_environment(obj, env);
+#if SCM_USE_R7RS
+    /* A library may import the keyword. */
+    if (ref != SCM_INVALID_REF
+        && ref == scm_module_lookup(scm_builtin_module(), keyword))
+        return scm_true;
+#endif
+    return ref == SCM_INVALID_REF;
 }
 
 /* body of 'cond' and 'guard' of SRFI-34 */
@@ -876,6 +890,11 @@ filter_definitions(body_context *ctx, ScmObj body, scm_bool followed)
                 ERR_OBJ("syntax-rules required but got", macro);
             SET(scm_lookup_frame(CAR(exp), CAR(ctx->env)), macro);
             ctx->n_defs++;
+        } else if (EQ(sym, l_sym_include) || EQ(sym, l_sym_include_ci)) {
+            /* The included forms may be definitions. */
+            form = scm_include_forms(exp, EQ(sym, l_sym_include_ci));
+            body = CONS(CONS(l_sym_begin, form), CDR(body));
+            continue;
 #endif
         } else {
 #if SCM_USE_HYGIENIC_MACRO

@@ -407,6 +407,7 @@ scm_initialize_internal(const char *const *argv)
     /* Builtins defined before the builtin module is created and in the
      * global environment such as srfi-0.scm. */
     scm_register_bound_symbols_as_builtins();
+    scm_register_auxiliary_syntax();
 #endif
 
     return rest_argv;

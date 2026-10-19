@@ -337,7 +337,7 @@
        ((assq (car syms) exports) (loop (cdr syms) unexported))
        (else (loop (cdr syms) (cons (car syms) unexported)))))))
 (assert-equal? (tn)
-               '((scheme base) ... => _ else include include-ci)
+               '((scheme base))
                (assoc '(scheme base) (map (lambda (library)
                                             (cons (car library)
                                                   (unexported-symbols library)))
@@ -365,5 +365,37 @@
 (assert-equal? (tn) 'else (cond-expand
                            ((library (scheme nonexistent)) 'nonexistent)
                            (else 'else)))
+
+(tn "auxiliary syntax")
+(define-library (test auxiliary)
+  (export classify)
+  (import (only (scheme base) define cond case else => _ ... quote
+                syntax-rules define-syntax list))
+  (begin
+    (define-syntax first
+      (syntax-rules ()
+        ((_ x y ...) x)))
+    (define (classify x)
+      (list (cond ((assv x '((1 . one))) => cdr)
+                  (else 'other))
+            (case x
+              ((1) 'one)
+              (else 'other))
+            (first x 2 3)))))
+(import (test auxiliary))
+(assert-equal? (tn) '(one one 1) (classify 1))
+(assert-equal? (tn) '(other other 2) (classify 2))
+(assert-error (tn) (lambda () (eval 'else (environment '(scheme base)))))
+
+(tn "include")
+(include "test/library/greeting.scm")
+(assert-equal? (tn) '(hello include) (greet 'include))
+(include-ci "test/library/greeting-ci.scm")
+(assert-equal? (tn) 'hello loud)
+(assert-equal? (tn) '(hello in-let) (let ()
+                                      (include "test/library/greeting.scm")
+                                      (greet 'in-let)))
+(assert-error (tn) (lambda () (eval '(include "test/library/nonexistent.scm")
+                                    (interaction-environment))))
 
 (total-report)

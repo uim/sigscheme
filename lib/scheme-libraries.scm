@@ -33,8 +33,8 @@
 ;; The exports of the standard libraries. Each entry is (name symbol ...).
 ;; library.scm reads this file when a standard library is imported first.
 ;; The libraries export the builtins. Unsupported features such as complex
-;; numbers aren't listed. Unbound symbols such as auxiliary syntax aren't
-;; exported.
+;; numbers aren't listed. Symbols unbound in the configuration such as
+;; cond-expand without SRFI-0 aren't exported.
 
 ((scheme base)
  * + - ... / < <= = => > >= _ abs and append apply assoc assq assv begin

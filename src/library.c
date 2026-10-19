@@ -390,6 +390,18 @@ scm_register_bound_symbols_as_builtins(void)
     }
 }
 
+/* Auxiliary syntax such as else isn't bound but has a location to be
+ * imported. The value of the location is unbound. */
+SCM_EXPORT void
+scm_register_auxiliary_syntax(void)
+{
+    static const char *const names[] = {"else", "=>", "...", "_", NULL};
+    const char *const *name;
+
+    for (name = &names[0]; *name; name++)
+        scm_set_builtin_location(scm_intern(*name), SCM_UNBOUND);
+}
+
 /* Defines SYM as VAL in the builtin namespace. The REPL also uses VAL as
  * before because a builtin definition overrides the REPL definition. */
 SCM_EXPORT void
@@ -599,4 +611,36 @@ scm_p_find_file(ScmObj filename)
 
     path = scm_find_path(SCM_STRING_STR(filename));
     return (path) ? MAKE_STRING(path, STRLEN_UNKNOWN) : SCM_FALSE;
+}
+
+/*
+ * R7RS: include and include-ci
+ */
+/* Returns the forms in FILENAMES. They are read by %%include-files in
+ * lib/library.scm. */
+SCM_EXPORT ScmObj
+scm_include_forms(ScmObj filenames, scm_bool fold_casep)
+{
+    ScmObj include_files;
+
+    include_files = scm_toplevel_value(scm_intern("%%include-files"),
+                                       l_builtin_module);
+    return scm_call(include_files,
+                    LIST_3(filenames, SCM_FALSE, MAKE_BOOL(fold_casep)));
+}
+
+SCM_EXPORT ScmObj
+scm_s_include(ScmObj filenames, ScmEvalState *eval_state)
+{
+    DECLARE_FUNCTION("include", syntax_variadic_tailrec_0);
+
+    return scm_s_begin(scm_include_forms(filenames, scm_false), eval_state);
+}
+
+SCM_EXPORT ScmObj
+scm_s_include_ci(ScmObj filenames, ScmEvalState *eval_state)
+{
+    DECLARE_FUNCTION("include-ci", syntax_variadic_tailrec_0);
+
+    return scm_s_begin(scm_include_forms(filenames, scm_true), eval_state);
 }

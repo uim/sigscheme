@@ -872,6 +872,8 @@ SCM_EXPORT void scm_begin_builtin_definitions(void);
 SCM_EXPORT void scm_end_builtin_definitions(void);
 SCM_EXPORT scm_bool scm_defining_builtinsp(void);
 SCM_EXPORT void scm_register_bound_symbols_as_builtins(void);
+SCM_EXPORT void scm_register_auxiliary_syntax(void);
+SCM_EXPORT ScmObj scm_include_forms(ScmObj filenames, scm_bool fold_casep);
 SCM_EXPORT void scm_define_builtin(ScmObj sym, ScmObj val);
 SCM_EXPORT void scm_set_builtin_location(ScmObj sym, ScmObj val);
 SCM_EXPORT scm_bool scm_builtinp(ScmObj sym);

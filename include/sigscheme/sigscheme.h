@@ -1702,6 +1702,9 @@ SCM_EXPORT ScmObj scm_p_builtin_location(ScmObj sym);
 SCM_EXPORT ScmObj scm_p_global_importx(ScmObj sym, ScmObj location);
 SCM_EXPORT ScmObj scm_p_module_environment(ScmObj module);
 SCM_EXPORT ScmObj scm_p_find_file(ScmObj filename);
+SCM_EXPORT ScmObj scm_s_include(ScmObj filenames, ScmEvalState *eval_state);
+SCM_EXPORT ScmObj scm_s_include_ci(ScmObj filenames,
+                                   ScmEvalState *eval_state);
 #endif
 
 /* r7rs.c */

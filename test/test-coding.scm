@@ -60,4 +60,36 @@
     (load "test/coding/euc-jp.scm")
     (assert-equal? (tn) 6 (string-length coding-euc-jp))))
 
+(tn "fallback encodings")
+(assert-equal? (tn) '() (%%load-fallback-encodings))
+;; An unknown encoding is skipped.
+(%%set-load-fallback-encodings! '("no-such-encoding" "EUC-JP"))
+(assert-equal? (tn) '("no-such-encoding" "EUC-JP") (%%load-fallback-encodings))
+(load "test/coding/fallback-euc-jp.scm")
+(assert-equal? (tn) "日本語" fallback-euc-jp)
+;; A valid file in the current codec isn't converted.
+(load "test/coding/fallback-utf-8.scm")
+(assert-equal? (tn) "日本語" fallback-utf-8)
+;; A coding declaration takes precedence.
+(load "test/coding/shift_jis.scm")
+(assert-equal? (tn) "日本語" coding-shift-jis)
+(%%set-load-fallback-encodings! '())
+(assert-error (tn) (lambda () (%%set-load-fallback-encodings! '(euc-jp))))
+(assert-error (tn) (lambda () (%%set-load-fallback-encodings! '("EUC-JP" . 1))))
+(assert-error (tn) (lambda () (%%set-load-fallback-encodings! "EUC-JP")))
+
+(tn "with-load-fallback-encodings")
+(set! fallback-euc-jp #f)
+(with-load-fallback-encodings '("EUC-JP")
+  (lambda ()
+    (assert-equal? (tn) '("EUC-JP") (%%load-fallback-encodings))
+    (load "test/coding/fallback-euc-jp.scm")))
+(assert-equal? (tn) "日本語" fallback-euc-jp)
+(assert-equal? (tn) '() (%%load-fallback-encodings))
+;; The fallback encodings are restored on error.
+(assert-error (tn) (lambda ()
+                     (with-load-fallback-encodings '("EUC-JP")
+                       (lambda () (error "error")))))
+(assert-equal? (tn) '() (%%load-fallback-encodings))
+
 (total-report)

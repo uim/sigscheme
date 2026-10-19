@@ -1941,6 +1941,8 @@ SCM_EXPORT void scm_set_system_load_path(const char *path);
 SCM_EXPORT void scm_load(const char *filename);
 SCM_EXPORT ScmObj scm_p_load_path(void);
 SCM_EXPORT ScmObj scm_p_system_load_path(void);
+SCM_EXPORT ScmObj scm_p_load_fallback_encodings(void);
+SCM_EXPORT ScmObj scm_p_set_load_fallback_encodingsx(ScmObj encodings);
 SCM_EXPORT ScmObj scm_p_load(ScmObj filename);
 #endif /* SCM_USE_LOAD */
 

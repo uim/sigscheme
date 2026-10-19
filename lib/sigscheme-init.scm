@@ -1,7 +1,7 @@
 ;;  Filename : sigscheme-init.scm
 ;;  About    : Initialization file for SigScheme
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -49,6 +49,17 @@
      (lambda ()
        (%%set-current-char-codec! codec)
        (thunk)))))
+
+;; Uses ENCODINGS as the fallback encodings for load while THUNK runs.
+(define with-load-fallback-encodings
+  (lambda (encodings thunk)
+    (let ((orig-encodings (%%load-fallback-encodings)))
+      (dynamic-wind
+          (lambda ()
+            (%%set-load-fallback-encodings! encodings))
+          thunk
+          (lambda ()
+            (%%set-load-fallback-encodings! orig-encodings))))))
 
 ;; Preserve original C implementation.
 (define %%load load)

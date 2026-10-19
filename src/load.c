@@ -92,10 +92,13 @@
 SCM_GLOBAL_VARS_BEGIN(static_load);
 #define static
 static char *l_scm_lib_path, *l_scm_system_load_path;
+static ScmObj l_load_fallback_encodings;
 #undef static
 SCM_GLOBAL_VARS_END(static_load);
 #define l_scm_lib_path         SCM_GLOBAL_VAR(static_load, l_scm_lib_path)
 #define l_scm_system_load_path SCM_GLOBAL_VAR(static_load, l_scm_system_load_path)
+#define l_load_fallback_encodings                                            \
+    SCM_GLOBAL_VAR(static_load, l_load_fallback_encodings)
 SCM_DEFINE_STATIC_VARS(static_load);
 
 /*=======================================
@@ -109,9 +112,10 @@ static scm_bool read_coding(FILE *file, char *coding);
 static scm_bool same_encodingp(const char *encoding1, const char *encoding2);
 #endif
 #if USE_CODING_CONVERSION
-static char *read_converted_file(FILE *file, const char *path,
-                                 const char *from, const char *to,
-                                 size_t *size);
+static char *read_file(FILE *file, size_t *size);
+static ScmObj open_input_bytes(char *str, size_t size);
+static scm_bool convert(char **str, size_t *size, const char *from,
+                        const char *to);
 #endif
 static char *find_path(const char *filename);
 static scm_bool file_existsp(const char *filepath);
@@ -128,6 +132,7 @@ scm_init_load(void)
 {
     SCM_GLOBAL_VARS_INIT(static_load);
 
+    scm_gc_protect_with_init(&l_load_fallback_encodings, SCM_NULL);
     scm_register_funcs(scm_functable_r5rs_load);
 }
 
@@ -178,6 +183,32 @@ scm_p_load_path(void)
     DECLARE_FUNCTION("load-path", procedure_fixed_0);
 
     return CONST_STRING(l_scm_lib_path);
+}
+
+/* Encodings that are tried in order for a source file without a coding
+ * declaration if it's invalid in the current codec. */
+SCM_EXPORT ScmObj
+scm_p_load_fallback_encodings(void)
+{
+    DECLARE_FUNCTION("%%load-fallback-encodings", procedure_fixed_0);
+
+    return l_load_fallback_encodings;
+}
+
+SCM_EXPORT ScmObj
+scm_p_set_load_fallback_encodingsx(ScmObj encodings)
+{
+    ScmObj rest, encoding;
+    DECLARE_FUNCTION("%%set-load-fallback-encodings!", procedure_fixed_1);
+
+    rest = encodings;
+    FOR_EACH (encoding, rest)
+        ENSURE_STRING(encoding);
+    if (!NULLP(rest))
+        ERR_OBJ("proper list required but got", encodings);
+
+    l_load_fallback_encodings = encodings;
+    return SCM_UNDEF;
 }
 
 SCM_EXPORT void
@@ -284,39 +315,59 @@ load_file(const char *filename, ScmObj env)
 
 #if SCM_USE_MULTIBYTE_CHAR
 /* Opens the source file PATH. It's converted to the current codec if it
- * has a coding declaration of another encoding. The generic singlebyte
- * codec ISO-8859-1 reads bytes as is. */
+ * has a coding declaration of another encoding. If it doesn't have a
+ * coding declaration and it's invalid in the current codec, the fallback
+ * encodings are tried. The generic singlebyte codec ISO-8859-1 reads
+ * bytes as is. */
 static ScmObj
 open_source_file(ScmObj path)
 {
     FILE *file;
     char coding[CODING_NAME_MAXLEN + sizeof("")];
     const char *encoding;
+    scm_bool declaredp;
 #if USE_CODING_CONVERSION
+    ScmObj rest, fallback;
     char *str;
     size_t size;
-    ScmBytePort *bport;
 #endif
     DECLARE_INTERNAL_FUNCTION("load");
 
     encoding = SCM_CHARCODEC_ENCODING(scm_current_char_codec);
-    file = fopen(SCM_STRING_STR(path), "rb");
-    if (file
-        && read_coding(file, coding)
-        && !same_encodingp(coding, encoding)
-        && !same_encodingp(encoding, "ISO-8859-1")) {
+    if (same_encodingp(encoding, "ISO-8859-1")
+        || !(file = fopen(SCM_STRING_STR(path), "rb")))
+        return scm_p_open_input_file(path);
+
+    declaredp = read_coding(file, coding);
 #if USE_CODING_CONVERSION
-        str = read_converted_file(file, SCM_STRING_STR(path), coding,
-                                  encoding, &size);
-        bport = ScmInputStrPort_new_bytes(str, size, NULL);
-        return MAKE_PORT(scm_make_char_port(bport), SCM_PORTFLAG_INPUT);
+    if (declaredp && !same_encodingp(coding, encoding)) {
+        str = read_file(file, &size);
+        if (!convert(&str, &size, coding, encoding)) {
+            free(str);
+            ERR("can't convert ~S from ~S to ~S",
+                SCM_STRING_STR(path), coding, encoding);
+        }
+        return open_input_bytes(str, size);
+    }
+    if (!declaredp && CONSP(l_load_fallback_encodings)) {
+        str = read_file(file, &size);
+        /* Converting to the current encoding itself validates STR. */
+        if (!convert(&str, &size, encoding, encoding)) {
+            rest = l_load_fallback_encodings;
+            FOR_EACH (fallback, rest) {
+                if (convert(&str, &size, SCM_STRING_STR(fallback), encoding))
+                    break;
+            }
+        }
+        return open_input_bytes(str, size);
+    }
 #else
+    if (declaredp && !same_encodingp(coding, encoding)) {
         fclose(file);
         ERR("encoding conversion isn't supported: ~S", coding);
-#endif
     }
-    if (file)
-        fclose(file);
+#endif
+    fclose(file);
     return scm_p_open_input_file(path);
 }
 
@@ -384,40 +435,57 @@ same_encodingp(const char *encoding1, const char *encoding2)
 #endif /* SCM_USE_MULTIBYTE_CHAR */
 
 #if USE_CODING_CONVERSION
-/* Returns the content of FILE converted from FROM to TO. FILE is closed. */
+/* Returns the whole content of FILE. FILE is closed. */
 static char *
-read_converted_file(FILE *file, const char *path, const char *from,
-                    const char *to, size_t *size)
+read_file(FILE *file, size_t *size)
 {
-    iconv_t cd;
-    char *in, *out, *in_p, *out_p;
-    size_t in_size, in_len, in_left, out_size, out_left, out_len, ret;
-    scm_bool flushed, failed;
-    DECLARE_INTERNAL_FUNCTION("load");
+    char *str;
+    size_t str_size, len, ret;
 
-    /* read the whole file */
-    in_size = BUFSIZ;
-    in = scm_malloc(in_size);
-    in_len = 0;
-    while ((ret = fread(in + in_len, 1, in_size - in_len, file)) > 0) {
-        in_len += ret;
-        if (in_len == in_size) {
-            in_size *= 2;
-            in = scm_realloc(in, in_size);
+    str_size = BUFSIZ;
+    str = scm_malloc(str_size);
+    len = 0;
+    while ((ret = fread(str + len, 1, str_size - len, file)) > 0) {
+        len += ret;
+        if (len == str_size) {
+            str_size *= 2;
+            str = scm_realloc(str, str_size);
         }
     }
     fclose(file);
 
-    cd = iconv_open(to, from);
-    if (cd == (iconv_t)-1) {
-        free(in);
-        ERR("unsupported encoding conversion from ~S to ~S", from, to);
-    }
+    *size = len;
+    return str;
+}
 
-    out_size = in_len * 2 + 1;
+/* Returns an input port of STR of SIZE bytes. The port owns STR. */
+static ScmObj
+open_input_bytes(char *str, size_t size)
+{
+    ScmBytePort *bport;
+
+    bport = ScmInputStrPort_new_bytes(str, size, NULL);
+    return MAKE_PORT(scm_make_char_port(bport), SCM_PORTFLAG_INPUT);
+}
+
+/* Converts STR of SIZE bytes from FROM to TO. STR and SIZE are replaced
+ * only if the conversion succeeds. */
+static scm_bool
+convert(char **str, size_t *size, const char *from, const char *to)
+{
+    iconv_t cd;
+    char *in_p, *out, *out_p;
+    size_t in_left, out_size, out_left, out_len, ret;
+    scm_bool flushed, failed;
+
+    cd = iconv_open(to, from);
+    if (cd == (iconv_t)-1)
+        return scm_false;
+
+    out_size = *size * 2 + 1;
     out = scm_malloc(out_size);
-    in_p = in;
-    in_left = in_len;
+    in_p = *str;
+    in_left = *size;
     out_p = out;
     out_left = out_size;
     flushed = failed = scm_false;
@@ -442,14 +510,15 @@ read_converted_file(FILE *file, const char *path, const char *from,
         }
     }
     iconv_close(cd);
-    free(in);
     if (failed) {
         free(out);
-        ERR("invalid ~S character sequence in file: ~S", from, path);
+        return scm_false;
     }
 
+    free(*str);
+    *str = out;
     *size = out_p - out;
-    return out;
+    return scm_true;
 }
 #endif /* USE_CODING_CONVERSION */
 

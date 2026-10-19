@@ -255,3 +255,21 @@ reads the file as is.
 ----------------------------------------------------------------
 ;; -*- coding: euc-jp -*-
 ----------------------------------------------------------------
+
+Fallback encodings can be specified for files without a coding
+declaration. If such a file is invalid in `%%current-char-codec`, it's
+converted from the first fallback encoding that can convert it. For
+example, configuration files written by users may be in EUC-JP.
+
+----------------------------------------------------------------
+(%%set-load-fallback-encodings! '("EUC-JP"))
+(%%load-fallback-encodings)  ==> ("EUC-JP")
+----------------------------------------------------------------
+
+`with-load-fallback-encodings` uses fallback encodings only while a thunk
+runs. Fallback encodings are ignored if iconv(3) isn't found on build.
+
+----------------------------------------------------------------
+(with-load-fallback-encodings '("EUC-JP")
+  (lambda () (load "user-config.scm")))
+----------------------------------------------------------------

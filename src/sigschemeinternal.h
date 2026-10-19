@@ -726,7 +726,6 @@ SCM_EXPORT ScmRef scm_lookup_frame(ScmObj var, ScmObj frame);
 #if SCM_USE_HYGIENIC_MACRO
 SCM_EXPORT ScmPackedEnv scm_pack_env(ScmObj env);
 SCM_EXPORT ScmObj scm_unpack_env(ScmPackedEnv penv, ScmObj context);
-SCM_EXPORT scm_bool scm_subenvp(ScmObj env, ScmPackedEnv sub);
 SCM_EXPORT scm_bool scm_identifierequalp(ScmObj x, ScmPackedEnv xpenv,
                                          ScmObj y,
                                          ScmPackedEnv penv, ScmObj env);

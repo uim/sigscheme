@@ -239,9 +239,39 @@ def report(result, verbose):
             print(f'{section}: line {line}: {kind}: {message}')
 
 
+def read_known_failures(path):
+    known_failures = {}
+    with open(path, encoding='utf-8') as input:
+        for line in input:
+            line = line.split('#', 1)[0].strip()
+            if line:
+                number, kind = line.split()
+                known_failures[int(number)] = kind
+    return known_failures
+
+
+# Returns whether the failures are the same as KNOWN_FAILURES.
+def check_known_failures(result, known_failures):
+    failures = {}
+    for kind, section, line, message in result.details:
+        failures[line] = (kind, message)
+    ok = True
+    for line, (kind, message) in sorted(failures.items()):
+        if known_failures.get(line) not in (kind, 'any'):
+            print(f'unexpected {kind}: line {line}: {message}')
+            ok = False
+    for line, kind in sorted(known_failures.items()):
+        if kind != 'any' and line not in failures:
+            print(f'fixed: line {line}: remove it from the known failures')
+            ok = False
+    return ok
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('--known-failures',
+                        help='fail if the failures differ from this file')
     parser.add_argument('--timeout', type=int, default=10)
     parser.add_argument('sscm')
     parser.add_argument('system_load_path')
@@ -258,6 +288,12 @@ def main():
     result = Result()
     run(args, forms, shim, result)
     report(result, args.verbose)
+    if args.known_failures:
+        print()
+        if not check_known_failures(result,
+                                    read_known_failures(args.known_failures)):
+            sys.exit(1)
+        print('All failures are known ones.')
 
 
 if __name__ == '__main__':

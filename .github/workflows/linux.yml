@@ -149,6 +149,10 @@ jobs:
       - name: "Meson: Test"
         run: |
           meson test -C ../meson-build --print-errorlogs
+      - name: "Meson: R7RS tests"
+        if: contains(fromJSON('["r7rs", "full", "dev"]'), matrix.conf)
+        run: |
+          meson compile -C ../meson-build r7rs-tests
   test:
     name: ${{ matrix.image }}
     strategy:

@@ -1,0 +1,146 @@
+# Known failures of r7rs-tests.scm. run.py --known-failures reports
+# failures that aren't listed here and listed ones that pass.
+#
+# Each line is "<line> <kind>". <line> is the line of the test form in
+# r7rs-tests.scm. <kind> is fail, form-error (an error outside of tests
+# such as a reader error) or any (it may pass or fail).
+
+# Complex numbers aren't supported. (scheme complex) is imported at
+# line 3.
+3 form-error
+756 form-error
+759 form-error
+760 form-error
+770 form-error
+784 form-error
+789 form-error
+793 form-error
+794 form-error
+795 form-error
+796 form-error
+797 form-error
+798 form-error
+799 form-error
+801 form-error
+802 form-error
+854 form-error
+908 form-error
+1021 form-error
+1022 form-error
+1035 form-error
+1037 form-error
+1039 form-error
+1041 form-error
+1043 form-error
+1045 form-error
+2376 form-error
+2377 form-error
+2378 form-error
+2379 form-error
+2380 form-error
+2381 form-error
+2382 form-error
+2383 form-error
+2384 form-error
+2385 form-error
+2386 form-error
+2387 form-error
+2388 form-error
+2390 form-error
+2391 form-error
+2392 form-error
+2393 form-error
+2394 form-error
+2395 form-error
+2397 form-error
+2399 form-error
+2403 form-error
+2404 form-error
+2405 form-error
+2406 form-error
+2446 form-error
+2447 form-error
+
+# Exact rationals aren't supported. (/ 6 4) is inexact.
+199 form-error
+768 form-error
+769 form-error
+772 form-error
+780 form-error
+846 form-error
+907 form-error
+909 form-error
+910 form-error
+952 fail
+953 fail
+970 form-error
+972 form-error
+973 form-error
+975 form-error
+977 form-error
+978 form-error
+1032 form-error
+1033 form-error
+2368 form-error
+2369 form-error
+2370 form-error
+2371 form-error
+2372 form-error
+2373 form-error
+2374 form-error
+2431 form-error
+2432 form-error
+2439 form-error
+2440 form-error
+2441 form-error
+2442 form-error
+2443 form-error
+
+# Exact integers out of the fixnum range aren't supported. The results
+# of "any" lines depend on the fixnum range of the storage.
+207 any
+211 any
+215 any
+219 any
+223 any
+227 form-error
+231 form-error
+827 form-error
+915 any
+916 any
+917 any
+
+# Case conversion and character classes of non-ASCII characters aren't
+# supported.
+1268 fail
+1270 fail
+1273 fail
+1275 fail
+1276 fail
+1281 fail
+1282 fail
+1296 fail
+1299 fail
+1301 fail
+1385 fail
+1386 fail
+1389 fail
+1400 fail
+1403 fail
+1405 fail
+1408 fail
+1412 fail
+1414 fail
+1415 fail
+1416 fail
+1418 fail
+1421 fail
+1422 fail
+1423 fail
+1424 fail
+1425 fail
+1426 fail
+1427 fail
+
+# Continuations can't be reentered after their extent ends.
+1777 fail

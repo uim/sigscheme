@@ -161,7 +161,7 @@ EXTRA_DIST += $(sscm_tests) $(imported_tests)
 # R7RS tests from chibi-scheme. Run them with Meson:
 #   meson compile -C build r7rs-tests
 EXTRA_DIST += r7rs/chibi-test.scm r7rs/meson.build r7rs/run.py \
-              r7rs/r7rs-tests.scm
+              r7rs/r7rs-tests.scm r7rs/known-failures.txt
 
 LOG_COMPILER = $(SH)
 AM_LOG_FLAGS = $(top_builddir)/test/run-singletest.sh

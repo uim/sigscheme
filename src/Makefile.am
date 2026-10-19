@@ -24,6 +24,7 @@ FUNC_TABLES = \
         functable-r5rs-promise.c \
         functable-r5rs-number.c \
         functable-r5rs-number-io.c \
+        functable-r5rs-number-real.c \
         functable-r5rs-char.c \
         functable-r5rs-string.c \
         functable-r5rs-string-procedure.c \
@@ -80,6 +81,8 @@ functable-r5rs-number.c: $(srcdir)/number.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_number" $<
 functable-r5rs-number-io.c: $(srcdir)/number-io.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_number_io" $<
+functable-r5rs-number-real.c: $(srcdir)/number-real.c $(BUILD_FUNCTBL_DEPS)
+	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_number_real" $<
 functable-r5rs-char.c: $(srcdir)/char.c $(BUILD_FUNCTBL_DEPS)
 	$(BUILD_FUNCTBL_CMD) $@ "scm_functable_r5rs_char" $<
 functable-r5rs-string.c: $(srcdir)/string.c $(BUILD_FUNCTBL_DEPS)
@@ -241,6 +244,9 @@ if USE_NUMBER
 endif
 if USE_NUMBER_IO
   libsscm_sources += number-io.c
+endif
+if USE_REAL
+  libsscm_sources += number-real.c
 endif
 if USE_CHAR
   libsscm_sources += char.c

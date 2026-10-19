@@ -80,6 +80,9 @@
 #if (SCM_USE_NUMBER_IO && SCM_USE_STRING)
 #include "functable-r5rs-number-io.c"
 #endif
+#if SCM_USE_REAL
+#include "functable-r5rs-number-real.c"
+#endif
 #if SCM_USE_CHAR
 #include "functable-r5rs-char.c"
 #endif
@@ -299,6 +302,9 @@ scm_initialize_internal(const char *const *argv)
 #endif
 #if (SCM_USE_NUMBER_IO && SCM_USE_STRING)
     scm_register_funcs(scm_functable_r5rs_number_io);
+#endif
+#if SCM_USE_REAL
+    scm_register_funcs(scm_functable_r5rs_number_real);
 #endif
 #if SCM_USE_CHAR
     scm_register_funcs(scm_functable_r5rs_char);

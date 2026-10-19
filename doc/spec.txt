@@ -34,11 +34,13 @@ The reader and the writer support the decimal notation such as `1.5`, `1e10`,
 operand of an arithmetic procedure is inexact, the result is inexact. `/`
 returns an inexact number if the result of exact numbers isn't an integer
 because rational numbers aren't supported. An exact integer overflow is an
-error. `exact`, `inexact`, `numerator`, `gcd` and so on don't support inexact
-numbers yet. `sqrt`, `exp`, `sin` and so on aren't implemented yet.
+error.
 
-Rational numbers and complex numbers are not supported. `exact->inexact`
-(and `inexact` of R7RS) raises an error.
+Rational numbers and complex numbers are not supported. `exact` (and
+`inexact->exact`) raises an error for a non-integer. `sqrt`, `log`, `asin`,
+`acos` and `expt` raise an error if the result is a complex number.
+`exact->inexact` (and `inexact` of R7RS) raises an error when the `real`
+feature is disabled.
 
 
 R5RS conformance

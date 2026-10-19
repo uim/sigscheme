@@ -1555,6 +1555,20 @@ SCM_EXPORT ScmObj scm_p_inexact2exact(ScmObj z);
 SCM_EXPORT ScmObj scm_p_exact2inexact(ScmObj z);
 #endif /* SCM_USE_NUMBER */
 
+/* number-real.c */
+#if SCM_USE_REAL
+SCM_EXPORT ScmObj scm_p_rationalize(ScmObj x, ScmObj y);
+SCM_EXPORT ScmObj scm_p_sqrt(ScmObj z);
+SCM_EXPORT ScmObj scm_p_exp(ScmObj z);
+SCM_EXPORT ScmObj scm_p_log(ScmObj z1, ScmObj args);
+SCM_EXPORT ScmObj scm_p_sin(ScmObj z);
+SCM_EXPORT ScmObj scm_p_cos(ScmObj z);
+SCM_EXPORT ScmObj scm_p_tan(ScmObj z);
+SCM_EXPORT ScmObj scm_p_asin(ScmObj z);
+SCM_EXPORT ScmObj scm_p_acos(ScmObj z);
+SCM_EXPORT ScmObj scm_p_atan(ScmObj y, ScmObj args);
+#endif /* SCM_USE_REAL */
+
 /* number-io.c */
 #if SCM_USE_NUMBER_IO
 SCM_EXPORT scm_int_t scm_string2number(const char *str, int radix,

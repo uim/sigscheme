@@ -1918,6 +1918,8 @@
 
 (tn "exactness")
 (assert-equal? (tn) 1 (inexact->exact 1))
-(assert-error (tn) (lambda () (exact->inexact 1)))
+;; See test-real.scm when inexact numbers are supported.
+(if (not (inexact? (/ 1 2)))
+    (assert-error (tn) (lambda () (exact->inexact 1))))
 
 (total-report)

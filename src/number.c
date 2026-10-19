@@ -71,9 +71,12 @@
   File Local Function Declarations
 =======================================*/
 static scm_int_t gcd(const char *func_name, scm_int_t x, scm_int_t y);
+#if SCM_USE_REAL
+static double real_gcd(double x, double y);
+static double real_denominator(double d);
+#endif
 static int compare_numbers(const char *func_name, ScmObj x, ScmObj y);
 #if SCM_USE_REAL
-static double real_value(const char *func_name, ScmObj n);
 static int compare_int_real(scm_int_t i, double d);
 static double integer_real_value(const char *func_name, ScmObj n);
 #endif
@@ -136,8 +139,8 @@ scm_int_modulo(const char *func_name, scm_int_t n1, scm_int_t n2)
 
 #if SCM_USE_REAL
 /* Returns N as a double. */
-static double
-real_value(const char *func_name, ScmObj n)
+SCM_EXPORT double
+scm_real_value(const char *func_name, ScmObj n)
 {
     if (INTP(n))
         return (double)SCM_INT_VALUE(n);
@@ -146,13 +149,24 @@ real_value(const char *func_name, ScmObj n)
     return SCM_REAL_VALUE(n);
 }
 
+/* Stores D to N and returns true if D is an exact integer of SigScheme. */
+SCM_EXPORT scm_bool
+scm_real2int(double d, scm_int_t *n)
+{
+    /* The bounds are powers of 2 that are exact as double. */
+    if (!((double)SCM_INT_MIN <= d && d < -(double)SCM_INT_MIN))
+        return scm_false;
+    *n = (scm_int_t)d;
+    return d == (double)*n;
+}
+
 /* Returns N that is an integer as a double. */
 static double
 integer_real_value(const char *func_name, ScmObj n)
 {
     double d;
 
-    d = real_value(func_name, n);
+    d = scm_real_value(func_name, n);
     if (!INTP(n) && !scm_real_integerp(d))
         scm_error_obj(func_name, "integer required but got", n);
     return d;
@@ -183,8 +197,8 @@ compare_numbers(const char *func_name, ScmObj x, ScmObj y)
     double dx, dy;
 
     if (!INTP(x) || !INTP(y)) {
-        dx = real_value(func_name, x);
-        dy = real_value(func_name, y);
+        dx = scm_real_value(func_name, x);
+        dy = scm_real_value(func_name, y);
         if (isnan(dx) || isnan(dy))
             return UNORDERED;
         if (INTP(x))
@@ -268,8 +282,8 @@ scm_p_add(ScmObj left, ScmObj right, enum ScmReductionState *state)
     if (REAL_OPERANDP(left, right, *state)) {
         if (*state == SCM_REDUCE_1)
             return right;
-        return MAKE_REAL(real_value(SCM_MANGLE(name), left)
-                         + real_value(SCM_MANGLE(name), right));
+        return MAKE_REAL(scm_real_value(SCM_MANGLE(name), left)
+                         + scm_real_value(SCM_MANGLE(name), right));
     }
 #endif
 
@@ -306,8 +320,8 @@ scm_p_multiply(ScmObj left, ScmObj right, enum ScmReductionState *state)
     if (REAL_OPERANDP(left, right, *state)) {
         if (*state == SCM_REDUCE_1)
             return right;
-        return MAKE_REAL(real_value(SCM_MANGLE(name), left)
-                         * real_value(SCM_MANGLE(name), right));
+        return MAKE_REAL(scm_real_value(SCM_MANGLE(name), left)
+                         * scm_real_value(SCM_MANGLE(name), right));
     }
 #endif
 
@@ -342,8 +356,8 @@ scm_p_subtract(ScmObj left, ScmObj right, enum ScmReductionState *state)
     if (REAL_OPERANDP(left, right, *state)) {
         if (*state == SCM_REDUCE_1)
             return MAKE_REAL(-SCM_REAL_VALUE(right));
-        return MAKE_REAL(real_value(SCM_MANGLE(name), left)
-                         - real_value(SCM_MANGLE(name), right));
+        return MAKE_REAL(scm_real_value(SCM_MANGLE(name), left)
+                         - scm_real_value(SCM_MANGLE(name), right));
     }
 #endif
 
@@ -380,8 +394,8 @@ scm_p_divide(ScmObj left, ScmObj right, enum ScmReductionState *state)
     if (REAL_OPERANDP(left, right, *state)) {
         if (*state == SCM_REDUCE_1)
             return MAKE_REAL(1.0 / SCM_REAL_VALUE(right));
-        return MAKE_REAL(real_value(SCM_MANGLE(name), left)
-                         / real_value(SCM_MANGLE(name), right));
+        return MAKE_REAL(scm_real_value(SCM_MANGLE(name), left)
+                         / scm_real_value(SCM_MANGLE(name), right));
     }
 #endif
 
@@ -612,7 +626,8 @@ scm_p_oddp(ScmObj n)
 
 #if SCM_USE_REAL
     if (REALP(n))
-        return MAKE_BOOL(fmod(integer_real_value(SCM_MANGLE(name), n), 2.0) != 0.0);
+        return MAKE_BOOL(fmod(integer_real_value(SCM_MANGLE(name), n), 2.0)
+                         != 0.0);
 #endif
     ENSURE_INT(n);
 
@@ -626,7 +641,8 @@ scm_p_evenp(ScmObj n)
 
 #if SCM_USE_REAL
     if (REALP(n))
-        return MAKE_BOOL(fmod(integer_real_value(SCM_MANGLE(name), n), 2.0) == 0.0);
+        return MAKE_BOOL(fmod(integer_real_value(SCM_MANGLE(name), n), 2.0)
+                         == 0.0);
 #endif
     ENSURE_INT(n);
 
@@ -648,7 +664,7 @@ scm_p_max(ScmObj left, ScmObj right, enum ScmReductionState *state)
     if (REALP(left) || REALP(right)) {
         if (cmp == UNORDERED)
             return MAKE_REAL(NAN);
-        return MAKE_REAL(real_value(SCM_MANGLE(name),
+        return MAKE_REAL(scm_real_value(SCM_MANGLE(name),
                                     (cmp > 0) ? left : right));
     }
 #endif
@@ -669,7 +685,7 @@ scm_p_min(ScmObj left, ScmObj right, enum ScmReductionState *state)
     if (REALP(left) || REALP(right)) {
         if (cmp == UNORDERED)
             return MAKE_REAL(NAN);
-        return MAKE_REAL(real_value(SCM_MANGLE(name),
+        return MAKE_REAL(scm_real_value(SCM_MANGLE(name),
                                     (cmp < 0) ? left : right));
     }
 #endif
@@ -725,12 +741,19 @@ SCM_EXPORT ScmObj
 scm_p_expt(ScmObj _base, ScmObj _expo)
 {
     scm_int_t base, expo, result;
+#if SCM_USE_REAL
+    double b, e;
+#endif
     DECLARE_FUNCTION("expt", procedure_fixed_2);
 
 #if SCM_USE_REAL
-    if (REALP(_base) || REALP(_expo))
-        return MAKE_REAL(pow(real_value(SCM_MANGLE(name), _base),
-                             real_value(SCM_MANGLE(name), _expo)));
+    if (REALP(_base) || REALP(_expo)) {
+        b = scm_real_value(SCM_MANGLE(name), _base);
+        e = scm_real_value(SCM_MANGLE(name), _expo);
+        if (b < 0.0 && !scm_real_integerp(e) && isfinite(e))
+            ERR_OBJ(ERRMSG_COMPLEX_NOT_SUPPORTED, LIST_2(_base, _expo));
+        return MAKE_REAL(pow(b, e));
+    }
 #endif
     ENSURE_INT(_base);
     ENSURE_INT(_expo);
@@ -761,6 +784,21 @@ scm_p_expt(ScmObj _base, ScmObj _expo)
     return MAKE_INT(result);
 }
 
+#if SCM_USE_REAL
+static double
+real_gcd(double x, double y)
+{
+    double tmp;
+
+    while (y != 0.0) {
+        tmp = fmod(x, y);
+        x = y;
+        y = tmp;
+    }
+    return fabs(x);
+}
+#endif
+
 static scm_int_t
 gcd(const char *func_name, scm_int_t x, scm_int_t y)
 {
@@ -786,6 +824,14 @@ ScmObj scm_p_gcd(ScmObj left, ScmObj right, enum ScmReductionState *state)
     scm_int_t result;
     DECLARE_FUNCTION("gcd", reduction_operator);
 
+#if SCM_USE_REAL
+    if (REAL_OPERANDP(left, right, *state))
+        return MAKE_REAL(real_gcd(
+            (*state == SCM_REDUCE_1)
+            ? 0.0 : integer_real_value(SCM_MANGLE(name), left),
+            integer_real_value(SCM_MANGLE(name), right)));
+#endif
+
     result = 0;
     switch (*state) {
     case SCM_REDUCE_PARTWAY:
@@ -809,7 +855,21 @@ SCM_EXPORT ScmObj
 scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state)
 {
     scm_int_t result, r;
+#if SCM_USE_REAL
+    double x, y;
+#endif
     DECLARE_FUNCTION("lcm", reduction_operator);
+
+#if SCM_USE_REAL
+    if (REAL_OPERANDP(left, right, *state)) {
+        x = (*state == SCM_REDUCE_1)
+            ? 1.0 : integer_real_value(SCM_MANGLE(name), left);
+        y = integer_real_value(SCM_MANGLE(name), right);
+        if (x == 0.0 || y == 0.0)
+            return MAKE_REAL(0.0);
+        return MAKE_REAL(fabs(x / real_gcd(x, y) * y));
+    }
+#endif
 
     result = 1;
     switch (*state) {
@@ -838,13 +898,30 @@ scm_p_lcm(ScmObj left, ScmObj right, enum ScmReductionState *state)
     return MAKE_INT(result);
 }
 
-/* SigScheme supports only exact integers. So the following procedures
- * are trivial. */
+#if SCM_USE_REAL
+/* Returns the denominator of D in the lowest terms. It's a power of 2. */
+static double
+real_denominator(double d)
+{
+    double denominator;
+
+    for (denominator = 1.0; !scm_real_integerp(d); denominator *= 2.0)
+        d *= 2.0;
+    return denominator;
+}
+#endif
+
+/* The denominator of an exact integer is 1. */
 SCM_EXPORT ScmObj
 scm_p_numerator(ScmObj q)
 {
     DECLARE_FUNCTION("numerator", procedure_fixed_1);
 
+#if SCM_USE_REAL
+    if (REALP(q) && isfinite(SCM_REAL_VALUE(q)))
+        return MAKE_REAL(SCM_REAL_VALUE(q)
+                         * real_denominator(SCM_REAL_VALUE(q)));
+#endif
     ENSURE_INT(q);
 
     return q;
@@ -855,6 +932,10 @@ scm_p_denominator(ScmObj q)
 {
     DECLARE_FUNCTION("denominator", procedure_fixed_1);
 
+#if SCM_USE_REAL
+    if (REALP(q) && isfinite(SCM_REAL_VALUE(q)))
+        return MAKE_REAL(real_denominator(SCM_REAL_VALUE(q)));
+#endif
     ENSURE_INT(q);
 
     return MAKE_INT(1);
@@ -917,14 +998,50 @@ scm_p_round(ScmObj x)
     return x;
 }
 
+/* Returns Z as an exact number. Only integers are supported. */
+SCM_EXPORT ScmObj
+scm_exact(const char *func_name, ScmObj z)
+{
+#if SCM_USE_REAL
+    scm_int_t n;
+
+    if (REALP(z)) {
+        if (!scm_real2int(SCM_REAL_VALUE(z), &n))
+            scm_error_obj(func_name, "exact integer can't represent", z);
+        return MAKE_INT(n);
+    }
+#endif
+    if (!INTP(z))
+        scm_error_obj(func_name, "number required but got", z);
+
+    return z;
+}
+
+/* Returns Z as an inexact number. */
+SCM_EXPORT ScmObj
+scm_inexact(const char *func_name, ScmObj z)
+{
+#if SCM_USE_REAL
+    if (REALP(z))
+        return z;
+    if (INTP(z))
+        return MAKE_REAL((double)SCM_INT_VALUE(z));
+    scm_error_obj(func_name, "number required but got", z);
+#else
+    if (!INTP(z))
+        scm_error_obj(func_name, "number required but got", z);
+    scm_error_obj(func_name, ERRMSG_INEXACT_NOT_SUPPORTED, z);
+#endif
+    /* NOTREACHED */
+    return SCM_FALSE;
+}
+
 SCM_EXPORT ScmObj
 scm_p_inexact2exact(ScmObj z)
 {
     DECLARE_FUNCTION("inexact->exact", procedure_fixed_1);
 
-    ENSURE_INT(z);
-
-    return z;
+    return scm_exact(SCM_MANGLE(name), z);
 }
 
 SCM_EXPORT ScmObj
@@ -932,8 +1049,5 @@ scm_p_exact2inexact(ScmObj z)
 {
     DECLARE_FUNCTION("exact->inexact", procedure_fixed_1);
 
-    ENSURE_INT(z);
-    ERR_OBJ(ERRMSG_INEXACT_NOT_SUPPORTED, z);
-    /* NOTREACHED */
-    return SCM_FALSE;
+    return scm_inexact(SCM_MANGLE(name), z);
 }

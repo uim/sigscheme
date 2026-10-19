@@ -202,6 +202,7 @@ extern "C" {
 #define ERRMSG_FIXNUM_OVERFLOW     "fixnum overflow"
 #define ERRMSG_DIV_BY_ZERO         "division by zero"
 #define ERRMSG_INEXACT_NOT_SUPPORTED "inexact numbers are not supported"
+#define ERRMSG_COMPLEX_NOT_SUPPORTED "complex numbers are not supported"
 #define ERRMSG_UNHANDLED_EXCEPTION "unhandled exception"
 #define ERRMSG_UNMATCHED_VALUES    "unmatched number of values for the formals"
 #define SCM_ERRMSG_IMPROPER_ARGS                                             \
@@ -775,7 +776,11 @@ SCM_EXPORT char *scm_real2fixed(double d, int decimals);
 /* number.c */
 #if SCM_USE_REAL
 SCM_EXPORT scm_bool scm_real_integerp(double d);
+SCM_EXPORT double scm_real_value(const char *func_name, ScmObj n);
+SCM_EXPORT scm_bool scm_real2int(double d, scm_int_t *n);
 #endif
+SCM_EXPORT ScmObj scm_exact(const char *func_name, ScmObj z);
+SCM_EXPORT ScmObj scm_inexact(const char *func_name, ScmObj z);
 SCM_EXPORT ScmObj scm_integer_divide(const char *func_name, ScmObj n1,
                                      ScmObj n2, char op);
 SCM_EXPORT scm_int_t scm_int_multiply(const char *func_name,

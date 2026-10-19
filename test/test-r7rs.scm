@@ -470,7 +470,9 @@
 
 (tn "exactness")
 (assert-equal? (tn) 1 (exact 1))
-(assert-error (tn) (lambda () (inexact 1)))
+;; See test-real.scm when inexact numbers are supported.
+(if (not (inexact? (/ 1 2)))
+    (assert-error (tn) (lambda () (inexact 1))))
 
 (tn "boolean=?")
 (assert-eq? (tn) #t (boolean=? #t #t))

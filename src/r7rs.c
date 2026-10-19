@@ -640,9 +640,7 @@ scm_p_exact(ScmObj z)
 {
     DECLARE_FUNCTION("exact", procedure_fixed_1);
 
-    ENSURE_INT(z);
-
-    return z;
+    return scm_exact(SCM_MANGLE(name), z);
 }
 
 SCM_EXPORT ScmObj
@@ -650,10 +648,7 @@ scm_p_inexact(ScmObj z)
 {
     DECLARE_FUNCTION("inexact", procedure_fixed_1);
 
-    ENSURE_INT(z);
-    ERR_OBJ(ERRMSG_INEXACT_NOT_SUPPORTED, z);
-    /* NOTREACHED */
-    return SCM_FALSE;
+    return scm_inexact(SCM_MANGLE(name), z);
 }
 
 /*===========================================================================

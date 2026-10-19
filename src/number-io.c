@@ -411,17 +411,14 @@ static ScmObj
 parse_real(const char *str, char exactness)
 {
     double d;
+    scm_int_t n;
 
     d = string2double(str);
     if (exactness != 'e')
         return MAKE_REAL(d);
 
-    /* Only integers are supported as exact numbers. The bounds are powers of
-     * 2 that are exact as double. */
-    if ((double)SCM_INT_MIN <= d && d < -(double)SCM_INT_MIN
-        && d == (double)(scm_int_t)d)
-        return MAKE_INT((scm_int_t)d);
-    return SCM_FALSE;
+    /* Only integers are supported as exact numbers. */
+    return (scm_real2int(d, &n)) ? MAKE_INT(n) : SCM_FALSE;
 }
 
 /* Replaces the decimal point of the locale in BUF with ".". */

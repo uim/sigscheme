@@ -278,9 +278,8 @@ scm_s_setx(ScmObj sym, ScmObj exp, ScmObj env)
     if (locally_bound != SCM_INVALID_REF) {
         SET(locally_bound, evaled);
     } else {
-        sym = SCM_UNWRAP_KEYWORD(sym);
         if (EQ(scm_toplevel_value(sym, env), SCM_UNBOUND))
-            ERR_OBJ("unbound variable", sym);
+            ERR_OBJ("unbound variable", SCM_UNWRAP_KEYWORD(sym));
 
         scm_set_toplevel(sym, evaled, env);
     }
@@ -790,7 +789,7 @@ lookup_macro(ScmObj op, ScmObj env)
     if (ref != SCM_INVALID_REF)
         val = DEREF(ref);
     else
-        val = scm_toplevel_value(SCM_UNWRAP_KEYWORD(op), env);
+        val = scm_toplevel_value(op, env);
     return HMACROP(val) ? val : SCM_FALSE;
 }
 #endif

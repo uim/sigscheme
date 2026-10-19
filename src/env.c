@@ -79,6 +79,14 @@
 /*=======================================
   File Local Macro Definitions
 =======================================*/
+/* Avoid the function call for the common case. */
+#define UNWRAP_IDENTIFIER(id)                                                \
+    (FARSYMBOLP(id) ? SCM_UNWRAP_KEYWORD(id) : (id))
+#if SCM_USE_R7RS
+#define QUALIFIED_IDENTIFIERP(id)                                            \
+    (FARSYMBOLP(id) && SCM_FARSYMBOL_ENV(id) < 0)
+#endif
+
 #define TRUSTED_ENVP(env) (EQ(env, SCM_INTERACTION_ENV)                      \
                            || EQ(env, SCM_R5RS_ENV)                          \
                            || EQ(env, SCM_NULL_ENV))
@@ -96,9 +104,9 @@
 =======================================*/
 static scm_bool valid_framep(ScmObj frame);
 static scm_int_t env_depth(ScmObj env);
+static ScmObj identifier_toplevel(ScmObj id, ScmObj env);
 static inline ScmRef lookup_frames(ScmObj var, ScmObj env,
                                    ScmObj *toplevel);
-static ScmObj env_toplevel(ScmObj env);
 #if SCM_USE_R7RS
 static ScmRef lookup_module(ScmObj var, ScmObj module);
 #endif
@@ -120,12 +128,24 @@ scm_toplevel_environmentp(ScmObj env)
 }
 
 /* Returns the toplevel environment that is the tail of ENV. */
-static ScmObj
-env_toplevel(ScmObj env)
+SCM_EXPORT ScmObj
+scm_env_toplevel(ScmObj env)
 {
     for (; CONSP(env); env = CDR(env))
         ;
     return env;
+}
+
+/* Returns the toplevel environment where the identifier ID is resolved in
+ * ENV. A qualified identifier has its toplevel. */
+static ScmObj
+identifier_toplevel(ScmObj id, ScmObj env)
+{
+#if SCM_USE_R7RS
+    if (QUALIFIED_IDENTIFIERP(id))
+        return scm_identifier_toplevel(id);
+#endif
+    return scm_env_toplevel(env);
 }
 
 /* Returns the number of frames of ENV. */
@@ -238,6 +258,9 @@ scm_wrap_identifier(ScmObj id, ScmPackedEnv depth, ScmObj env)
     if (FARSYMBOLP(id)) {
         /* Try to reduce lookup overhead. */
         id_depth = SCM_FARSYMBOL_ENV(id);
+        /* A qualified identifier isn't bound in ENV. */
+        if (id_depth < 0)
+            return id;
         SCM_ASSERT(id_depth <= depth);
         if (lookup_n_frames(id, depth - id_depth, env) == SCM_INVALID_REF) {
             /* ID hasn't been bound since it was captured. */
@@ -412,8 +435,20 @@ lookup_far_symbol(ScmObj var, ScmObj env)
 {
     ScmRef ref;
     scm_int_t depth, id_depth;
+#if SCM_USE_R7RS
+    ScmObj toplevel;
+#endif
     DECLARE_INTERNAL_FUNCTION("scm_lookup_environment");
 
+#if SCM_USE_R7RS
+    if (QUALIFIED_IDENTIFIERP(var)) {
+        /* A qualified identifier is resolved only in its toplevel. */
+        toplevel = scm_identifier_toplevel(var);
+        return (NULLP(toplevel))
+               ? SCM_INVALID_REF
+               : lookup_module(SCM_FARSYMBOL_SYM(var), toplevel);
+    }
+#endif
     depth = env_depth(env);
     id_depth = SCM_FARSYMBOL_ENV(var);
     if (id_depth > depth)
@@ -425,7 +460,7 @@ lookup_far_symbol(ScmObj var, ScmObj env)
 #if SCM_USE_R7RS
     /* The toplevel of a module. */
     if (ref == SCM_INVALID_REF) {
-        env = env_toplevel(env);
+        env = scm_env_toplevel(env);
         if (!NULLP(env))
             ref = lookup_module(SCM_FARSYMBOL_SYM(var), env);
     }
@@ -472,8 +507,10 @@ scm_symbol_value(ScmObj var, ScmObj env)
 #if SCM_USE_HYGIENIC_MACRO
     if (FARSYMBOLP(var)) {
         ref = scm_lookup_environment(var, env);
+        /* The toplevel is required only if REF is invalid. */
+        toplevel = (ref == SCM_INVALID_REF) ? identifier_toplevel(var, env)
+                                            : SCM_INVALID;
         var = SCM_FARSYMBOL_SYM(var);
-        toplevel = env_toplevel(env);
     } else
 #endif
     {
@@ -629,17 +666,19 @@ scm_validate_actuals(ScmObj actuals)
     return len;
 }
 
-/* Returns the value of SYM in the global environment or the builtin
- * module. ENV is used to choose one of them. It may be SCM_UNBOUND. */
+/* Returns the value of the identifier ID in the global environment or the
+ * builtin module. ENV is used to choose one of them. It may be
+ * SCM_UNBOUND. */
 SCM_EXPORT ScmObj
-scm_toplevel_value(ScmObj sym, ScmObj env)
+scm_toplevel_value(ScmObj id, ScmObj env)
 {
-    SCM_ASSERT(SYMBOLP(sym));
+    SCM_ASSERT(IDENTIFIERP(id));
 
 #if SCM_USE_R7RS
-    return scm_unshadow(SCM_SYMBOL_VCELL(sym), !NULLP(env_toplevel(env)));
+    return scm_unshadow(SCM_SYMBOL_VCELL(UNWRAP_IDENTIFIER(id)),
+                        !NULLP(identifier_toplevel(id, env)));
 #else
-    return SCM_SYMBOL_VCELL(sym);
+    return SCM_SYMBOL_VCELL(UNWRAP_IDENTIFIER(id));
 #endif
 }
 
@@ -662,16 +701,18 @@ set_value_cell(ScmObj sym, ScmObj val, scm_bool replp)
 }
 #endif
 
-/* Sets VAL to the bound SYM in the toplevel environment of ENV. */
+/* Sets VAL to the bound identifier ID in the toplevel environment of
+ * ENV. */
 SCM_EXPORT void
-scm_set_toplevel(ScmObj sym, ScmObj val, ScmObj env)
+scm_set_toplevel(ScmObj id, ScmObj val, ScmObj env)
 {
-    SCM_ASSERT(SYMBOLP(sym));
+    SCM_ASSERT(IDENTIFIERP(id));
 
 #if SCM_USE_R7RS
-    set_value_cell(sym, val, NULLP(env_toplevel(env)));
+    set_value_cell(UNWRAP_IDENTIFIER(id), val,
+                   NULLP(identifier_toplevel(id, env)));
 #else
-    SCM_SYMBOL_SET_VCELL(sym, val);
+    SCM_SYMBOL_SET_VCELL(UNWRAP_IDENTIFIER(id), val);
 #endif
 }
 

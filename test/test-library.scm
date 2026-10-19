@@ -125,6 +125,29 @@
                  read-char))
 (define open-input-file orig-open-input-file)
 
+(tn "builtin macros")
+;; Template identifiers of a builtin macro are resolved in the builtin
+;; namespace even if the global environment redefines them.
+(define orig-make-record-type %%make-record-type)
+(define %%make-record-type 'global)
+(define-record-type point (make-point x y) point?
+  (x point-x)
+  (y point-y))
+(assert-true (tn) (point? (make-point 1 2)))
+(assert-equal? (tn) 2 (point-y (make-point 1 2)))
+(define %%make-record-type orig-make-record-type)
+(eval '(define-record-type module-point (make-module-point x) module-point?
+         (x module-point-x))
+      module)
+(assert-equal? (tn) 5 (eval '(module-point-x (make-module-point 5)) module))
+(assert-false (tn) (symbol-bound? 'make-module-point))
+
+(tn "module macros")
+(eval '(define secret 42) module)
+(eval '(define-syntax get-secret (syntax-rules () ((_) secret))) module)
+(assert-equal? (tn) 42 (eval '(get-secret) module))
+(assert-equal? (tn) 42 (eval '(let ((secret 0)) (get-secret)) module))
+
 (tn "global variables")
 (define global-counter 0)
 (set! global-counter (+ global-counter 1))

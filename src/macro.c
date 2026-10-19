@@ -213,7 +213,7 @@ static scm_bool underscorep(ScmObj obj);
 
 static ScmObj compile(compilation_context *ctx, ScmObj form);
 static ScmObj match(ScmObj pattern, ScmObj form, ScmPackedEnv def_penv, ScmPackedEnv use_penv, ScmObj env);
-static ScmObj transcribe(ScmObj template, ScmObj sub, ScmPackedEnv def_penv, ScmObj use_env);
+static ScmObj transcribe(ScmObj template, ScmObj sub, ScmPackedEnv def_penv, ScmObj use_env, ScmObj qualifier);
 
 static ScmObj expand_hygienic_macro(ScmObj macro, ScmObj args, ScmObj env);
 
@@ -242,19 +242,27 @@ scm_macro_bad_scope(ScmObj id)
 static ScmObj
 expand_hygienic_macro(ScmObj macro, ScmObj args, ScmObj env)
 {
-    ScmObj sub, rule, rules;
+    ScmObj sub, rule, rules, qualifier;
     ScmPackedEnv use_penv, def_penv;
     DECLARE_INTERNAL_FUNCTION("(expand_hygienic_macro)");
 
     rules = SCM_HMACRO_RULES(macro);
     def_penv = SCM_HMACRO_ENV(macro);
     use_penv = scm_pack_env(env);
+    qualifier = SCM_INVALID;
+#if SCM_USE_R7RS
+    /* (toplevel . rules). Template identifiers of a toplevel macro are
+     * qualified by the toplevel if it's used at another toplevel. */
+    if (def_penv == 0 && !EQ(CAR(rules), scm_env_toplevel(env)))
+        qualifier = CAR(rules);
+    rules = CDR(rules);
+#endif
 
     FOR_EACH (rule, rules) {
         sub = match(CAR(rule), args, def_penv, use_penv, env);
         if (VALIDP(sub))
             return transcribe(CDR(rule), sub, SCM_HMACRO_ENV(macro),
-                              env);
+                              env, qualifier);
     }
     ERR_OBJ("no matching pattern for", args);
     /* Not reached. */
@@ -345,7 +353,11 @@ scm_s_syntax_rules(ScmObj args, ScmObj env)
         SCM_QUEUE_ADD(q, CONS(pat, tmpl));
     }
 
+#if SCM_USE_R7RS
+    return MAKE_HMACRO(CONS(scm_env_toplevel(env), compiled_rules), env);
+#else
     return MAKE_HMACRO(compiled_rules, env);
+#endif
 }
 
 SCM_EXPORT ScmObj
@@ -973,6 +985,8 @@ typedef struct {
     ScmPackedEnv def_penv;
     ScmObj def_env;
     ScmObj use_env;
+    ScmObj qualifier;          /* The toplevel to qualify identifiers or
+                                * SCM_INVALID. */
 } transcription_context;
 
 typedef struct {
@@ -995,7 +1009,8 @@ static transcribe_ret transcribe_reppat(transcription_context *ctx,
                                         scm_int_t level);
 
 static ScmObj
-transcribe(ScmObj template, ScmObj sub, ScmPackedEnv def_penv, ScmObj use_env)
+transcribe(ScmObj template, ScmObj sub, ScmPackedEnv def_penv, ScmObj use_env,
+           ScmObj qualifier)
 {
     transcribe_ret ret;
     transcription_context ctx;
@@ -1007,6 +1022,7 @@ transcribe(ScmObj template, ScmObj sub, ScmPackedEnv def_penv, ScmObj use_env)
     ctx.def_penv = def_penv;
     ctx.def_env = scm_unpack_env(def_penv, use_env);
     ctx.use_env = use_env;
+    ctx.qualifier = qualifier;
     ret = transcribe_rec(&ctx, template, sub, 0);
     SCM_ASSERT(ret.msg == MSG_REPLACE);
     if (ctx.indices != ctx.index_buf) {
@@ -1109,8 +1125,13 @@ transcribe_rec(transcription_context *ctx, ScmObj template, ScmObj sub,
 
         wrapped = scm_p_assq(template, ctx->fvars);
         if (FALSEP(wrapped)) {
-            wrapped = scm_wrap_identifier(template, ctx->def_penv,
-                                          ctx->def_env);
+#if SCM_USE_R7RS
+            if (VALIDP(ctx->qualifier) && SYMBOLP(template))
+                wrapped = scm_qualify_identifier(template, ctx->qualifier);
+            else
+#endif
+                wrapped = scm_wrap_identifier(template, ctx->def_penv,
+                                              ctx->def_env);
             ctx->fvars = CONS(CONS(template, wrapped), ctx->fvars);
         } else {
             wrapped = CDR(wrapped);

@@ -41,7 +41,7 @@
  * A module is a namespace of a library. An environment whose tail is a
  * module instead of '() is in the module. See env.c for environments.
  *
- * A module is #(marker name buckets n-entries indefinable). BUCKETS is a
+ * A module is #(marker name buckets n-entries indefinable id). BUCKETS is a
  * vector of alists. An entry of the alists is (symbol . location) and a
  * location is (value . #f). Modules may share a location to export and
  * import a binding. INDEFINABLE is #(marker module) for the toplevel of
@@ -53,6 +53,12 @@
  * speed. If the REPL redefines a builtin, the value cell has a shadow
  * #(marker repl-value builtin-value) to keep the builtin. The builtin module
  * binds each builtin to the symbol itself as its location.
+ *
+ * A macro defined at a toplevel may be used at another toplevel. Template
+ * identifiers of such macro are qualified by the toplevel where the macro
+ * is defined. A qualified identifier is a far symbol whose env is
+ * -(ID + 1) where ID is the ID of the toplevel. The ID of the global
+ * environment is 0.
  */
 
 /*=======================================
@@ -62,7 +68,8 @@
 #define MODULE_BUCKETS(module)     (SCM_VECTOR_VEC(module)[2])
 #define MODULE_N_ENTRIES(module)   (SCM_VECTOR_VEC(module)[3])
 #define MODULE_INDEFINABLE(module) (SCM_VECTOR_VEC(module)[4])
-#define MODULE_SIZE 5
+#define MODULE_ID(module)          (SCM_VECTOR_VEC(module)[5])
+#define MODULE_SIZE 6
 
 #define INITIAL_N_BUCKETS 16
 /* Symbols are aligned so the lower bits aren't useful. */
@@ -82,15 +89,20 @@ SCM_GLOBAL_VARS_BEGIN(static_library);
 #define static
 static ScmObj l_module_marker, l_indefinable_marker, l_shadow_marker;
 static ScmObj l_builtin_module;
+static ScmObj l_toplevels;  /* a vector of toplevels indexed by IDs */
+static scm_int_t l_n_toplevels;
 static scm_bool l_builtin_ready;
 static scm_int_t l_builtin_definition_depth;
 #undef static
 SCM_GLOBAL_VARS_END(static_library);
 #define l_module_marker      SCM_GLOBAL_VAR(static_library, l_module_marker)
-#define l_indefinable_marker SCM_GLOBAL_VAR(static_library, l_indefinable_marker)
+#define l_indefinable_marker                                                 \
+    SCM_GLOBAL_VAR(static_library, l_indefinable_marker)
 #define l_shadow_marker      SCM_GLOBAL_VAR(static_library, l_shadow_marker)
 #define l_builtin_module     SCM_GLOBAL_VAR(static_library, l_builtin_module)
 #define l_builtin_ready      SCM_GLOBAL_VAR(static_library, l_builtin_ready)
+#define l_toplevels          SCM_GLOBAL_VAR(static_library, l_toplevels)
+#define l_n_toplevels        SCM_GLOBAL_VAR(static_library, l_n_toplevels)
 #define l_builtin_definition_depth                                           \
     SCM_GLOBAL_VAR(static_library, l_builtin_definition_depth)
 SCM_DEFINE_STATIC_VARS(static_library);
@@ -98,9 +110,10 @@ SCM_DEFINE_STATIC_VARS(static_library);
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static ScmObj make_buckets(scm_int_t n_buckets);
+static ScmObj make_null_vector(scm_int_t len);
 static ScmObj module_entry(ScmObj module, ScmObj sym);
 static void module_rehash(ScmObj module);
+static void register_toplevel(ScmObj module);
 
 /*=======================================
   Function Definitions
@@ -118,6 +131,9 @@ scm_init_library(void)
                              LIST_1(scm_intern("%%indefinable-module")));
     scm_gc_protect_with_init(&l_shadow_marker,
                              LIST_1(scm_intern("%%shadow")));
+    /* The global environment is the toplevel 0. */
+    scm_gc_protect_with_init(&l_toplevels, make_null_vector(16));
+    l_n_toplevels = 1;
     scm_gc_protect_with_init(&l_builtin_module,
                              scm_make_module(LIST_2(scm_intern("sigscheme"),
                                                     scm_intern("builtin"))));
@@ -127,15 +143,15 @@ scm_init_library(void)
 }
 
 static ScmObj
-make_buckets(scm_int_t n_buckets)
+make_null_vector(scm_int_t len)
 {
     ScmObj *vec;
     scm_int_t i;
 
-    vec = scm_malloc(sizeof(ScmObj) * n_buckets);
-    for (i = 0; i < n_buckets; i++)
+    vec = scm_malloc(sizeof(ScmObj) * len);
+    for (i = 0; i < len; i++)
         vec[i] = SCM_NULL;
-    return MAKE_VECTOR(vec, n_buckets);
+    return MAKE_VECTOR(vec, len);
 }
 
 SCM_EXPORT ScmObj
@@ -146,16 +162,35 @@ scm_make_module(ScmObj name)
     vec = scm_malloc(sizeof(ScmObj) * MODULE_SIZE);
     vec[0] = l_module_marker;
     vec[1] = name;
-    vec[2] = make_buckets(INITIAL_N_BUCKETS);
+    vec[2] = make_null_vector(INITIAL_N_BUCKETS);
     vec[3] = MAKE_INT(0);
     vec[4] = SCM_FALSE;
+    vec[5] = MAKE_INT(l_n_toplevels);
     module = MAKE_VECTOR(vec, MODULE_SIZE);
+    register_toplevel(module);
     vec = scm_malloc(sizeof(ScmObj) * 2);
     vec[0] = l_indefinable_marker;
     vec[1] = module;
     MODULE_INDEFINABLE(module) = MAKE_VECTOR(vec, 2);
 
     return module;
+}
+
+/* Adds MODULE to the toplevels. The vector is extended if it's full. */
+static void
+register_toplevel(ScmObj module)
+{
+    ScmObj new;
+    scm_int_t i, n;
+
+    n = SCM_VECTOR_LEN(l_toplevels);
+    if (l_n_toplevels == n) {
+        new = make_null_vector(n * 2);
+        for (i = 0; i < n; i++)
+            SCM_VECTOR_VEC(new)[i] = SCM_VECTOR_VEC(l_toplevels)[i];
+        l_toplevels = new;
+    }
+    SCM_VECTOR_VEC(l_toplevels)[l_n_toplevels++] = module;
 }
 
 SCM_EXPORT scm_bool
@@ -209,7 +244,7 @@ module_rehash(ScmObj module)
 
     old = MODULE_BUCKETS(module);
     n = SCM_VECTOR_LEN(old) * 2;
-    new = make_buckets(n);
+    new = make_null_vector(n);
     for (i = 0; i < SCM_VECTOR_LEN(old); i++) {
         rest = SCM_VECTOR_VEC(old)[i];
         FOR_EACH (entry, rest) {
@@ -375,4 +410,33 @@ scm_shadowp(ScmObj obj)
 {
     return (VECTORP(obj) && SCM_VECTOR_LEN(obj) == 3
             && EQ(SCM_VECTOR_VEC(obj)[0], l_shadow_marker));
+}
+
+/*
+ * Qualified identifiers
+ */
+/* Returns SYM qualified by the toplevel environment TOPLEVEL. */
+SCM_EXPORT ScmObj
+scm_qualify_identifier(ScmObj sym, ScmObj toplevel)
+{
+    scm_int_t id;
+
+    SCM_ASSERT(SYMBOLP(sym));
+
+    id = (NULLP(toplevel)) ? 0 : SCM_INT_VALUE(MODULE_ID(toplevel));
+    return MAKE_FARSYMBOL(sym, -(id + 1));
+}
+
+/* Returns the toplevel environment of the qualified identifier ID or
+ * SCM_INVALID if ID isn't qualified. */
+SCM_EXPORT ScmObj
+scm_identifier_toplevel(ScmObj id)
+{
+    scm_int_t toplevel_id;
+
+    if (!FARSYMBOLP(id) || SCM_FARSYMBOL_ENV(id) >= 0)
+        return SCM_INVALID;
+    toplevel_id = -SCM_FARSYMBOL_ENV(id) - 1;
+    return (toplevel_id == 0)
+           ? SCM_NULL : SCM_VECTOR_VEC(l_toplevels)[toplevel_id];
 }

@@ -708,8 +708,9 @@ SCM_EXPORT void scm_fin_symbol(void);
 
 /* env.c */
 SCM_EXPORT scm_bool scm_toplevel_environmentp(ScmObj env);
-SCM_EXPORT ScmObj scm_toplevel_value(ScmObj sym, ScmObj env);
-SCM_EXPORT void scm_set_toplevel(ScmObj sym, ScmObj val, ScmObj env);
+SCM_EXPORT ScmObj scm_env_toplevel(ScmObj env);
+SCM_EXPORT ScmObj scm_toplevel_value(ScmObj id, ScmObj env);
+SCM_EXPORT void scm_set_toplevel(ScmObj id, ScmObj val, ScmObj env);
 SCM_EXPORT void scm_define_toplevel(ScmObj var, ScmObj val, ScmObj env);
 SCM_EXPORT ScmObj scm_extend_environment(ScmObj formals, ScmObj actuals,
                                          ScmObj env);
@@ -868,6 +869,8 @@ SCM_EXPORT scm_bool scm_builtinp(ScmObj sym);
 SCM_EXPORT ScmObj scm_make_shadow(ScmObj repl_val, ScmObj builtin_val);
 SCM_EXPORT ScmObj scm_unshadow(ScmObj val, scm_bool builtinp);
 SCM_EXPORT scm_bool scm_shadowp(ScmObj obj);
+SCM_EXPORT ScmObj scm_qualify_identifier(ScmObj sym, ScmObj toplevel);
+SCM_EXPORT ScmObj scm_identifier_toplevel(ScmObj id);
 #endif
 
 SCM_EXPORT void scm_init_module(void);

@@ -387,6 +387,8 @@ scm_initialize_internal(const char *const *argv)
     /* R7RS: define-record-type. It loads a file after the port and the
      * system load path are initialized. */
     scm_require_module("srfi-9");
+    /* R7RS: define-library and import */
+    scm_load_system_file("library.scm");
 #endif
 
 #if SCM_USE_SRFI55

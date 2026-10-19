@@ -1695,6 +1695,11 @@ SCM_EXPORT ScmObj scm_p_cddddr(ScmObj lst);
 /* library.c */
 #if SCM_USE_R7RS
 SCM_EXPORT ScmObj scm_p_make_module(ScmObj name);
+SCM_EXPORT ScmObj scm_p_module_location(ScmObj module, ScmObj sym);
+SCM_EXPORT ScmObj scm_p_module_importx(ScmObj module, ScmObj sym,
+                                       ScmObj location);
+SCM_EXPORT ScmObj scm_p_builtin_location(ScmObj sym);
+SCM_EXPORT ScmObj scm_p_global_importx(ScmObj sym, ScmObj location);
 #endif
 
 /* r7rs.c */

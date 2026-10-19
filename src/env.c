@@ -706,15 +706,44 @@ set_value_cell(ScmObj sym, ScmObj val, scm_bool replp)
 SCM_EXPORT void
 scm_set_toplevel(ScmObj id, ScmObj val, ScmObj env)
 {
+#if SCM_USE_R7RS
+    ScmObj sym, toplevel;
+    DECLARE_INTERNAL_FUNCTION("set!");
+#endif
+
     SCM_ASSERT(IDENTIFIERP(id));
 
 #if SCM_USE_R7RS
-    set_value_cell(UNWRAP_IDENTIFIER(id), val,
-                   NULLP(identifier_toplevel(id, env)));
+    sym = UNWRAP_IDENTIFIER(id);
+    toplevel = identifier_toplevel(id, env);
+    if (NULLP(toplevel)) {
+        set_value_cell(sym, val, scm_true);
+    } else if (EQ(toplevel, scm_builtin_module())) {
+        set_value_cell(sym, val, scm_false);
+        scm_set_builtin_location(sym, val);
+    } else {
+        /* A library can't mutate builtins that aren't imported. */
+        ERR_OBJ("unbound variable", sym);
+    }
 #else
     SCM_SYMBOL_SET_VCELL(UNWRAP_IDENTIFIER(id), val);
 #endif
 }
+
+#if SCM_USE_R7RS
+/* Returns true if REF of the identifier ID is a location that the toplevel
+ * of ENV imports. */
+SCM_EXPORT scm_bool
+scm_imported_refp(ScmObj id, ScmRef ref, ScmObj env)
+{
+    ScmObj toplevel;
+
+    toplevel = identifier_toplevel(id, env);
+    if (NULLP(toplevel) || EQ(toplevel, scm_builtin_module()))
+        return scm_false;
+    return scm_module_imported_refp(toplevel, UNWRAP_IDENTIFIER(id), ref);
+}
+#endif
 
 /* Defines VAR as VAL in the toplevel environment ENV. */
 SCM_EXPORT void

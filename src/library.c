@@ -43,8 +43,10 @@
  *
  * A module is #(marker name buckets n-entries indefinable id). BUCKETS is a
  * vector of alists. An entry of the alists is (symbol . location) and a
- * location is (value . #f). Modules may share a location to export and
- * import a binding. INDEFINABLE is #(marker module) for the toplevel of
+ * location is (value . owner) where OWNER is the module that defines the
+ * binding. Modules share a location to export and import a binding. A
+ * library can't redefine or mutate an imported binding whose owner isn't
+ * the library. INDEFINABLE is #(marker module) for the toplevel of
  * the module where definitions aren't allowed. It isn't a pair because a
  * pair is a non-toplevel environment.
  *
@@ -52,7 +54,10 @@
  * environment) shares the value cells of symbols with the builtin module for
  * speed. If the REPL redefines a builtin, the value cell has a shadow
  * #(marker repl-value builtin-value) to keep the builtin. The builtin module
- * binds each builtin to the symbol itself as its location.
+ * has a location for each builtin to import builtins into libraries. The
+ * value of the location is synchronized with the builtin value. If the REPL
+ * imports a binding of a library, the REPL value is a forward
+ * #(marker location) to share the location.
  *
  * A macro defined at a toplevel may be used at another toplevel. Template
  * identifiers of such macro are qualified by the toplevel where the macro
@@ -88,6 +93,7 @@
 SCM_GLOBAL_VARS_BEGIN(static_library);
 #define static
 static ScmObj l_module_marker, l_indefinable_marker, l_shadow_marker;
+static ScmObj l_forward_marker;
 static ScmObj l_builtin_module;
 static ScmObj l_toplevels;  /* a vector of toplevels indexed by IDs */
 static scm_int_t l_n_toplevels;
@@ -99,6 +105,7 @@ SCM_GLOBAL_VARS_END(static_library);
 #define l_indefinable_marker                                                 \
     SCM_GLOBAL_VAR(static_library, l_indefinable_marker)
 #define l_shadow_marker      SCM_GLOBAL_VAR(static_library, l_shadow_marker)
+#define l_forward_marker     SCM_GLOBAL_VAR(static_library, l_forward_marker)
 #define l_builtin_module     SCM_GLOBAL_VAR(static_library, l_builtin_module)
 #define l_builtin_ready      SCM_GLOBAL_VAR(static_library, l_builtin_ready)
 #define l_toplevels          SCM_GLOBAL_VAR(static_library, l_toplevels)
@@ -114,6 +121,8 @@ static ScmObj make_null_vector(scm_int_t len);
 static ScmObj module_entry(ScmObj module, ScmObj sym);
 static void module_rehash(ScmObj module);
 static void register_toplevel(ScmObj module);
+static scm_bool forwardp(ScmObj obj);
+static ScmObj make_forward(ScmObj location);
 
 /*=======================================
   Function Definitions
@@ -131,6 +140,8 @@ scm_init_library(void)
                              LIST_1(scm_intern("%%indefinable-module")));
     scm_gc_protect_with_init(&l_shadow_marker,
                              LIST_1(scm_intern("%%shadow")));
+    scm_gc_protect_with_init(&l_forward_marker,
+                             LIST_1(scm_intern("%%forward")));
     /* The global environment is the toplevel 0. */
     scm_gc_protect_with_init(&l_toplevels, make_null_vector(16));
     l_n_toplevels = 1;
@@ -298,17 +309,30 @@ scm_module_bind(ScmObj module, ScmObj sym, ScmObj location)
 SCM_EXPORT void
 scm_module_define(ScmObj module, ScmObj sym, ScmObj val)
 {
-    ScmRef ref;
+    ScmObj entry;
 
-    ref = scm_module_lookup(module, sym);
-    if (ref != SCM_INVALID_REF)
-        SET(ref, val);
-    else
-        scm_module_bind(module, sym, CONS(val, SCM_FALSE));
+    entry = module_entry(module, sym);
+    if (FALSEP(entry)) {
+        scm_module_bind(module, sym, CONS(val, module));
+        return;
+    }
+    if (!EQ(CDDR(entry), module))
+        scm_error_obj("define", "imported binding can't be redefined", sym);
+    SET_CAR(CDR(entry), val);
 }
 
-/* (%%make-module name) is only for tests until define-library is
- * implemented. */
+/* Returns true if REF is the location of SYM that MODULE imports. */
+SCM_EXPORT scm_bool
+scm_module_imported_refp(ScmObj module, ScmObj sym, ScmRef ref)
+{
+    ScmObj entry;
+
+    entry = module_entry(module, sym);
+    return (!FALSEP(entry) && REF_CAR(CDR(entry)) == ref
+            && !EQ(CDDR(entry), module));
+}
+
+/* (%%make-module name) is used by define-library in lib/library.scm. */
 SCM_EXPORT ScmObj
 scm_p_make_module(ScmObj name)
 {
@@ -357,9 +381,11 @@ scm_register_bound_symbols_as_builtins(void)
     for (i = 0; i < scm_symbol_hash_size; i++) {
         lst = scm_symbol_hash[i];
         FOR_EACH (sym, lst) {
-            if (SCM_SYMBOL_BOUNDP(sym)
-                && FALSEP(module_entry(l_builtin_module, sym)))
-                scm_module_bind(l_builtin_module, sym, sym);
+            if (SCM_SYMBOL_BOUNDP(sym) && !scm_builtinp(sym))
+                scm_module_bind(l_builtin_module, sym,
+                                CONS(scm_unshadow(SCM_SYMBOL_VCELL(sym),
+                                                  scm_true),
+                                     l_builtin_module));
         }
     }
 }
@@ -371,9 +397,22 @@ scm_define_builtin(ScmObj sym, ScmObj val)
 {
     /* Builtins defined before the builtin module is created are registered
      * by scm_register_bound_symbols_as_builtins() later. */
-    if (l_builtin_ready && !scm_builtinp(sym))
-        scm_module_bind(l_builtin_module, sym, sym);
+    if (l_builtin_ready)
+        scm_set_builtin_location(sym, val);
     SCM_SYMBOL_SET_VCELL(sym, val);
+}
+
+/* Synchronizes the location of the builtin SYM with VAL. */
+SCM_EXPORT void
+scm_set_builtin_location(ScmObj sym, ScmObj val)
+{
+    ScmObj entry;
+
+    entry = module_entry(l_builtin_module, sym);
+    if (FALSEP(entry))
+        scm_module_bind(l_builtin_module, sym, CONS(val, l_builtin_module));
+    else
+        SET_CAR(CDR(entry), val);
 }
 
 /* It may be called before the builtin module is created. */
@@ -396,13 +435,33 @@ scm_make_shadow(ScmObj repl_val, ScmObj builtin_val)
 }
 
 /* Returns the value for the REPL or the builtin namespace if VAL is a
- * shadow. Otherwise, returns VAL. */
+ * shadow or a forward. Otherwise, returns VAL. */
 SCM_EXPORT ScmObj
 scm_unshadow(ScmObj val, scm_bool builtinp)
 {
     if (scm_shadowp(val))
-        return SCM_VECTOR_VEC(val)[(builtinp) ? 2 : 1];
+        val = SCM_VECTOR_VEC(val)[(builtinp) ? 2 : 1];
+    if (forwardp(val))
+        val = CAR(SCM_VECTOR_VEC(val)[1]);
     return val;
+}
+
+static scm_bool
+forwardp(ScmObj obj)
+{
+    return (VECTORP(obj) && SCM_VECTOR_LEN(obj) == 2
+            && EQ(SCM_VECTOR_VEC(obj)[0], l_forward_marker));
+}
+
+static ScmObj
+make_forward(ScmObj location)
+{
+    ScmObj *vec;
+
+    vec = scm_malloc(sizeof(ScmObj) * 2);
+    vec[0] = l_forward_marker;
+    vec[1] = location;
+    return MAKE_VECTOR(vec, 2);
 }
 
 SCM_EXPORT scm_bool
@@ -439,4 +498,74 @@ scm_identifier_toplevel(ScmObj id)
     toplevel_id = -SCM_FARSYMBOL_ENV(id) - 1;
     return (toplevel_id == 0)
            ? SCM_NULL : SCM_VECTOR_VEC(l_toplevels)[toplevel_id];
+}
+
+/*
+ * Primitives for lib/library.scm
+ */
+/* Returns the location of SYM in MODULE or #f. */
+SCM_EXPORT ScmObj
+scm_p_module_location(ScmObj module, ScmObj sym)
+{
+    ScmObj entry;
+    DECLARE_FUNCTION("%%module-location", procedure_fixed_2);
+
+    if (!scm_modulep(module))
+        ERR_OBJ("module required but got", module);
+    ENSURE_SYMBOL(sym);
+
+    entry = module_entry(module, sym);
+    return (FALSEP(entry)) ? SCM_FALSE : CDR(entry);
+}
+
+/* Binds SYM to the imported LOCATION in MODULE. */
+SCM_EXPORT ScmObj
+scm_p_module_importx(ScmObj module, ScmObj sym, ScmObj location)
+{
+    ScmObj entry;
+    DECLARE_FUNCTION("%%module-import!", procedure_fixed_3);
+
+    if (!scm_modulep(module))
+        ERR_OBJ("module required but got", module);
+    ENSURE_SYMBOL(sym);
+    ENSURE_CONS(location);
+
+    entry = module_entry(module, sym);
+    if (!FALSEP(entry) && !EQ(CDR(entry), location))
+        ERR_OBJ("identifier is imported with different bindings", sym);
+    scm_module_bind(module, sym, location);
+    return SCM_UNDEF;
+}
+
+/* Returns the location of the builtin SYM or #f. */
+SCM_EXPORT ScmObj
+scm_p_builtin_location(ScmObj sym)
+{
+    DECLARE_FUNCTION("%%builtin-location", procedure_fixed_1);
+
+    ENSURE_SYMBOL(sym);
+
+    return scm_p_module_location(l_builtin_module, sym);
+}
+
+/* Imports LOCATION as SYM into the REPL. The REPL may redefine it. */
+SCM_EXPORT ScmObj
+scm_p_global_importx(ScmObj sym, ScmObj location)
+{
+    ScmObj builtin_location, builtin_val;
+    DECLARE_FUNCTION("%%global-import!", procedure_fixed_2);
+
+    ENSURE_SYMBOL(sym);
+    ENSURE_CONS(location);
+
+    builtin_val = scm_unshadow(SCM_SYMBOL_VCELL(sym), scm_true);
+    builtin_location = scm_p_module_location(l_builtin_module, sym);
+    if (EQ(location, builtin_location))
+        SCM_SYMBOL_SET_VCELL(sym, builtin_val);
+    else if (!FALSEP(builtin_location))
+        SCM_SYMBOL_SET_VCELL(sym, scm_make_shadow(make_forward(location),
+                                                  builtin_val));
+    else
+        SCM_SYMBOL_SET_VCELL(sym, make_forward(location));
+    return SCM_UNDEF;
 }

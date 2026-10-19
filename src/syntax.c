@@ -276,6 +276,11 @@ scm_s_setx(ScmObj sym, ScmObj exp, ScmObj env)
     CHECK_VALID_EVALED_VALUE(evaled);
     locally_bound = scm_lookup_environment(sym, env);
     if (locally_bound != SCM_INVALID_REF) {
+#if SCM_USE_R7RS
+        if (scm_imported_refp(sym, locally_bound, env))
+            ERR_OBJ("imported binding can't be mutated",
+                    SCM_UNWRAP_KEYWORD(sym));
+#endif
         SET(locally_bound, evaled);
     } else {
         if (EQ(scm_toplevel_value(sym, env), SCM_UNBOUND))

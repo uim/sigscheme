@@ -22,6 +22,9 @@ endif
 if USE_SRFI95
 dist_scmlib_DATA += srfi-95.scm
 endif
+if USE_R7RS
+dist_scmlib_DATA += library.scm
+endif
 
 # Install into master package's pkgdatadir if --with-master-pkg is specified
 # e.g.)

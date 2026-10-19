@@ -711,6 +711,9 @@ SCM_EXPORT scm_bool scm_toplevel_environmentp(ScmObj env);
 SCM_EXPORT ScmObj scm_env_toplevel(ScmObj env);
 SCM_EXPORT ScmObj scm_toplevel_value(ScmObj id, ScmObj env);
 SCM_EXPORT void scm_set_toplevel(ScmObj id, ScmObj val, ScmObj env);
+#if SCM_USE_R7RS
+SCM_EXPORT scm_bool scm_imported_refp(ScmObj id, ScmRef ref, ScmObj env);
+#endif
 SCM_EXPORT void scm_define_toplevel(ScmObj var, ScmObj val, ScmObj env);
 SCM_EXPORT ScmObj scm_extend_environment(ScmObj formals, ScmObj actuals,
                                          ScmObj env);
@@ -859,12 +862,15 @@ SCM_EXPORT ScmObj scm_indefinable_module(ScmObj obj);
 SCM_EXPORT ScmRef scm_module_lookup(ScmObj module, ScmObj sym);
 SCM_EXPORT void scm_module_bind(ScmObj module, ScmObj sym, ScmObj location);
 SCM_EXPORT void scm_module_define(ScmObj module, ScmObj sym, ScmObj val);
+SCM_EXPORT scm_bool scm_module_imported_refp(ScmObj module, ScmObj sym,
+                                           ScmRef ref);
 SCM_EXPORT ScmObj scm_builtin_module(void);
 SCM_EXPORT void scm_begin_builtin_definitions(void);
 SCM_EXPORT void scm_end_builtin_definitions(void);
 SCM_EXPORT scm_bool scm_defining_builtinsp(void);
 SCM_EXPORT void scm_register_bound_symbols_as_builtins(void);
 SCM_EXPORT void scm_define_builtin(ScmObj sym, ScmObj val);
+SCM_EXPORT void scm_set_builtin_location(ScmObj sym, ScmObj val);
 SCM_EXPORT scm_bool scm_builtinp(ScmObj sym);
 SCM_EXPORT ScmObj scm_make_shadow(ScmObj repl_val, ScmObj builtin_val);
 SCM_EXPORT ScmObj scm_unshadow(ScmObj val, scm_bool builtinp);

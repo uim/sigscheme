@@ -76,6 +76,9 @@ if use['utf8']
     'test-vector.scm',
   ]
 endif
+if use['srfi180']
+  sscm_tests += ['test-srfi180.scm']
+endif
 if use['euccn']
   sscm_tests += ['test-enc-eucgeneric.scm']
 endif

@@ -225,6 +225,8 @@ conf_r7rs = {
   'r7rs': 'yes',
   'bytevector': 'yes',
   'real': 'yes',
+  # It requires real.
+  'srfi180': 'yes',
   # R7RS vectors are self-evaluating.
   'strict_vector_form': 'no',
 }
@@ -336,6 +338,8 @@ conf_presets = {
     # R6RS features
     'r6rs_named_chars': 'yes',
     'r6rs_chars': 'yes',
+    # It requires real.
+    'srfi180': 'yes',
   } + conf_srfis_all,
 }
 
@@ -421,6 +425,7 @@ feature_declarations = [
   ['srfi60', 'yes'],
   ['srfi69', 'yes'],
   ['srfi95', 'yes'],
+  ['srfi180', 'no'],
 
   # R6RS features (preliminary)
   ['r6rs_named_chars', 'yes'],
@@ -512,6 +517,8 @@ feature_required_dependencies = {
   'srfi60': ['int'],
   'srfi69': ['load', 'int', 'string', 'vector', 'srfi9', 'srfi23'],
   'srfi95': ['load', 'int'],
+  'srfi180': ['load', 'int', 'real', 'char', 'string', 'vector', 'port',
+              'srfi6', 'srfi34', 'sscm_extensions'],
   'r6rs_named_chars': ['char'],
   'r6rs_chars': ['char', 'utf8', 'reader', 'r6rs_named_chars'],
   'r7rs': ['continuation', 'hygienic_macro', 'int', 'char', 'string',
@@ -784,6 +791,7 @@ feature_definitions = [
   'srfi60',
   'srfi69',
   'srfi95',
+  'srfi180',
 
   # R6RS features (preliminary)
   'r6rs_named_chars',
@@ -943,6 +951,7 @@ if use['libsscm']
     'srfi60',
     'srfi69',
     'srfi95',
+    'srfi180',
     'r6rs_chars',
     'r6rs_named_chars',
     'r7rs',
@@ -1041,6 +1050,7 @@ summary({
           'SRFI-60': use['srfi60'],
           'SRFI-69': use['srfi69'],
           'SRFI-95': use['srfi95'],
+          'SRFI-180': use['srfi180'],
         },
         section: 'SRFIs')
 summary({

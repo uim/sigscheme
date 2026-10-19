@@ -291,6 +291,8 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_promise=yes
         use_int=yes
         use_real=yes
+        # It requires real.
+        use_srfi180=yes
         use_numeric_io=yes
         use_char=yes
         use_string=yes
@@ -363,6 +365,8 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_r7rs=yes
         use_bytevector=yes
         use_real=yes
+        # It requires real.
+        use_srfi180=yes
         # R7RS vectors are self-evaluating.
         use_strict_vector_form=no
         ;;
@@ -464,6 +468,7 @@ AX_FEATURE_ARG_Y(srfi55,         [SRFI-55 'require-extension'])
 AX_FEATURE_ARG_Y(srfi60,         [SRFI-60 integers as bits (partial)])
 AX_FEATURE_ARG_Y(srfi69,         [SRFI-69 basic hash tables])
 AX_FEATURE_ARG_Y(srfi95,         [SRFI-95 sorting and merging])
+AX_FEATURE_ARG_N(srfi180,        [SRFI-180 JSON])
 
 # R6RS features (preliminary)
 AX_FEATURE_ARG_Y(r6rs-named-chars, [named characters of R6RS (preliminary)])
@@ -536,6 +541,7 @@ srfi55: load sscm_extensions
 srfi60: int
 srfi69: load int string vector srfi9 srfi23
 srfi95: load int
+srfi180: load int real char string vector port srfi6 srfi34 sscm_extensions
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars
 r7rs: continuation hygienic_macro int char string string_procedure vector bytevector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars
@@ -695,6 +701,7 @@ AX_FEATURE_DEFINE(srfi55)
 AX_FEATURE_DEFINE(srfi60)
 AX_FEATURE_DEFINE(srfi69)
 AX_FEATURE_DEFINE(srfi95)
+AX_FEATURE_DEFINE(srfi180)
 
 # R6RS features (preliminary)
 AX_FEATURE_DEFINE(r6rs_named_chars)
@@ -780,6 +787,7 @@ AC_SUBST(use_srfi55)
 AC_SUBST(use_srfi60)
 AC_SUBST(use_srfi69)
 AC_SUBST(use_srfi95)
+AC_SUBST(use_srfi180)
 AC_SUBST(use_r6rs_chars)
 AC_SUBST(use_r6rs_named_chars)
 AC_SUBST(use_r7rs)
@@ -918,6 +926,7 @@ SRFI-55: $use_srfi55
 SRFI-60: $use_srfi60
 SRFI-69: $use_srfi69
 SRFI-95: $use_srfi95
+SRFI-180: $use_srfi180
 
 [R6RS features (preliminary)]
 R6RS characters:  $use_r6rs_chars

@@ -191,6 +191,9 @@ option('srfi69',
 option('srfi95',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'SRFI-95 sorting and merging')
+option('srfi180',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-180 JSON')
 
 # R6RS features (preliminary)
 option('r6rs_named_chars',

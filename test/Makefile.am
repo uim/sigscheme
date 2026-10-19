@@ -84,6 +84,13 @@ sscm_xfail_tests += $(sscm_utf8_tests)
 endif
 EXTRA_DIST += $(sscm_utf8_tests)
 
+if USE_SRFI180
+sscm_optional_tests += test-srfi180.scm
+else
+sscm_xfail_tests += test-srfi180.scm
+endif
+EXTRA_DIST += test-srfi180.scm
+
 if USE_EUCCN
 sscm_optional_tests += test-enc-eucgeneric.scm
 else

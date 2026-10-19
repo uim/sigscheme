@@ -330,7 +330,7 @@ ScmOutputStrPort_c_strlen(ScmBytePort *bport)
 
     port = SCM_BYTEPORT_DYNAMIC_CAST(ScmOutputStrPort, bport);
 
-    return (port->buf_size) ? port->buf_size - sizeof("") : 0;
+    return port->cur;
 }
 
 SCM_EXPORT void **
@@ -417,12 +417,12 @@ ostrport_append(ScmOutputStrPort *port, size_t len, const scm_byte_t *str)
 {
     SCM_PORT_ASSERT(str);
 
-    /* extend the buffer */
+    /* Extend the buffer exponentially to avoid reallocation for each
+     * append. */
     if (port->buf_size - port->cur < len + sizeof("")) {
-        if (!port->buf_size)
-            port->buf_size = sizeof("");
-
-        port->buf_size += len;
+        port->buf_size *= 2;
+        if (port->buf_size < port->cur + len + sizeof(""))
+            port->buf_size = port->cur + len + sizeof("");
         port->str = SCM_PORT_REALLOC(port->str, port->buf_size);
     }
 

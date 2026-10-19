@@ -1,7 +1,7 @@
 ;;  Filename : srfi-0.scm
 ;;  About    : SRFI-0 Feature-based conditional expansion construct
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -56,6 +56,9 @@
          (if (not (null? (cdr args)))
              (error "invalid feature expression"))
          (not (%cond-expand-feature? (car args))))
+        ((library)
+         ;; R7RS: %%feature-requirement? is defined in library.scm.
+         (%%feature-requirement? feature-exp))
         (else
          (error "invalid feature expression"))))))))
 

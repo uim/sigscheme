@@ -570,6 +570,23 @@ scm_p_global_importx(ScmObj sym, ScmObj location)
     return SCM_UNDEF;
 }
 
+/* Returns the environment of MODULE for eval. Definitions aren't allowed
+ * in it unless strict toplevel definitions are disabled. */
+SCM_EXPORT ScmObj
+scm_p_module_environment(ScmObj module)
+{
+    DECLARE_FUNCTION("%%module-environment", procedure_fixed_1);
+
+    if (!scm_modulep(module))
+        ERR_OBJ("module required but got", module);
+
+#if SCM_STRICT_TOPLEVEL_DEFINITIONS
+    return scm_module_indefinable(module);
+#else
+    return module;
+#endif
+}
+
 /* Returns the absolute path of FILENAME searched in the library path or
  * #f. */
 SCM_EXPORT ScmObj

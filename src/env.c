@@ -549,6 +549,10 @@ scm_valid_environmentp(ScmObj env)
 
     if (TRUSTED_ENVP(env))
         return scm_true;
+#if SCM_USE_R7RS
+    if (!FALSEP(scm_indefinable_module(env)))
+        return scm_true;
+#endif
 
     /*
      * The env is extended and untrusted. Since this case rarely occurs in

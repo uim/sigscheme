@@ -40,15 +40,37 @@
 ;; (symbol . location).
 (define %%libraries '())
 
-;; Defines a library that exports the builtins SYMS. It's only for tests
-;; until the standard libraries are defined.
+;; Defines a library that exports the builtins SYMS. Unbound symbols
+;; aren't exported.
 (define (%%define-builtin-library name syms)
   (%%register-library
    name
-   (map (lambda (sym)
-          (cons sym (or (%%builtin-location sym)
-                        (error "define-library: unbound builtin" sym))))
-        syms)))
+   (let loop ((syms syms)
+              (exports '()))
+     (if (null? syms)
+         (reverse exports)
+         (let ((location (%%builtin-location (car syms))))
+           (loop (cdr syms)
+                 (if location
+                     (cons (cons (car syms) location) exports)
+                     exports)))))))
+
+(define %%standard-libraries-loaded? #f)
+
+;; Returns the entry of the library NAME in %%libraries or #f. The standard
+;; libraries are defined by scheme-libraries.scm when one of them is used
+;; first.
+(define (%%library-entry name)
+  (if (and (eq? (car name) 'scheme)
+           (not %%standard-libraries-loaded?))
+      (begin
+        (set! %%standard-libraries-loaded? #t)
+        (for-each (lambda (library)
+                    (%%define-builtin-library (car library) (cdr library)))
+                  (%%read-file (string-append (%%system-load-path)
+                                              "/scheme-libraries.scm")
+                               #f))))
+  (assoc name %%libraries))
 
 (define (%%register-library name exports)
   (let ((entry (assoc name %%libraries)))
@@ -58,7 +80,7 @@
     (if #f #f)))
 
 (define (%%library-exports name)
-  (let ((entry (or (assoc name %%libraries)
+  (let ((entry (or (%%library-entry name)
                    (begin
                      (%%load-library name)
                      (assoc name %%libraries)))))
@@ -152,7 +174,7 @@
       ((and) (%%every %%feature-requirement? (cdr requirement)))
       ((or) (%%any %%feature-requirement? (cdr requirement)))
       ((not) (not (%%feature-requirement? (cadr requirement))))
-      ((library) (and (or (assoc (cadr requirement) %%libraries)
+      ((library) (and (or (%%library-entry (cadr requirement))
                           (%%find-file
                            (%%library-file-name (cadr requirement))))
                       #t))
@@ -227,6 +249,22 @@
   (syntax-rules ()
     ((_ set ...)
      (%%import-sets '(set ...) %%global-import!))))
+
+(define %%environments '())
+
+;; R7RS: (environment import-set ...)
+;; Environments are cached because a module is never freed.
+(define (environment . sets)
+  (let ((entry (assoc sets %%environments)))
+    (if entry
+        (cdr entry)
+        (let* ((module (%%make-module '(environment)))
+               (env (%%module-environment module)))
+          (%%import-sets sets
+                         (lambda (sym location)
+                           (%%module-import! module sym location)))
+          (set! %%environments (cons (cons sets env) %%environments))
+          env))))
 
 (define-syntax define-library
   (syntax-rules ()

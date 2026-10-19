@@ -310,4 +310,60 @@
                      (define-library (test include)
                        (include "test/library/nonexistent.scm"))))
 
+(tn "standard libraries")
+(define-library (test standard)
+  (export double)
+  (import (scheme base) (prefix (scheme cxr) cxr:))
+  (begin
+    (define (double lst)
+      (vector-map (lambda (x) (* x 2)) (list->vector (cxr:cdddr lst))))))
+(import (test standard))
+(assert-equal? (tn) #(8 10) (double '(1 2 3 4 5)))
+;; All symbols in scheme-libraries.scm are exported except unbound ones.
+(define standard-libraries
+  (call-with-input-file "lib/scheme-libraries.scm"
+    (lambda (port)
+      (let loop ((libraries '()))
+        (let ((library (read port)))
+          (if (eof-object? library)
+              libraries
+              (loop (cons library libraries))))))))
+(define (unexported-symbols library)
+  (let ((exports (%%library-exports (car library))))
+    (let loop ((syms (cdr library))
+               (unexported '()))
+      (cond
+       ((null? syms) (reverse unexported))
+       ((assq (car syms) exports) (loop (cdr syms) unexported))
+       (else (loop (cdr syms) (cons (car syms) unexported)))))))
+(assert-equal? (tn)
+               '((scheme base) ... => _ else include include-ci)
+               (assoc '(scheme base) (map (lambda (library)
+                                            (cons (car library)
+                                                  (unexported-symbols library)))
+                                          standard-libraries)))
+(for-each (lambda (library)
+            (if (not (equal? (car library) '(scheme base)))
+                (assert-equal? (tn) (list (car library))
+                               (cons (car library)
+                                     (unexported-symbols library)))))
+          standard-libraries)
+
+(tn "environment")
+(define env (environment '(scheme base) '(only (scheme write) write)))
+(assert-equal? (tn) 3 (eval '(+ 1 2) env))
+(assert-equal? (tn) 'ok (eval '(let ((x 'ok)) x) env))
+(assert-true (tn) (eq? env (environment '(scheme base)
+                                         '(only (scheme write) write))))
+(assert-error (tn) (lambda () (eval '(define x 1) env)))
+(assert-error (tn) (lambda () (eval '(set! car 1) env)))
+
+(tn "cond-expand library")
+(assert-equal? (tn) 'base (cond-expand
+                           ((library (scheme base)) 'base)
+                           (else 'else)))
+(assert-equal? (tn) 'else (cond-expand
+                           ((library (scheme nonexistent)) 'nonexistent)
+                           (else 'else)))
+
 (total-report)

@@ -5,6 +5,6 @@ foreach srfi : ['0', '1', '9', '43', '55', '69', '95']
   endif
 endforeach
 if use['r7rs']
-  scm_files += files('library.scm')
+  scm_files += files('library.scm', 'scheme-libraries.scm')
 endif
 install_data(scm_files, install_dir: scmlibdir)

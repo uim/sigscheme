@@ -2003,13 +2003,21 @@ scm_p_get_environment_variables(void)
     return vars;
 }
 
-/* SigScheme doesn't support inexact numbers. So it's an exact integer. */
+/* It's an exact integer if inexact numbers aren't supported. */
 SCM_EXPORT ScmObj
 scm_p_current_second(void)
 {
+#if SCM_USE_REAL
+    struct timeval now;
+#endif
     DECLARE_FUNCTION("current-second", procedure_fixed_0);
 
+#if SCM_USE_REAL
+    gettimeofday(&now, NULL);
+    return MAKE_REAL((double)now.tv_sec + now.tv_usec / 1000000.0);
+#else
     return MAKE_INT(time(NULL));
+#endif
 }
 
 /* Jiffies are milliseconds since the initialization to avoid overflow. */

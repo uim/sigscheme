@@ -1016,7 +1016,10 @@
                  (cdr (assoc "PATH" vars))))
 
 (tn "time")
-(assert-true (tn) (exact? (current-second)))
+;; current-second is inexact if inexact numbers are supported.
+(if (string->number "0.5")
+    (assert-true (tn) (inexact? (current-second)))
+    (assert-true (tn) (exact? (current-second))))
 (assert-true (tn) (exact? (current-jiffy)))
 (assert-equal? (tn) 1000 (jiffies-per-second))
 (let ((jiffy (current-jiffy)))

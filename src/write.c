@@ -67,10 +67,11 @@
      || VALUEPACKETP(obj)                                                    \
      || ERROBJP(obj))
 #define OCCUPIED(ent)      (!EQ((ent)->key, SCM_INVALID))
-#define HASH_EMPTY(table)  (!(table).used)
 /* datum index */
 #define DEFINING_DATUM     (-1)
 #define NONDEFINING_DATUM  0
+/* The object is being scanned. It's used only for cycles. */
+#define SCANNING_DATUM     (-2)
 /* flags */
 #define HASH_INSERT    1 /* insert key if it's not registered yet */
 #define HASH_FIND      0
@@ -102,6 +103,8 @@ typedef struct {
 typedef struct {
     scm_hash_table seen; /* a table of seen objects */
     scm_intobj_t next_index;  /* the next index to use for #N# */
+    scm_bool cycles_only;  /* labels only cycles instead of shared objects */
+    scm_bool labeled;      /* some objects need labels */
 } scm_write_ss_context;
 #endif /* SCM_USE_SRFI38 */
 
@@ -158,8 +161,11 @@ static void hash_grow(scm_hash_table *tab);
 static scm_hash_entry *hash_lookup(scm_hash_table *tab,
                                    ScmObj key, scm_intobj_t datum, int flag);
 static void write_ss_scan(ScmObj obj, scm_write_ss_context *ctx);
+static scm_bool write_ss_seenp(ScmObj obj, scm_write_ss_context *ctx);
+static void write_ss_scanned(ScmObj obj, scm_write_ss_context *ctx);
 static scm_intobj_t get_shared_index(ScmObj obj);
-static void write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype);
+static void write_ss_internal(ScmObj port, ScmObj obj,
+                              enum ScmOutputType otype, scm_bool cycles_only);
 #endif /* SCM_USE_SRFI38 */
 
 /*=======================================
@@ -809,6 +815,40 @@ hash_lookup(scm_hash_table *tab, ScmObj key, scm_intobj_t datum, int flag)
     SCM_NOTREACHED;
 }
 
+/* Registers OBJ and returns false if OBJ isn't seen yet. Otherwise, marks
+ * OBJ as a defining datum and returns true. Only an object that is being
+ * scanned is marked for cycles. */
+static scm_bool
+write_ss_seenp(ScmObj obj, scm_write_ss_context *ctx)
+{
+    scm_hash_entry *ent;
+
+    ent = hash_lookup(&ctx->seen, obj,
+                      (ctx->cycles_only) ? SCANNING_DATUM : NONDEFINING_DATUM,
+                      HASH_INSERT);
+    if (!ent)
+        return scm_false;
+    if (!ctx->cycles_only || ent->datum == SCANNING_DATUM) {
+        ent->datum = DEFINING_DATUM;
+        ctx->labeled = scm_true;
+    }
+    return scm_true;
+}
+
+/* Marks OBJ as scanned. An object referred again after it is scanned isn't
+ * a part of a cycle. */
+static void
+write_ss_scanned(ScmObj obj, scm_write_ss_context *ctx)
+{
+    scm_hash_entry *ent;
+
+    if (ctx->cycles_only) {
+        ent = hash_lookup(&ctx->seen, obj, 0, HASH_FIND);
+        if (ent->datum == SCANNING_DATUM)
+            ent->datum = NONDEFINING_DATUM;
+    }
+}
+
 /**
  * Find out what non-atomic objects a structure shares within itself.
  * @param obj The object in question, or a part of it.
@@ -820,8 +860,8 @@ write_ss_scan(ScmObj obj, scm_write_ss_context *ctx)
 #if SCM_USE_VECTOR
     scm_int_t i, len;
 #endif
-    scm_hash_entry *ent;
-    ScmObj reason, objs;
+    scm_int_t n_pairs;
+    ScmObj reason, objs, rest;
     DECLARE_INTERNAL_FUNCTION("write-with-shared-structure");
 
     if (ERROBJP(obj)) {
@@ -837,42 +877,37 @@ write_ss_scan(ScmObj obj, scm_write_ss_context *ctx)
         return;
     }
 
-    /* (for-each mark-as-seen-or-return-if-familiar obj) */
-    for (; CONSP(obj); obj = CDR(obj)) {
-        ent = hash_lookup(&ctx->seen, obj, NONDEFINING_DATUM, HASH_INSERT);
-        if (ent) {
-            ent->datum = DEFINING_DATUM;
-            return;
-        }
-        write_ss_scan(CAR(obj), ctx);
+    /* (for-each mark-as-seen-or-stop-if-familiar obj) */
+    for (n_pairs = 0, rest = obj; CONSP(rest); rest = CDR(rest), n_pairs++) {
+        if (write_ss_seenp(rest, ctx))
+            break;
+        write_ss_scan(CAR(rest), ctx);
     }
 
-    if (INTERESTINGP(obj)) {
-        ent = hash_lookup(&ctx->seen, obj, NONDEFINING_DATUM, HASH_INSERT);
-        if (ent) {
-            ent->datum = DEFINING_DATUM;
-            return;
-        }
-        switch (SCM_TYPE(obj)) {
+    /* Only pairs and vectors may be a part of a cycle. */
+    if (!CONSP(rest) && INTERESTINGP(rest)
+        && !(ctx->cycles_only && !VECTORP(rest))
+        && !write_ss_seenp(rest, ctx)) {
+        switch (SCM_TYPE(rest)) {
         case ScmClosure:
             /* We don't need to track env because it's not printed anyway. */
-            write_ss_scan(SCM_CLOSURE_EXP(obj), ctx);
+            write_ss_scan(SCM_CLOSURE_EXP(rest), ctx);
             break;
 
         case ScmValuePacket:
 #if SCM_USE_VALUECONS
 #if SCM_USE_STORAGE_FATTY
-            if (!SCM_NULLVALUESP(obj)) {
-                /* EQ(obj, SCM_VALUEPACKET_VALUES(obj)) */
-                write_ss_scan(CDR(SCM_VALUEPACKET_VALUES(obj)), ctx);
+            if (!SCM_NULLVALUESP(rest)) {
+                /* EQ(obj, SCM_VALUEPACKET_VALUES(rest)) */
+                write_ss_scan(CDR(SCM_VALUEPACKET_VALUES(rest)), ctx);
                 /* SCM_VALUEPACKET_VALUES() changes the type destructively */
-                SCM_ENTYPE(obj, ScmValuePacket);
+                SCM_ENTYPE(rest, ScmValuePacket);
             }
 #else /* SCM_USE_STORAGE_FATTY */
 #error "valuecons is not supported on this storage implementation"
 #endif /* SCM_USE_STORAGE_FATTY */
 #else /* SCM_USE_VALUECONS */
-            write_ss_scan(SCM_VALUEPACKET_VALUES(obj), ctx);
+            write_ss_scan(SCM_VALUEPACKET_VALUES(rest), ctx);
 #endif /* SCM_USE_VALUECONS */
             break;
 
@@ -880,17 +915,24 @@ write_ss_scan(ScmObj obj, scm_write_ss_context *ctx)
         case ScmVector:
 #if SCM_USE_SRFI9
             /* The contents of records aren't written. */
-            if (scm_recordp(obj) || scm_record_typep(obj))
+            if (scm_recordp(rest) || scm_record_typep(rest))
                 break;
 #endif
-            for (i = 0, len = SCM_VECTOR_LEN(obj); i < len; i++)
-                write_ss_scan(SCM_VECTOR_VEC(obj)[i], ctx);
+            for (i = 0, len = SCM_VECTOR_LEN(rest); i < len; i++)
+                write_ss_scan(SCM_VECTOR_VEC(rest)[i], ctx);
             break;
 #endif /* SCM_USE_VECTOR */
 
         default:
             break;
         }
+        write_ss_scanned(rest, ctx);
+    }
+
+    /* The scanned pairs aren't a part of cycles of the following objects. */
+    if (ctx->cycles_only) {
+        for (rest = obj; n_pairs; rest = CDR(rest), n_pairs--)
+            write_ss_scanned(rest, ctx);
     }
 }
 
@@ -920,21 +962,24 @@ get_shared_index(ScmObj obj)
 }
 
 static void
-write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype)
+write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype,
+                  scm_bool cycles_only)
 {
     scm_write_ss_context ctx = {{0}};
     size_t i;
 
     ctx.next_index = 1;
-    ctx.seen.size = 1 << 8; /* arbitrary initial size */
+    ctx.cycles_only = cycles_only;
+    /* arbitrary initial size. Most objects to be written are small. */
+    ctx.seen.size = 1 << 5;
     ctx.seen.ents = scm_malloc(ctx.seen.size * sizeof(scm_hash_entry));
     for (i = 0; i < ctx.seen.size; i++)
         ctx.seen.ents[i].key = SCM_INVALID;
 
     write_ss_scan(obj, &ctx);
 
-    /* If no structure is shared, we do a normal write. */
-    if (!HASH_EMPTY(ctx.seen))
+    /* If no object needs a label, we do a normal write. */
+    if (ctx.labeled)
         l_write_ss_ctx = &ctx;
 
     write_internal(port, obj, otype);
@@ -947,13 +992,13 @@ write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 SCM_EXPORT void
 scm_write_ss(ScmObj port, ScmObj obj)
 {
-    write_ss_internal(port, obj, AS_WRITE);
+    write_ss_internal(port, obj, AS_WRITE, scm_false);
 }
 
 SCM_EXPORT void
 scm_display_errobj_ss(ScmObj port, ScmObj errobj)
 {
-    write_ss_internal(port, errobj, AS_DISPLAY);
+    write_ss_internal(port, errobj, AS_DISPLAY, scm_false);
 }
 #endif /* SCM_USE_SRFI38 */
 
@@ -967,6 +1012,14 @@ scm_p_write(ScmObj obj, ScmObj args)
     DECLARE_FUNCTION("write", procedure_variadic_1);
 
     port = scm_prepare_port(args, scm_out);
+#if SCM_USE_R7RS
+    /* R7RS: Datum labels are used for cycles. Only pairs and vectors may
+     * have cycles. */
+    if (CONSP(obj) || VECTORP(obj)) {
+        write_ss_internal(port, obj, AS_WRITE, scm_true);
+        return SCM_UNDEF;
+    }
+#endif
     scm_write(port, obj);
     return SCM_UNDEF;
 }
@@ -978,6 +1031,13 @@ scm_p_display(ScmObj obj, ScmObj args)
     DECLARE_FUNCTION("display", procedure_variadic_1);
 
     port = scm_prepare_port(args, scm_out);
+#if SCM_USE_R7RS
+    /* R7RS: display must always terminate. */
+    if (CONSP(obj) || VECTORP(obj)) {
+        write_ss_internal(port, obj, AS_DISPLAY, scm_true);
+        return SCM_UNDEF;
+    }
+#endif
     scm_display(port, obj);
     return SCM_UNDEF;
 }

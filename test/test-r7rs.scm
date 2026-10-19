@@ -1292,6 +1292,41 @@
 (assert-equal? (tn) '(26 3 15 9) (list #X1a #B11 #O17 #D9))
 (assert-equal? (tn) #u8(1 2) #U8(1 2))
 
+(define (r7rs-write-to-string write obj)
+  (let ((port (open-output-string)))
+    (write obj port)
+    (get-output-string port)))
+
+(tn "write cycles")
+(let ((x (list 1 2 3)))
+  (set-cdr! (cddr x) x)
+  (assert-equal? (tn) "#1=(1 2 3 . #1#)" (r7rs-write-to-string write x))
+  (assert-equal? (tn) "#1=(1 2 3 . #1#)" (r7rs-write-to-string display x)))
+(let ((x (list 'a 'b)))
+  (set-car! x x)
+  (assert-equal? (tn) "#1=(#1# b)" (r7rs-write-to-string write x)))
+(let ((v (vector 1 2)))
+  (vector-set! v 1 v)
+  (assert-equal? (tn) "#1=#(1 #1#)" (r7rs-write-to-string write v)))
+(let* ((s (list 1 2))
+       (x (list s s)))
+  (set-cdr! (cdr s) x)
+  ;; S is shared but it isn't labeled because it's not needed to break the
+  ;; cycle.
+  (assert-equal? (tn)
+                 "#1=((1 2 . #1#) (1 2 . #1#))"
+                 (r7rs-write-to-string write x)))
+
+(tn "write shared structure without cycles")
+(let ((x (list 1 2)))
+  (assert-equal? (tn) "((1 2) (1 2))" (r7rs-write-to-string write (list x x)))
+  (assert-equal? (tn) "#((1 2) (1 2))"
+                 (r7rs-write-to-string write (vector x x)))
+  (assert-equal? (tn) "((1 2) (1 2))"
+                 (r7rs-write-to-string write-simple (list x x)))
+  (assert-equal? (tn) "(#1=(1 2) #1#)"
+                 (r7rs-write-to-string write-shared (list x x))))
+
 ;; Records are available without requiring SRFI-9.
 (tn "define-record-type")
 (define-record-type <r7rs-pare> (r7rs-kons x y) r7rs-pare?

@@ -228,7 +228,9 @@ struct ScmCell_ {
     ScmObj obj_y;
 };
 
-typedef ScmObj (*ScmFuncType)(void);
+/* GCC allows casts between void (*)(void) and other function types without
+ * warnings. A function must be cast to its actual type to be called. */
+typedef void (*ScmFuncType)(void);
 
 /* ScmObj = .....|PP|G
  * G = GC bit

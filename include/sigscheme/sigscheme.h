@@ -508,7 +508,7 @@ typedef scm_int_t ScmPackedEnv;
  * typedef <hidden> ScmObj;
  * typedef <hidden> ScmRef;
  *
- * typedef ScmObj (*ScmFuncType)();
+ * typedef void (*ScmFuncType)(void);
  *
  * And following macros:
  *

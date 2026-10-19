@@ -96,7 +96,9 @@
 =======================================*/
 static scm_bool valid_framep(ScmObj frame);
 static scm_int_t env_depth(ScmObj env);
-static inline ScmRef lookup_frames(ScmObj var, ScmObj env);
+static inline ScmRef lookup_frames(ScmObj var, ScmObj env,
+                                   ScmObj *toplevel);
+static ScmObj env_toplevel(ScmObj env);
 #if SCM_USE_R7RS
 static ScmRef lookup_module(ScmObj var, ScmObj module);
 #endif
@@ -115,6 +117,15 @@ scm_toplevel_environmentp(ScmObj env)
 #else
     return NULLP(env);
 #endif
+}
+
+/* Returns the toplevel environment that is the tail of ENV. */
+static ScmObj
+env_toplevel(ScmObj env)
+{
+    for (; CONSP(env); env = CDR(env))
+        ;
+    return env;
 }
 
 /* Returns the number of frames of ENV. */
@@ -343,12 +354,13 @@ SCM_EXPORT ScmRef
 scm_lookup_environment(ScmObj var, ScmObj env)
 {
     ScmRef ref;
+    ScmObj toplevel;
     DECLARE_INTERNAL_FUNCTION("scm_lookup_environment");
 
     SCM_ASSERT(IDENTIFIERP(var));
     SCM_ASSERT(VALID_ENVP(env));
 
-    ref = lookup_frames(var, env);
+    ref = lookup_frames(var, env, &toplevel);
 #if SCM_USE_HYGIENIC_MACRO
     if (ref == SCM_INVALID_REF && FARSYMBOLP(var))
         ref = lookup_far_symbol(var, env);
@@ -357,9 +369,12 @@ scm_lookup_environment(ScmObj var, ScmObj env)
 }
 
 /* Lookup a variable in all frames of an env. This is separated from
- * scm_lookup_environment() to keep the common case fast. */
+ * scm_lookup_environment() to keep the common case fast. TOPLEVEL is set to
+ * the toplevel environment of ENV if the variable isn't found in the
+ * frames. A variable in the global environment or the builtin module isn't
+ * found because it's in the value cell of the symbol. */
 static inline ScmRef
-lookup_frames(ScmObj var, ScmObj env)
+lookup_frames(ScmObj var, ScmObj env, ScmObj *toplevel)
 {
     ScmRef ref;
 
@@ -368,6 +383,7 @@ lookup_frames(ScmObj var, ScmObj env)
         if (ref != SCM_INVALID_REF)
             return ref;
     }
+    *toplevel = env;
 #if SCM_USE_R7RS
     if (!NULLP(env))
         return lookup_module(var, env);
@@ -382,7 +398,9 @@ lookup_frames(ScmObj var, ScmObj env)
 static ScmRef
 lookup_module(ScmObj var, ScmObj module)
 {
-    return (SYMBOLP(var)) ? scm_module_lookup(module, var) : SCM_INVALID_REF;
+    if (!SYMBOLP(var) || EQ(module, scm_builtin_module()))
+        return SCM_INVALID_REF;
+    return scm_module_lookup(module, var);
 }
 #endif
 
@@ -407,10 +425,9 @@ lookup_far_symbol(ScmObj var, ScmObj env)
 #if SCM_USE_R7RS
     /* The toplevel of a module. */
     if (ref == SCM_INVALID_REF) {
-        for (; CONSP(env); env = CDR(env))
-            ;
+        env = env_toplevel(env);
         if (!NULLP(env))
-            ref = scm_module_lookup(env, SCM_FARSYMBOL_SYM(var));
+            ref = lookup_module(SCM_FARSYMBOL_SYM(var), env);
     }
 #endif
     return ref;
@@ -446,7 +463,7 @@ ScmObj
 scm_symbol_value(ScmObj var, ScmObj env)
 {
     ScmRef ref;
-    ScmObj val;
+    ScmObj val, toplevel;
     DECLARE_INTERNAL_FUNCTION("scm_symbol_value");
 
     SCM_ASSERT(IDENTIFIERP(var));
@@ -456,10 +473,11 @@ scm_symbol_value(ScmObj var, ScmObj env)
     if (FARSYMBOLP(var)) {
         ref = scm_lookup_environment(var, env);
         var = SCM_FARSYMBOL_SYM(var);
+        toplevel = env_toplevel(env);
     } else
 #endif
     {
-        ref = lookup_frames(var, env);
+        ref = lookup_frames(var, env, &toplevel);
     }
 
     if (ref != SCM_INVALID_REF) {
@@ -471,6 +489,10 @@ scm_symbol_value(ScmObj var, ScmObj env)
         /* Fallback to top-level binding. */
         SCM_ASSERT(SYMBOLP(var));
         val = SCM_SYMBOL_VCELL(var);
+#if SCM_USE_R7RS
+        if (VECTORP(val))
+            val = scm_unshadow(val, !NULLP(toplevel));
+#endif
     }
 
     if (EQ(val, SCM_UNBOUND))
@@ -607,6 +629,52 @@ scm_validate_actuals(ScmObj actuals)
     return len;
 }
 
+/* Returns the value of SYM in the global environment or the builtin
+ * module. ENV is used to choose one of them. It may be SCM_UNBOUND. */
+SCM_EXPORT ScmObj
+scm_toplevel_value(ScmObj sym, ScmObj env)
+{
+    SCM_ASSERT(SYMBOLP(sym));
+
+#if SCM_USE_R7RS
+    return scm_unshadow(SCM_SYMBOL_VCELL(sym), !NULLP(env_toplevel(env)));
+#else
+    return SCM_SYMBOL_VCELL(sym);
+#endif
+}
+
+#if SCM_USE_R7RS
+/* Sets VAL to SYM in the global environment if REPLP. Otherwise, sets it in
+ * the builtin module. A shadow keeps the builtin when the global
+ * environment changes it. */
+static void
+set_value_cell(ScmObj sym, ScmObj val, scm_bool replp)
+{
+    ScmObj cur;
+
+    cur = SCM_SYMBOL_VCELL(sym);
+    if (scm_shadowp(cur))
+        SCM_VECTOR_VEC(cur)[(replp) ? 1 : 2] = val;
+    else if (replp && !EQ(cur, SCM_UNBOUND) && scm_builtinp(sym))
+        SCM_SYMBOL_SET_VCELL(sym, scm_make_shadow(val, cur));
+    else
+        SCM_SYMBOL_SET_VCELL(sym, val);
+}
+#endif
+
+/* Sets VAL to the bound SYM in the toplevel environment of ENV. */
+SCM_EXPORT void
+scm_set_toplevel(ScmObj sym, ScmObj val, ScmObj env)
+{
+    SCM_ASSERT(SYMBOLP(sym));
+
+#if SCM_USE_R7RS
+    set_value_cell(sym, val, NULLP(env_toplevel(env)));
+#else
+    SCM_SYMBOL_SET_VCELL(sym, val);
+#endif
+}
+
 /* Defines VAR as VAL in the toplevel environment ENV. */
 SCM_EXPORT void
 scm_define_toplevel(ScmObj var, ScmObj val, ScmObj env)
@@ -615,10 +683,13 @@ scm_define_toplevel(ScmObj var, ScmObj val, ScmObj env)
     SCM_ASSERT(SYMBOLP(var));
 
 #if SCM_USE_R7RS
-    if (!NULLP(env)) {
+    if (NULLP(env))
+        set_value_cell(var, val, scm_true);
+    else if (EQ(env, scm_builtin_module()))
+        scm_define_builtin(var, val);
+    else
         scm_module_define(env, var, val);
-        return;
-    }
-#endif
+#else
     SCM_SYMBOL_SET_VCELL(var, val);
+#endif
 }

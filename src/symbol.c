@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005      Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -110,7 +110,7 @@ scm_symbol_bound_to(ScmObj obj)
     for (i = 0; i < scm_symbol_hash_size; i++) {
         lst = scm_symbol_hash[i];
         FOR_EACH (sym, lst) {
-            val = SCM_SYMBOL_VCELL(sym);
+            val = scm_toplevel_value(sym, SCM_INTERACTION_ENV);
             if (!EQ(val, SCM_UNBOUND) && EQ(val, obj))
                 return sym;
         }

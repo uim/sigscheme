@@ -620,7 +620,8 @@ format_directive(ScmObj port, scm_ichar_t last_ch,
 #endif /* SCM_USE_SRFI38 */
 
         case 'y': /* Yuppify */
-            proc_pretty_print = SCM_SYMBOL_VCELL(l_sym_pretty_print);
+            proc_pretty_print = scm_toplevel_value(l_sym_pretty_print,
+                                                   SCM_INTERACTION_ENV);
             if (EQ(proc_pretty_print, SCM_UNBOUND)) {
                 /* called internally when (use srfi-48) is not evaluated yet */
                 scm_write(port, POP_FORMAT_ARG(args));

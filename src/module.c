@@ -125,6 +125,7 @@ static const struct scm_module_info module_info_table[] = {
 static const struct scm_module_info *lookup_module_info(const char *feature);
 static void *scm_use_internal(const char *feature);
 static void *scm_require_module_internal(const char *name);
+static void define_global(ScmObj sym, ScmObj val);
 
 /*=======================================
   Function Definitions
@@ -256,7 +257,15 @@ scm_p_require_module(ScmObj name)
     c_name = SCM_STRING_STR(name);
     if ((mod = lookup_module_info(c_name))) {
         if (!scm_providedp(name)) {
+#if SCM_USE_R7RS
+            /* A module is a set of builtins. If an error occurs, builtins
+             * are defined until the initialization ends. */
+            scm_begin_builtin_definitions();
             (*mod->initializer)();
+            scm_end_builtin_definitions();
+#else
+            (*mod->initializer)();
+#endif
             scm_provide(name);
         }
         return SCM_TRUE;
@@ -268,11 +277,24 @@ scm_p_require_module(ScmObj name)
 /*===========================================================================
   Scheme Function Export Related Functions
 ===========================================================================*/
+/* Defines a global variable or a builtin while builtins are defined. */
+static void
+define_global(ScmObj sym, ScmObj val)
+{
+#if SCM_USE_R7RS
+    if (scm_defining_builtinsp()) {
+        scm_define_builtin(sym, val);
+        return;
+    }
+#endif
+    scm_define_toplevel(sym, val, SCM_INTERACTION_ENV);
+}
+
 SCM_EXPORT void
 scm_define_alias(const char *newsym, const char *sym)
 {
-    SCM_SYMBOL_SET_VCELL(scm_intern(newsym),
-                         SCM_SYMBOL_VCELL(scm_intern(sym)));
+    define_global(scm_intern(newsym),
+                  scm_toplevel_value(scm_intern(sym), SCM_INTERACTION_ENV));
 }
 
 SCM_EXPORT void
@@ -295,6 +317,6 @@ scm_register_func(const char *name, ScmFuncType c_func,
     func = MAKE_FUNC(type, c_func);
 
     /* TODO: reject bad TYPE */
-    SCM_SYMBOL_SET_VCELL(sym, func);
+    define_global(sym, func);
     return func;
 }

@@ -47,6 +47,12 @@
  * import a binding. INDEFINABLE is #(marker module) for the toplevel of
  * the module where definitions aren't allowed. It isn't a pair because a
  * pair is a non-toplevel environment.
+ *
+ * The builtin module is the namespace of builtins. The REPL (the global
+ * environment) shares the value cells of symbols with the builtin module for
+ * speed. If the REPL redefines a builtin, the value cell has a shadow
+ * #(marker repl-value builtin-value) to keep the builtin. The builtin module
+ * binds each builtin to the symbol itself as its location.
  */
 
 /*=======================================
@@ -74,11 +80,19 @@
 
 SCM_GLOBAL_VARS_BEGIN(static_library);
 #define static
-static ScmObj l_module_marker, l_indefinable_marker;
+static ScmObj l_module_marker, l_indefinable_marker, l_shadow_marker;
+static ScmObj l_builtin_module;
+static scm_bool l_builtin_ready;
+static scm_int_t l_builtin_definition_depth;
 #undef static
 SCM_GLOBAL_VARS_END(static_library);
 #define l_module_marker      SCM_GLOBAL_VAR(static_library, l_module_marker)
 #define l_indefinable_marker SCM_GLOBAL_VAR(static_library, l_indefinable_marker)
+#define l_shadow_marker      SCM_GLOBAL_VAR(static_library, l_shadow_marker)
+#define l_builtin_module     SCM_GLOBAL_VAR(static_library, l_builtin_module)
+#define l_builtin_ready      SCM_GLOBAL_VAR(static_library, l_builtin_ready)
+#define l_builtin_definition_depth                                           \
+    SCM_GLOBAL_VAR(static_library, l_builtin_definition_depth)
 SCM_DEFINE_STATIC_VARS(static_library);
 
 /*=======================================
@@ -102,8 +116,14 @@ scm_init_library(void)
                              LIST_1(scm_intern("%%module")));
     scm_gc_protect_with_init(&l_indefinable_marker,
                              LIST_1(scm_intern("%%indefinable-module")));
+    scm_gc_protect_with_init(&l_shadow_marker,
+                             LIST_1(scm_intern("%%shadow")));
+    scm_gc_protect_with_init(&l_builtin_module,
+                             scm_make_module(LIST_2(scm_intern("sigscheme"),
+                                                    scm_intern("builtin"))));
 
     scm_register_funcs(scm_functable_r7rs_library);
+    l_builtin_ready = scm_true;
 }
 
 static ScmObj
@@ -260,4 +280,99 @@ scm_p_make_module(ScmObj name)
     DECLARE_FUNCTION("%%make-module", procedure_fixed_1);
 
     return scm_make_module(name);
+}
+
+/*
+ * The builtin namespace
+ */
+SCM_EXPORT ScmObj
+scm_builtin_module(void)
+{
+    return l_builtin_module;
+}
+
+/* Builtins are defined between them. They may be nested. */
+SCM_EXPORT void
+scm_begin_builtin_definitions(void)
+{
+    l_builtin_definition_depth++;
+}
+
+SCM_EXPORT void
+scm_end_builtin_definitions(void)
+{
+    SCM_ASSERT(l_builtin_definition_depth > 0);
+    l_builtin_definition_depth--;
+}
+
+SCM_EXPORT scm_bool
+scm_defining_builtinsp(void)
+{
+    return l_builtin_definition_depth > 0;
+}
+
+/* Registers all bound symbols as builtins. It's for builtins defined before
+ * the builtin module is created. */
+SCM_EXPORT void
+scm_register_bound_symbols_as_builtins(void)
+{
+    ScmObj lst, sym;
+    size_t i;
+
+    for (i = 0; i < scm_symbol_hash_size; i++) {
+        lst = scm_symbol_hash[i];
+        FOR_EACH (sym, lst) {
+            if (SCM_SYMBOL_BOUNDP(sym)
+                && FALSEP(module_entry(l_builtin_module, sym)))
+                scm_module_bind(l_builtin_module, sym, sym);
+        }
+    }
+}
+
+/* Defines SYM as VAL in the builtin namespace. The REPL also uses VAL as
+ * before because a builtin definition overrides the REPL definition. */
+SCM_EXPORT void
+scm_define_builtin(ScmObj sym, ScmObj val)
+{
+    /* Builtins defined before the builtin module is created are registered
+     * by scm_register_bound_symbols_as_builtins() later. */
+    if (l_builtin_ready && !scm_builtinp(sym))
+        scm_module_bind(l_builtin_module, sym, sym);
+    SCM_SYMBOL_SET_VCELL(sym, val);
+}
+
+/* It may be called before the builtin module is created. */
+SCM_EXPORT scm_bool
+scm_builtinp(ScmObj sym)
+{
+    return l_builtin_ready && !FALSEP(module_entry(l_builtin_module, sym));
+}
+
+SCM_EXPORT ScmObj
+scm_make_shadow(ScmObj repl_val, ScmObj builtin_val)
+{
+    ScmObj *vec;
+
+    vec = scm_malloc(sizeof(ScmObj) * 3);
+    vec[0] = l_shadow_marker;
+    vec[1] = repl_val;
+    vec[2] = builtin_val;
+    return MAKE_VECTOR(vec, 3);
+}
+
+/* Returns the value for the REPL or the builtin namespace if VAL is a
+ * shadow. Otherwise, returns VAL. */
+SCM_EXPORT ScmObj
+scm_unshadow(ScmObj val, scm_bool builtinp)
+{
+    if (scm_shadowp(val))
+        return SCM_VECTOR_VEC(val)[(builtinp) ? 2 : 1];
+    return val;
+}
+
+SCM_EXPORT scm_bool
+scm_shadowp(ScmObj obj)
+{
+    return (VECTORP(obj) && SCM_VECTOR_LEN(obj) == 3
+            && EQ(SCM_VECTOR_VEC(obj)[0], l_shadow_marker));
 }

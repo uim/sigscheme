@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -169,7 +169,7 @@ scm_p_set_symbol_valuex(ScmObj var, ScmObj val)
 
     ENSURE_SYMBOL(var);
 
-    SCM_SYMBOL_SET_VCELL(var, val);
+    scm_define_toplevel(var, val, SCM_INTERACTION_ENV);
 
     return val;
 }
@@ -243,7 +243,7 @@ scm_s_undefine(ScmObj var, ScmObj env)
     if (val != SCM_INVALID_REF)
         SET(val, SCM_UNBOUND);
     else
-        SCM_SYMBOL_SET_VCELL(var, SCM_UNBOUND);
+        scm_set_toplevel(var, SCM_UNBOUND, env);
 
     return SCM_FALSE;
 }

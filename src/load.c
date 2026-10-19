@@ -84,6 +84,7 @@ SCM_DEFINE_STATIC_VARS(static_load);
   File Local Function Declarations
 =======================================*/
 static void *scm_load_internal(const char *filename);
+static void load_file(const char *filename, ScmObj env);
 static char *find_path(const char *filename);
 static scm_bool file_existsp(const char *filepath);
 #if SCM_USE_SRFI22
@@ -160,7 +161,12 @@ scm_load_system_file(const char *file)
     path = scm_p_string_append(LIST_3(scm_p_system_load_path(),
                                       CONST_STRING("/"),
                                       CONST_STRING(file)));
+#if SCM_USE_R7RS
+    /* System files define builtins. */
+    load_file(SCM_STRING_STR(path), scm_builtin_module());
+#else
     scm_p_load(path);
+#endif
 }
 
 SCM_EXPORT void
@@ -199,6 +205,14 @@ scm_load(const char *filename)
 static void *
 scm_load_internal(const char *filename)
 {
+    load_file(filename, SCM_INTERACTION_ENV);
+    return NULL;
+}
+
+/* Evaluates expressions in FILENAME in the toplevel environment ENV. */
+static void
+load_file(const char *filename, ScmObj env)
+{
     ScmObj path, port, sexp;
     char *c_path;
 #if SCM_USE_MULTIBYTE_CHAR
@@ -226,7 +240,7 @@ scm_load_internal(const char *filename)
 
     /* read & eval cycle */
     while (sexp = scm_read(port), !EOFP(sexp))
-        EVAL(sexp, SCM_INTERACTION_ENV);
+        EVAL(sexp, env);
 
     scm_p_close_input_port(port);
 #if SCM_USE_MULTIBYTE_CHAR
@@ -234,7 +248,6 @@ scm_load_internal(const char *filename)
 #endif
 
     CDBG((SCM_DBG_FILE, "done."));
-    return NULL;
 }
 
 static char *

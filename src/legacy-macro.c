@@ -2,7 +2,7 @@
  *  Filename : legacy-macro.c
  *  About    : Legacy 'define-macro' syntax
  *
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -112,9 +112,9 @@ scm_s_define_macro(ScmObj identifier, ScmObj rest, ScmEvalState *eval_state)
 #endif
     identifier = SCM_UNWRAP_KEYWORD(identifier);
 
-    closure = SCM_SYMBOL_VCELL(identifier);
+    closure = scm_toplevel_value(identifier, eval_state->env);
     if (!CLOSUREP(closure))
-        SCM_SYMBOL_SET_VCELL(identifier, SCM_UNBOUND);
+        scm_set_toplevel(identifier, SCM_UNBOUND, eval_state->env);
     ENSURE_CLOSURE(closure);
     if (!scm_toplevel_environmentp(SCM_CLOSURE_ENV(closure)))
         ERR("syntactic closure in SigScheme must have toplevel environment");

@@ -249,7 +249,7 @@ scm_p_require(volatile ScmObj filename)
 #if SCM_COMPAT_SIOD
     loaded_str = make_loaded_str(SCM_STRING_STR(filename));
     retsym = scm_intern(SCM_STRING_STR(loaded_str));
-    SCM_SYMBOL_SET_VCELL(retsym, SCM_TRUE);
+    scm_define_toplevel(retsym, SCM_TRUE, SCM_INTERACTION_ENV);
 
     return retsym;
 #else

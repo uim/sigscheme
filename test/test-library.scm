@@ -60,9 +60,8 @@
 (eval '(define module-only 2) module)
 (assert-equal? (tn) 2 (eval 'module-only module))
 
-(tn "module globals")
-;; The global environment is visible until the builtin namespace is
-;; separated.
+(tn "module builtins")
+;; Builtins are visible in a module.
 (assert-equal? (tn) 3 (eval '(car (list 3)) module))
 
 (tn "module begin and define-values")
@@ -101,5 +100,36 @@
 (tn "module toplevel definitions")
 (assert-error (tn) (lambda () (eval '(if #t (define zz 1)) module)))
 (assert-error (tn) (lambda () (eval 'no-such-variable module)))
+
+(tn "builtins redefined in the global environment")
+(define orig-car car)
+(define orig-cdr cdr)
+(define (car x) 'global-car)
+(assert-equal? (tn) 'global-car (car '(1)))
+(assert-equal? (tn) 1 (eval '(car '(1)) module))
+(set! cdr (lambda (x) 'global-cdr))
+(assert-equal? (tn) 'global-cdr (cdr '(1 2)))
+(assert-equal? (tn) '(2) (eval '(cdr '(1 2)) module))
+(define car orig-car)
+(set! cdr orig-cdr)
+(assert-equal? (tn) 1 (car '(1)))
+(assert-equal? (tn) '(2) (cdr '(1 2)))
+
+(tn "builtins written in Scheme use builtins")
+(define orig-open-input-file open-input-file)
+(define (open-input-file path) (error "global open-input-file is used"))
+(assert-equal? (tn)
+               #\;
+               (call-with-input-file (string-append (%%system-load-path)
+                                                    "/srfi-9.scm")
+                 read-char))
+(define open-input-file orig-open-input-file)
+
+(tn "global variables")
+(define global-counter 0)
+(set! global-counter (+ global-counter 1))
+(assert-equal? (tn) 1 global-counter)
+(assert-error (tn) (lambda () (eval '(set! no-such-global 1)
+                                    (interaction-environment))))
 
 (total-report)

@@ -350,6 +350,8 @@ scm_initialize_internal(const char *const *argv)
      * override the R5RS versions. */
     scm_init_r7rs();
     scm_init_library();
+    /* The following definitions are builtins. */
+    scm_begin_builtin_definitions();
     /* R7RS: guard, raise and with-exception-handler */
     scm_require_module("srfi-34");
 #endif
@@ -396,6 +398,13 @@ scm_initialize_internal(const char *const *argv)
     scm_s_srfi55_require_extension(LIST_1(LIST_2(scm_intern("srfi"),
                                                  MAKE_INT(0))),
                                    SCM_INTERACTION_ENV);
+#endif
+
+#if SCM_USE_R7RS
+    scm_end_builtin_definitions();
+    /* Builtins defined before the builtin module is created and in the
+     * global environment such as srfi-0.scm. */
+    scm_register_bound_symbols_as_builtins();
 #endif
 
     return rest_argv;

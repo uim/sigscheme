@@ -23,7 +23,25 @@ namespace :version do
       File.read("meson.build").
         sub(/^(project\(.*?version:\s*')\d+\.\d+\.\d+/m) {"#{$1}#{next_version}"}
     File.write("meson.build", meson_build)
-    sh("git", "add", "configure.ac", "meson.build")
+    sigscheme_h_path = "include/sigscheme/sigscheme.h"
+    sigscheme_h =
+      File.read(sigscheme_h_path).
+        sub(/^(#define SSCM_VERSION_STRING\s+)".+?"/) do
+          "#{$1}\"#{next_version}\""
+        end
+    major, minor, patchlevel = next_version.split(".")
+    {
+      "MAJOR" => major,
+      "MINOR" => minor,
+      "PATCHLEVEL" => patchlevel,
+    }.each do |name, value|
+      sigscheme_h =
+        sigscheme_h.sub(/^(#define SSCM_VERSION_#{name}\s+)\(\d+\)/) do
+          "#{$1}(#{value})"
+        end
+    end
+    File.write(sigscheme_h_path, sigscheme_h)
+    sh("git", "add", "configure.ac", "meson.build", sigscheme_h_path)
     sh("git", "commit", "-m", "Bump version")
     sh("git", "push")
   end

@@ -504,7 +504,7 @@ write_string(ScmObj port, ScmObj obj, enum ScmOutputType otype)
     const ScmSpecialCharInfo *info;
     const char *str, *ch;
     char *buf, *p;
-    size_t len;
+    size_t len, ch_len;
     scm_ichar_t c;
     DECLARE_INTERNAL_FUNCTION("write");
 
@@ -539,11 +539,11 @@ write_string(ScmObj port, ScmObj obj, enum ScmOutputType otype)
         while (SCM_MBS_GET_SIZE(mbs)) {
             ch = SCM_MBS_GET_STR(mbs);
             c = SCM_CHARCODEC_READ_CHAR(codec, mbs);
-            len = SCM_MBS_GET_STR(mbs) - ch;
+            ch_len = SCM_MBS_GET_STR(mbs) - ch;
 #else /* SCM_USE_MULTIBYTE_CHAR */
         for (i = 0, ch = str; i < SCM_STRING_LEN(obj); i++, ch++) {
             c = (unsigned char)*ch;
-            len = 1;
+            ch_len = 1;
 #endif /* SCM_USE_MULTIBYTE_CHAR */
             /* Only these ASCII characters may be escaped. */
             if (c < 0x20 || c == '\"' || c == '\\' || c == 0x7f) {
@@ -555,8 +555,8 @@ write_string(ScmObj port, ScmObj obj, enum ScmOutputType otype)
                     }
                 }
             }
-            memcpy(p, ch, len);
-            p += len;
+            memcpy(p, ch, ch_len);
+            p += ch_len;
         continue2:
             ;
         }

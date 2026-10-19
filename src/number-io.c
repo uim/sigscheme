@@ -74,7 +74,7 @@
 static int prepare_radix(const char *funcname, ScmObj args);
 #endif
 #if SCM_USE_REAL
-static scm_bool decimalp(const char *str);
+static scm_bool decimalp(const char *str, scm_bool allow_integer);
 static double string2double(const char *str);
 static ScmObj parse_real(const char *str, char exactness);
 static void normalize_decimal_point(char *buf);
@@ -321,22 +321,22 @@ scm_parse_number(const char *str, int radix)
 #if SCM_USE_REAL
     /* Only radix 10 has the decimal notation. An integer that is too large is
      * an inexact number only with #i. */
-    if (radix == 10 && (decimalp(str) || exactness == 'i'))
+    if (radix == 10 && decimalp(str, exactness == 'i'))
         return parse_real(str, exactness);
 #endif
     return SCM_FALSE;
 }
 
 #if SCM_USE_REAL
-/* Returns true if STR is a decimal notation that isn't an integer:
+/* Returns true if STR is a decimal notation:
  *
  *   [+-] (<digit>+ [. <digit>*] | . <digit>+) [<exponent>]
  *   [+-] (inf.0 | nan.0)
  *
  * <exponent> is one of "esfdl" (case insensitive), [+-] and <digit>+. At
- * least either "." or <exponent> is required. */
+ * least either "." or <exponent> is required unless ALLOW_INTEGER. */
 static scm_bool
-decimalp(const char *str)
+decimalp(const char *str, scm_bool allow_integer)
 {
     const char *p;
     scm_bool point;
@@ -368,7 +368,7 @@ decimalp(const char *str)
         p += strspn(p, "0123456789");
         return !*p;
     }
-    return point && !*p;
+    return (point || allow_integer) && !*p;
 }
 
 /* Converts STR that is a decimal notation or an integer independently of

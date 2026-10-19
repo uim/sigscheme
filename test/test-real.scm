@@ -79,6 +79,10 @@
 (assert-error (tn) (lambda () (read (open-input-string "#e1.5"))))
 (assert-error (tn) (lambda () (read (open-input-string "#x1.5"))))
 (assert-error (tn) (lambda () (read (open-input-string "#i#i1"))))
+(assert-error (tn) (lambda () (read (open-input-string "#i3/2"))))
+(assert-equal? (tn) "1.0e+30"
+               (write-to-string
+                (read (open-input-string "#i1000000000000000000000000000000"))))
 (assert-error (tn) (lambda () (read (open-input-string "1.5.5"))))
 
 (tn "write shortest")

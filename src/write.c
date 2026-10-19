@@ -405,7 +405,7 @@ plain_symbol_namep(const char *name)
 #endif
 
 static void
-write_symbol(ScmObj port, ScmObj sym, enum ScmOutputType otype)
+write_symbol(ScmObj port, ScmObj sym, enum ScmOutputType otype SCM_UNUSED)
 {
     const char *name;
 #if SCM_USE_R7RS
@@ -682,7 +682,7 @@ write_bytevector(ScmObj port, ScmObj bv)
 #endif /* SCM_USE_BYTEVECTOR */
 
 static void
-write_port(ScmObj port, ScmObj obj, enum ScmOutputType otype)
+write_port(ScmObj port, ScmObj obj, enum ScmOutputType otype SCM_UNUSED)
 {
     char *info;
 
@@ -708,7 +708,7 @@ write_port(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 }
 
 static void
-write_constant(ScmObj port, ScmObj obj, enum ScmOutputType otype)
+write_constant(ScmObj port, ScmObj obj, enum ScmOutputType otype SCM_UNUSED)
 {
     const char *str;
 
@@ -768,7 +768,7 @@ write_errobj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 
 #if SCM_USE_HYGIENIC_MACRO
 static void
-write_farsymbol(ScmObj port, ScmObj obj, enum ScmOutputType otype)
+write_farsymbol(ScmObj port, ScmObj obj, enum ScmOutputType otype SCM_UNUSED)
 {
     /* Assumes that ScmPackedEnv is an integer. */
     scm_port_puts(port, "#<farsym");

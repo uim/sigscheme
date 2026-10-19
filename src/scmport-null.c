@@ -3,7 +3,7 @@
  *  About    : A ScmBytePort implementation for null read/write
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -125,34 +125,35 @@ nullport_close(ScmNullPort *port)
 }
 
 static char *
-nullport_inspect(ScmNullPort *port)
+nullport_inspect(ScmNullPort *port SCM_UNUSED)
 {
     return SCM_PORT_STRDUP("null");
 }
 
 static scm_ichar_t
-nullport_get_byte(ScmNullPort *port)
+nullport_get_byte(ScmNullPort *port SCM_UNUSED)
 {
     return SCM_ICHAR_EOF;
 }
 
 static scm_bool
-nullport_byte_readyp(ScmNullPort *port)
+nullport_byte_readyp(ScmNullPort *port SCM_UNUSED)
 {
     return scm_true;
 }
 
 static void
-nullport_puts(ScmNullPort *port, const char *str)
+nullport_puts(ScmNullPort *port SCM_UNUSED, const char *str SCM_UNUSED)
 {
 }
 
 static void
-nullport_write(ScmNullPort *port, size_t nbytes, const char *buf)
+nullport_write(ScmNullPort *port SCM_UNUSED, size_t nbytes SCM_UNUSED,
+               const char *buf SCM_UNUSED)
 {
 }
 
 static void
-nullport_flush(ScmNullPort *port)
+nullport_flush(ScmNullPort *port SCM_UNUSED)
 {
 }

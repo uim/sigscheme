@@ -3,7 +3,7 @@
  *  About    : ScmBaseCharPort implementation
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -144,7 +144,7 @@ basecport_close(ScmBaseCharPort *port)
 }
 
 static ScmCharCodec *
-basecport_codec(ScmBaseCharPort *port)
+basecport_codec(ScmBaseCharPort *port SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(CHAR, port, ScmBaseCharPort);
     /* NOTREACHED */
@@ -189,7 +189,7 @@ basecport_puts(ScmBaseCharPort *port, const char *str)
 }
 
 static void
-basecport_put_char(ScmBaseCharPort *port, scm_ichar_t ch)
+basecport_put_char(ScmBaseCharPort *port SCM_UNUSED, scm_ichar_t ch SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(CHAR, port, ScmBaseCharPort);
     /* NOTREACHED */

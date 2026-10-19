@@ -231,7 +231,7 @@ istrport_dyn_cast(ScmBytePort *bport, const ScmBytePortVTbl *dst_vptr)
 
 /* default finalizer */
 static void
-istrport_finalize(char **str, scm_bool ownership, void **opaque)
+istrport_finalize(char **str, scm_bool ownership, void **opaque SCM_UNUSED)
 {
     if (ownership)
         free(*str);
@@ -251,7 +251,7 @@ istrport_close(ScmInputStrPort *port)
 }
 
 static char *
-istrport_inspect(ScmInputStrPort *port)
+istrport_inspect(ScmInputStrPort *port SCM_UNUSED)
 {
     return SCM_PORT_STRDUP("string");
 }
@@ -269,27 +269,28 @@ istrport_peek_byte(ScmInputStrPort *port)
 }
 
 static scm_bool
-istrport_byte_readyp(ScmInputStrPort *port)
+istrport_byte_readyp(ScmInputStrPort *port SCM_UNUSED)
 {
     return scm_true;
 }
 
 static void
-istrport_puts(ScmInputStrPort *port, const char *str)
+istrport_puts(ScmInputStrPort *port SCM_UNUSED, const char *str SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(BYTE, port, ScmInputStrPort);
     /* NOTREACHED */
 }
 
 static void
-istrport_write(ScmInputStrPort *port, size_t nbytes, const char *buf)
+istrport_write(ScmInputStrPort *port SCM_UNUSED, size_t nbytes SCM_UNUSED,
+               const char *buf SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(BYTE, port, ScmInputStrPort);
     /* NOTREACHED */
 }
 
 static void
-istrport_flush(ScmInputStrPort *port)
+istrport_flush(ScmInputStrPort *port SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(BYTE, port, ScmInputStrPort);
     /* NOTREACHED */
@@ -350,7 +351,8 @@ ostrport_dyn_cast(ScmBytePort *bport, const ScmBytePortVTbl *dst_vptr)
 }
 
 static void
-ostrport_finalize(char **str, size_t buf_size, void **opaque)
+ostrport_finalize(char **str, size_t buf_size SCM_UNUSED,
+                  void **opaque SCM_UNUSED)
 {
     free(*str);
 }
@@ -369,27 +371,27 @@ ostrport_close(ScmOutputStrPort *port)
 }
 
 static char *
-ostrport_inspect(ScmOutputStrPort *port)
+ostrport_inspect(ScmOutputStrPort *port SCM_UNUSED)
 {
     return SCM_PORT_STRDUP("string");
 }
 
 static scm_ichar_t
-ostrport_get_byte(ScmOutputStrPort *port)
+ostrport_get_byte(ScmOutputStrPort *port SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(BYTE, port, ScmOutputStrPort);
     /* NOTREACHED */
 }
 
 static scm_ichar_t
-ostrport_peek_byte(ScmOutputStrPort *port)
+ostrport_peek_byte(ScmOutputStrPort *port SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(BYTE, port, ScmOutputStrPort);
     /* NOTREACHED */
 }
 
 static scm_bool
-ostrport_byte_readyp(ScmOutputStrPort *port)
+ostrport_byte_readyp(ScmOutputStrPort *port SCM_UNUSED)
 {
     SCM_PORT_ERROR_INVALID_OPERATION(BYTE, port, ScmOutputStrPort);
     /* NOTREACHED */
@@ -408,7 +410,7 @@ ostrport_write(ScmOutputStrPort *port, size_t nbytes, const char *buf)
 }
 
 static void
-ostrport_flush(ScmOutputStrPort *port)
+ostrport_flush(ScmOutputStrPort *port SCM_UNUSED)
 {
 }
 

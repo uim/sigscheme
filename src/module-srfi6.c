@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -76,7 +76,8 @@ scm_initialize_srfi6(void)
 }
 
 static void
-srfi6_istrport_finalize(char **str, scm_bool ownership, void **opaque)
+srfi6_istrport_finalize(char **str SCM_UNUSED, scm_bool ownership,
+                        void **opaque)
 {
     SCM_ASSERT(!ownership);
 

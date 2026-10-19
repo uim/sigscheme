@@ -194,7 +194,7 @@ scm_init_syntax(void)
   R5RS : 4.1 Primitive expression types : 4.1.2 Literal expressions
 ===========================================================================*/
 SCM_EXPORT ScmObj
-scm_s_quote(ScmObj datum, ScmObj env)
+scm_s_quote(ScmObj datum, ScmObj env SCM_UNUSED)
 {
     DECLARE_FUNCTION("quote", syntax_fixed_1);
 

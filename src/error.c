@@ -346,7 +346,7 @@ scm_p_backtrace(void)
 }
 
 SCM_EXPORT void
-scm_die(const char *msg, const char *filename, int line)
+scm_die(const char *msg, const char *filename SCM_UNUSED, int line SCM_UNUSED)
 {
 #if SCM_DEBUG
     ScmObj reason;
@@ -481,7 +481,7 @@ show_arg(ScmObj arg, ScmObj env)
 #endif /* (SCM_USE_BACKTRACE && SCM_DEBUG_BACKTRACE_VAL) */
 
 SCM_EXPORT void
-scm_show_backtrace(ScmObj trace_stack)
+scm_show_backtrace(ScmObj trace_stack SCM_UNUSED)
 {
 #if SCM_USE_BACKTRACE
     ScmObj frame, obj;

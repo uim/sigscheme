@@ -452,7 +452,7 @@ scm_p_promisep(ScmObj obj)
 /* Macros are expanded when they are evaluated. So it's signaled when the
  * expansion is evaluated. ARGS aren't evaluated. */
 SCM_EXPORT ScmObj
-scm_s_syntax_error(ScmObj message, ScmObj args, ScmObj env)
+scm_s_syntax_error(ScmObj message, ScmObj args, ScmObj env SCM_UNUSED)
 {
     DECLARE_FUNCTION("syntax-error", syntax_variadic_1);
 

@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005      Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -346,7 +346,7 @@ scm_mb_find_codec(const char *encoding)
 
 SCM_EXPORT scm_ichar_t
 scm_charcodec_read_char(ScmCharCodec *codec, ScmMultibyteString *mbs,
-                        const char *caller)
+                        const char *caller SCM_UNUSED)
 {
     ScmMultibyteCharInfo mbc;
     ScmMultibyteState state;
@@ -516,7 +516,7 @@ eucjp_scan_char(ScmMultibyteString mbs)
 }
 
 static scm_ichar_t
-eucjp_str2int(const uchar *src, size_t len, ScmMultibyteState state)
+eucjp_str2int(const uchar *src, size_t len, ScmMultibyteState state SCM_UNUSED)
 {
     scm_ichar_t ch;
 
@@ -547,7 +547,7 @@ eucjp_str2int(const uchar *src, size_t len, ScmMultibyteState state)
    absolute character set identifier instead of raw encoding-dependent
    shifts */
 static uchar *
-eucjp_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
+eucjp_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state SCM_UNUSED)
 {
 #if SCM_STRICT_ENCODING_CHECK
     uchar seq[3];
@@ -588,7 +588,7 @@ eucjp_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
 #if (SCM_USE_EUCCN || SCM_USE_EUCKR || SCM_USE_SJIS)
 /* generic double-byte char */
 static scm_ichar_t
-dbc_str2int(const uchar *src, size_t len, ScmMultibyteState state)
+dbc_str2int(const uchar *src, size_t len, ScmMultibyteState state SCM_UNUSED)
 {
     scm_ichar_t ch;
 
@@ -624,7 +624,7 @@ euc_char_len(scm_ichar_t ch)
 }
 
 static uchar *
-euc_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
+euc_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state SCM_UNUSED)
 {
 #if SCM_STRICT_ENCODING_CHECK
     uchar seq[2];
@@ -824,7 +824,7 @@ utf8_scan_char(ScmMultibyteString mbs)
 }
 
 static scm_ichar_t
-utf8_str2int(const uchar *src, size_t len, ScmMultibyteState state)
+utf8_str2int(const uchar *src, size_t len, ScmMultibyteState state SCM_UNUSED)
 {
     scm_ichar_t ch;
 
@@ -859,7 +859,7 @@ utf8_str2int(const uchar *src, size_t len, ScmMultibyteState state)
 }
 
 static uchar *
-utf8_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
+utf8_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state SCM_UNUSED)
 {
     if (IS_ASCII(ch)) {
         *dst++ = ch;
@@ -967,7 +967,7 @@ sjis_scan_char(ScmMultibyteString mbs)
 }
 
 static uchar *
-sjis_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
+sjis_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state SCM_UNUSED)
 {
     uchar high, low;
 
@@ -1034,7 +1034,8 @@ unibyte_scan_char(ScmMultibyteString mbs)
 }
 
 static scm_ichar_t
-unibyte_str2int(const uchar *src, size_t len, ScmMultibyteState state)
+unibyte_str2int(const uchar *src, size_t len SCM_UNUSED,
+                ScmMultibyteState state SCM_UNUSED)
 {
 #if SCM_STRICT_ENCODING_CHECK
     if (len != 1)
@@ -1044,7 +1045,7 @@ unibyte_str2int(const uchar *src, size_t len, ScmMultibyteState state)
 }
 
 static uchar *
-unibyte_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state)
+unibyte_int2str(uchar *dst, scm_ichar_t ch, ScmMultibyteState state SCM_UNUSED)
 {
 #if SCM_STRICT_ENCODING_CHECK
     if (ch & ~BYTE_MASK)

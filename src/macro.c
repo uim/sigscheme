@@ -474,7 +474,7 @@ ellipsisp(compilation_context *ctx, ScmObj obj)
 }
 
 static scm_bool
-underscorep(ScmObj obj)
+underscorep(ScmObj obj SCM_UNUSED)
 {
 #if SCM_USE_R7RS
     return IDENTIFIERP(obj) && EQ(SCM_UNWRAP_KEYWORD(obj), scm_intern("_"));

@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -557,7 +557,7 @@ scm_s_quasiquote(ScmObj datum, ScmObj env)
 }
 
 SCM_EXPORT ScmObj
-scm_s_unquote(ScmObj dummy, ScmObj env)
+scm_s_unquote(ScmObj dummy SCM_UNUSED, ScmObj env SCM_UNUSED)
 {
     DECLARE_FUNCTION("unquote", syntax_fixed_1);
 
@@ -567,7 +567,7 @@ scm_s_unquote(ScmObj dummy, ScmObj env)
 }
 
 SCM_EXPORT ScmObj
-scm_s_unquote_splicing(ScmObj dummy, ScmObj env)
+scm_s_unquote_splicing(ScmObj dummy SCM_UNUSED, ScmObj env SCM_UNUSED)
 {
     DECLARE_FUNCTION("unquote-splicing", syntax_fixed_1);
 

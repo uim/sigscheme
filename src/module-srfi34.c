@@ -240,7 +240,7 @@ scm_initialize_srfi34(void)
 
 /* to avoid unwanted unwrap-syntax application by ordinary quote */
 static ScmObj
-raw_quote(ScmObj datum, ScmObj env)
+raw_quote(ScmObj datum, ScmObj env SCM_UNUSED)
 {
     DECLARE_PRIVATE_FUNCTION("raw_quote", syntax_fixed_1);
 
@@ -254,7 +254,7 @@ enclose(ScmObj exp, ScmObj env)
 }
 
 static ScmObj
-set_cur_handlers(ScmObj handlers, ScmObj env)
+set_cur_handlers(ScmObj handlers, ScmObj env SCM_UNUSED)
 {
     DECLARE_PRIVATE_FUNCTION("with_exception_handlers", syntax_fixed_1);
 
@@ -366,7 +366,7 @@ scm_s_srfi34_guard(ScmObj cond_catch, ScmObj body, ScmEvalState *eval_state)
 }
 
 static ScmObj
-guard_internal(ScmObj q_guard_k, ScmObj env)
+guard_internal(ScmObj q_guard_k SCM_UNUSED, ScmObj env)
 {
     ScmObj handler, body;
     DECLARE_PRIVATE_FUNCTION("guard", syntax_fixed_1);
@@ -382,7 +382,7 @@ guard_internal(ScmObj q_guard_k, ScmObj env)
 }
 
 static ScmObj
-guard_handler(ScmObj q_condition, ScmEvalState *eval_state)
+guard_handler(ScmObj q_condition SCM_UNUSED, ScmEvalState *eval_state)
 {
     ScmObj handler_body, ret;
     DECLARE_PRIVATE_FUNCTION("guard", syntax_fixed_tailrec_1);

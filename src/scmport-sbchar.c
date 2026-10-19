@@ -3,7 +3,7 @@
  *  About    : A ScmCharPort implementation for singlebyte character stream
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -137,7 +137,7 @@ sbcport_dyn_cast(ScmCharPort *cport, const ScmCharPortVTbl *dst_vptr)
 }
 
 static ScmCharCodec *
-sbcport_codec(ScmSingleByteCharPort *port)
+sbcport_codec(ScmSingleByteCharPort *port SCM_UNUSED)
 {
     return l_sbc_codec;
 }

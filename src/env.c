@@ -139,7 +139,7 @@ scm_env_toplevel(ScmObj env)
 /* Returns the toplevel environment where the identifier ID is resolved in
  * ENV. A qualified identifier has its toplevel. */
 static ScmObj
-identifier_toplevel(ScmObj id, ScmObj env)
+identifier_toplevel(ScmObj id SCM_UNUSED, ScmObj env)
 {
 #if SCM_USE_R7RS
     if (QUALIFIED_IDENTIFIERP(id))
@@ -674,7 +674,7 @@ scm_validate_actuals(ScmObj actuals)
  * builtin module. ENV is used to choose one of them. It may be
  * SCM_UNBOUND. */
 SCM_EXPORT ScmObj
-scm_toplevel_value(ScmObj id, ScmObj env)
+scm_toplevel_value(ScmObj id, ScmObj env SCM_UNUSED)
 {
     SCM_ASSERT(IDENTIFIERP(id));
 
@@ -708,7 +708,7 @@ set_value_cell(ScmObj sym, ScmObj val, scm_bool replp)
 /* Sets VAL to the bound identifier ID in the toplevel environment of
  * ENV. */
 SCM_EXPORT void
-scm_set_toplevel(ScmObj id, ScmObj val, ScmObj env)
+scm_set_toplevel(ScmObj id, ScmObj val, ScmObj env SCM_UNUSED)
 {
 #if SCM_USE_R7RS
     ScmObj sym, toplevel;

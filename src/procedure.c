@@ -432,7 +432,7 @@ scm_p_values(ScmObj args)
 
 SCM_EXPORT ScmObj
 scm_p_call_with_values(ScmObj producer, ScmObj consumer,
-                       ScmEvalState *eval_state)
+                       ScmEvalState *eval_state SCM_UNUSED)
 {
     ScmObj vals;
     DECLARE_FUNCTION("call-with-values", procedure_fixed_tailrec_2);

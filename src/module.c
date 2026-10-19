@@ -210,7 +210,7 @@ scm_use_internal(const char *feature)
 }
 
 SCM_EXPORT ScmObj
-scm_s_use(ScmObj feature, ScmObj env)
+scm_s_use(ScmObj feature, ScmObj env SCM_UNUSED)
 {
     const char *c_feature_str;
     DECLARE_FUNCTION("use", syntax_fixed_1);

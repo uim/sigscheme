@@ -2,7 +2,7 @@
  *  Filename : module-srfi55.c
  *  About    : require-extension
  *
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -78,7 +78,7 @@ scm_initialize_srfi55(void)
 }
 
 SCM_EXPORT ScmObj
-scm_s_srfi55_require_extension(ScmObj clauses, ScmObj env)
+scm_s_srfi55_require_extension(ScmObj clauses, ScmObj env SCM_UNUSED)
 {
     ScmObj proc;
     DECLARE_FUNCTION("require-extension", syntax_variadic_0);

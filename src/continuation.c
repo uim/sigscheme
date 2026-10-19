@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -286,7 +286,7 @@ continuation_stack_unwind(ScmObj dest_cont)
 }
 
 SCM_EXPORT void
-scm_destruct_continuation(ScmObj cont)
+scm_destruct_continuation(ScmObj cont SCM_UNUSED)
 {
     /* no object to be free(3) in this implementation */
 }

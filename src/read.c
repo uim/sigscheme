@@ -1342,7 +1342,8 @@ read_number_or_peculiar(ScmObj port)
 #if SCM_USE_NUMBER
 /* reads 'b123' part of #b123 */
 static ScmObj
-parse_number(ScmObj port, char *buf, size_t buf_size, char prefix)
+parse_number(ScmObj port SCM_UNUSED, char *buf, size_t buf_size SCM_UNUSED,
+             char prefix)
 {
     ScmObj number;
     char str[sizeof("#d") + NUMBER_LITERAL_LEN_MAX];

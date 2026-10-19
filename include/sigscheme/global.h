@@ -3,7 +3,7 @@
  *  About    : Global object handlings
  *
  *  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -93,7 +93,12 @@ extern "C" {
 
 #if (SCM_COMBINED_SOURCE && !SCM_EXPORT_API)
 #define SCM_EXTERN(_decl) extern int scm_g_dummy
+/* The source that includes the combined source may not use all API. */
+#ifdef __GNUC__
+#define SCM_EXPORT static __attribute__((__unused__))
+#else
 #define SCM_EXPORT static
+#endif
 
 /* FIXME: reflect SCM_COMBINED_SOURCE */
 #elif (defined(_WIN32) || defined(_WIN64))

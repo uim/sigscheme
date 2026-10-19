@@ -58,10 +58,115 @@
     (if #f #f)))
 
 (define (%%library-exports name)
-  (let ((entry (assoc name %%libraries)))
+  (let ((entry (or (assoc name %%libraries)
+                   (begin
+                     (%%load-library name)
+                     (assoc name %%libraries)))))
     (if entry
         (cdr entry)
         (error "import: unknown library" name))))
+
+;; Returns the file name of the library NAME: (foo bar 1) -> "foo/bar/1.sld"
+(define (%%library-file-name name)
+  (let loop ((parts name)
+             (file-name ""))
+    (let ((part (if (symbol? (car parts))
+                    (symbol->string (car parts))
+                    (number->string (car parts)))))
+      (if (null? (cdr parts))
+          (string-append file-name part ".sld")
+          (loop (cdr parts) (string-append file-name part "/"))))))
+
+;; Names of the libraries being loaded to detect circular imports.
+(define %%loading-libraries '())
+
+;; Loads define-library forms in the library file of NAME if it exists.
+(define (%%load-library name)
+  (let ((path (%%find-file (%%library-file-name name)))
+        (loading %%loading-libraries))
+    (if (member name loading)
+        (error "import: circular import" name))
+    (if path
+        (dynamic-wind
+            (lambda () (set! %%loading-libraries (cons name loading)))
+            (lambda ()
+              (for-each
+               (lambda (form)
+                 (if (and (pair? form) (eq? (car form) 'define-library))
+                     (%%define-library (cadr form) (cddr form)
+                                       (%%directory-name path))
+                     (error "define-library: define-library required but got"
+                            form)))
+               (%%read-file path #f)))
+            (lambda () (set! %%loading-libraries loading))))))
+
+(define (%%directory-name path)
+  (let loop ((i (- (string-length path) 1)))
+    (if (char=? (string-ref path i) #\/)
+        (substring path 0 i)
+        (loop (- i 1)))))
+
+;; Returns the forms in the file PATH. Symbols are folded if FOLD-CASE?.
+(define (%%read-file path fold-case?)
+  (call-with-input-file path
+    (lambda (port)
+      (let loop ((forms '()))
+        (let ((form (read port)))
+          (if (eof-object? form)
+              (reverse forms)
+              (loop (cons (if fold-case? (%%fold-case form) form)
+                          forms))))))))
+
+(define (%%fold-case obj)
+  (cond
+   ((symbol? obj) (string->symbol (string-foldcase (symbol->string obj))))
+   ((pair? obj) (cons (%%fold-case (car obj)) (%%fold-case (cdr obj))))
+   ((vector? obj) (vector-map %%fold-case obj))
+   (else obj)))
+
+;; Returns the path of the included FILE. A relative file name is resolved
+;; from DIRECTORY or the library path. DIRECTORY is #f for a library that
+;; isn't defined in a file.
+(define (%%include-path file directory)
+  (or (and directory
+           (not (char=? (string-ref file 0) #\/))
+           (%%find-file (string-append directory "/" file)))
+      (%%find-file file)
+      (error "include: file not found" file)))
+
+;; Returns the forms in FILES.
+(define (%%include-files files directory fold-case?)
+  (apply append
+         (map (lambda (file)
+                (%%read-file (%%include-path file directory) fold-case?))
+              files)))
+
+;; Returns true if the feature requirement of cond-expand is satisfied.
+(define (%%feature-requirement? requirement)
+  (cond
+   ((symbol? requirement)
+    (or (eq? requirement 'else)
+        (and (memq requirement (features)) #t)))
+   ((pair? requirement)
+    (case (car requirement)
+      ((and) (%%every %%feature-requirement? (cdr requirement)))
+      ((or) (%%any %%feature-requirement? (cdr requirement)))
+      ((not) (not (%%feature-requirement? (cadr requirement))))
+      ((library) (and (or (assoc (cadr requirement) %%libraries)
+                          (%%find-file
+                           (%%library-file-name (cadr requirement))))
+                      #t))
+      (else (error "cond-expand: invalid feature requirement"
+                   requirement))))
+   (else (error "cond-expand: invalid feature requirement" requirement))))
+
+(define (%%every pred lst)
+  (or (null? lst)
+      (and (pred (car lst)) (%%every pred (cdr lst)))))
+
+(define (%%any pred lst)
+  (and (pair? lst)
+       (or (pred (car lst)) (%%any pred (cdr lst)))))
 
 ;; Returns an alist of (symbol . location) for the import set SET.
 (define (%%import-set-bindings set)
@@ -126,26 +231,49 @@
 (define-syntax define-library
   (syntax-rules ()
     ((_ name declaration ...)
-     (%%define-library 'name '(declaration ...)))))
+     (%%define-library 'name '(declaration ...) #f))))
 
-(define (%%define-library name declarations)
+(define (%%define-library name declarations directory)
   (let ((module (%%make-module name))
         (export-specs '()))
-    (for-each
-     (lambda (declaration)
-       (case (and (pair? declaration) (car declaration))
-         ((import)
-          (%%import-sets (cdr declaration)
-                         (lambda (sym location)
-                           (%%module-import! module sym location))))
-         ((begin)
-          (for-each (lambda (form) (eval form module))
-                    (cdr declaration)))
-         ((export)
-          (set! export-specs (append export-specs (cdr declaration))))
-         (else
-          (error "define-library: unknown declaration" declaration))))
-     declarations)
+    (letrec
+        ((process
+          (lambda (declaration directory)
+            (case (and (pair? declaration) (car declaration))
+              ((import)
+               (%%import-sets (cdr declaration)
+                              (lambda (sym location)
+                                (%%module-import! module sym location))))
+              ((begin)
+               (%%eval-forms (cdr declaration) module))
+              ((include include-ci)
+               (%%eval-forms (%%include-files (cdr declaration) directory
+                                              (eq? (car declaration)
+                                                   'include-ci))
+                             module))
+              ((include-library-declarations)
+               (for-each (lambda (file)
+                           (let ((path (%%include-path file directory)))
+                             (for-each (lambda (declaration)
+                                         (process declaration
+                                                  (%%directory-name path)))
+                                       (%%read-file path #f))))
+                         (cdr declaration)))
+              ((cond-expand)
+               (let loop ((clauses (cdr declaration)))
+                 (cond
+                  ((null? clauses) #f)
+                  ((%%feature-requirement? (caar clauses))
+                   (for-each (lambda (declaration)
+                               (process declaration directory))
+                             (cdar clauses)))
+                  (else (loop (cdr clauses))))))
+              ((export)
+               (set! export-specs (append export-specs (cdr declaration))))
+              (else
+               (error "define-library: unknown declaration" declaration))))))
+      (for-each (lambda (declaration) (process declaration directory))
+                declarations))
     ;; Exported identifiers are resolved after all definitions.
     (%%register-library
      name
@@ -154,6 +282,9 @@
                 (%%export-binding module (caddr spec) (cadr spec))
                 (%%export-binding module spec spec)))
           export-specs))))
+
+(define (%%eval-forms forms module)
+  (for-each (lambda (form) (eval form module)) forms))
 
 (define (%%export-binding module external internal)
   (cons external

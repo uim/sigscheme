@@ -278,4 +278,36 @@
 (set! value 20)
 (assert-equal? (tn) '(counter 3) (counter-list))
 
+(tn "library files")
+;; (test library greeting) is defined in test/library/greeting.sld.
+(import (test library greeting))
+(assert-equal? (tn) '(hello world) (greet 'world))
+(assert-equal? (tn) 'r7rs greeting-feature)
+;; include-ci folds symbols.
+(assert-equal? (tn) 'hello loud)
+(assert-error (tn) (lambda () (eval '(import (test library broken))
+                                    (interaction-environment))))
+(assert-error (tn) (lambda () (eval '(import (test library circular))
+                                    (interaction-environment))))
+(assert-error (tn) (lambda () (eval '(import (test library nonexistent))
+                                    (interaction-environment))))
+
+(tn "define-library cond-expand")
+(define-library (test cond-expand)
+  (export feature)
+  (cond-expand
+   ((library (test library nonexistent))
+    (begin (define feature 'nonexistent)))
+   ((or no-such-feature (not r7rs))
+    (begin (define feature 'not-r7rs)))
+   ((library (test library greeting))
+    (begin (define feature 'greeting)))
+   (else
+    (begin (define feature 'else)))))
+(import (test cond-expand))
+(assert-equal? (tn) 'greeting feature)
+(assert-error (tn) (lambda ()
+                     (define-library (test include)
+                       (include "test/library/nonexistent.scm"))))
+
 (total-report)

@@ -106,6 +106,13 @@ endif
 EXTRA_DIST += test-enc-sjis.scm
 
 EXTRA_DIST += test-tail-rec.scm
+EXTRA_DIST += \
+	library/broken.sld \
+	library/circular.sld \
+	library/greeting-ci.scm \
+	library/greeting-declarations.scm \
+	library/greeting.scm \
+	library/greeting.sld
 
 # Imported foreign tests
 imported_tests = \

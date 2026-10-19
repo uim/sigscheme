@@ -841,6 +841,9 @@ SCM_EXPORT void scm_init_format(void);
 SCM_EXPORT void scm_init_load(void);
 SCM_EXPORT void scm_fin_load(void);
 SCM_EXPORT void scm_load_system_file(const char *file);
+#if SCM_USE_R7RS
+SCM_EXPORT char *scm_find_path(const char *filename);
+#endif
 #endif /* SCM_USE_LOAD */
 
 /* module.c */

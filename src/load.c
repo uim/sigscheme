@@ -250,6 +250,16 @@ load_file(const char *filename, ScmObj env)
     CDBG((SCM_DBG_FILE, "done."));
 }
 
+#if SCM_USE_R7RS
+/* Returns the absolute path of FILENAME searched in the library path or
+ * NULL. The returned path must be freed. */
+SCM_EXPORT char *
+scm_find_path(const char *filename)
+{
+    return find_path(filename);
+}
+#endif
+
 static char *
 find_path(const char *filename)
 {

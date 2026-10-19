@@ -569,3 +569,17 @@ scm_p_global_importx(ScmObj sym, ScmObj location)
         SCM_SYMBOL_SET_VCELL(sym, make_forward(location));
     return SCM_UNDEF;
 }
+
+/* Returns the absolute path of FILENAME searched in the library path or
+ * #f. */
+SCM_EXPORT ScmObj
+scm_p_find_file(ScmObj filename)
+{
+    char *path;
+    DECLARE_FUNCTION("%%find-file", procedure_fixed_1);
+
+    ENSURE_STRING(filename);
+
+    path = scm_find_path(SCM_STRING_STR(filename));
+    return (path) ? MAKE_STRING(path, STRLEN_UNKNOWN) : SCM_FALSE;
+}

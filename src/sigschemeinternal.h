@@ -776,6 +776,8 @@ SCM_EXPORT char *scm_real2fixed(double d, int decimals);
 #if SCM_USE_REAL
 SCM_EXPORT scm_bool scm_real_integerp(double d);
 #endif
+SCM_EXPORT ScmObj scm_integer_divide(const char *func_name, ScmObj n1,
+                                     ScmObj n2, char op);
 SCM_EXPORT scm_int_t scm_int_multiply(const char *func_name,
                                       scm_int_t n1, scm_int_t n2);
 SCM_EXPORT scm_int_t scm_int_quotient(const char *func_name,

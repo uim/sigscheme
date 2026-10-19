@@ -329,7 +329,7 @@ endif
 
 if USE_LIBSSCM
 libsscm_la_SOURCES  = $(libsscm_sources)
-libsscm_la_LIBADD   = $(LIBOBJS) @BDWGC_LIBS@ @GCROOTS_LIBS@
+libsscm_la_LIBADD   = $(LIBOBJS) @BDWGC_LIBS@ @GCROOTS_LIBS@ @LIBM@
 libsscm_la_LDFLAGS  = -version-info $(libsscm_version)
 # To take precedence over installed gcroots.h by the bundled
 # subprojects/libgcroots/include/gcroots.h, @GCROOTS_CFLAGS@ must be placed here.
@@ -341,7 +341,7 @@ endif
 if USE_SHELL
 bin_PROGRAMS  = sscm
 sscm_SOURCES  = main.c
-sscm_LDADD    = libsscm.la @BDWGC_LIBS@ @GCROOTS_LIBS@
+sscm_LDADD    = libsscm.la @BDWGC_LIBS@ @GCROOTS_LIBS@ @LIBM@
 sscm_CPPFLAGS = $(SSCM_INCLUDES) @BDWGC_CFLAGS@ @GCROOTS_CFLAGS@
 sscm_CFLAGS   =
 endif

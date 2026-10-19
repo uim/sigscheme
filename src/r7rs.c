@@ -92,12 +92,6 @@ static scm_ichar_t upcase(scm_ichar_t ch);
 static scm_ichar_t downcase(scm_ichar_t ch);
 static scm_ichar_t foldcase(scm_ichar_t ch);
 static ScmObj convert_string_case(ScmObj str, case_converter convert);
-static void get_division_operands(const char *func_name, ScmObj n1,
-                                  ScmObj n2, scm_int_t *dividend,
-                                  scm_int_t *divisor);
-static void floor_divide(const char *func_name, scm_int_t dividend,
-                         scm_int_t divisor, scm_int_t *quotient,
-                         scm_int_t *remainder);
 static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
 static ScmObj compare_all(comparator compare,
                           ScmObj obj1, ScmObj obj2, ScmObj rest);
@@ -548,102 +542,56 @@ scm_p_nanp(ScmObj z)
     return SCM_FALSE;
 }
 
-/* Ensures that N1 and N2 are integers. */
-static void
-get_division_operands(const char *func_name, ScmObj n1, ScmObj n2,
-                      scm_int_t *dividend, scm_int_t *divisor)
-{
-    if (!INTP(n1))
-        scm_error_obj(func_name, "integer required but got", n1);
-    if (!INTP(n2))
-        scm_error_obj(func_name, "integer required but got", n2);
-
-    *dividend = SCM_INT_VALUE(n1);
-    *divisor = SCM_INT_VALUE(n2);
-}
-
-/* Returns the quotient and the remainder of floor division. */
-static void
-floor_divide(const char *func_name, scm_int_t dividend, scm_int_t divisor,
-             scm_int_t *quotient, scm_int_t *remainder)
-{
-    *quotient = scm_int_quotient(func_name, dividend, divisor);
-    *remainder = scm_int_remainder(func_name, dividend, divisor);
-    if (*remainder && ((*remainder < 0) != (divisor < 0))) {
-        *quotient -= 1;
-        *remainder += divisor;
-    }
-}
-
 SCM_EXPORT ScmObj
 scm_p_floor_slash(ScmObj n1, ScmObj n2)
 {
-    scm_int_t dividend, divisor, quotient, remainder;
     DECLARE_FUNCTION("floor/", procedure_fixed_2);
 
-    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
-    floor_divide(SCM_MANGLE(name), dividend, divisor, &quotient, &remainder);
-
-    return scm_p_values(LIST_2(MAKE_INT(quotient), MAKE_INT(remainder)));
+    return scm_p_values(
+        LIST_2(scm_integer_divide(SCM_MANGLE(name), n1, n2, 'f'),
+               scm_integer_divide(SCM_MANGLE(name), n1, n2, 'm')));
 }
 
 SCM_EXPORT ScmObj
 scm_p_floor_quotient(ScmObj n1, ScmObj n2)
 {
-    scm_int_t dividend, divisor, quotient, remainder;
     DECLARE_FUNCTION("floor-quotient", procedure_fixed_2);
 
-    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
-    floor_divide(SCM_MANGLE(name), dividend, divisor, &quotient, &remainder);
-
-    return MAKE_INT(quotient);
+    return scm_integer_divide(SCM_MANGLE(name), n1, n2, 'f');
 }
 
 SCM_EXPORT ScmObj
 scm_p_floor_remainder(ScmObj n1, ScmObj n2)
 {
-    scm_int_t dividend, divisor;
     DECLARE_FUNCTION("floor-remainder", procedure_fixed_2);
 
-    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
-
-    return MAKE_INT(scm_int_modulo(SCM_MANGLE(name), dividend, divisor));
+    return scm_integer_divide(SCM_MANGLE(name), n1, n2, 'm');
 }
 
 SCM_EXPORT ScmObj
 scm_p_truncate_slash(ScmObj n1, ScmObj n2)
 {
-    scm_int_t dividend, divisor;
     DECLARE_FUNCTION("truncate/", procedure_fixed_2);
 
-    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
-
     return scm_p_values(
-        LIST_2(MAKE_INT(scm_int_quotient(SCM_MANGLE(name), dividend, divisor)),
-               MAKE_INT(scm_int_remainder(SCM_MANGLE(name), dividend,
-                                          divisor))));
+        LIST_2(scm_integer_divide(SCM_MANGLE(name), n1, n2, 'q'),
+               scm_integer_divide(SCM_MANGLE(name), n1, n2, 'r')));
 }
 
 SCM_EXPORT ScmObj
 scm_p_truncate_quotient(ScmObj n1, ScmObj n2)
 {
-    scm_int_t dividend, divisor;
     DECLARE_FUNCTION("truncate-quotient", procedure_fixed_2);
 
-    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
-
-    return MAKE_INT(scm_int_quotient(SCM_MANGLE(name), dividend, divisor));
+    return scm_integer_divide(SCM_MANGLE(name), n1, n2, 'q');
 }
 
 SCM_EXPORT ScmObj
 scm_p_truncate_remainder(ScmObj n1, ScmObj n2)
 {
-    scm_int_t dividend, divisor;
     DECLARE_FUNCTION("truncate-remainder", procedure_fixed_2);
 
-    get_division_operands(SCM_MANGLE(name), n1, n2, &dividend, &divisor);
-
-    return MAKE_INT(scm_int_remainder(SCM_MANGLE(name), dividend, divisor));
+    return scm_integer_divide(SCM_MANGLE(name), n1, n2, 'r');
 }
 
 SCM_EXPORT ScmObj
@@ -651,6 +599,10 @@ scm_p_square(ScmObj z)
 {
     DECLARE_FUNCTION("square", procedure_fixed_1);
 
+#if SCM_USE_REAL
+    if (REALP(z))
+        return MAKE_REAL(SCM_REAL_VALUE(z) * SCM_REAL_VALUE(z));
+#endif
     ENSURE_INT(z);
 
     return MAKE_INT(scm_int_multiply(SCM_MANGLE(name),

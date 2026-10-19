@@ -19,6 +19,8 @@ AM_MAINTAINER_MODE
 
 AC_PROG_CC
 AC_PROG_LIBTOOL
+# floor(), sqrt() and so on for inexact real numbers.
+LT_LIB_M
 AC_PROG_LN_S
 AC_PROG_EGREP
 # Prefers GNU sed if found. GNU sed is required for generating

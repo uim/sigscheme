@@ -200,6 +200,12 @@ sigscheme_internal_include_directories = [
   include_directories('.'),
 ] + gcroots_include_directories
 
+sscm_dependencies = gcroots_dependencies
+if use['real']
+  # floor(), sqrt() and so on for inexact real numbers.
+  sscm_dependencies += [cc.find_library('m', required: false)]
+endif
+
 if use['libsscm']
   # To take precedence over installed gcroots.h by the bundled
   # subprojects/libgcroots/include/gcroots.h, gcroots_include_directories must be
@@ -211,12 +217,12 @@ if use['libsscm']
                             libsscm_c_args +
                             ['-DSCM_COMPILING_LIBSSCM=1']),
                     darwin_versions: darwin_versions,
-                    dependencies: gcroots_dependencies,
+                    dependencies: sscm_dependencies,
                     include_directories: sigscheme_internal_include_directories,
                     install: true,
                     soversion: so_version,
                     version: library_version)
-  sigscheme_dep = declare_dependency(dependencies: gcroots_dependencies,
+  sigscheme_dep = declare_dependency(dependencies: sscm_dependencies,
                                      include_directories: sigscheme_include_directories,
                                      link_with: libsscm)
   meson.override_dependency('sigscheme', sigscheme_dep)
@@ -226,7 +232,7 @@ if use['shell']
   sscm = executable('sscm',
                     'main.c',
                     c_args: sscm_c_args,
-                    dependencies: gcroots_dependencies,
+                    dependencies: sscm_dependencies,
                     include_directories: sigscheme_internal_include_directories,
                     install: true,
                     link_with: libsscm)
@@ -262,7 +268,7 @@ sigscheme_combined_trim_h = custom_target(
   depend_files: files(sigscheme_combined_trim_source_names))
 sigscheme_combined_dep = declare_dependency(
   compile_args: sscm_c_args,
-  dependencies: gcroots_dependencies,
+  dependencies: sscm_dependencies,
   include_directories: sigscheme_internal_include_directories,
   sources: [sigscheme_combined_trim_h, func_tables_stamp])
 meson.override_dependency('sigscheme-combined', sigscheme_combined_dep)

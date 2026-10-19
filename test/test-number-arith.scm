@@ -1271,10 +1271,9 @@
 (assert-error  (tn) (lambda () (/ 1 2 #t)))
 (assert-error  (tn) (lambda () (/ 1 2 #f)))
 (assert-error  (tn) (lambda () (/ 1 2 '())))
-;; / returns an inexact number for a non-integer result only when inexact
-;; numbers are supported.
-(if (inexact? (/ 1 2))
-    (assert-fail "/" "no tests for inexact results")
+;; / returns an inexact number for a non-integer result when inexact numbers
+;; are supported. See test-real.scm for it.
+(if (not (inexact? (/ 1 2)))
     (begin
       (tn "/ 1 arg")
       (assert-equal? (tn) 0          (/ -2))
@@ -1838,7 +1837,10 @@
 (assert-equal? (tn) -27 (expt -3  3))
 (assert-equal? (tn)   1 (expt -3  0))
 (assert-equal? (tn)   0 (expt  0 11))
-(assert-error  (tn)     (lambda () (expt  3 -2)))
+;; A negative exponent needs a rational. It's inexact when inexact numbers
+;; are supported. See test-real.scm for it.
+(if (not (inexact? (/ 1 2)))
+    (assert-error  (tn)     (lambda () (expt  3 -2))))
 (tn "gcd")
 (assert-equal? (tn)  4 (gcd 32 -36))
 (assert-equal? (tn)  0 (gcd))

@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -36,6 +36,10 @@
 ===========================================================================*/
 
 #include <config.h>
+
+#if SCM_USE_REAL
+#include <math.h>
+#endif
 
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
@@ -245,17 +249,22 @@ scm_p_integerp(ScmObj obj)
 {
     DECLARE_FUNCTION("integer?", procedure_fixed_1);
 
+#if SCM_USE_REAL
+    /* 2.0 is an integer. */
+    if (REALP(obj))
+        return MAKE_BOOL(scm_real_integerp(SCM_REAL_VALUE(obj)));
+#endif
     return MAKE_BOOL(INTP(obj));
 }
 
-/* SigScheme supports only exact integers. So the following procedures
- * are trivial. */
+/* SigScheme supports only exact integers and inexact reals. So all numbers
+ * are reals. */
 SCM_EXPORT ScmObj
 scm_p_complexp(ScmObj obj)
 {
     DECLARE_FUNCTION("complex?", procedure_fixed_1);
 
-    return MAKE_BOOL(INTP(obj));
+    return MAKE_BOOL(NUMBERP(obj));
 }
 
 SCM_EXPORT ScmObj
@@ -263,14 +272,19 @@ scm_p_realp(ScmObj obj)
 {
     DECLARE_FUNCTION("real?", procedure_fixed_1);
 
-    return MAKE_BOOL(INTP(obj));
+    return MAKE_BOOL(NUMBERP(obj));
 }
 
+/* All finite reals are rationals. */
 SCM_EXPORT ScmObj
 scm_p_rationalp(ScmObj obj)
 {
     DECLARE_FUNCTION("rational?", procedure_fixed_1);
 
+#if SCM_USE_REAL
+    if (REALP(obj))
+        return MAKE_BOOL(isfinite(SCM_REAL_VALUE(obj)));
+#endif
     return MAKE_BOOL(INTP(obj));
 }
 
@@ -279,9 +293,9 @@ scm_p_exactp(ScmObj z)
 {
     DECLARE_FUNCTION("exact?", procedure_fixed_1);
 
-    ENSURE_INT(z);
+    ENSURE_NUMBER(z);
 
-    return SCM_TRUE;
+    return MAKE_BOOL(INTP(z));
 }
 
 SCM_EXPORT ScmObj
@@ -289,10 +303,24 @@ scm_p_inexactp(ScmObj z)
 {
     DECLARE_FUNCTION("inexact?", procedure_fixed_1);
 
-    ENSURE_INT(z);
+    ENSURE_NUMBER(z);
 
-    return SCM_FALSE;
+    return MAKE_BOOL(!INTP(z));
 }
+
+#if SCM_USE_REAL
+/* Returns true if D is an integer. All doubles whose absolute value is 2^52
+ * or more are integers. */
+SCM_EXPORT scm_bool
+scm_real_integerp(double d)
+{
+    if (!isfinite(d))
+        return scm_false;
+    if (d <= -4503599627370496.0 || 4503599627370496.0 <= d)
+        return scm_true;
+    return d == (double)(int64_t)d;
+}
+#endif
 
 #define COMPARATOR_BODY(op)                                                  \
     switch (*state) {                                                        \

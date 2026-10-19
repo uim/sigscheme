@@ -105,6 +105,9 @@ option('promise',
 option('int',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'R5RS integer numbers')
+option('real',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'inexact real numbers (flonums)')
 option('numeric_io',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'R5RS \'number->string\' and \'string->number\'')

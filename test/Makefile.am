@@ -33,6 +33,7 @@ sscm_tests = \
         test-obsolete.scm \
         test-quote.scm \
         test-r7rs.scm \
+        test-real.scm \
         test-srfi0.scm \
         test-srfi1-obsolete.scm \
         test-srfi2.scm \

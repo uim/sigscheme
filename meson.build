@@ -67,6 +67,7 @@ foreach type : [
   'long',
   'void *',
   'size_t',
+  'double',
   'int16_t',
   'int32_t',
   'int64_t',
@@ -223,6 +224,7 @@ conf_srfis_all = {
 conf_r7rs = {
   'r7rs': 'yes',
   'bytevector': 'yes',
+  'real': 'yes',
   # R7RS vectors are self-evaluating.
   'strict_vector_form': 'no',
 }
@@ -314,6 +316,7 @@ conf_presets = {
     'quasiquote': 'yes',
     'promise': 'yes',
     'int': 'yes',
+    'real': 'yes',
     'numeric_io': 'yes',
     'char': 'yes',
     'string': 'yes',
@@ -466,7 +469,6 @@ internal_features = [
   'raw_c_format',
   'number',
   'rational',
-  'real',
   'complex',
   'syntax_case',
   'unhygienic_macro',
@@ -524,7 +526,7 @@ feature_required_dependencies = {
 
   'int': ['number'],
   'rational': ['number'],
-  'real': ['number'],
+  'real': ['number', 'number_io'],
   'complex': ['number'],
   'numeric_io': ['number_io'],
   'number_io': ['number', 'string'],
@@ -913,6 +915,7 @@ if use['libsscm']
     'hygienic_macro',
     'promise',
     'int',
+    'real',
     'number_io',
     'char',
     'string',
@@ -1007,6 +1010,7 @@ summary({
           'Hygienic macros': use['hygienic_macro'],
           'Promise': use['promise'],
           'Integer': use['int'],
+          'Real': use['real'],
           'Numeric I/O': use['number_io'],
           'Charcters': use['char'],
           'Strings': use['string'],

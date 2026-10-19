@@ -211,6 +211,9 @@ static void
 write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 {
     ScmObj sym;
+#if SCM_USE_REAL
+    char *str;
+#endif
 
 #if SCM_USE_SRFI38
     if (INTERESTINGP(obj)) {
@@ -231,6 +234,13 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 #if SCM_USE_INT
     case ScmInt:
         scm_format(port, SCM_FMT_RAW_C, "~MD", SCM_INT_VALUE(obj));
+        break;
+#endif
+#if SCM_USE_REAL
+    case ScmReal:
+        str = scm_real2string(SCM_REAL_VALUE(obj));
+        scm_port_puts(port, str);
+        free(str);
         break;
 #endif
     case ScmCons:
@@ -349,7 +359,9 @@ write_obj(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 #endif
 
     case ScmRational:
+#if !SCM_USE_REAL
     case ScmReal:
+#endif
     case ScmComplex:
     default:
         SCM_NOTREACHED;

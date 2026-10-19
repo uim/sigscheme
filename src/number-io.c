@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -38,10 +38,17 @@
 #include <config.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
 #include <errno.h>
-#if SCM_STRICT_ARGCHECK
 #include <string.h>
+#if (HAVE_STRCASECMP && HAVE_STRINGS_H)
+#include <strings.h>
+#endif
+#if SCM_USE_REAL
+#include <float.h>
+#include <locale.h>
+#include <math.h>
 #endif
 
 #include <sigscheme/sigscheme.h>
@@ -65,6 +72,12 @@
 =======================================*/
 #if SCM_USE_STRING
 static int prepare_radix(const char *funcname, ScmObj args);
+#endif
+#if SCM_USE_REAL
+static scm_bool decimalp(const char *str);
+static double string2double(const char *str);
+static ScmObj parse_real(const char *str, char exactness);
+static void normalize_decimal_point(char *buf);
 #endif
 
 /*=======================================
@@ -149,10 +162,18 @@ scm_p_number2string(ScmObj num, ScmObj args)
     ScmValueFormat vfmt;
     DECLARE_FUNCTION("number->string", procedure_variadic_1);
 
+    r = prepare_radix(SCM_MANGLE(name), args);
+#if SCM_USE_REAL
+    if (REALP(num)) {
+        if (r != 10)
+            ERR_OBJ("radix 10 is required for inexact number", num);
+        return MAKE_STRING(scm_real2string(SCM_REAL_VALUE(num)),
+                           SCM_STRLEN_UNKNOWN);
+    }
+#endif
     ENSURE_INT(num);
 
     n = (intmax_t)SCM_INT_VALUE(num);
-    r = prepare_radix(SCM_MANGLE(name), args);
     SCM_VALUE_FORMAT_INIT(vfmt);
     str = scm_int2string(vfmt, (uintmax_t)n, r);
 
@@ -242,18 +263,239 @@ scm_string2number(const char *str, int radix, scm_bool *err)
 SCM_EXPORT ScmObj
 scm_p_string2number(ScmObj str, ScmObj args)
 {
-    scm_int_t ret;
     int r;
-    const char *c_str;
-    scm_bool err;
     DECLARE_FUNCTION("string->number", procedure_variadic_1);
 
     ENSURE_STRING(str);
 
-    c_str = SCM_STRING_STR(str);
     r = prepare_radix(SCM_MANGLE(name), args);
 
-    ret = scm_string2number(c_str, r, &err);
-    return (err) ? SCM_FALSE : MAKE_INT(ret);
+    return scm_parse_number(SCM_STRING_STR(str), r);
 }
 #endif /* SCM_USE_STRING */
+
+/* Parses STR that may have radix and exactness prefixes such as "#x" and
+ * "#e". Returns #f if STR isn't a valid number. */
+SCM_EXPORT ScmObj
+scm_parse_number(const char *str, int radix)
+{
+    scm_int_t n;
+    scm_bool err, radix_prefixed;
+    char exactness;
+
+    radix_prefixed = scm_false;
+    exactness = '\0';
+    while (str[0] == '#') {
+        switch (str[1]) {
+        case 'b': case 'B': radix = 2;  goto radix_prefix;
+        case 'o': case 'O': radix = 8;  goto radix_prefix;
+        case 'd': case 'D': radix = 10; goto radix_prefix;
+        case 'x': case 'X': radix = 16;
+        radix_prefix:
+            if (radix_prefixed)
+                return SCM_FALSE;
+            radix_prefixed = scm_true;
+            break;
+
+        case 'e': case 'E': case 'i': case 'I':
+            if (exactness)
+                return SCM_FALSE;
+            exactness = ICHAR_DOWNCASE(str[1]);
+            break;
+
+        default:
+            return SCM_FALSE;
+        }
+        str += 2;
+    }
+
+    n = scm_string2number(str, radix, &err);
+#if SCM_USE_REAL
+    if (!err)
+        return (exactness == 'i') ? MAKE_REAL((double)n) : MAKE_INT(n);
+#else
+    if (!err)
+        return (exactness == 'i') ? SCM_FALSE : MAKE_INT(n);
+#endif
+
+#if SCM_USE_REAL
+    /* Only radix 10 has the decimal notation. An integer that is too large is
+     * an inexact number only with #i. */
+    if (radix == 10 && (decimalp(str) || exactness == 'i'))
+        return parse_real(str, exactness);
+#endif
+    return SCM_FALSE;
+}
+
+#if SCM_USE_REAL
+/* Returns true if STR is a decimal notation that isn't an integer:
+ *
+ *   [+-] (<digit>+ [. <digit>*] | . <digit>+) [<exponent>]
+ *   [+-] (inf.0 | nan.0)
+ *
+ * <exponent> is one of "esfdl" (case insensitive), [+-] and <digit>+. At
+ * least either "." or <exponent> is required. */
+static scm_bool
+decimalp(const char *str)
+{
+    const char *p;
+    scm_bool point;
+    size_t n_digits;
+
+    p = str;
+    if (*p == '+' || *p == '-') {
+        p++;
+        if (strcasecmp(p, "inf.0") == 0 || strcasecmp(p, "nan.0") == 0)
+            return scm_true;
+    }
+
+    n_digits = strspn(p, "0123456789");
+    p += n_digits;
+    point = (*p == '.');
+    if (point) {
+        p++;
+        n_digits += strspn(p, "0123456789");
+        p += strspn(p, "0123456789");
+    }
+    if (!n_digits)
+        return scm_false;
+    if (*p && strchr("esfdlESFDL", *p)) {
+        p++;
+        if (*p == '+' || *p == '-')
+            p++;
+        if (!strspn(p, "0123456789"))
+            return scm_false;
+        p += strspn(p, "0123456789");
+        return !*p;
+    }
+    return point && !*p;
+}
+
+/* Converts STR that is a decimal notation or an integer independently of
+ * the locale. */
+static double
+string2double(const char *str)
+{
+    const char *locale_point;
+    char *buf, *p, *point;
+    double d;
+    size_t locale_point_len;
+
+    if (str[0] && strcasecmp(&str[1], "inf.0") == 0)
+        return (str[0] == '-') ? -INFINITY : INFINITY;
+    if (str[0] && strcasecmp(&str[1], "nan.0") == 0)
+        return NAN;
+
+    locale_point = localeconv()->decimal_point;
+    locale_point_len = strlen(locale_point);
+    buf = scm_malloc(strlen(str) + locale_point_len + sizeof(""));
+    /* strtod() accepts only 'e' as the exponent marker. */
+    for (p = buf; *str; str++)
+        *p++ = (strchr("sfdlSFDL", *str)) ? 'e' : *str;
+    *p = '\0';
+
+    /* strtod() uses the decimal point of the locale. */
+    point = strchr(buf, '.');
+    if (point && strcmp(locale_point, ".") != 0) {
+        memmove(point + locale_point_len, point + 1,
+                strlen(point + 1) + sizeof(""));
+        memcpy(point, locale_point, locale_point_len);
+    }
+
+    d = strtod(buf, NULL);
+    free(buf);
+    return d;
+}
+
+static ScmObj
+parse_real(const char *str, char exactness)
+{
+    double d;
+
+    d = string2double(str);
+    if (exactness != 'e')
+        return MAKE_REAL(d);
+
+    /* Only integers are supported as exact numbers. The bounds are powers of
+     * 2 that are exact as double. */
+    if ((double)SCM_INT_MIN <= d && d < -(double)SCM_INT_MIN
+        && d == (double)(scm_int_t)d)
+        return MAKE_INT((scm_int_t)d);
+    return SCM_FALSE;
+}
+
+/* Replaces the decimal point of the locale in BUF with ".". */
+static void
+normalize_decimal_point(char *buf)
+{
+    const char *locale_point;
+    char *point;
+    size_t len;
+
+    locale_point = localeconv()->decimal_point;
+    if (strcmp(locale_point, ".") == 0)
+        return;
+    point = strstr(buf, locale_point);
+    if (point) {
+        len = strlen(locale_point);
+        *point = '.';
+        memmove(point + 1, point + len, strlen(point + len) + sizeof(""));
+    }
+}
+
+/* Returns D in the fixed-point notation with DECIMALS fractional digits.
+ * DECIMALS is at most SCHAR_MAX because it's from ScmValueFormat. */
+SCM_EXPORT char *
+scm_real2fixed(double d, int decimals)
+{
+    char buf[sizeof("-") + DBL_MAX_10_EXP + sizeof(".") + SCHAR_MAX];
+
+    SCM_ASSERT(0 <= decimals && decimals <= SCHAR_MAX);
+    if (!isfinite(d))
+        return scm_real2string(d);
+
+    snprintf(buf, sizeof(buf), "%.*f", decimals, d);
+    normalize_decimal_point(buf);
+    return scm_strdup(buf);
+}
+
+/* Returns the shortest notation of D that is read as D again. It uses the
+ * fixed-point notation such as "100.0" for moderate exponents. Otherwise,
+ * it uses the exponential notation such as "1.5e-07". */
+SCM_EXPORT char *
+scm_real2string(double d)
+{
+    char buf[64];
+    char *e;
+    int precision, exponent, decimals;
+
+    if (isnan(d))
+        return scm_strdup("+nan.0");
+    if (isinf(d))
+        return scm_strdup((d < 0) ? "-inf.0" : "+inf.0");
+
+    for (precision = 1; precision <= 17; precision++) {
+        snprintf(buf, sizeof(buf), "%.*e", precision - 1, d);
+        normalize_decimal_point(buf);
+        if (string2double(buf) == d)
+            break;
+    }
+
+    e = strchr(buf, 'e');
+    exponent = atoi(e + 1);
+    if (-4 <= exponent && exponent < 21) {
+        decimals = precision - 1 - exponent;
+        snprintf(buf, sizeof(buf), "%.*f", (decimals < 0) ? 0 : decimals, d);
+        normalize_decimal_point(buf);
+        /* "100" -> "100.0" to show that it's inexact. */
+        if (!strchr(buf, '.'))
+            strcat(buf, ".0");
+    } else if (!memchr(buf, '.', e - buf)) {
+        /* "5e-324" -> "5.0e-324" */
+        memmove(e + 2, e, strlen(e) + sizeof(""));
+        memcpy(e, ".0", 2);
+    }
+
+    return scm_strdup(buf);
+}
+#endif /* SCM_USE_REAL */

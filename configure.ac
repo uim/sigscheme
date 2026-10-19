@@ -49,6 +49,7 @@ AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(void *)
 AC_CHECK_SIZEOF(size_t)
+AC_CHECK_SIZEOF(double)
 
 # Do not assume (sizeof(int32_t) == 4) and so on (i.e. do not (CHAR_BIT == 8)).
 AC_CHECK_SIZEOF(int16_t)
@@ -287,6 +288,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_quasiquote=yes
         use_promise=yes
         use_int=yes
+        use_real=yes
         use_numeric_io=yes
         use_char=yes
         use_string=yes
@@ -358,6 +360,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
       full|r7rs|dev)
         use_r7rs=yes
         use_bytevector=yes
+        use_real=yes
         # R7RS vectors are self-evaluating.
         use_strict_vector_form=no
         ;;
@@ -428,7 +431,7 @@ AX_FEATURE_ARG_Y(promise,        [R5RS promises])
 AX_FEATURE_VAR_N(number,         [R5RS numbers])
 AX_FEATURE_ARG_Y(int,            [R5RS integer numbers])
 AX_FEATURE_VAR_N(rational,       [R5RS rational numbers (not implemented yet)])
-AX_FEATURE_VAR_N(real,           [R5RS real numbers (not implemented yet)])
+AX_FEATURE_ARG_N(real,           [inexact real numbers (flonums)])
 AX_FEATURE_VAR_N(complex,        [R5RS complex numbers (not implemented yet)])
 AX_FEATURE_ARG_Y(numeric-io,     [R5RS 'number->string' and 'string->number'])
 AX_FEATURE_ARG_Y(char,           [R5RS characters])
@@ -541,7 +544,7 @@ strict_r5rs: strict_null_form strict_vector_form strict_argcheck internal_defini
 
 int:        number
 rational:   number
-real:       number
+real:       number number_io
 complex:    number
 numeric_io: number_io
 number_io:  number string
@@ -747,6 +750,7 @@ AC_SUBST(use_quasiquote)
 AC_SUBST(use_hygienic_macro)
 AC_SUBST(use_promise)
 AC_SUBST(use_int)
+AC_SUBST(use_real)
 AC_SUBST(use_number_io)
 AC_SUBST(use_char)
 AC_SUBST(use_string)
@@ -882,6 +886,7 @@ Quasiquote:         $use_quasiquote
 Hygienic macros:    $use_hygienic_macro
 Promise:            $use_promise
 Integer:            $use_int
+Real:               $use_real
 Numeric I/O:        ${use_number_io:-no}
 Charcters:          $use_char
 Strings:            $use_string

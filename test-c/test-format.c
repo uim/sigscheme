@@ -3,7 +3,7 @@
  *  About    : unit test for format functions
  *
  *  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -2810,6 +2810,16 @@ TST_CASE("format ~f (number)")
     TST_TN_EQ_STR(" 10",  STR(format("~3f",  MAKE_INT(10))));
     TST_TN_EQ_STR("100",  STR(format("~3f",  MAKE_INT(100))));
 
+#if SCM_USE_REAL
+    /* Integers are formatted as inexact numbers with fractional digits. */
+    TST_TN_EQ_STR("-100.00", STR(format("~3,02f", MAKE_INT(-100))));
+    TST_TN_EQ_STR("-10.00",  STR(format("~3,02f", MAKE_INT(-10))));
+    TST_TN_EQ_STR("-1.00",   STR(format("~3,02f", MAKE_INT(-1))));
+    TST_TN_EQ_STR("0.00",    STR(format("~3,02f", MAKE_INT(0))));
+    TST_TN_EQ_STR("1.00",    STR(format("~3,02f", MAKE_INT(1))));
+    TST_TN_EQ_STR("10.00",   STR(format("~3,02f", MAKE_INT(10))));
+    TST_TN_EQ_STR("100.00",  STR(format("~3,02f", MAKE_INT(100))));
+#else
     TST_TN_EQ_STR("-100", STR(format("~3,02f", MAKE_INT(-100))));
     TST_TN_EQ_STR("-10",  STR(format("~3,02f", MAKE_INT(-10))));
     TST_TN_EQ_STR(" -1",  STR(format("~3,02f", MAKE_INT(-1))));
@@ -2817,6 +2827,7 @@ TST_CASE("format ~f (number)")
     TST_TN_EQ_STR("  1",  STR(format("~3,02f", MAKE_INT(1))));
     TST_TN_EQ_STR(" 10",  STR(format("~3,02f", MAKE_INT(10))));
     TST_TN_EQ_STR("100",  STR(format("~3,02f", MAKE_INT(100))));
+#endif
 }
 
 TST_CASE("format ~f (string)")

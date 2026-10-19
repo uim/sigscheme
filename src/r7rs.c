@@ -34,6 +34,9 @@
 
 #include <config.h>
 
+#if SCM_USE_REAL
+#include <math.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -495,8 +498,6 @@ scm_s_define_values(ScmObj formals, ScmObj exp, ScmEvalState *eval_state)
 /*===========================================================================
   R7RS : 6.2 Numbers
 ===========================================================================*/
-/* SigScheme supports only exact integers. So the following procedures
- * are trivial. */
 SCM_EXPORT ScmObj
 scm_p_exact_integerp(ScmObj obj)
 {
@@ -510,8 +511,12 @@ scm_p_finitep(ScmObj z)
 {
     DECLARE_FUNCTION("finite?", procedure_fixed_1);
 
-    ENSURE_INT(z);
+    ENSURE_NUMBER(z);
 
+#if SCM_USE_REAL
+    if (REALP(z))
+        return MAKE_BOOL(isfinite(SCM_REAL_VALUE(z)));
+#endif
     return SCM_TRUE;
 }
 
@@ -520,8 +525,12 @@ scm_p_infinitep(ScmObj z)
 {
     DECLARE_FUNCTION("infinite?", procedure_fixed_1);
 
-    ENSURE_INT(z);
+    ENSURE_NUMBER(z);
 
+#if SCM_USE_REAL
+    if (REALP(z))
+        return MAKE_BOOL(isinf(SCM_REAL_VALUE(z)));
+#endif
     return SCM_FALSE;
 }
 
@@ -530,8 +539,12 @@ scm_p_nanp(ScmObj z)
 {
     DECLARE_FUNCTION("nan?", procedure_fixed_1);
 
-    ENSURE_INT(z);
+    ENSURE_NUMBER(z);
 
+#if SCM_USE_REAL
+    if (REALP(z))
+        return MAKE_BOOL(isnan(SCM_REAL_VALUE(z)));
+#endif
     return SCM_FALSE;
 }
 

@@ -119,6 +119,7 @@ extern "C" {
 #define MAKE_VECTOR                   SCM_MAKE_VECTOR
 #define MAKE_IMMUTABLE_VECTOR         SCM_MAKE_IMMUTABLE_VECTOR
 #define MAKE_BYTEVECTOR               SCM_MAKE_BYTEVECTOR
+#define MAKE_REAL                     SCM_MAKE_REAL
 #define MAKE_PORT                     SCM_MAKE_PORT
 #define MAKE_CONTINUATION             SCM_MAKE_CONTINUATION
 #define MAKE_C_POINTER                SCM_MAKE_C_POINTER
@@ -143,6 +144,7 @@ extern "C" {
 #define SYNTACTIC_OBJECTP SCM_SYNTACTIC_OBJECTP
 #define VECTORP        SCM_VECTORP
 #define BYTEVECTORP    SCM_BYTEVECTORP
+#define REALP          SCM_REALP
 #define BYTEP(o)                                                             \
     (INTP(o) && 0 <= SCM_INT_VALUE(o) && SCM_INT_VALUE(o) <= 255)
 #define PORTP          SCM_PORTP
@@ -405,6 +407,7 @@ SCM_EXPORT void scm_kind_error_obj(enum ScmErrorKind kind,
     (pred(obj) || (ERR_OBJ(_typename " required but got", (obj)), 1))
 
 #define ENSURE_INT(o)          ENSURE_TYPE(INTP,          "integer",      (o))
+#define ENSURE_NUMBER(o)       ENSURE_TYPE(NUMBERP,       "number",       (o))
 #define ENSURE_CONS(o)         ENSURE_TYPE(CONSP,         "pair",         (o))
 #define ENSURE_SYMBOL(o)       ENSURE_TYPE(SYMBOLP,       "symbol",       (o))
 #define ENSURE_CHAR(o)         ENSURE_TYPE(CHARP,         "character",    (o))
@@ -762,7 +765,17 @@ SCM_EXPORT void scm_macro_bad_scope(ScmObj sym);
 /* error.c */
 SCM_EXPORT void scm_init_error(void);
 
+/* number-io.c */
+SCM_EXPORT ScmObj scm_parse_number(const char *str, int radix);
+#if SCM_USE_REAL
+SCM_EXPORT char *scm_real2string(double d);
+SCM_EXPORT char *scm_real2fixed(double d, int decimals);
+#endif
+
 /* number.c */
+#if SCM_USE_REAL
+SCM_EXPORT scm_bool scm_real_integerp(double d);
+#endif
 SCM_EXPORT scm_int_t scm_int_multiply(const char *func_name,
                                       scm_int_t n1, scm_int_t n2);
 SCM_EXPORT scm_int_t scm_int_quotient(const char *func_name,

@@ -103,6 +103,12 @@ struct ScmCell_ {
             scm_int_t value;
         } integer;
 
+#if SCM_USE_REAL
+        struct {
+            double value;
+        } real;
+#endif
+
         struct {
             ScmObj car;
             ScmObj cdr;
@@ -196,7 +202,11 @@ struct ScmCell_ {
 =======================================*/
 #define SCM_SAL_HAS_CHAR     1
 #define SCM_SAL_HAS_RATIONAL 0
+#if SCM_USE_REAL
+#define SCM_SAL_HAS_REAL     1
+#else
 #define SCM_SAL_HAS_REAL     0
+#endif
 #define SCM_SAL_HAS_COMPLEX  0
 #define SCM_SAL_HAS_STRING   1
 #define SCM_SAL_HAS_VECTOR   1
@@ -251,13 +261,24 @@ struct ScmCell_ {
 #define SCM_SET_MUTABILITY(o, mutp) ((o)->attr.v.immutable = !(mutp))
 
 /* Real Accessors */
+#if SCM_USE_REAL
+#define SCM_SAL_NUMBERP(o)             (SCM_SAL_INTP(o) || SCM_SAL_REALP(o))
+#else
 #define SCM_SAL_NUMBERP(o)             SCM_SAL_INTP(o)
+#endif
 
 #define SCM_SAL_INTP(o)                (SCM_TYPE(o) == ScmInt)
 #define SCM_SAL_INT_VALUE(o)           (SCM_AS_INT(o)->obj.integer.value)
 #define SCM_SAL_INT_SET_VALUE(o, val)  (SCM_INT_VALUE(o) = (val))
 #define SCM_ISAL_INT_INIT(o, val)      (SCM_ENTYPE((o), ScmInt),        \
                                         SCM_INT_SET_VALUE((o), (val)))
+
+#if SCM_USE_REAL
+#define SCM_SAL_REALP(o)               (SCM_TYPE(o) == ScmReal)
+#define SCM_SAL_REAL_VALUE(o)          (SCM_AS_REAL(o)->obj.real.value)
+#define SCM_ISAL_REAL_INIT(o, val)     (SCM_ENTYPE((o), ScmReal),       \
+                                        SCM_REAL_VALUE(o) = (val))
+#endif
 
 #define SCM_SAL_CONSP(o)               (SCM_TYPE(o) == ScmCons)
 /* don't use as lvalue */

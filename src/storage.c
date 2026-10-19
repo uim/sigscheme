@@ -144,6 +144,13 @@
                             (ScmObj, ScmObj *, scm_int_t),      \
                             ((obj), (vec), (len)))
 
+#if SCM_USE_REAL
+#define SCM_REAL_INIT(obj, val)                                 \
+    SCM_TYPESAFE_MACRO_VOID(SCM_ISAL_REAL_INIT,                 \
+                            (ScmObj, double),                   \
+                            ((obj), (val)))
+#endif
+
 #define SCM_BYTEVECTOR_INIT(obj, vec, len)                      \
     SCM_TYPESAFE_MACRO_VOID(SCM_ISAL_BYTEVECTOR_INIT,           \
                             (ScmObj, scm_byte_t *, scm_int_t),  \
@@ -349,6 +356,18 @@ scm_make_int(scm_int_t val)
     return obj;
 }
 #endif /* (SCM_USE_INT && !SCM_HAS_IMMEDIATE_INT_ONLY) */
+
+#if SCM_USE_REAL
+SCM_EXPORT ScmObj
+scm_make_real(double val)
+{
+    ScmObj obj;
+
+    obj = scm_alloc_cell();
+    SCM_REAL_INIT(obj, val);
+    return obj;
+}
+#endif /* SCM_USE_REAL */
 
 SCM_EXPORT ScmObj
 scm_make_symbol(char *name, ScmObj val)
@@ -597,6 +616,10 @@ scm_type(ScmObj obj)
 #if SCM_USE_BYTEVECTOR
         else if (BYTEVECTORP(obj))
             return ScmBytevector;
+#endif
+#if SCM_USE_REAL
+        else if (REALP(obj))
+            return ScmReal;
 #endif
         else if (VALUEPACKETP(obj))
             return ScmValuePacket;

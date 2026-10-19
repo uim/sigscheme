@@ -60,10 +60,26 @@ SCM_DEFINE_EXPORTED_VARS(procedure);
 /*=======================================
   File Local Function Declarations
 =======================================*/
+#if SCM_USE_REAL
+static scm_bool real_eqvp(ScmObj x, ScmObj y);
+#endif
 
 /*=======================================
   Function Definitions
 =======================================*/
+#if SCM_USE_REAL
+/* Compares bits to distinguish 0.0 and -0.0 and to treat NaNs with the same
+ * bits as the same. */
+static scm_bool
+real_eqvp(ScmObj x, ScmObj y)
+{
+    double dx, dy;
+
+    dx = SCM_REAL_VALUE(x);
+    dy = SCM_REAL_VALUE(y);
+    return memcmp(&dx, &dy, sizeof(double)) == 0;
+}
+#endif
 /*===========================================================================
   R5RS : 6.1 Equivalence predicates
 ===========================================================================*/
@@ -108,6 +124,11 @@ scm_p_eqvp(ScmObj obj1, ScmObj obj2)
         return MAKE_BOOL(SCM_INT_VALUE(obj1) == SCM_INT_VALUE(obj2));
 #endif
 
+#if SCM_USE_REAL
+    case ScmReal:
+        return MAKE_BOOL(real_eqvp(obj1, obj2));
+#endif
+
 #if (SCM_USE_CHAR && !SCM_HAS_IMMEDIATE_CHAR_ONLY)
     case ScmChar:
         return MAKE_BOOL(SCM_CHAR_VALUE(obj1) == SCM_CHAR_VALUE(obj2));
@@ -148,6 +169,11 @@ scm_p_equalp(ScmObj obj1, ScmObj obj2)
 #if (SCM_USE_INT && !SCM_HAS_IMMEDIATE_INT_ONLY)
     case ScmInt:
         return MAKE_BOOL(SCM_INT_VALUE(obj1) == SCM_INT_VALUE(obj2));
+#endif
+
+#if SCM_USE_REAL
+    case ScmReal:
+        return MAKE_BOOL(real_eqvp(obj1, obj2));
 #endif
 
 #if (SCM_USE_CHAR && !SCM_HAS_IMMEDIATE_CHAR_ONLY)

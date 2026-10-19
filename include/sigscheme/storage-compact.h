@@ -103,6 +103,7 @@
  *     ...........|G : pointer
  *     ...........|G :  - C ptr     : pointer (void *)
  *     ...........|G :  - C funcptr : function pointer (ScmCFunc)
+ *     ...........|G :  - real      : bits of double or pointer to double
  *     ...........|G : wrapper      : abstract obj (ScmObj)
  *     ...........|G :  - subpat    : object (ScmObj)
  *     ...........|G :  - far symbol: symbol (ScmObj)
@@ -121,7 +122,8 @@
  *     ....|100|11|1 : pointer
  *     P|00|100|11|1 :  - C ptr     : LSB P of the pointer (S->X)
  *     P|01|100|11|1 :  - C funcptr : LSB P of the pointer (S->X)
- *     .|10|100|11|1 :  - (reserved):
+ *     P|10|100|11|1 :  - real      : LSB P of the bits (S->X) if the
+ *                   :              : double is stored in the cell
  *     .|11|100|11|1 :  - (reserved):
  *     ....|101|11|1 : wrapper      : inaccessible
  *     .|00|101|11|1 :  - subpat    : metainformation about the wrapped object
@@ -356,7 +358,11 @@ typedef ScmObj (*ScmFuncType)(void);
 #define SCM_SAL_INT_VALUE(o)                                                 \
     ((scm_int_t)SCM_ARSHIFT(SCM_AS_INT(o), SCM_INT_VAL_OFFSET))
 
+#if SCM_USE_REAL
+#define SCM_SAL_NUMBERP(o)       (SCM_SAL_INTP(o) || SCM_SAL_REALP(o))
+#else
 #define SCM_SAL_NUMBERP          SCM_SAL_INTP
+#endif
 
 /* Characters. */
 #define SCM_IMMID_CHAR          SCM_MAKE_IMMID(1)
@@ -798,6 +804,47 @@ SCM_MISC_DECLARE_TYPE(VALUEPACKET, L2(0, 3),
     SCM_MISC_SET_X((o), (v), VALUEPACKET)
 #define SCM_ISAL_VALUEPACKET_INIT(o, v) SCM_MISC_INIT((o), (v), 0, VALUEPACKET)
 
+#if SCM_USE_REAL
+/* Inexact real numbers. If a double has the same size as an object, its bits
+ * are stored in the cell directly. Otherwise, the cell points to an allocated
+ * double. */
+#if SIZEOF_DOUBLE == SIZEOF_SCM_INTOBJ_T
+#define SCM_REAL_IN_CELL 1
+SCM_MISC_DECLARE_TYPE(REAL, L3(2, 4, 3),
+                      SCM_MISC_XTYPE(scm_uintobj_t), SCM_MISC_XALIGN(0),
+                      SCM_MISC_Y_UNUSED);
+#else
+#define SCM_REAL_IN_CELL 0
+SCM_MISC_DECLARE_TYPE(REAL, L3(2, 4, 3),
+                      SCM_MISC_XTYPE(double *), SCM_MISC_XALIGN(1),
+                      SCM_MISC_Y_UNUSED);
+#endif
+
+#define SCM_REAL_PTR(o)       SCM_MISC_PTR((o), REAL)
+#define SCM_SAL_REALP(o)      SCM_MISC_TYPEP((o), REAL)
+#if SCM_REAL_IN_CELL
+/* Reinterprets the bits by unions. */
+#define SCM_REAL_BITS2DOUBLE(b)                                              \
+    (((union { scm_uintobj_t bits; double d; }){ (b) }).d)
+#define SCM_REAL_DOUBLE2BITS(d)                                              \
+    (((union { double d; scm_uintobj_t bits; }){ (d) }).bits)
+#define SCM_SAL_REAL_VALUE(o)                                                \
+    SCM_REAL_BITS2DOUBLE(SCM_MISC_X((o), REAL))
+#define SCM_ISAL_REAL_INIT(o, d)                                             \
+    SCM_MISC_INIT((o), SCM_REAL_DOUBLE2BITS(d), 0, REAL)
+#else
+#define SCM_SAL_REAL_VALUE(o) (*SCM_MISC_X((o), REAL))
+#define SCM_ISAL_REAL_INIT(o, d)                                             \
+    do {                                                                     \
+        double *_d = scm_malloc(sizeof(double));                             \
+        *_d = (d);                                                           \
+        SCM_MISC_INIT((o), _d, 0, REAL);                                     \
+    } while (0)
+#define SCM_CELL_REAL_FIN(c)  free(SCM_MISC_X_NASSERT(&(c), REAL))
+#endif
+#define SCM_CELL_REALP(c)     SCM_MISC_CELL_TYPEP((c), REAL)
+#endif /* SCM_USE_REAL */
+
 /* Builtin functions. */
 SCM_MISC_DECLARE_TYPE(FUNC, L2(1, 3),
                       SCM_MISC_XTYPE(ScmFuncType), SCM_MISC_XALIGN(0),
@@ -974,7 +1021,11 @@ SCM_EXPORT enum ScmObjType scm_type(ScmObj obj);
 =======================================*/
 #define SCM_SAL_HAS_CHAR     1
 #define SCM_SAL_HAS_RATIONAL 0
+#if SCM_USE_REAL
+#define SCM_SAL_HAS_REAL     1
+#else
 #define SCM_SAL_HAS_REAL     0
+#endif
 #define SCM_SAL_HAS_COMPLEX  0
 #define SCM_SAL_HAS_STRING   1
 #define SCM_SAL_HAS_VECTOR   1
@@ -985,7 +1036,12 @@ SCM_EXPORT enum ScmObjType scm_type(ScmObj obj);
 
 /* for optimization */
 #define SCM_SAL_HAS_IMMEDIATE_CHAR_ONLY     1
+#if SCM_USE_REAL
+/* Reals aren't immediate values. */
+#define SCM_SAL_HAS_IMMEDIATE_NUMBER_ONLY   0
+#else
 #define SCM_SAL_HAS_IMMEDIATE_NUMBER_ONLY   1
+#endif
 #define SCM_SAL_HAS_IMMEDIATE_INT_ONLY      1
 #define SCM_SAL_HAS_IMMEDIATE_RATIONAL_ONLY 0
 #define SCM_SAL_HAS_IMMEDIATE_REAL_ONLY     0

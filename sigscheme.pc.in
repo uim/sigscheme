@@ -26,6 +26,7 @@ sscm_quasiquote=@use_quasiquote@
 sscm_hygienic_macro=@use_hygienic_macro@
 sscm_promise=@use_promise@
 sscm_int=@use_int@
+sscm_real=@use_real@
 sscm_numeric_io=@use_number_io@
 sscm_char=@use_char@
 sscm_string=@use_string@

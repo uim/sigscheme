@@ -639,6 +639,14 @@ struct ScmStorageConf_ {
                        (val))
 #endif /* SCM_USE_INT */
 
+#if SCM_USE_REAL
+#define SCM_MAKE_REAL(val)                                                   \
+    SCM_TYPESAFE_MACRO(SCM_SAL_MAKE_REAL,                                    \
+                       ScmObj,                                               \
+                       (double),                                             \
+                       (val))
+#endif /* SCM_USE_REAL */
+
 #if SCM_USE_CHAR
 #define SCM_MAKE_CHAR(val)                                                   \
     SCM_TYPESAFE_MACRO(SCM_SAL_MAKE_CHAR,                                    \
@@ -787,6 +795,7 @@ struct ScmStorageConf_ {
 #endif /* SCM_ACCESSOR_ASSERT */
 #define SCM_AS_NUMBER(o)        (SCM_ASSERT_TYPE(SCM_NUMBERP(o),        (o)))
 #define SCM_AS_INT(o)           (SCM_ASSERT_TYPE(SCM_INTP(o),           (o)))
+#define SCM_AS_REAL(o)          (SCM_ASSERT_TYPE(SCM_REALP(o),          (o)))
 #define SCM_AS_CONS(o)          (SCM_ASSERT_TYPE(SCM_CONSP(o),          (o)))
 #define SCM_AS_SYMBOL(o)        (SCM_ASSERT_TYPE(SCM_SYMBOLP(o),        (o)))
 #define SCM_AS_CHAR(o)          (SCM_ASSERT_TYPE(SCM_CHARP(o),          (o)))
@@ -812,6 +821,11 @@ struct ScmStorageConf_ {
 #define SCM_INT_VALUE(o)                SCM_SAL_INT_VALUE(o)
 #define SCM_INT_SET_VALUE(o, val)       SCM_SAL_INT_SET_VALUE((o), (val))
 #endif /* SCM_USE_INT */
+
+#if SCM_USE_REAL
+#define SCM_REALP(o)                    SCM_SAL_REALP(o)
+#define SCM_REAL_VALUE(o)               SCM_SAL_REAL_VALUE(o)
+#endif /* SCM_USE_REAL */
 #endif /* SCM_USE_NUMBER */
 
 #define SCM_CONSP(o)                    SCM_SAL_CONSP(o)

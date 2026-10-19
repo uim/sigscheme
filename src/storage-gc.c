@@ -895,6 +895,10 @@ free_cell(ScmCell *cell)
         else if (SCM_CELL_BYTEVECTORP(*cell))
             SCM_CELL_BYTEVECTOR_FIN(*cell);
 #endif
+#if (SCM_USE_REAL && !SCM_REAL_IN_CELL)
+        else if (SCM_CELL_REALP(*cell))
+            SCM_CELL_REAL_FIN(*cell);
+#endif
 #if SCM_USE_PORT
         else if (SCM_CELL_PORTP(*cell))
             SCM_CELL_PORT_FIN(*cell);
@@ -962,6 +966,9 @@ free_cell(ScmCell *cell)
         break;
 #endif
 
+#if SCM_USE_REAL
+    case ScmReal:
+#endif
     case ScmClosure:
     case ScmFunc:
     case ScmMacro:
@@ -973,7 +980,9 @@ free_cell(ScmCell *cell)
         break;
 #if SCM_DEBUG
     case ScmRational:
+#if !SCM_USE_REAL
     case ScmReal:
+#endif
     case ScmComplex:
 #endif
     default:

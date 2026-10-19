@@ -101,6 +101,10 @@
 #define SCM_SAL_MAKE_IMMUTABLE_CONS           scm_make_cons
 #endif
 
+#if SCM_USE_REAL
+#define SCM_SAL_MAKE_REAL                     scm_make_real
+#endif
+
 #define SCM_SAL_MAKE_SYMBOL                   scm_make_symbol
 
 #if !SCM_SAL_HAS_IMMEDIATE_CHAR_ONLY
@@ -155,6 +159,9 @@ SCM_EXPORT ScmObj scm_make_immutable_cons(ScmObj kar, ScmObj kdr);
 #endif
 #if (SCM_USE_NUMBER && !SCM_SAL_HAS_IMMEDIATE_INT_ONLY)
 SCM_EXPORT ScmObj scm_make_int(scm_int_t val);
+#endif
+#if SCM_USE_REAL
+SCM_EXPORT ScmObj scm_make_real(double val);
 #endif
 SCM_EXPORT ScmObj scm_make_symbol(char *name, ScmObj val);
 #if (SCM_USE_CHAR && !SCM_SAL_HAS_IMMEDIATE_CHAR_ONLY)

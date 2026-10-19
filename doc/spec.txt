@@ -27,10 +27,14 @@ user-selected underlying storage implementation. The range can be known via
 R6RS (R5.91RS) compatible `(fixnum-width)`, `(least-fixnum)` and
 `(greatest-fixnum)`.
 
-Inexact numbers, rational numbers and complex numbers are not supported.
-Number procedures such as `real?`, `exact?`, `round` and `numerator` are
-defined only for exact integers. `exact->inexact` (and `inexact` of R7RS)
-raises an error.
+Inexact real numbers (flonums) are supported only when the `real` feature is
+enabled. It's enabled by `conf=r7rs`, `conf=full`, `conf=dev` and `conf=uim`.
+The reader and the writer support the decimal notation such as `1.5`, `1e10`,
+`+inf.0` and `+nan.0`. The conversion doesn't depend on the locale. Arithmetic
+procedures such as `+` and `round` don't support inexact numbers yet.
+
+Rational numbers and complex numbers are not supported. `exact->inexact`
+(and `inexact` of R7RS) raises an error.
 
 
 R5RS conformance

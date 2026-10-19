@@ -3,7 +3,7 @@
  *  About    : Format strings
  *
  *  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -203,6 +203,9 @@ static ScmValueFormat read_number_prefix(enum ScmFormatCapability fcap,
                                          format_string_t *fmt);
 static void format_int(ScmObj port,
                        ScmValueFormat vfmt, uintmax_t n, int radix);
+#if SCM_USE_REAL
+static void format_real(ScmObj port, ScmValueFormat vfmt, ScmObj num);
+#endif
 #if SCM_USE_RAW_C_FORMAT
 static scm_ichar_t format_raw_c_directive(ScmObj port,
                                           format_string_t *fmt, va_list *args);
@@ -306,6 +309,32 @@ format_int(ScmObj port, ScmValueFormat vfmt, uintmax_t n, int radix)
     scm_port_puts(port, str);
     free(str);
 }
+
+#if SCM_USE_REAL
+/* Formats NUM for "~w,dF" of SRFI-48. It always has a fractional part.
+ * Leading zeros such as "-01.00" are put after the sign. */
+static void
+format_real(ScmObj port, ScmValueFormat vfmt, ScmObj num)
+{
+    char *str;
+    const char *p;
+    double d;
+    int i;
+
+    d = (INTP(num)) ? (double)SCM_INT_VALUE(num) : SCM_REAL_VALUE(num);
+    if (vfmt.frac_width < 0)
+        str = scm_real2string(d);
+    else
+        str = scm_real2fixed(d, (vfmt.frac_width) ? vfmt.frac_width : 1);
+    p = str;
+    if (vfmt.pad == '0' && *p == '-')
+        scm_port_put_char(port, *p++);
+    for (i = strlen(str); i < vfmt.width; i++)
+        scm_port_put_char(port, vfmt.pad);
+    scm_port_puts(port, p);
+    free(str);
+}
+#endif
 
 #if SCM_USE_RAW_C_FORMAT
 /* returns '\0' if no valid directive handled */
@@ -503,13 +532,22 @@ format_directive(ScmObj port, scm_ichar_t last_ch,
                 scm_display(port, obj);
                 goto fin;
             }
+#if SCM_USE_REAL
+            /* "~w,dF" formats an integer as an inexact number too. */
+            if (REALP(obj)
+                || (INTP(obj) && vfmt.frac_width >= 0
+                    && (vfmt.width > 0 || vfmt.frac_width > 0))) {
+                format_real(port, vfmt, obj);
+                goto fin;
+            }
+#endif /* SCM_USE_REAL */
 #if SCM_USE_INT
             if (INTP(obj)) {
                 format_int(port, vfmt, SCM_INT_VALUE(obj), 10);
                 goto fin;
             }
 #endif /* SCM_USE_INT */
-            ERR_OBJ("integer or string required but got", obj);
+            ERR_OBJ("number or string required but got", obj);
 
 #if SCM_USE_INT
         case 'd': /* Decimal */

@@ -169,6 +169,7 @@
 #include <config.h>
 
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #if (HAVE_STRCASECMP && HAVE_STRINGS_H)
@@ -197,6 +198,12 @@
 
 /* #b-010101... */
 #define INT_LITERAL_LEN_MAX (sizeof("-0") + SCM_INT_BITS - sizeof(""))
+#if SCM_USE_REAL
+/* Decimal notations may be longer than integers. */
+#define NUMBER_LITERAL_LEN_MAX SCM_MAX(INT_LITERAL_LEN_MAX, 128)
+#else
+#define NUMBER_LITERAL_LEN_MAX INT_LITERAL_LEN_MAX
+#endif
 
 #define DISCARD_LOOKAHEAD(port) (scm_port_get_char(port))
 
@@ -737,7 +744,11 @@ read_list(ScmObj port, scm_ichar_t closing_paren)
 #endif
     scm_ichar_t c;
     int err;
+#if SCM_USE_REAL
+    char dot_buf[NUMBER_LITERAL_LEN_MAX + sizeof("")];
+#else
     char dot_buf[sizeof("...")];
+#endif
     DECLARE_INTERNAL_FUNCTION("read");
 
 #if SCM_DEBUG
@@ -804,7 +815,12 @@ read_list(ScmObj port, scm_ichar_t closing_paren)
             } else if (strcmp(dot_buf, "...") == 0) {
                 elm = SYM_ELLIPSIS;
             } else {
+#if SCM_USE_REAL
+                /* .5 */
+                elm = parse_number(port, dot_buf, sizeof(dot_buf), 'd');
+#else
                 ERR("bad dot syntax");
+#endif
             }
 #if SCM_USE_R7RS
         } else if (c == HASH_CONSUMED) {
@@ -872,8 +888,7 @@ read_hash(ScmObj port)
         return read_char(port);
 #endif
 #if SCM_USE_NUMBER
-    /* TODO: support exactness prefixes 'i' and 'e' */
-    case 'b': case 'o': case 'd': case 'x':
+    case 'b': case 'o': case 'd': case 'x': case 'e': case 'i':
         return read_number(port, c);
 #endif
 #if SCM_USE_R7RS
@@ -1280,7 +1295,7 @@ read_number_or_peculiar(ScmObj port)
 {
     scm_ichar_t c;
     int err;
-    char buf[INT_LITERAL_LEN_MAX + sizeof("")];
+    char buf[NUMBER_LITERAL_LEN_MAX + sizeof("")];
     DECLARE_INTERNAL_FUNCTION("read");
 
     CDBG((SCM_DBG_PARSER, "read"));
@@ -1310,9 +1325,12 @@ read_number_or_peculiar(ScmObj port)
         read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);
         if (strcmp(buf, "...") == 0)
             return SYM_ELLIPSIS;
-        /* TODO: support numeric expressions when the numeric tower is
-           implemented */
+#if SCM_USE_REAL
+        /* .5 */
+        return parse_number(port, buf, sizeof(buf), 'd');
+#else
         ERR("invalid identifier: ~S", buf);
+#endif
     }
 
     if (c == '@')
@@ -1326,33 +1344,25 @@ read_number_or_peculiar(ScmObj port)
 static ScmObj
 parse_number(ScmObj port, char *buf, size_t buf_size, char prefix)
 {
-    scm_int_t number;
-    int radix;
-    scm_bool err;
+    ScmObj number;
+    char str[sizeof("#d") + NUMBER_LITERAL_LEN_MAX];
     DECLARE_INTERNAL_FUNCTION("read");
 
-    switch (prefix) {
-    case 'b': radix = 2;  break;
-    case 'o': radix = 8;  break;
-    case 'd': radix = 10; break;
-    case 'x': radix = 16; break;
-    default:
-        goto err;
-    }
+    /* PREFIX is one of radix and exactness prefixes. BUF may have another
+     * prefix such as "#x" in "#e#x10". */
+    snprintf(str, sizeof(str), "#%c%s", prefix, buf);
+    number = scm_parse_number(str, 10);
+    if (!NUMBERP(number))
+        ERR("ill-formatted number: ~S", str);
 
-    number = scm_string2number(buf, radix, &err);
-    if (!err)
-        return MAKE_INT(number);
-
- err:
-    ERR("ill-formatted number: #~C~S", (scm_ichar_t)prefix, buf);
+    return number;
 }
 
 static ScmObj
 read_number(ScmObj port, char prefix)
 {
     int err;
-    char buf[INT_LITERAL_LEN_MAX + sizeof("")];
+    char buf[NUMBER_LITERAL_LEN_MAX + sizeof("")];
     DECLARE_INTERNAL_FUNCTION("read");
 
     read_token(port, &err, buf, sizeof(buf), SCM_CH_DELIMITER);

@@ -92,7 +92,8 @@ extern "C" {
 #endif /* SCM_COMBINED_SOURCE */
 
 #if (SCM_COMBINED_SOURCE && !SCM_EXPORT_API)
-#define SCM_EXTERN(_decl) extern int scm_g_dummy
+/* A dummy declaration that can be repeated for the following ';' */
+#define SCM_EXTERN(_decl) struct scm_g_dummy
 /* The source that includes the combined source may not use all API. */
 #ifdef __GNUC__
 #define SCM_EXPORT static __attribute__((__unused__))

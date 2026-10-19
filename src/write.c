@@ -498,12 +498,13 @@ write_string(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 #if SCM_USE_MULTIBYTE_CHAR
     ScmCharCodec *codec;
     ScmMultibyteString mbs;
-    size_t len;
 #else
-    scm_int_t i, len;
+    scm_int_t i;
 #endif
     const ScmSpecialCharInfo *info;
-    const char *str;
+    const char *str, *ch;
+    char *buf, *p;
+    size_t len;
     scm_ichar_t c;
     DECLARE_INTERNAL_FUNCTION("write");
 
@@ -511,39 +512,58 @@ write_string(ScmObj port, ScmObj obj, enum ScmOutputType otype)
 
     switch (otype) {
     case AS_WRITE:
-        scm_port_put_char(port, '\"'); /* opening doublequote */
 #if SCM_USE_MULTIBYTE_CHAR
         if (scm_current_char_codec != scm_port_codec(port)) {
             /* Since the str does not have its encoding information, here
              * assumes that scm_current_char_codec is that. And then SigScheme
              * does not have an encoding conversion mechanism, puts it
              * as-is. */
+            scm_port_put_char(port, '\"');
             scm_port_puts(port, str);
-        } else {
-            len = strlen(str);
-            codec = scm_port_codec(port);
-            SCM_MBS_INIT2(mbs, str, len);
-            while (SCM_MBS_GET_SIZE(mbs)) {
-                c = SCM_CHARCODEC_READ_CHAR(codec, mbs);
+            scm_port_put_char(port, '\"');
+            break;
+        }
+#endif
+        /* Build the escaped string to write it at once. An escape sequence
+         * such as "\x1b" is at most 4 bytes for a 1 byte character. */
+#if SCM_USE_MULTIBYTE_CHAR
+        len = strlen(str);
+#else
+        len = SCM_STRING_LEN(obj);
+#endif
+        buf = p = scm_malloc(len * (sizeof("\\x00") - 1) + sizeof("\"\""));
+        *p++ = '\"';
+#if SCM_USE_MULTIBYTE_CHAR
+        codec = scm_port_codec(port);
+        SCM_MBS_INIT2(mbs, str, len);
+        while (SCM_MBS_GET_SIZE(mbs)) {
+            ch = SCM_MBS_GET_STR(mbs);
+            c = SCM_CHARCODEC_READ_CHAR(codec, mbs);
+            len = SCM_MBS_GET_STR(mbs) - ch;
 #else /* SCM_USE_MULTIBYTE_CHAR */
-            len = SCM_STRING_LEN(obj);
-            for (i = 0; i < len; i++) {
-                c = str[i];
+        for (i = 0, ch = str; i < SCM_STRING_LEN(obj); i++, ch++) {
+            c = (unsigned char)*ch;
+            len = 1;
 #endif /* SCM_USE_MULTIBYTE_CHAR */
+            /* Only these ASCII characters may be escaped. */
+            if (c < 0x20 || c == '\"' || c == '\\' || c == 0x7f) {
                 for (info = scm_special_char_table; info->esc_seq; info++) {
                     if (c == info->code) {
-                        scm_port_puts(port, info->esc_seq);
+                        strcpy(p, info->esc_seq);
+                        p += strlen(info->esc_seq);
                         goto continue2;
                     }
                 }
-                scm_port_put_char(port, c);
-            continue2:
-                ;
             }
-#if SCM_USE_MULTIBYTE_CHAR
+            memcpy(p, ch, len);
+            p += len;
+        continue2:
+            ;
         }
-#endif
-        scm_port_put_char(port, '\"'); /* closing doublequote */
+        *p++ = '\"';
+        *p = '\0';
+        scm_port_puts(port, buf);
+        free(buf);
         break;
 
     case AS_DISPLAY:

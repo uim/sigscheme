@@ -1029,6 +1029,22 @@
 (assert-true (tn) (list? (features)))
 (assert-true (tn) (and (memq 'r7rs (features)) #t))
 (assert-false (tn) (memq '|*test-r7rs.scm-loaded*| (features)))
+(assert-true (tn) (and (memq (string->symbol
+                             (string-append "sigscheme-" (sscm-version)))
+                            (features))
+                      #t))
+;; Inexact numbers are IEEE 754 doubles if they are supported.
+(assert-equal? (tn)
+               (and (string->number "0.5") #t)
+               (and (memq 'ieee-float (features)) #t))
+;; Features that aren't provided.
+(assert-false (tn) (memq 'ratios (features)))
+(assert-false (tn) (memq 'exact-complex (features)))
+;; At most one data model.
+(assert-true (tn) (<= (+ (if (memq 'ilp32 (features)) 1 0)
+                         (if (memq 'lp64 (features)) 1 0)
+                         (if (memq 'llp64 (features)) 1 0))
+                      1))
 
 (if (and (symbol-bound? '%%current-char-codec)
          (equal? (%%current-char-codec) "UTF-8"))

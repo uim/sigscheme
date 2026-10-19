@@ -37,6 +37,7 @@
 
 #include <config.h>
 
+#include <float.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -180,6 +181,72 @@ static const char *const builtin_features[] = {
 #endif
 #if SCM_USE_SJIS
     "shift-jis",
+#endif
+
+    /* R7RS: standard feature identifiers */
+    "sigscheme-" SSCM_VERSION_STRING,
+#if (SCM_USE_REAL && FLT_RADIX == 2 && DBL_MANT_DIG == 53                  \
+     && DBL_MAX_EXP == 1024)
+    "ieee-float",
+#endif
+#if (defined(__unix__) || defined(__unix)                                    \
+     || (defined(__APPLE__) && defined(__MACH__)))
+    "posix",
+    "unix",
+#endif
+#if (defined(_WIN32) || defined(_WIN64))
+    "windows",
+#endif
+#if (defined(__APPLE__) && defined(__MACH__))
+    "darwin",
+#endif
+#if (defined(__linux__) && !defined(__ANDROID__))
+    "gnu-linux",
+#endif
+#if (defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)    \
+     || defined(__DragonFly__))
+    "bsd",
+#endif
+#if defined(__FreeBSD__)
+    "freebsd",
+#endif
+#if defined(__NetBSD__)
+    "netbsd",
+#endif
+#if defined(__OpenBSD__)
+    "openbsd",
+#endif
+#if defined(__sun)
+    "solaris",
+#endif
+#if defined(__x86_64__)
+    "x86-64",
+#elif defined(__i386__)
+    "i386",
+#elif defined(__aarch64__)
+    "aarch64",
+#elif defined(__arm__)
+    "arm",
+#elif defined(__powerpc64__)
+    "ppc64",
+#elif defined(__powerpc__)
+    "ppc",
+#elif defined(__sparc__)
+    "sparc",
+#endif
+#if (SIZEOF_INT == 4 && SIZEOF_LONG == 4 && SIZEOF_VOID_P == 4)
+    "ilp32",
+#elif (SIZEOF_INT == 4 && SIZEOF_LONG == 8 && SIZEOF_VOID_P == 8)
+    "lp64",
+#elif (SIZEOF_INT == 4 && SIZEOF_LONG == 4 && SIZEOF_VOID_P == 8)
+    "llp64",
+#endif
+#if defined(__BYTE_ORDER__)
+#if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+    "little-endian",
+#elif (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+    "big-endian",
+#endif
 #endif
     NULL
 };

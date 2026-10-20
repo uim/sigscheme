@@ -3,7 +3,7 @@
  *  About    : Client-adaptation configuration file for the scmport codes
  *
  *  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -55,8 +55,13 @@ extern "C" {
 #define SCM_PORT_CALLOC(number, size)  (scm_calloc((number), (size)))
 #define SCM_PORT_REALLOC(ptr, size)    (scm_realloc((ptr), (size)))
 #define SCM_PORT_STRDUP(str)           (scm_strdup(str))
-#define SCM_CHARPORT_ERROR(cport, msg) (scm_plain_error(msg))
-#define SCM_BYTEPORT_ERROR(bport, msg) (scm_plain_error(msg))
+/* The port information such as the file name is reported too. */
+#define SCM_CHARPORT_ERROR(cport, msg)                                       \
+    (scm_port_error((msg), SCM_CHARPORT_INSPECT((ScmCharPort *)(cport))))
+#define SCM_BYTEPORT_ERROR(bport, msg)                                       \
+    (scm_port_error((msg),                                                   \
+                    (bport) ? SCM_BYTEPORT_INSPECT((ScmBytePort *)(bport))   \
+                            : NULL))
 #else /* SCM_SCMPORT_USE_WITH_SIGSCHEME */
 /* Allocation error handling in the macros is strongly recommended. */
 #define SCM_PORT_MALLOC(size)          (malloc(size))

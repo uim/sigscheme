@@ -1886,6 +1886,7 @@ SCM_EXPORT ScmObj scm_make_shared_file_port(FILE *file, const char *aux_info,
 SCM_EXPORT void scm_port_close(ScmObj port);
 SCM_EXPORT ScmCharCodec *scm_port_codec(ScmObj port);
 SCM_EXPORT char *scm_port_inspect(ScmObj port);
+SCM_EXPORT void scm_port_error(const char *msg, char *info) SCM_NORETURN;
 SCM_EXPORT scm_ichar_t scm_port_get_char(ScmObj port);
 SCM_EXPORT scm_ichar_t scm_port_peek_char(ScmObj port);
 SCM_EXPORT scm_bool scm_port_char_readyp(ScmObj port);

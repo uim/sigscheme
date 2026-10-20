@@ -80,6 +80,20 @@
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! '("EUC-JP" . 1))))
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! "EUC-JP")))
 
+(tn "broken file")
+(assert-error (tn) (lambda () (load "test/coding/fallback-invalid.scm")))
+;; The error message has the file name.
+(if (symbol-bound? 'error-object-message)
+    (let ((message (guard (e (#t (error-object-message e)))
+                     (load "test/coding/fallback-invalid.scm")))
+          (file "test/coding/fallback-invalid.scm"))
+      (assert-equal? (tn)
+                     file
+                     (substring message
+                                (- (string-length message)
+                                   (string-length file))
+                                (string-length message)))))
+
 (tn "with-load-fallback-encodings")
 (set! fallback-euc-jp #f)
 (with-load-fallback-encodings '("EUC-JP")

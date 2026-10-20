@@ -212,6 +212,20 @@ scm_port_inspect(ScmObj port)
     return SCM_CHARPORT_INSPECT(SCM_PORT_IMPL(port));
 }
 
+/* Reports MSG of a port with INFO that is returned by the inspect method
+ * of the port such as "mb UTF-8 file /path". INFO may be NULL. */
+SCM_EXPORT void
+scm_port_error(const char *msg, char *info)
+{
+    ScmObj info_str;
+
+    if (!info)
+        scm_plain_error("~S", msg);
+    /* The string owns INFO. */
+    info_str = MAKE_IMMUTABLE_STRING(info, STRLEN_UNKNOWN);
+    scm_plain_error("~S: ~S", msg, SCM_STRING_STR(info_str));
+}
+
 SCM_EXPORT scm_ichar_t
 scm_port_get_char(ScmObj port)
 {

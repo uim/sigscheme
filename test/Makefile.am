@@ -95,6 +95,7 @@ EXTRA_DIST += \
 	test-coding.scm \
 	coding/euc-jp.scm \
 	coding/fallback-euc-jp.scm \
+	coding/fallback-invalid.scm \
 	coding/fallback-utf-8.scm \
 	coding/invalid.scm \
 	coding/shift_jis.scm \

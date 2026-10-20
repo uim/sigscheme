@@ -258,8 +258,9 @@ reads the file as is.
 
 Fallback encodings can be specified for files without a coding
 declaration. If such a file is invalid in `%%current-char-codec`, it's
-converted from the first fallback encoding that can convert it. For
-example, configuration files written by users may be in EUC-JP.
+converted from the first fallback encoding that can convert it. It's an
+error if none of them can convert it. For example, configuration files
+written by users may be in EUC-JP.
 
 ----------------------------------------------------------------
 (%%set-load-fallback-encodings! '("EUC-JP"))

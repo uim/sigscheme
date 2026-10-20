@@ -73,6 +73,8 @@
 ;; A coding declaration takes precedence.
 (load "test/coding/shift_jis.scm")
 (assert-equal? (tn) "日本語" coding-shift-jis)
+;; None of the fallback encodings can convert it.
+(assert-error (tn) (lambda () (load "test/coding/fallback-invalid.scm")))
 (%%set-load-fallback-encodings! '())
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! '(euc-jp))))
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! '("EUC-JP" . 1))))

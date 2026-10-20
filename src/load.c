@@ -317,8 +317,8 @@ load_file(const char *filename, ScmObj env)
 /* Opens the source file PATH. It's converted to the current codec if it
  * has a coding declaration of another encoding. If it doesn't have a
  * coding declaration and it's invalid in the current codec, the fallback
- * encodings are tried. The generic singlebyte codec ISO-8859-1 reads
- * bytes as is. */
+ * encodings are tried. It's an error if none of them can convert it. The
+ * generic singlebyte codec ISO-8859-1 reads bytes as is. */
 static ScmObj
 open_source_file(ScmObj path)
 {
@@ -327,9 +327,10 @@ open_source_file(ScmObj path)
     const char *encoding;
     scm_bool declaredp;
 #if USE_CODING_CONVERSION
-    ScmObj rest, fallback;
+    ScmObj rest;
     char *str;
     size_t size;
+    scm_bool convertedp;
 #endif
     DECLARE_INTERNAL_FUNCTION("load");
 
@@ -352,12 +353,16 @@ open_source_file(ScmObj path)
     if (!declaredp && CONSP(l_load_fallback_encodings)) {
         str = read_file(file, &size);
         /* Converting to the current encoding itself validates STR. */
-        if (!convert(&str, &size, encoding, encoding)) {
-            rest = l_load_fallback_encodings;
-            FOR_EACH (fallback, rest) {
-                if (convert(&str, &size, SCM_STRING_STR(fallback), encoding))
-                    break;
-            }
+        convertedp = convert(&str, &size, encoding, encoding);
+        for (rest = l_load_fallback_encodings;
+             !convertedp && CONSP(rest);
+             rest = CDR(rest))
+            convertedp = convert(&str, &size, SCM_STRING_STR(CAR(rest)),
+                                 encoding);
+        if (!convertedp) {
+            free(str);
+            ERR("can't convert ~S from ~S or the fallback encodings",
+                SCM_STRING_STR(path), encoding);
         }
         return open_input_bytes(str, size);
     }

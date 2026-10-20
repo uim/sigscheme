@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 #
-# Generates src/unicode-table.c from the Unicode Character Database (UCD):
+# Generates src/unicode-table.c from the Unicode Character Database (UCD).
+# Use "rake unicode:update VERSION=..." to update src/unicode-table.c:
 #
 #   tools/generate-unicode-table.rb VERSION > src/unicode-table.c
 #   tools/generate-unicode-table.rb UCD_DIRECTORY > src/unicode-table.c

@@ -49,3 +49,16 @@ end
 
 desc "Release"
 task :release => ["tag", "version:bump"]
+
+namespace :unicode do
+  desc "Update src/unicode-table.c to VERSION such as VERSION=17.0.0"
+  task :update do
+    unicode_version = ENV["VERSION"] or abort("VERSION is required")
+    table = IO.popen([RbConfig.ruby,
+                      "tools/generate-unicode-table.rb",
+                      unicode_version],
+                     &:read)
+    abort("failed to generate the table") unless $?.success?
+    File.write("src/unicode-table.c", table)
+  end
+end

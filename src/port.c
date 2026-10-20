@@ -217,7 +217,9 @@ scm_port_inspect(ScmObj port)
 SCM_EXPORT void
 scm_port_error(const char *msg, char *info)
 {
-    ScmObj info_str;
+    /* volatile keeps INFO_STR on the stack. Otherwise, GC may free INFO
+     * while scm_plain_error() uses it. */
+    volatile ScmObj info_str;
 
     if (!info)
         scm_plain_error("~S", msg);

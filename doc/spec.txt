@@ -175,9 +175,11 @@ Characters
 ~~~~~~~~~~
 
 All character category-sensitive procedures and predicates (such as
-char-upcase) work correctly only in ASCII range. i.e. Neither Unicode
-processing specified in R6RS nor other non-Unicode multibyte character
-processing are supported in such procedures/predicates.
+char-upcase) work correctly only in ASCII range unless the `unicode` feature
+is enabled. With the `unicode` feature, they support Unicode if the current
+character codec is UTF-8. See "Characters and strings" of "R7RS
+conformance". Non-Unicode multibyte character processing isn't supported in
+such procedures/predicates.
 
 Non-ASCII charcter acceptance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -459,6 +461,82 @@ System interface
   - *optional procedure:* transcript-off
 
 
+R7RS conformance
+----------------
+
+R7RS small is supported when the `r7rs` feature is enabled. It's enabled by
+`conf=r7rs`, `conf=full` and `conf=dev`. `meson compile -C build r7rs-tests`
+runs the R7RS tests of chibi-scheme. Their known failures are listed in
+`test/r7rs/known-failures.txt`.
+
+Libraries
+~~~~~~~~~
+
+`define-library` and `import` are supported with all the import sets and the
+library declarations including `include`, `include-ci`,
+`include-library-declarations` and `cond-expand`.
+
+`import` of an undefined library loads the library file from the library
+path. The file name of the library `(foo bar 1)` is `foo/bar/1.sld`. A
+library file must have only `define-library` forms. A relative file name of
+`include` in a library declaration is resolved from the directory of the
+library file and then the library path.
+
+The standard libraries such as `(scheme base)` are provided. They export the
+builtins. `(scheme complex)` isn't provided because complex numbers aren't
+supported. `environment` returns an environment where definitions aren't
+allowed.
+
+A library can't redefine or `set!` an imported binding. The REPL can
+redefine imported bindings without changing the library.
+
+The following errors aren't detected:
+
+  - A library refers to a builtin or a global variable of the REPL that
+    isn't imported.
+  - Auxiliary syntax such as `else` is recognized by its name. So renamed
+    auxiliary syntax such as `otherwise` of
+    `(import (rename (scheme base) (else otherwise)))` isn't recognized.
+
+A relative file name of `include` as syntax is resolved from the library
+path instead of the directory of the including file.
+
+Continuations
+~~~~~~~~~~~~~
+
+Continuations can't be reentered after their extent ends. See
+"Continuations" of "R5RS conformance".
+
+Numbers
+~~~~~~~
+
+Exact rationals, exact integers out of the fixnum range and complex numbers
+aren't supported as "6.2.3 Implementation restrictions" permits. See
+"Integer range". For example, `(/ 6 4)` returns `1.5`.
+
+Characters and strings
+~~~~~~~~~~~~~~~~~~~~~~
+
+The character and string procedures support non-ASCII characters of
+Unicode 16.0.0 when the `unicode` feature is enabled and the current
+character codec is UTF-8. The `unicode` feature is enabled by `conf=r7rs`,
+`conf=full` and `conf=dev`. Otherwise, they support only ASCII characters.
+
+`char-upcase`, `char-downcase` and `char-foldcase` use the simple case
+mappings. `string-upcase`, `string-downcase`, `string-foldcase` and
+`string-ci*?` use the full case mappings such as "SS" for U+00DF.
+Language-sensitive and context-sensitive case mappings such as the final
+sigma aren't supported.
+
+Feature identifiers
+~~~~~~~~~~~~~~~~~~~
+
+`r7rs`, `sigscheme-VERSION`, `ieee-float`, `full-unicode` (with the `unicode`
+feature) and the identifiers of the OS, the CPU, the data model and the byte
+order such as `posix`, `gnu-linux`, `x86-64`, `lp64` and `little-endian` are
+provided. `exact-closed`, `exact-complex` and `ratios` aren't provided.
+
+
 SRFI conformance
 ----------------
 
@@ -709,6 +787,17 @@ SRFI-95 Sorting and Merging
 Fully supported.
 
 It is just the reference implementation of SRFI-95 (sort.scm of SLIB).
+
+SRFI-180 JSON
+~~~~~~~~~~~~~
+
+Supported when the `srfi180` feature is enabled. It's enabled by `conf=r7rs`,
+`conf=full`, `conf=dev` and `conf=uim` because it requires inexact numbers.
+
+`json-nesting-depth-limit` and `json-number-of-character-limit` can't be
+changed without R7RS `make-parameter`. `\uXXXX` escapes of non-ASCII
+characters require the UTF-8 codec. An integer out of the fixnum range is
+read as an inexact number.
 
 
 R6RS conformance

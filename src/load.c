@@ -356,9 +356,16 @@ open_source_file(ScmObj path)
         convertedp = convert(&str, &size, encoding, encoding);
         for (rest = l_load_fallback_encodings;
              !convertedp && CONSP(rest);
-             rest = CDR(rest))
+             rest = CDR(rest)) {
+            /* The list may be modified after it's set. */
+            if (!STRINGP(CAR(rest))) {
+                free(str);
+                ERR_OBJ("string required for fallback encoding but got",
+                        CAR(rest));
+            }
             convertedp = convert(&str, &size, SCM_STRING_STR(CAR(rest)),
                                  encoding);
+        }
         if (!convertedp) {
             free(str);
             ERR("can't convert ~S from ~S or the fallback encodings",

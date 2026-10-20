@@ -78,6 +78,12 @@
 (%%set-load-fallback-encodings! '())
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! '(euc-jp))))
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! '("EUC-JP" . 1))))
+;; The list is modified after it's set.
+(let ((encodings (list "EUC-JP")))
+  (%%set-load-fallback-encodings! encodings)
+  (set-car! encodings 'euc-jp)
+  (assert-error (tn) (lambda () (load "test/coding/fallback-euc-jp.scm")))
+  (%%set-load-fallback-encodings! '()))
 (assert-error (tn) (lambda () (%%set-load-fallback-encodings! "EUC-JP")))
 
 (tn "broken file")

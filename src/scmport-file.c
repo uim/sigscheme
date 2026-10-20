@@ -4,7 +4,7 @@
  *             library
  *
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -75,7 +75,7 @@ struct ScmFilePort_ {  /* inherits ScmBytePort */
 static ScmBytePort *fileport_new_internal(FILE *file, const char *aux_info,
                                           scm_bool ownership);
 static ScmBytePort *fileport_open_internal(const char *path, const char *mode);
-static scm_ichar_t fixup_read_char(FILE *f, int c);
+static scm_ichar_t fixup_read_char(ScmFilePort *port, int c);
 
 static ScmBytePort *fileport_dyn_cast(ScmBytePort *bport,
                                       const ScmBytePortVTbl *dest_vptr);
@@ -211,11 +211,11 @@ fileport_inspect(ScmFilePort *port)
 }
 
 static scm_ichar_t
-fixup_read_char(FILE *f, int c)
+fixup_read_char(ScmFilePort *port, int c)
 {
     if (c == EOF) {
-        if (ferror(f)) {
-            clearerr(f);
+        if (ferror(port->file)) {
+            clearerr(port->file);
             SCM_BYTEPORT_ERROR(port, SCM_ERRMSG_READ_FROM_PORT);
         }
         return SCM_ICHAR_EOF;
@@ -230,7 +230,7 @@ fileport_get_byte(ScmFilePort *port)
     int c;
 
     c = fgetc(port->file);
-    return fixup_read_char(port->file, c);
+    return fixup_read_char(port, c);
 }
 
 static scm_ichar_t
@@ -242,7 +242,7 @@ fileport_peek_byte(ScmFilePort *port)
     ic = fileport_get_byte(port);
     if (ic != SCM_ICHAR_EOF) {
         c = ungetc(ic, port->file);
-        ic = fixup_read_char(port->file, c);
+        ic = fixup_read_char(port, c);
     }
 
     return ic;

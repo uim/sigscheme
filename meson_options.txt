@@ -47,6 +47,9 @@ option('default_encoding',
 option('utf8',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'UTF-8 character encoding')
+option('unicode',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'Unicode character properties and case mappings')
 option('euccn',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'EUC-CN character encoding')

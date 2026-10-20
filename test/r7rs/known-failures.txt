@@ -110,37 +110,5 @@
 916 any
 917 any
 
-# Case conversion and character classes of non-ASCII characters aren't
-# supported.
-1268 fail
-1270 fail
-1273 fail
-1275 fail
-1276 fail
-1281 fail
-1282 fail
-1296 fail
-1299 fail
-1301 fail
-1385 fail
-1386 fail
-1389 fail
-1400 fail
-1403 fail
-1405 fail
-1408 fail
-1412 fail
-1414 fail
-1415 fail
-1416 fail
-1418 fail
-1421 fail
-1422 fail
-1423 fail
-1424 fail
-1425 fail
-1426 fail
-1427 fail
-
 # Continuations can't be reentered after their extent ends.
 1777 fail

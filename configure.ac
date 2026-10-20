@@ -375,6 +375,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_r7rs=yes
         use_bytevector=yes
         use_real=yes
+        use_unicode=yes
         # It requires real.
         use_srfi180=yes
         # R7RS vectors are self-evaluating.
@@ -419,6 +420,7 @@ AX_FEATURE_ARG_X(default-encoding,
                                [utf8],
                                [^(utf8|singlebyte|euccn|eucjp|euckr|sjis)$])
 AX_FEATURE_ARG_Y(utf8,         [UTF-8 character encoding])
+AX_FEATURE_ARG_N(unicode,      [Unicode character properties and case mappings])
 AX_FEATURE_ARG_N(euccn,        [EUC-CN character encoding])
 AX_FEATURE_ARG_N(eucjp,        [EUC-JP character encoding])
 AX_FEATURE_ARG_N(euckr,        [EUC-KR character encoding])
@@ -575,6 +577,7 @@ scmref_int64_t:  64bit_scmref
 
 multibyte: multibyte_char
 utf8:  multibyte_char
+unicode: utf8 char
 eucjp: multibyte_char
 euckr: multibyte_char
 euccn: multibyte_char
@@ -644,6 +647,7 @@ AX_FEATURE_DEFINE(null_capable_string)
 # Character encodings
 AX_FEATURE_DEFINE(multibyte_char)
 AX_FEATURE_DEFINE(utf8)
+AX_FEATURE_DEFINE(unicode)
 AX_FEATURE_DEFINE(euccn)
 AX_FEATURE_DEFINE(eucjp)
 AX_FEATURE_DEFINE(euckr)
@@ -749,6 +753,7 @@ AC_SUBST(use_fixnum)
 AC_SUBST(use_multibyte_char)
 AC_SUBST(use_default_encoding)
 AC_SUBST(use_utf8)
+AC_SUBST(use_unicode)
 AC_SUBST(use_euccn)
 AC_SUBST(use_eucjp)
 AC_SUBST(use_euckr)
@@ -881,6 +886,7 @@ libgcroots:   $use_libgcroots
 Multibyte chars:  ${use_multibyte_char:-no}
 Default encoding: $use_default_encoding
 UTF-8 codec:      $use_utf8
+Unicode properties: $use_unicode
 EUC-CN codec:     $use_euccn
 EUC-JP codec:     $use_eucjp
 EUC-KR codec:     $use_euckr

@@ -3,7 +3,7 @@
 ;;  Filename : test-char-pred.scm
 ;;  About    : unit test for R5RS char classification predicates
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -41,6 +41,7 @@
     (test-skip "R6RS characters is not enabled"))
 
 (define tn test-name)
+(define unicode? (provided? "full-unicode"))
 
 (tn "char-alphabetic?")
 (assert-false  (tn) (char-alphabetic? #\x00))
@@ -63,17 +64,17 @@
 (assert-false  (tn) (char-alphabetic? #\~))
 (assert-false  (tn) (char-alphabetic? #\x7f))
 (tn "char-alphabetic? non-ASCII")
-;; SigScheme currently does not support non-ASCII charcter classification
+;; Non-ASCII characters are classified only with Unicode support.
 (assert-false  (tn) (char-alphabetic? #\xa0))   ;; U+00A0 NO-BREAK SPACE
-(assert-false  (tn) (char-alphabetic? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) unicode? (char-alphabetic? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
 (assert-false  (tn) (char-alphabetic? #\x2028)) ;; U+2028 LINE SEPARATOR
 (assert-false  (tn) (char-alphabetic? #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
 (assert-false  (tn) (char-alphabetic? #\　))    ;; U+3000 IDEOGRAPHIC SPACE
-(assert-false  (tn) (char-alphabetic? #\あ))    ;; U+3042 HIRAGANA LETTER A
+(assert-equal? (tn) unicode? (char-alphabetic? #\あ))    ;; U+3042 HIRAGANA LETTER A
 (assert-false  (tn) (char-alphabetic? #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
 (assert-false  (tn) (char-alphabetic? #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
-(assert-false  (tn) (char-alphabetic? #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
-(assert-false  (tn) (char-alphabetic? #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
+(assert-equal? (tn) unicode? (char-alphabetic? #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) unicode? (char-alphabetic? #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
 
 (tn "char-numeric?")
 (assert-false  (tn) (char-numeric? #\x00))
@@ -96,7 +97,7 @@
 (assert-false  (tn) (char-numeric? #\~))
 (assert-false  (tn) (char-numeric? #\x7f))
 (tn "char-numeric? non-ASCII")
-;; SigScheme currently does not support non-ASCII charcter classification
+;; Non-ASCII characters are classified only with Unicode support.
 (assert-false  (tn) (char-numeric? #\xa0))   ;; U+00A0 NO-BREAK SPACE
 (assert-false  (tn) (char-numeric? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
 (assert-false  (tn) (char-numeric? #\x2028)) ;; U+2028 LINE SEPARATOR
@@ -104,7 +105,7 @@
 (assert-false  (tn) (char-numeric? #\　))    ;; U+3000 IDEOGRAPHIC SPACE
 (assert-false  (tn) (char-numeric? #\あ))    ;; U+3042 HIRAGANA LETTER A
 (assert-false  (tn) (char-numeric? #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
-(assert-false  (tn) (char-numeric? #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
+(assert-equal? (tn) unicode? (char-numeric? #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
 (assert-false  (tn) (char-numeric? #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
 (assert-false  (tn) (char-numeric? #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
 
@@ -129,12 +130,12 @@
 (assert-false  (tn) (char-whitespace? #\~))
 (assert-false  (tn) (char-whitespace? #\x7f))
 (tn "char-whitespace? non-ASCII")
-;; SigScheme currently does not support non-ASCII charcter classification
-(assert-false  (tn) (char-whitespace? #\xa0))   ;; U+00A0 NO-BREAK SPACE
+;; Non-ASCII characters are classified only with Unicode support.
+(assert-equal? (tn) unicode? (char-whitespace? #\xa0))   ;; U+00A0 NO-BREAK SPACE
 (assert-false  (tn) (char-whitespace? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
-(assert-false  (tn) (char-whitespace? #\x2028)) ;; U+2028 LINE SEPARATOR
-(assert-false  (tn) (char-whitespace? #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
-(assert-false  (tn) (char-whitespace? #\　))    ;; U+3000 IDEOGRAPHIC SPACE
+(assert-equal? (tn) unicode? (char-whitespace? #\x2028)) ;; U+2028 LINE SEPARATOR
+(assert-equal? (tn) unicode? (char-whitespace? #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
+(assert-equal? (tn) unicode? (char-whitespace? #\　))    ;; U+3000 IDEOGRAPHIC SPACE
 (assert-false  (tn) (char-whitespace? #\あ))    ;; U+3042 HIRAGANA LETTER A
 (assert-false  (tn) (char-whitespace? #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
 (assert-false  (tn) (char-whitespace? #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
@@ -162,7 +163,7 @@
 (assert-false  (tn) (char-upper-case? #\~))
 (assert-false  (tn) (char-upper-case? #\x7f))
 (tn "char-upper-case? non-ASCII")
-;; SigScheme currently does not support non-ASCII charcter classification
+;; Non-ASCII characters are classified only with Unicode support.
 (assert-false  (tn) (char-upper-case? #\xa0))   ;; U+00A0 NO-BREAK SPACE
 (assert-false  (tn) (char-upper-case? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
 (assert-false  (tn) (char-upper-case? #\x2028)) ;; U+2028 LINE SEPARATOR
@@ -171,7 +172,7 @@
 (assert-false  (tn) (char-upper-case? #\あ))    ;; U+3042 HIRAGANA LETTER A
 (assert-false  (tn) (char-upper-case? #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
 (assert-false  (tn) (char-upper-case? #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
-(assert-false  (tn) (char-upper-case? #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) unicode? (char-upper-case? #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
 (assert-false  (tn) (char-upper-case? #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
 
 (tn "char-lower-case?")
@@ -195,9 +196,9 @@
 (assert-false  (tn) (char-lower-case? #\~))
 (assert-false  (tn) (char-lower-case? #\x7f))
 (tn "char-lower-case? non-ASCII")
-;; SigScheme currently does not support non-ASCII charcter classification
+;; Non-ASCII characters are classified only with Unicode support.
 (assert-false  (tn) (char-lower-case? #\xa0))   ;; U+00A0 NO-BREAK SPACE
-(assert-false  (tn) (char-lower-case? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) unicode? (char-lower-case? #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
 (assert-false  (tn) (char-lower-case? #\x2028)) ;; U+2028 LINE SEPARATOR
 (assert-false  (tn) (char-lower-case? #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
 (assert-false  (tn) (char-lower-case? #\　))    ;; U+3000 IDEOGRAPHIC SPACE
@@ -205,7 +206,7 @@
 (assert-false  (tn) (char-lower-case? #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
 (assert-false  (tn) (char-lower-case? #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
 (assert-false  (tn) (char-lower-case? #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
-(assert-false  (tn) (char-lower-case? #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
+(assert-equal? (tn) unicode? (char-lower-case? #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
 
 
 (total-report)

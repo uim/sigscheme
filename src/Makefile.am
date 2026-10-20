@@ -194,7 +194,7 @@ BUILT_DIST = $(FUNC_TABLES) sigscheme-combined-trim.h
 EXTRA_DIST = \
         $(BUILT_DIST) $(BUILD_FUNCTBL_DEPS) \
         sigscheme-combined.h sigscheme-combined.c.in template.h template.c \
-        meson.build
+        unicode-table.c meson.build
 
 # Only works on 'make all', 'make check' and 'make install'.
 # See "Built sources" section of automake info.
@@ -273,6 +273,9 @@ if USE_LOAD
 endif
 if USE_DEEP_CADRS
   libsscm_sources += deep-cadrs.c
+endif
+if USE_UNICODE
+  libsscm_sources += unicode.c
 endif
 if USE_R7RS
   libsscm_sources += r7rs.c library.c

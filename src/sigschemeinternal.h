@@ -547,6 +547,62 @@ SCM_EXPORT void scm_kind_error_obj(enum ScmErrorKind kind,
  * c)), this implementation is sufficient for ASCII range. */
 #define ICHAR_FOLDCASE(c) (ICHAR_DOWNCASE(c))
 
+/*
+ * The ICHAR_*() macros above are only for ASCII characters for the syntax.
+ * The CHAR_*() macros below are for the character and string procedures.
+ * They support Unicode with SCM_USE_UNICODE.
+ *
+ * CHAR_FULL_*CASE(c, dst) writes the full case mapping of C such as "SS"
+ * for U+00DF LATIN SMALL LETTER SHARP S into DST and returns the number of
+ * characters. DST must have SCM_UNICODE_FULL_CASE_MAX elements.
+ */
+#define SCM_UNICODE_FULL_CASE_MAX 3
+#define ICHAR_TO_ICHARS(c, dst) ((dst)[0] = (c), 1)
+#if SCM_USE_UNICODE
+#define CHAR_UNICODE(c, ascii, unicode) (ICHAR_ASCIIP(c) ? (ascii) : (unicode))
+#define CHAR_ALPHABETICP(c)                                                  \
+    CHAR_UNICODE((c), ICHAR_ALPHABETICP(c), scm_unicode_alphabeticp(c))
+#define CHAR_NUMERICP(c)                                                     \
+    CHAR_UNICODE((c), ICHAR_NUMERICP(c), scm_unicode_numericp(c))
+#define CHAR_WHITESPACEP(c)                                                  \
+    CHAR_UNICODE((c), ICHAR_WHITESPACEP(c), scm_unicode_whitespacep(c))
+#define CHAR_UPPER_CASEP(c)                                                  \
+    CHAR_UNICODE((c), ICHAR_UPPER_CASEP(c), scm_unicode_upper_casep(c))
+#define CHAR_LOWER_CASEP(c)                                                  \
+    CHAR_UNICODE((c), ICHAR_LOWER_CASEP(c), scm_unicode_lower_casep(c))
+#define CHAR_DIGIT_VALUE(c)                                                  \
+    CHAR_UNICODE((c), (ICHAR_NUMERICP(c) ? (c) - '0' : -1),                  \
+                 scm_unicode_digit_value(c))
+#define CHAR_UPCASE(c)                                                       \
+    CHAR_UNICODE((c), ICHAR_UPCASE(c), scm_unicode_upcase(c))
+#define CHAR_DOWNCASE(c)                                                     \
+    CHAR_UNICODE((c), ICHAR_DOWNCASE(c), scm_unicode_downcase(c))
+#define CHAR_FOLDCASE(c)                                                     \
+    CHAR_UNICODE((c), ICHAR_FOLDCASE(c), scm_unicode_foldcase(c))
+#define CHAR_FULL_UPCASE(c, dst)                                             \
+    CHAR_UNICODE((c), ICHAR_TO_ICHARS(ICHAR_UPCASE(c), (dst)),               \
+                 scm_unicode_full_upcase((c), (dst)))
+#define CHAR_FULL_DOWNCASE(c, dst)                                           \
+    CHAR_UNICODE((c), ICHAR_TO_ICHARS(ICHAR_DOWNCASE(c), (dst)),             \
+                 scm_unicode_full_downcase((c), (dst)))
+#define CHAR_FULL_FOLDCASE(c, dst)                                           \
+    CHAR_UNICODE((c), ICHAR_TO_ICHARS(ICHAR_FOLDCASE(c), (dst)),             \
+                 scm_unicode_full_foldcase((c), (dst)))
+#else /* SCM_USE_UNICODE */
+#define CHAR_ALPHABETICP(c)  ICHAR_ALPHABETICP(c)
+#define CHAR_NUMERICP(c)     ICHAR_NUMERICP(c)
+#define CHAR_WHITESPACEP(c)  ICHAR_WHITESPACEP(c)
+#define CHAR_UPPER_CASEP(c)  ICHAR_UPPER_CASEP(c)
+#define CHAR_LOWER_CASEP(c)  ICHAR_LOWER_CASEP(c)
+#define CHAR_DIGIT_VALUE(c)  (ICHAR_NUMERICP(c) ? (c) - '0' : -1)
+#define CHAR_UPCASE(c)       ICHAR_UPCASE(c)
+#define CHAR_DOWNCASE(c)     ICHAR_DOWNCASE(c)
+#define CHAR_FOLDCASE(c)     ICHAR_FOLDCASE(c)
+#define CHAR_FULL_UPCASE(c, dst)   ICHAR_TO_ICHARS(ICHAR_UPCASE(c), (dst))
+#define CHAR_FULL_DOWNCASE(c, dst) ICHAR_TO_ICHARS(ICHAR_DOWNCASE(c), (dst))
+#define CHAR_FULL_FOLDCASE(c, dst) ICHAR_TO_ICHARS(ICHAR_FOLDCASE(c), (dst))
+#endif /* SCM_USE_UNICODE */
+
 /*=======================================
   Local Buffer Allocator
 =======================================*/
@@ -848,6 +904,22 @@ SCM_EXPORT char *scm_find_path(const char *filename);
 
 /* module.c */
 SCM_EXPORT ScmObj scm_features(void);
+
+/* unicode.c */
+#if SCM_USE_UNICODE
+SCM_EXPORT scm_bool scm_unicode_alphabeticp(scm_ichar_t c);
+SCM_EXPORT scm_bool scm_unicode_numericp(scm_ichar_t c);
+SCM_EXPORT scm_bool scm_unicode_whitespacep(scm_ichar_t c);
+SCM_EXPORT scm_bool scm_unicode_upper_casep(scm_ichar_t c);
+SCM_EXPORT scm_bool scm_unicode_lower_casep(scm_ichar_t c);
+SCM_EXPORT int scm_unicode_digit_value(scm_ichar_t c);
+SCM_EXPORT scm_ichar_t scm_unicode_upcase(scm_ichar_t c);
+SCM_EXPORT scm_ichar_t scm_unicode_downcase(scm_ichar_t c);
+SCM_EXPORT scm_ichar_t scm_unicode_foldcase(scm_ichar_t c);
+SCM_EXPORT int scm_unicode_full_upcase(scm_ichar_t c, scm_ichar_t *dst);
+SCM_EXPORT int scm_unicode_full_downcase(scm_ichar_t c, scm_ichar_t *dst);
+SCM_EXPORT int scm_unicode_full_foldcase(scm_ichar_t c, scm_ichar_t *dst);
+#endif
 
 /* r7rs.c */
 #if SCM_USE_R7RS

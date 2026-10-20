@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -268,10 +268,14 @@ static int
 string_cmp(const char *funcname,
            ScmObj str1, ScmObj str2, scm_bool case_insensitive)
 {
-    const char *c_str1, *c_str2;
 #if SCM_USE_MULTIBYTE_CHAR
-    scm_ichar_t c1, c2;
     ScmMultibyteString mbs1, mbs2;
+    scm_ichar_t c1, c2;
+    /* A character may be folded into multiple characters such as "ss" for
+     * "\u00DF". The rest of them are FOLDED[I] to FOLDED[N - 1]. */
+    scm_ichar_t folded1[SCM_UNICODE_FULL_CASE_MAX];
+    scm_ichar_t folded2[SCM_UNICODE_FULL_CASE_MAX];
+    int n1, i1, n2, i2;
 #endif
     DECLARE_INTERNAL_FUNCTION("string_cmp");
 
@@ -281,36 +285,52 @@ string_cmp(const char *funcname,
     ENSURE_STRING(str1);
     ENSURE_STRING(str2);
 
-    c_str1 = SCM_STRING_STR(str1);
-    c_str2 = SCM_STRING_STR(str2);
 #if SCM_USE_MULTIBYTE_CHAR
-    SCM_MBS_INIT2(mbs1, c_str1, strlen(c_str1));
-    SCM_MBS_INIT2(mbs2, c_str2, strlen(c_str2));
-    for (;;) {
-        if (SCM_MBS_GET_SIZE(mbs1) && !SCM_MBS_GET_SIZE(mbs2))
-            return 1;
-        if (!SCM_MBS_GET_SIZE(mbs1) && SCM_MBS_GET_SIZE(mbs2))
-            return -1;
-        if (!SCM_MBS_GET_SIZE(mbs1) && !SCM_MBS_GET_SIZE(mbs2))
-            return 0;
+#if SCM_USE_UNICODE
+#define FOLDED_RESTP(n, i) ((i) < (n))
+#else
+/* A character is folded into a character. */
+#define FOLDED_RESTP(n, i) ((void)(n), (void)(i), 0)
+#endif
+/* Sets the next character to C or SCM_ICHAR_EOF at the end. */
+#define NEXT_CHAR(c, mbs, folded, n, i)                                      \
+    do {                                                                     \
+        if (FOLDED_RESTP((n), (i))) {                                        \
+            (c) = (folded)[(i)++];                                           \
+        } else if (!SCM_MBS_GET_SIZE(mbs)) {                                 \
+            (c) = SCM_ICHAR_EOF;                                             \
+        } else {                                                             \
+            (c) = SCM_CHARCODEC_READ_CHAR(scm_current_char_codec, (mbs));    \
+            if (!case_insensitive) {                                         \
+            } else if (ICHAR_ASCIIP(c)) {                                    \
+                (c) = ICHAR_FOLDCASE(c);                                     \
+            } else {                                                         \
+                (n) = CHAR_FULL_FOLDCASE((c), (folded));                     \
+                (i) = 1;                                                     \
+                (c) = (folded)[0];                                           \
+            }                                                                \
+        }                                                                    \
+    } while (/* CONSTCOND */ 0)
 
-        c1 = SCM_CHARCODEC_READ_CHAR(scm_current_char_codec, mbs1);
-        c2 = SCM_CHARCODEC_READ_CHAR(scm_current_char_codec, mbs2);
-        if (case_insensitive) {
-            c1 = ICHAR_FOLDCASE(c1);
-            c2 = ICHAR_FOLDCASE(c2);
-        }
-        
-        if (c1 > c2)
-            return 1;
-        if (c1 < c2)
-            return -1;
+    SCM_MBS_INIT2(mbs1, SCM_STRING_STR(str1), strlen(SCM_STRING_STR(str1)));
+    SCM_MBS_INIT2(mbs2, SCM_STRING_STR(str2), strlen(SCM_STRING_STR(str2)));
+    n1 = i1 = n2 = i2 = 0;
+    for (;;) {
+        NEXT_CHAR(c1, mbs1, folded1, n1, i1);
+        NEXT_CHAR(c2, mbs2, folded2, n2, i2);
+        /* SCM_ICHAR_EOF at the end is less than any character. */
+        if (c1 != c2)
+            return (c1 < c2) ? -1 : 1;
+        if (c1 == SCM_ICHAR_EOF)
+            return 0;
     }
+#undef FOLDED_RESTP
+#undef NEXT_CHAR
 #else /* SCM_USE_MULTIBYTE_CHAR */
     if (case_insensitive) {
-        return strcasecmp(c_str1, c_str2);
+        return strcasecmp(SCM_STRING_STR(str1), SCM_STRING_STR(str2));
     } else {
-        return strcmp(c_str1, c_str2);
+        return strcmp(SCM_STRING_STR(str1), SCM_STRING_STR(str2));
     }
 #endif /* SCM_USE_MULTIBYTE_CHAR */
 }
@@ -323,9 +343,9 @@ scm_p_string_ci_equalp(ScmObj str1, ScmObj str2)
     ENSURE_STRING(str1);
     ENSURE_STRING(str2);
 
-    return MAKE_BOOL(EQ((str1), (str2))                                     
-                     || (SCM_STRING_LEN(str1) == SCM_STRING_LEN(str2)
-                         && STRING_CI_CMP(str1, str2) == 0));
+    /* Lengths aren't compared because a character may be folded into
+     * multiple characters such as "ss" for "\u00DF". */
+    return MAKE_BOOL(EQ((str1), (str2)) || STRING_CI_CMP(str1, str2) == 0);
 }
 
 SCM_EXPORT ScmObj

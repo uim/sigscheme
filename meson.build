@@ -230,6 +230,7 @@ conf_r7rs = {
   'r7rs': 'yes',
   'bytevector': 'yes',
   'real': 'yes',
+  'unicode': 'yes',
   # It requires real.
   'srfi180': 'yes',
   # R7RS vectors are self-evaluating.
@@ -367,6 +368,7 @@ feature_declarations = [
   ['multibyte', 'no'],
   ['default_encoding', 'utf8'],
   ['utf8', 'yes'],
+  ['unicode', 'no'],
   ['euccn', 'no'],
   ['eucjp', 'no'],
   ['euckr', 'no'],
@@ -547,6 +549,7 @@ feature_required_dependencies = {
 
   'multibyte': ['multibyte_char'],
   'utf8': ['multibyte_char'],
+  'unicode': ['utf8', 'char'],
   'eucjp': ['multibyte_char'],
   'euckr': ['multibyte_char'],
   'euccn': ['multibyte_char'],
@@ -725,6 +728,7 @@ feature_definitions = [
   # Character encodings
   'multibyte_char',
   'utf8',
+  'unicode',
   'euccn',
   'eucjp',
   'euckr',
@@ -903,6 +907,7 @@ if use['libsscm']
     'multibyte_char',
     'default_encoding',
     'utf8',
+    'unicode',
     'euccn',
     'eucjp',
     'euckr',
@@ -992,6 +997,7 @@ summary({
           'Multibyte chars': use['multibyte_char'],
           'Default encoding': feature_values['default_encoding'],
           'UTF-8 codec': use['utf8'],
+          'Unicode properties': use['unicode'],
           'EUC-CN codec': use['euccn'],
           'EUC-JP codec': use['eucjp'],
           'EUC-KR codec': use['euckr'],

@@ -4,7 +4,7 @@
 ;;  About    : unit test for R5RS char
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -39,6 +39,7 @@
     (test-skip "R5RS characters is not enabled"))
 
 (define tn test-name)
+(define unicode? (provided? "full-unicode"))
 
 (define i->chlit
   (lambda (i)
@@ -114,9 +115,9 @@
 (assert-equal? (tn) #\~       (char-upcase #\~))
 (assert-equal? (tn) #\x7f     (char-upcase #\x7f))
 (tn "char-upcase non-ASCII")
-;; SigScheme currently does not support char-upcase on non-ASCII charcters
+;; Non-ASCII characters are converted only with Unicode support.
 (assert-equal? (tn) #\xa0   (char-upcase #\xa0))   ;; U+00A0 NO-BREAK SPACE
-(assert-equal? (tn) #\xff   (char-upcase #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
+(assert-equal? (tn) (if unicode? #\x178 #\xff) (char-upcase #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
 (assert-equal? (tn) #\x2028 (char-upcase #\x2028)) ;; U+2028 LINE SEPARATOR
 (assert-equal? (tn) #\x2029 (char-upcase #\x2029)) ;; U+2029 PARAGRAPH SEPARATOR
 (assert-equal? (tn) #\　    (char-upcase #\　))    ;; U+3000 IDEOGRAPHIC SPACE
@@ -124,7 +125,7 @@
 (assert-equal? (tn) #\！    (char-upcase #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
 (assert-equal? (tn) #\０    (char-upcase #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
 (assert-equal? (tn) #\Ａ    (char-upcase #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
-(assert-equal? (tn) #\ａ    (char-upcase #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
+(assert-equal? (tn) (if unicode? #\Ａ #\ａ) (char-upcase #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
 
 (tn "char-downcase")
 (assert-equal? (tn) #\x00     (char-downcase #\x00))
@@ -147,7 +148,7 @@
 (assert-equal? (tn) #\~       (char-downcase #\~))
 (assert-equal? (tn) #\x7f     (char-downcase #\x7f))
 (tn "char-downcase non-ASCII")
-;; SigScheme currently does not support char-downcase on non-ASCII charcters
+;; Non-ASCII characters are converted only with Unicode support.
 (assert-equal? (tn) #\xa0   (char-downcase #\xa0))   ;; U+00A0 NO-BREAK SPACE
 (assert-equal? (tn) #\xff   (char-downcase #\xff))   ;; U+00FF LATIN SMALL LETTER Y WITH DIAERESIS
 (assert-equal? (tn) #\x2028 (char-downcase #\x2028)) ;; U+2028 LINE SEPARATOR
@@ -156,7 +157,7 @@
 (assert-equal? (tn) #\あ    (char-downcase #\あ))    ;; U+3042 HIRAGANA LETTER A
 (assert-equal? (tn) #\！    (char-downcase #\！))    ;; U+FF01 FULLWIDTH EXCLAMATION MARK
 (assert-equal? (tn) #\０    (char-downcase #\０))    ;; U+FF10 FULLWIDTH DIGIT ZERO
-(assert-equal? (tn) #\Ａ    (char-downcase #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
+(assert-equal? (tn) (if unicode? #\ａ #\Ａ) (char-downcase #\Ａ))    ;; U+FF21 FULLWIDTH LATIN CAPITAL LETTER A
 (assert-equal? (tn) #\ａ    (char-downcase #\ａ))    ;; U+FF41 FULLWIDTH LATIN SMALL LETTER A
 
 

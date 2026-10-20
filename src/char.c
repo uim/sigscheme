@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -134,8 +134,10 @@ scm_p_char_greater_equalp(ScmObj ch1, ScmObj ch2)
         ENSURE_CHAR(ch1);                                                    \
         ENSURE_CHAR(ch2);                                                    \
                                                                              \
-        val1 = ICHAR_FOLDCASE(SCM_CHAR_VALUE(ch1));                          \
-        val2 = ICHAR_FOLDCASE(SCM_CHAR_VALUE(ch2));                          \
+        val1 = SCM_CHAR_VALUE(ch1);                                          \
+        val2 = SCM_CHAR_VALUE(ch2);                                          \
+        val1 = CHAR_FOLDCASE(val1);                                          \
+        val2 = CHAR_FOLDCASE(val2);                                          \
                                                                              \
         return MAKE_BOOL(val1 op val2);                                      \
     } while (/* CONSTCOND */ 0)
@@ -192,7 +194,7 @@ scm_p_char_alphabeticp(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_BOOL(ICHAR_ALPHABETICP(val));
+    return MAKE_BOOL(CHAR_ALPHABETICP(val));
 }
 
 SCM_EXPORT ScmObj
@@ -205,7 +207,7 @@ scm_p_char_numericp(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_BOOL(ICHAR_NUMERICP(val));
+    return MAKE_BOOL(CHAR_NUMERICP(val));
 }
 
 SCM_EXPORT ScmObj
@@ -218,7 +220,7 @@ scm_p_char_whitespacep(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_BOOL(ICHAR_WHITESPACEP(val));
+    return MAKE_BOOL(CHAR_WHITESPACEP(val));
 }
 
 SCM_EXPORT ScmObj
@@ -231,7 +233,7 @@ scm_p_char_upper_casep(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_BOOL(ICHAR_UPPER_CASEP(val));
+    return MAKE_BOOL(CHAR_UPPER_CASEP(val));
 }
 
 SCM_EXPORT ScmObj
@@ -244,7 +246,7 @@ scm_p_char_lower_casep(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_BOOL(ICHAR_LOWER_CASEP(val));
+    return MAKE_BOOL(CHAR_LOWER_CASEP(val));
 }
 
 SCM_EXPORT ScmObj
@@ -297,7 +299,7 @@ scm_p_char_upcase(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_CHAR(ICHAR_UPCASE(val));
+    return MAKE_CHAR(CHAR_UPCASE(val));
 }
 
 SCM_EXPORT ScmObj
@@ -310,5 +312,5 @@ scm_p_char_downcase(ScmObj ch)
 
     val = SCM_CHAR_VALUE(ch);
 
-    return MAKE_CHAR(ICHAR_DOWNCASE(val));
+    return MAKE_CHAR(CHAR_DOWNCASE(val));
 }

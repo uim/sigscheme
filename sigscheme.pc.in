@@ -9,6 +9,7 @@ sscm_fixnum=@use_fixnum@
 sscm_multibyte_char=@use_multibyte_char@
 sscm_default_encoding=@use_default_encoding@
 sscm_utf8=@use_utf8@
+sscm_unicode=@use_unicode@
 sscm_euccn=@use_euccn@
 sscm_eucjp=@use_eucjp@
 sscm_euckr=@use_euckr@

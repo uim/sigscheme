@@ -182,6 +182,9 @@ static const char *const builtin_features[] = {
 
     /* R7RS: standard feature identifiers */
     "sigscheme-" SSCM_VERSION_STRING,
+#if SCM_USE_UNICODE
+    "full-unicode",
+#endif
 #if (SCM_USE_REAL && FLT_RADIX == 2 && DBL_MANT_DIG == 53                  \
      && DBL_MAX_EXP == 1024)
     "ieee-float",

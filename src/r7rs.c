@@ -64,7 +64,9 @@
 /*=======================================
   File Local Type Definitions
 =======================================*/
-typedef scm_ichar_t (*case_converter)(scm_ichar_t ch);
+/* It writes the converted characters into DST and returns the number of
+ * them. */
+typedef int (*case_converter)(scm_ichar_t ch, scm_ichar_t *dst);
 typedef ScmObj (*comparator)(ScmObj obj1, ScmObj obj2);
 
 /*=======================================
@@ -88,9 +90,9 @@ SCM_DEFINE_STATIC_VARS(static_r7rs);
 /*=======================================
   File Local Function Declarations
 =======================================*/
-static scm_ichar_t upcase(scm_ichar_t ch);
-static scm_ichar_t downcase(scm_ichar_t ch);
-static scm_ichar_t foldcase(scm_ichar_t ch);
+static int upcase(scm_ichar_t ch, scm_ichar_t *dst);
+static int downcase(scm_ichar_t ch, scm_ichar_t *dst);
+static int foldcase(scm_ichar_t ch, scm_ichar_t *dst);
 static ScmObj convert_string_case(ScmObj str, case_converter convert);
 static ScmObj vector_to_list(ScmObj vec, scm_int_t start, scm_int_t end);
 static ScmObj compare_all(comparator compare,
@@ -895,78 +897,98 @@ scm_p_digit_value(ScmObj ch)
 
     ENSURE_CHAR(ch);
 
-    /* Only ASCII digits are supported. */
     val = SCM_CHAR_VALUE(ch);
-    if (!ICHAR_NUMERICP(val))
+    if (!CHAR_NUMERICP(val))
         return SCM_FALSE;
 
-    return MAKE_INT(val - '0');
+    return MAKE_INT(CHAR_DIGIT_VALUE(val));
 }
 
 SCM_EXPORT ScmObj
 scm_p_char_foldcase(ScmObj ch)
 {
+    scm_ichar_t val;
     DECLARE_FUNCTION("char-foldcase", procedure_fixed_1);
 
     ENSURE_CHAR(ch);
 
-    return MAKE_CHAR(ICHAR_FOLDCASE(SCM_CHAR_VALUE(ch)));
+    val = SCM_CHAR_VALUE(ch);
+    return MAKE_CHAR(CHAR_FOLDCASE(val));
 }
 
 /*===========================================================================
   R7RS : 6.7 Strings
 ===========================================================================*/
-/* Only ASCII characters are converted like char-upcase and so on. */
-static scm_ichar_t
-upcase(scm_ichar_t ch)
+/* Full case mappings such as "SS" for U+00DF LATIN SMALL LETTER SHARP S are
+ * used unlike char-upcase and so on. */
+static int
+upcase(scm_ichar_t ch, scm_ichar_t *dst)
 {
-    return ICHAR_UPCASE(ch);
+    return CHAR_FULL_UPCASE(ch, dst);
 }
 
-static scm_ichar_t
-downcase(scm_ichar_t ch)
+static int
+downcase(scm_ichar_t ch, scm_ichar_t *dst)
 {
-    return ICHAR_DOWNCASE(ch);
+    return CHAR_FULL_DOWNCASE(ch, dst);
 }
 
-static scm_ichar_t
-foldcase(scm_ichar_t ch)
+static int
+foldcase(scm_ichar_t ch, scm_ichar_t *dst)
 {
-    return ICHAR_FOLDCASE(ch);
+    return CHAR_FULL_FOLDCASE(ch, dst);
 }
 
-/* Only single byte characters are converted. So the conversion doesn't
- * change the size of the string. */
+/* The result may be longer than STR such as "SS" for "\u00DF". */
 static ScmObj
 convert_string_case(ScmObj str, case_converter convert)
 {
 #if SCM_USE_MULTIBYTE_CHAR
     ScmMultibyteString mbs;
+    size_t size, offset;
     scm_ichar_t ch;
+    int i, n;
 #endif
+    scm_ichar_t chars[SCM_UNICODE_FULL_CASE_MAX];
     char *new_str, *p;
+    scm_int_t len;
     DECLARE_INTERNAL_FUNCTION("convert_string_case");
 
-    new_str = scm_strdup(SCM_STRING_STR(str));
+    /* FIXME: The result is truncated at null with null capable strings. */
 #if SCM_USE_MULTIBYTE_CHAR
-    SCM_MBS_INIT2(mbs, new_str, strlen(new_str));
+    size = strlen(SCM_STRING_STR(str)) + sizeof("");
+    new_str = p = scm_malloc(size);
+    len = 0;
+    SCM_MBS_INIT2(mbs, SCM_STRING_STR(str), size - sizeof(""));
     while (SCM_MBS_GET_SIZE(mbs)) {
-        p = (char *)SCM_MBS_GET_STR(mbs);
         ch = SCM_CHARCODEC_READ_CHAR(scm_current_char_codec, mbs);
-        if (SCM_MBS_GET_STR(mbs) - p == 1)
-            *p = convert(ch);
+        n = convert(ch, chars);
+        for (i = 0; i < n; i++) {
+            while (size - (p - new_str) < SCM_MB_MAX_LEN + sizeof("")) {
+                offset = p - new_str;
+                size *= 2;
+                new_str = scm_realloc(new_str, size);
+                p = new_str + offset;
+            }
+            /* ASCII characters are written directly for speed. */
+            if (ICHAR_ASCIIP(chars[i]))
+                *p++ = chars[i];
+            else
+                p = SCM_CHARCODEC_INT2STR(scm_current_char_codec, p, chars[i],
+                                          SCM_MB_STATELESS);
+            len++;
+        }
     }
+    *p = '\0';
 #else
-    for (p = new_str; *p; p++)
-        *p = convert((unsigned char)*p);
+    new_str = scm_strdup(SCM_STRING_STR(str));
+    for (p = new_str, len = 0; *p; p++, len++) {
+        convert((unsigned char)*p, chars);
+        *p = chars[0];
+    }
 #endif
 
-#if SCM_USE_NULL_CAPABLE_STRING
-    /* FIXME: the result is truncated at null and incorrect */
-    return MAKE_STRING(new_str, STRLEN_UNKNOWN);
-#else
-    return MAKE_STRING(new_str, SCM_STRING_LEN(str));
-#endif
+    return MAKE_STRING(new_str, len);
 }
 
 SCM_EXPORT ScmObj

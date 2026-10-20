@@ -161,6 +161,7 @@ foreach optional_sources : [
   ['load', ['load.c']],
   ['deep_cadrs', ['deep-cadrs.c']],
   ['r7rs', ['r7rs.c', 'library.c']],
+  ['unicode', ['unicode.c']],
   ['bytevector', ['bytevector.c']],
   # optional modules
   ['sscm_extensions', ['module-sscm-ext.c']],

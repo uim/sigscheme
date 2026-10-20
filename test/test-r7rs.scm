@@ -1051,13 +1051,24 @@
     (let ((alpha (string (integer->char #x3b1)))
           (capital-alpha (string (integer->char #x391))))
       (tn "string case conversion with non-ASCII characters")
-      ;; Only ASCII characters are converted.
-      (assert-equal? (tn)
-                     (string-append "A" alpha "B")
-                     (string-upcase (string-append "a" alpha "b")))
-      (assert-equal? (tn)
-                     (string-append "a" capital-alpha "b")
-                     (string-downcase (string-append "A" capital-alpha "B")))
+      (if (provided? "full-unicode")
+          (begin
+            (assert-equal? (tn)
+                           (string-append "A" capital-alpha "B")
+                           (string-upcase (string-append "a" alpha "b")))
+            (assert-equal? (tn)
+                           (string-append "a" alpha "b")
+                           (string-downcase
+                            (string-append "A" capital-alpha "B"))))
+          ;; Only ASCII characters are converted.
+          (begin
+            (assert-equal? (tn)
+                           (string-append "A" alpha "B")
+                           (string-upcase (string-append "a" alpha "b")))
+            (assert-equal? (tn)
+                           (string-append "a" capital-alpha "b")
+                           (string-downcase
+                            (string-append "A" capital-alpha "B")))))
       (assert-equal? (tn)
                      3
                      (string-length
@@ -1073,6 +1084,45 @@
         (string-copy! str 1 (string-append alpha capital-alpha))
         (assert-equal? (tn) (string-append "a" alpha capital-alpha "d") str)
         (assert-equal? (tn) 4 (string-length str)))))
+
+(if (provided? "full-unicode")
+    (let ((sharp-s (string (integer->char #xdf)))
+          (capital-sigma (integer->char #x3a3))
+          (sigma (integer->char #x3c3))
+          (thai-three (integer->char #xe53)))
+      (tn "Unicode characters")
+      (assert-true (tn) (char-alphabetic? (integer->char #x3042)))
+      (assert-true (tn) (char-upper-case? capital-sigma))
+      (assert-true (tn) (char-lower-case? sigma))
+      (assert-true (tn) (char-whitespace? (integer->char #x3000)))
+      (assert-true (tn) (char-numeric? thai-three))
+      (assert-equal? (tn) 3 (digit-value thai-three))
+      (assert-equal? (tn) sigma (char-downcase capital-sigma))
+      (assert-equal? (tn) capital-sigma (char-upcase sigma))
+      (assert-equal? (tn) sigma (char-foldcase capital-sigma))
+      (assert-true (tn) (char-ci=? sigma capital-sigma))
+      ;; The simple case mapping is used for a character.
+      (assert-equal? (tn) (integer->char #xdf)
+                     (char-upcase (integer->char #xdf)))
+
+      (tn "Unicode full case mappings")
+      (assert-equal? (tn) "SS" (string-upcase sharp-s))
+      (assert-equal? (tn) "mass" (string-foldcase (string-append "Ma" sharp-s)))
+      ;; U+0130 LATIN CAPITAL LETTER I WITH DOT ABOVE
+      (assert-equal? (tn) (string #\i (integer->char #x307))
+                     (string-downcase (string (integer->char #x130))))
+      (assert-true (tn) (string-ci=? (string-append "Stra" sharp-s "e")
+                                     "STRASSE"))
+      (assert-true (tn) (string-ci<? sharp-s "st"))
+      (assert-false (tn) (string-ci<? "st" sharp-s))
+
+      (tn "Unicode with non-Unicode codec")
+      ;; Non-ASCII characters of ISO-8859-1 aren't Unicode characters.
+      (with-char-codec "ISO-8859-1"
+        (lambda ()
+          (assert-false (tn) (char-alphabetic? (integer->char #xff)))
+          (assert-equal? (tn) (integer->char #xff)
+                         (char-upcase (integer->char #xff)))))))
 
 (tn "bytevector?")
 (assert-true (tn) (bytevector? #u8()))

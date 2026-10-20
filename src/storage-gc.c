@@ -124,6 +124,9 @@ static ScmObj l_freelist;
 
 static ScmObj **l_protected_vars;
 static size_t l_protected_vars_size, l_n_empty_protected_vars;
+/* The elements of a vector whose cell is being allocated. */
+static ScmObj *l_vector_elements;
+static size_t l_n_vector_elements;
 #ifdef SCM_WITH_BDWGC
 static BDWGCContext *l_bdwgc_ctx;
 #else
@@ -147,6 +150,8 @@ SCM_GLOBAL_VARS_END(static_gc);
 #define l_protected_vars_size  SCM_GLOBAL_VAR(static_gc, l_protected_vars_size)
 #define l_n_empty_protected_vars                                             \
     SCM_GLOBAL_VAR(static_gc, l_n_empty_protected_vars)
+#define l_vector_elements      SCM_GLOBAL_VAR(static_gc, l_vector_elements)
+#define l_n_vector_elements    SCM_GLOBAL_VAR(static_gc, l_n_vector_elements)
 #ifdef SCM_WITH_BDWGC
 #define l_bdwgc_ctx            SCM_GLOBAL_VAR(static_gc, l_bdwgc_ctx)
 #else
@@ -258,6 +263,22 @@ scm_fin_gc(void)
 #endif
 
     SCM_GLOBAL_VARS_FIN(static_gc);
+}
+
+/* Allocates a cell for a vector of ELEMENTS. ELEMENTS are marked while
+ * allocating because they may be referred only from ELEMENTS that isn't
+ * scanned by GC. */
+SCM_EXPORT ScmObj
+scm_alloc_vector_cell(ScmObj *elements, size_t n)
+{
+    ScmObj cell;
+
+    l_vector_elements = elements;
+    l_n_vector_elements = n;
+    cell = scm_alloc_cell();
+    l_vector_elements = NULL;
+    l_n_vector_elements = 0;
+    return cell;
 }
 
 SCM_EXPORT ScmObj
@@ -870,6 +891,8 @@ gc_mark_global_vars(void)
     SCM_BEGIN_GC_SUBCONTEXT();
 
     gc_mark_protected_var();
+    if (l_vector_elements)
+        gc_mark_definite_locations_n(l_vector_elements, l_n_vector_elements);
     if (scm_symbol_hash)
         gc_mark_definite_locations_n(scm_symbol_hash, scm_symbol_hash_size);
 

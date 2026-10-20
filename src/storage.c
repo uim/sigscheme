@@ -497,7 +497,7 @@ scm_make_vector(ScmObj *vec, scm_int_t len)
 {
     ScmObj obj;
 
-    obj = scm_alloc_cell();
+    obj = scm_alloc_vector_cell(vec, len);
     SCM_MUTABLE_VECTOR_INIT(obj, vec, len);
     return obj;
 }
@@ -508,7 +508,7 @@ scm_make_immutable_vector(ScmObj *vec, scm_int_t len)
 {
     ScmObj obj;
 
-    obj = scm_alloc_cell();
+    obj = scm_alloc_vector_cell(vec, len);
     SCM_IMMUTABLE_VECTOR_INIT(obj, vec, len);
     return obj;
 }

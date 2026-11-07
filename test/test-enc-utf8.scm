@@ -5,7 +5,7 @@
 ;;  About    : unit test for UTF-8 string
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -35,6 +35,8 @@
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (require-extension (unittest))
+
+(require-extension (srfi 28))
 
 (if (not (and (provided? "utf-8")
               (symbol-bound? 'char?)
@@ -179,5 +181,62 @@
 (assert-parse-error (tn) "\"\\x+0000063;\"")
 (assert-parse-error (tn) "\"\\x+00000063;\"")
 (assert-parse-error (tn) "\"\\x+000000063;\"")
+
+;; Each byte of an invalid sequence is a character whose code is the
+;; byte as in string-length and string-ref.
+(tn "invalid sequence")
+(define (bytes->string . bytes)
+  (with-char-codec "ISO-8859-1"
+    (lambda ()
+      (list->string (map integer->char bytes)))))
+(define invalid-str (string-append "a" (bytes->string #xa4 #xa2) "b"))
+(assert-equal? (tn) 4 (string-length invalid-str))
+(assert-equal? (tn) (integer->char #xa4) (string-ref invalid-str 1))
+(assert-equal? (tn)
+               (list #\a (integer->char #xa4) (integer->char #xa2) #\b)
+               (string->list invalid-str))
+(assert-true   (tn) (string<? invalid-str
+                              (string #\a (integer->char #xa5))))
+(assert-true   (tn) (string-ci=? invalid-str (string-copy invalid-str)))
+(if (provided? "srfi-6")
+    (assert-equal? (tn)
+                   (string-append "\"" invalid-str "\"")
+                   (let ((port (open-output-string)))
+                     (write invalid-str port)
+                     (get-output-string port))))
+(if (and (provided? "srfi-6") (provided? "srfi-28"))
+    (begin
+      ;; An invalid sequence is written as-is. It isn't written as
+      ;; U+00A4 and U+00A2 in UTF-8.
+      (assert-equal? (tn) invalid-str (format invalid-str))
+      (assert-equal? (tn)
+                     (string-append "a" (bytes->string #xa4 #xa2) "b1")
+                     (format (string-append invalid-str "~a") 1))))
+(if (symbol-bound? 'string-upcase)
+    (begin
+      ;; An invalid sequence is kept as-is. It isn't converted to
+      ;; U+00A4 and U+00A2 in UTF-8.
+      (assert-equal? (tn)
+                     (string-append "A" (bytes->string #xa4 #xa2) "B")
+                     (string-upcase invalid-str))
+      (assert-equal? (tn)
+                     (string-append "a" (bytes->string #xa4 #xa2) "b")
+                     (string-downcase (string-upcase invalid-str)))
+      (assert-equal? (tn)
+                     (string-append "a" (bytes->string #xa4 #xa2) "b")
+                     (string-foldcase (string-upcase invalid-str)))
+      ;; #xb5 isn't U+00B5 (MICRO SIGN) whose upper case is U+039C.
+      (assert-equal? (tn)
+                     (bytes->string #xb5)
+                     (string-upcase (bytes->string #xb5)))
+      ;; An incomplete sequence at the end is kept as-is too. This
+      ;; compares only bytes by symbols because the expected string
+      ;; has the length in ISO-8859-1.
+      (assert-eq? (tn)
+                  (string->symbol
+                   (string-append "A" (bytes->string #xe3 #x81)))
+                  (string->symbol
+                   (string-upcase
+                    (string-append "a" (bytes->string #xe3 #x81)))))))
 
 (total-report)

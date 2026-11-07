@@ -197,6 +197,8 @@ SCM_DEFINE_STATIC_VARS(static_format);
 #if SCM_USE_MULTIBYTE_CHAR
 static scm_ichar_t format_str_peek(ScmMultibyteString mbs_fmt,
                                    const char *caller);
+static scm_bool format_str_put_invalid_seq(ScmObj port,
+                                           format_string_t *fmt);
 #endif
 static signed char read_width(format_string_t *fmt);
 static ScmValueFormat read_number_prefix(enum ScmFormatCapability fcap,
@@ -237,6 +239,29 @@ format_str_peek(ScmMultibyteString mbs_fmt, const char *caller)
 {
     return (FORMAT_STR_ENDP(mbs_fmt)) ? '\0' :
         scm_charcodec_read_char(scm_current_char_codec, &mbs_fmt, caller);
+}
+
+/* Writes an invalid sequence at FMT as-is and skips it. It may be bytes
+ * in another encoding to be converted. Writing it as characters breaks
+ * the bytes. */
+static scm_bool
+format_str_put_invalid_seq(ScmObj port, format_string_t *fmt)
+{
+    ScmMultibyteCharInfo mbc;
+    char buf[SCM_MB_MAX_LEN + sizeof("")];
+    size_t size;
+
+    mbc = SCM_CHARCODEC_SCAN_CHAR(scm_current_char_codec, *fmt);
+    if (!SCM_MBCINFO_ERRORP(mbc) && !SCM_MBCINFO_INCOMPLETEP(mbc))
+        return scm_false;
+
+    size = SCM_MBCINFO_GET_SIZE(mbc);
+    SCM_ASSERT(size < sizeof(buf));
+    memcpy(buf, SCM_MBS_GET_STR(*fmt), size);
+    buf[size] = '\0';
+    scm_port_puts(port, buf);
+    SCM_MBS_SKIP_CHAR(*fmt, mbc);
+    return scm_true;
 }
 #endif /* SCM_USE_MULTIBYTE_CHAR */
 
@@ -718,6 +743,13 @@ format_internal(ScmObj port, enum ScmFormatCapability fcap,
     last_c = '\0';
     FORMAT_STR_INIT(cur, fmt); 
     while (!FORMAT_STR_ENDP(cur)) {
+#if SCM_USE_MULTIBYTE_CHAR
+        if (format_str_put_invalid_seq(port, &cur)) {
+            /* Not a newline for "~&". */
+            last_c = '\0';
+            continue;
+        }
+#endif
         c = FORMAT_STR_READ(cur);
         if (c == '~') {
 #if SCM_USE_RAW_C_FORMAT

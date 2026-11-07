@@ -354,10 +354,11 @@ scm_charcodec_read_char(ScmCharCodec *codec, ScmMultibyteString *mbs,
 
     SCM_ENCODING_ASSERT(SCM_MBS_GET_SIZE(*mbs));
 
+    /* An invalid sequence isn't an error because a string may have
+     * bytes in another encoding to be converted. It's read in the same
+     * way as string-length and string-ref. */
     state = SCM_MBS_GET_STATE(*mbs);
     mbc = SCM_CHARCODEC_SCAN_CHAR(codec, *mbs);
-    if (SCM_MBCINFO_ERRORP(mbc) || SCM_MBCINFO_INCOMPLETEP(mbc))
-        SCM_ENCODING_ERROR("scm_charcodec_read_char: invalid char sequence");
     ch = SCM_CHARCODEC_STR2INT(codec,
                                SCM_MBS_GET_STR(*mbs),
                                SCM_MBCINFO_GET_SIZE(mbc),

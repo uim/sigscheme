@@ -945,6 +945,7 @@ convert_string_case(ScmObj str, case_converter convert)
 {
 #if SCM_USE_MULTIBYTE_CHAR
     ScmMultibyteString mbs;
+    ScmMultibyteCharInfo mbc;
     size_t size, offset;
     scm_ichar_t ch;
     int i, n;
@@ -960,16 +961,32 @@ convert_string_case(ScmObj str, case_converter convert)
     new_str = p = scm_malloc(size);
     len = 0;
     SCM_MBS_INIT2(mbs, SCM_STRING_STR(str), size - sizeof(""));
+#define ENSURE_ROOM()                                                        \
+    do {                                                                     \
+        while (size - (p - new_str) < SCM_MB_MAX_LEN + sizeof("")) {         \
+            offset = p - new_str;                                            \
+            size *= 2;                                                       \
+            new_str = scm_realloc(new_str, size);                            \
+            p = new_str + offset;                                            \
+        }                                                                    \
+    } while (/* CONSTCOND */ 0)
     while (SCM_MBS_GET_SIZE(mbs)) {
+        mbc = SCM_CHARCODEC_SCAN_CHAR(scm_current_char_codec, mbs);
+        if (SCM_MBCINFO_ERRORP(mbc) || SCM_MBCINFO_INCOMPLETEP(mbc)) {
+            /* An invalid sequence is copied as-is. It may be bytes in
+             * another encoding to be converted. Converting it as
+             * characters breaks the bytes. */
+            ENSURE_ROOM();
+            memcpy(p, SCM_MBS_GET_STR(mbs), SCM_MBCINFO_GET_SIZE(mbc));
+            p += SCM_MBCINFO_GET_SIZE(mbc);
+            len++;
+            SCM_MBS_SKIP_CHAR(mbs, mbc);
+            continue;
+        }
         ch = SCM_CHARCODEC_READ_CHAR(scm_current_char_codec, mbs);
         n = convert(ch, chars);
         for (i = 0; i < n; i++) {
-            while (size - (p - new_str) < SCM_MB_MAX_LEN + sizeof("")) {
-                offset = p - new_str;
-                size *= 2;
-                new_str = scm_realloc(new_str, size);
-                p = new_str + offset;
-            }
+            ENSURE_ROOM();
             /* ASCII characters are written directly for speed. */
             if (ICHAR_ASCIIP(chars[i]))
                 *p++ = chars[i];
@@ -979,6 +996,7 @@ convert_string_case(ScmObj str, case_converter convert)
             len++;
         }
     }
+#undef ENSURE_ROOM
     *p = '\0';
 #else
     new_str = scm_strdup(SCM_STRING_STR(str));

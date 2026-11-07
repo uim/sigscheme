@@ -185,10 +185,13 @@
 ;; Each byte of an invalid sequence is a character whose code is the
 ;; byte as in string-length and string-ref.
 (tn "invalid sequence")
+;; The length of a string is counted in the current character codec on
+;; its creation. So it's recounted in UTF-8.
 (define (bytes->string . bytes)
-  (with-char-codec "ISO-8859-1"
-    (lambda ()
-      (list->string (map integer->char bytes)))))
+  (%%string-reconstruct!
+   (with-char-codec "ISO-8859-1"
+     (lambda ()
+       (list->string (map integer->char bytes))))))
 (define invalid-str (string-append "a" (bytes->string #xa4 #xa2) "b"))
 (assert-equal? (tn) 4 (string-length invalid-str))
 (assert-equal? (tn) (integer->char #xa4) (string-ref invalid-str 1))
@@ -229,14 +232,10 @@
       (assert-equal? (tn)
                      (bytes->string #xb5)
                      (string-upcase (bytes->string #xb5)))
-      ;; An incomplete sequence at the end is kept as-is too. This
-      ;; compares only bytes by symbols because the expected string
-      ;; has the length in ISO-8859-1.
-      (assert-eq? (tn)
-                  (string->symbol
-                   (string-append "A" (bytes->string #xe3 #x81)))
-                  (string->symbol
-                   (string-upcase
-                    (string-append "a" (bytes->string #xe3 #x81)))))))
+      ;; An incomplete sequence at the end is kept as-is too.
+      (assert-equal? (tn)
+                     (string-append "A" (bytes->string #xe3 #x81))
+                     (string-upcase
+                      (string-append "a" (bytes->string #xe3 #x81))))))
 
 (total-report)

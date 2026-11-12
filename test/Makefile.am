@@ -102,6 +102,13 @@ EXTRA_DIST += \
 	coding/unknown.scm \
 	coding/utf-8.scm
 
+if USE_SRFI64
+sscm_optional_tests += test-srfi64.scm
+else
+sscm_xfail_tests += test-srfi64.scm
+endif
+EXTRA_DIST += test-srfi64.scm
+
 if USE_SRFI180
 sscm_optional_tests += test-srfi180.scm
 else

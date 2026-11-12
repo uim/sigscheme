@@ -194,6 +194,9 @@ option('srfi69',
 option('srfi95',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'SRFI-95 sorting and merging')
+option('srfi64',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'SRFI-64 A Scheme API for test suites')
 option('srfi180',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'SRFI-180 JSON')

@@ -336,6 +336,7 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_srfi48=yes
         use_srfi55=yes
         use_srfi60=yes
+        use_srfi64=yes
         use_srfi69=yes
         use_srfi95=yes
         ;;
@@ -478,6 +479,7 @@ AX_FEATURE_ARG_Y(srfi43,         [SRFI-43 vector library])
 AX_FEATURE_ARG_Y(srfi48,         [SRFI-48 'format' (superset of SRFI-28)])
 AX_FEATURE_ARG_Y(srfi55,         [SRFI-55 'require-extension'])
 AX_FEATURE_ARG_Y(srfi60,         [SRFI-60 integers as bits (partial)])
+AX_FEATURE_ARG_Y(srfi64,         [SRFI-64 a Scheme API for test suites])
 AX_FEATURE_ARG_Y(srfi69,         [SRFI-69 basic hash tables])
 AX_FEATURE_ARG_Y(srfi95,         [SRFI-95 sorting and merging])
 AX_FEATURE_ARG_N(srfi180,        [SRFI-180 JSON])
@@ -550,6 +552,7 @@ srfi38: writer
 srfi43: load vector srfi8 srfi23 sscm_extensions
 srfi55: load sscm_extensions
 srfi60: int
+srfi64: load continuation hygienic_macro port reader srfi6 srfi9 srfi23 srfi34 srfi55
 srfi69: load int string vector srfi9 srfi23
 srfi95: load int
 srfi180: load int real char string vector port srfi6 srfi34 sscm_extensions
@@ -711,6 +714,7 @@ AX_FEATURE_DEFINE(srfi43)
 AX_FEATURE_DEFINE(srfi48)
 AX_FEATURE_DEFINE(srfi55)
 AX_FEATURE_DEFINE(srfi60)
+AX_FEATURE_DEFINE(srfi64)
 AX_FEATURE_DEFINE(srfi69)
 AX_FEATURE_DEFINE(srfi95)
 AX_FEATURE_DEFINE(srfi180)
@@ -797,6 +801,7 @@ AC_SUBST(use_srfi43)
 AC_SUBST(use_srfi48)
 AC_SUBST(use_srfi55)
 AC_SUBST(use_srfi60)
+AC_SUBST(use_srfi64)
 AC_SUBST(use_srfi69)
 AC_SUBST(use_srfi95)
 AC_SUBST(use_srfi180)
@@ -936,6 +941,7 @@ SRFI-43: $use_srfi43
 SRFI-48: $use_srfi48
 SRFI-55: $use_srfi55
 SRFI-60: $use_srfi60
+SRFI-64: $use_srfi64
 SRFI-69: $use_srfi69
 SRFI-95: $use_srfi95
 SRFI-180: $use_srfi180

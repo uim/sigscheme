@@ -10,8 +10,7 @@ High priority tasks:
     define)
   - Validate as production quality
 
-* Introduce a standard unit testing framework
-  - SRFI-64 "A Scheme API for test suites"
+* Migrate tests to SRFI-64 from unittest.scm
 
 * grep "FIXME" and fix them
 

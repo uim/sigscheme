@@ -774,6 +774,42 @@ And the others listed below are not.
     * *procedure:* list->integer list
     * *procedure:* booleans->integer bool1 ...
 
+SRFI-64 A Scheme API for test suites
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fully supported. It's implemented from scratch.
+
+The implementation-defined behaviors are the followings. Other
+implementations (the reference implementation, Taylan Kammer's one and
+Guile's one) were checked for ambiguous points. The majority is followed
+except a skipped test group is counted as the specification says.
+
+  - The simple test runner reports failures, unexpected successes, wrong
+    numbers of tests and a summary to the current output port. It doesn't
+    write a log file.
+  - The `error-type` of `test-error` is `#t` for any error or a predicate that
+    is called with the raised object. Other values never match. An error in
+    the predicate is a failure and `actual-error` is still the raised object.
+  - The `source-file` and `source-line` result properties aren't set. The
+    `source-form` result property is set.
+  - `test-expect-fail` specifiers aren't called for a skipped test. So
+    `(test-expect-fail 1)` is used by the next test that isn't skipped.
+  - Only `test-skip` specifiers are applied to a test group. A test group
+    isn't filtered by `test-apply` and `test-expect-fail` specifiers. So tests
+    in a group can be selected by `test-apply` and `(test-expect-fail 1)` is
+    used by the first test in the next group.
+  - A skipped test group is counted as a skipped test without calling
+    `on-test-begin` and `on-test-end`.
+  - The cleanup form of a skipped `test-group-with-cleanup` isn't evaluated
+    because nothing in the group is evaluated.
+  - `on-group-begin` is called before the group is pushed to the group stack.
+  - The specifiers of a nested `test-apply` replace the outer ones.
+  - `test-on-bad-end-name-simple` raises an error. The group is still active
+    after the error because `on-group-end` isn't called yet.
+
+`lib/unittest.scm` that is used by the tests of SigScheme also defines
+`test-begin`, `test-skip` and so on. Don't use it with SRFI-64.
+
 SRFI-69 Basic hash tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

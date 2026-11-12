@@ -1,6 +1,6 @@
 project('sigscheme',
         'c',
-        version: '0.9.7',
+        version: '1.0.0',
         # 0.63.0 or later is needed to build test programs that aren't
         # built by default on 'meson test'.
         meson_version: '>=0.63.0')

@@ -1,10 +1,10 @@
 What's SigScheme
 ----------------
 
-SigScheme is a R5RS Scheme interpreter for embedded use.
+SigScheme is a R5RS and R7RS small Scheme interpreter for embedded use.
 
   Homepage:
-    http://code.google.com/p/sigscheme/
+    https://github.com/uim/sigscheme
 
   Git repository:
     git clone https://github.com/uim/sigscheme.git
@@ -13,11 +13,11 @@ SigScheme is a R5RS Scheme interpreter for embedded use.
 See following files for further information.
 
   - doc/spec.txt: specifications of SigScheme
-  - QALog:        quality assurance state
 
-Please report us if you find a problem. And if you have a time, run
-'make-report.sh' and send us the result regardless of PASSed or FAILed. It
-greatly helps the development, especially for non-PC platforms.
+Please report us if you find a problem.
+
+  Issues:
+    https://github.com/uim/sigscheme/issues
 
 Mailinglist: sigscheme-ja@googlegroups.com
 
@@ -26,7 +26,12 @@ Features
 --------
 
 - Conforms to R5RS basically (not fully)
-- R5RS hygienic macros
+- Conforms to R7RS small basically (not fully) with the r7rs feature
+  - Libraries: define-library, import and the standard libraries
+  - Bytevectors and binary ports
+- R5RS hygienic macros with R7RS extensions
+- Inexact real numbers (flonums) with the real feature
+- Unicode character properties and case mappings with the unicode feature
 - Supports Following SRFIs
   - SRFI-0  : Feature-based conditional expansion construct
   - SRFI-1  : List Library
@@ -45,6 +50,7 @@ Features
   - SRFI-60 : Integer as Bits (partial)
   - SRFI-69 : Basic hash tables
   - SRFI-95 : Sorting and Merging
+  - SRFI-180: JSON
 - R6RS: R6RS characters (partial and preliminary)
 - Multibyte character encodings support
 - define-macro

@@ -580,9 +580,10 @@ SRFI-9 Defining Record Types
 
 Fully supported.
 
-It is based on the reference implementation of SRFI-9. But different to the
-original implementation, `eval` procedure of the SigScheme port accepts
-`(interaction-environment)` as environment argument.
+`define-record-type` is implemented by `syntax-rules`. So the hygienic macro
+feature is required. The same implementation is used by R7RS. A record is
+disjoint from vectors: `vector?` returns `#f` for a record. `equal?` compares
+records by identity.
 
 
 SRFI-22 Running Scheme Scripts on Unix

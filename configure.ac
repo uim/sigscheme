@@ -1,5 +1,5 @@
 AC_PREREQ(2.60b)
-AC_INIT([SigScheme], [1.0.0], [https://github.com/uim/sigscheme/issues], [sigscheme])
+AC_INIT([SigScheme], [1.0.1], [https://github.com/uim/sigscheme/issues], [sigscheme])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/sigscheme.c])
 AC_CONFIG_HEADERS([include/sigscheme/config.h])

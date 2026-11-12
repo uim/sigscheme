@@ -11,7 +11,7 @@ cc = meson.get_compiler('c')
 
 package_name = 'SigScheme'
 package_string = '@0@ @1@'.format(package_name, meson.project_version())
-package_bugreport = 'sigscheme-ja@googlegroups.com'
+package_bugreport = 'https://github.com/uim/sigscheme/issues'
 
 prefix = get_option('prefix')
 datadir = get_option('datadir')

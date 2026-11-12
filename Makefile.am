@@ -21,7 +21,7 @@ EXTRA_DIST = \
         sigscheme.pc.in libgcroots.mk.in sigscheme.mk.in autogen.sh \
         NEWS.md QALog RELNOTE Rakefile TODO \
         compare-scm.sh runbench.sh runtest.sh runtest-tail-rec.sh \
-        make-report.sh make-dist.sh \
+        make-dist.sh \
         meson.build meson_options.txt
 
 if USE_LIBSSCM

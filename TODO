@@ -1,7 +1,7 @@
 ==============================================================================
 High priority tasks:
 
-* (0.9) Efficient macro
+* Efficient macro
   - Fix infinite loop on test-srfi1-another.scm
   - Introduce compilation phase (see "Macros" subsection of spec.txt)
   - Make macro expansion performed on compilation phase
@@ -10,10 +10,7 @@ High priority tasks:
     define)
   - Validate as production quality
 
-* (0.9) Provide a record type
-  - Evaluate SRFI-9 and R6RS records
-
-* (0.9) Introduce a standard unit testing framework
+* Introduce a standard unit testing framework
   - SRFI-64 "A Scheme API for test suites"
 
 * grep "FIXME" and fix them
@@ -34,9 +31,8 @@ Extensions: (not required for now)
   - Make the slib.scm installable
   - Fill some variables with configure (slib.scm.in)
 
-* Implement numbers other than integer
-  - Define SAL accessors considering SRFI-50 and other implementations
-  - Evaluate R6RS Arithmetic
+* Implement rational numbers, complex numbers and exact integers out of the
+  fixnum range
 
 * Add ISO-2022-JP support to encoding.[hc] and scmport-mbchar.c. It requires
   encoding API fix on int2str() which lacks post-write state update
@@ -65,8 +61,6 @@ Properness improvements: (not required for now)
 * Import http://sisc.sourceforge.net/r5rs_pitfall.scm
   - Fix hygienic-macro incapability of module_srfi34.c to catch errors into
     a failed result in the 'should-be' macro
-
-* Support R6RS style symbol escaping such as |-sym|
 
 * Reorganize unit test for C
   - Remove GNU sed dependency of test-c/collect.sh.in

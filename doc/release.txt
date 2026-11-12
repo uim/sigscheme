@@ -1,15 +1,6 @@
 Release management of SigScheme
 ===============================
 
-Acknowledgement
----------------
-
-A part of this document is based on
-http://lists.freedesktop.org/archives/uim/2005-November/001381.html[Release
-Manual for uim (draft)] contributed to http://code.google.com/p/uim/[uim
-project] by Jeroen Ruigrok van der Werven. Thank you for cooperation.
-
-
 Versioning scheme
 -----------------
 
@@ -19,23 +10,23 @@ A SigScheme version number is built up as follows:
   major.minor.patchlevel
 ----------------------------------------------------------------
 
-The 'minor' number is incremented for every stable release. As an example:
-1.2.3 will become 1.3.0 upon a new release.
+The 'patchlevel' number is incremented after every release by
+`rake version:bump`. The 'major' and 'minor' numbers are incremented
+manually when needed. As an example: 1.0.0 will become 1.0.1 after the
+release. 1.0.1 may become 1.1.0 manually for a release that has large
+changes.
 
-There's no limit to the 'minor' version's number, it will continue past 9 with
-10, in other words: after release 1.9.2 we will see release 1.10.0.
+There's no limit to each number, it will continue past 9 with 10, in other
+words: after release 1.0.9 we will see release 1.0.10.
 
-The 'patchlevel' number will only be increased in the case of a bug fix or a
-security fix.
+The version is written in the following files:
 
-There is no separate versioning for unstable versions, this is simply the
-source control's trunk revision with development snapshots being called
-`sigscheme-snapshot-YYYYMMDD`. With `YYYYMMDD` standing for the year in four,
-the month in two, and the day in two digits when the snapshot was taken.
+  - `AC_INIT()` in `configure.ac`
+  - `version` of `project()` in `meson.build`
+  - `SSCM_VERSION_*` in `include/sigscheme/sigscheme.h`
 
-And no 'alpha', 'beta' or 'RC' versions are released for now since the source
-codes are still drastically changing and no profit can be obtained from a
-feature freeze.
+`rake version:bump` updates all of them. Update them manually when the
+'major' or the 'minor' number is incremented.
 
 
 Release procedures
@@ -44,24 +35,16 @@ Release procedures
 Documents update
 ~~~~~~~~~~~~~~~~
 
-Update `RELNOTE` and `NEWS`.
-
-Declaration
-~~~~~~~~~~~
-
-Let all SigScheme developers know that a release is emerging, and make sure
-that no developer is having a problem on the release.
+Add a section for the new version at the top of `NEWS.md`. The release note
+of GitHub Releases is generated from the section. Update `RELNOTE` too.
 
 Versioning
 ~~~~~~~~~~
 
-Confirm the version number written in `AC_INIT()` of the `configure.in` and
-SSCM_VERSION_* of sigscheme.h prior to a release.
+Confirm the version numbers described in "Versioning scheme".
 
 And do not forget updating `src/libtool-version.mk` if `libsscm` ABI has been
-altered from previous version.
-
-Finally, update LIBGCROOTS_URL in `make-dist.sh`.
+altered from previous version. Meson also uses it.
 
 Test
 ~~~~
@@ -69,41 +52,37 @@ Test
 Make all tests passed.
 
 ----------------------------------------------------------------
-$ ./configure --enable-maintainer-mode --enable-conf=full
-$ make check
+$ meson setup -Dconf=full build
+$ meson test -C build
+$ meson compile -C build r7rs-tests
 ----------------------------------------------------------------
+
+Push the changes and confirm that CI is passed.
 
 Tagging
 ~~~~~~~
 
-A release must be branched and tagged for development management.
-
 ----------------------------------------------------------------
-$ git branch sigscheme-x.y <start-point>
-$ git push origin sigscheme-x.y
-
-$ git tag -a sigscheme-x.y.z <commit on sigscheme-x.y>
-$ git push --tags
+$ rake release
 ----------------------------------------------------------------
 
-If the release is a snapshot, tag as follows:
+It does the followings:
 
-----------------------------------------------------------------
-$ git tag -a sigscheme-snapshot-YYYYMMDD
-$ git push --tags
-----------------------------------------------------------------
+  1. Creates the `x.y.z` tag and pushes it
+  2. Bumps the 'patchlevel' number and pushes it
 
-Packaging
-~~~~~~~~~
+Packaging and publishing
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-----------------------------------------------------------------
-$ cd /tmp
-$ git clone https://code.google.com/p/uim.sigscheme/
-$ git checkout sigscheme-x.y.z
-$ ./make-dist.sh
-----------------------------------------------------------------
+The "Release" job of CI (`.github/workflows/linux.yml`) is run for the pushed
+tag. It does the followings:
 
-It produces:
+  1. Creates source archives by `make distcheck` and `make sum`
+     (`ci/release.sh`)
+  2. Creates a release on GitHub Releases with the source archives and the
+     release note generated from `NEWS.md`
+
+The source archives are the followings:
 
 ----------------------------------------------------------------
 sigscheme-x.y.z.tar.gz
@@ -111,69 +90,4 @@ sigscheme-x.y.z.tar.bz2
 sigscheme-x.y.z.sum
 ----------------------------------------------------------------
 
-Publishing and announcements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Upload the file by the official uploading script:
-
-  http://code.google.com/p/support/wiki/ScriptedUploads
-
-Don't forget adding appropriate tags as follows.
-
-Final release:
-----------------------------------------------------------------
-  googlecode-upload.py -u yamakenz -p sigscheme \
-                       -s 'SigScheme 0.8.0' -l 'Stable,Featured' \
-                       sigscheme-0.8.0.tar.bz2
-----------------------------------------------------------------
-
-Alpha or beta release:
-----------------------------------------------------------------
-  googlecode-upload.py -u yamakenz -p sigscheme \
-                       -s 'SigScheme 0.8.0-alpha' -l 'Unstable' \
-                       sigscheme-0.8.0-alpha.tar.bz2
-----------------------------------------------------------------
-
-Snapshot release:
-----------------------------------------------------------------
-  googlecode-upload.py -u yamakenz -p sigscheme \
-                       -s 'SigScheme trunk-snapshot20070703' -l 'Snapshot' \
-                       sigscheme-trunk-snapshot20070703.tar.bz2
-----------------------------------------------------------------
-
-And untag 'Featured' from previous final release files by the web
-interface.
-
-Then update the web pages.
-
-   http://code.google.com/p/sigscheme/
-   http://code.google.com/p/sigscheme/wiki/SigScheme
-   http://code.google.com/p/sigscheme/wiki/Download
-
-Update 'SigScheme' page first and copy it into the project description
-(homepage).
-
-<obsolete>
-The checksums of the files must not directly be written into the
-anyone-rewritable wikipage, to prevent spoofings. It should be a link to the
-release announce which contain the checksum information.
-</obsolete>
-
-And send a message to {sigscheme-ja,uim-en,uim-ja}@googlegroups.com
-
-----------------------------------------------------------------
-   <write announcement here>
-   
-     http://code.google.com/p/sigscheme/wiki/Download
-
-   MD5 (sigscheme-0.8.0-example.tar.gz) = cff14a6ad95a6a1303b527a86d27bff4
-   MD5 (sigscheme-0.8.0-example.tar.bz2) = b2e96af101a0c51df697990f6311f6f2
-   SHA1 (sigscheme-0.8.0-example.tar.gz) = 3f152c4aa77a3a44d9f74800a8b9d8d3b6c16771
-   SHA1 (sigscheme-0.8.0-example.tar.bz2) = c870c3e8585ce8e4200fe3247021802d922781c6
-
-   <append RELNOTE here>
-----------------------------------------------------------------
-
-Update Freshmeat entry at last.
-
-   http://freshmeat.net/projects/sigscheme/
+The release is announced in GitHub Discussions too.

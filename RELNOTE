@@ -1,35 +1,34 @@
-SigScheme 0.9.0 Release Note
+SigScheme 1.0.0 Release Note
 ============================
 
 What's SigScheme
 ----------------
 
-SigScheme is a R5RS Scheme interpreter for embedded use.
+SigScheme is a R5RS and R7RS small Scheme interpreter for embedded use.
 
-It features small footprint (64KB in library form on the 'small' configuration)
-like SIOD and TinyScheme, low memory consumption (2-words per cons cell),
-multibyte characters handling (UTF-8, EUCs and Shift_JIS) and more.
+It features low memory consumption (2-words per cons cell), multibyte
+characters handling (UTF-8, EUCs and Shift_JIS) and more.
 
 It is mainly developed to be the Scheme interpreter of uim.
 
   Homepage:
-    http://code.google.com/p/sigscheme/
+    https://github.com/uim/sigscheme
 
 
 About This Release
 ------------------
 
-This distribution of SigScheme 0.9.0 is latest stable release of the
-software. And this release will be adopted for uim 1.8.0, the primary
-application of SigScheme.
+This distribution of SigScheme 1.0.0 is latest stable release of the
+software. It supports R7RS small, inexact real numbers and Unicode character
+properties and case mappings. It also removes SIOD compatible features and
+some obsolete configurations and platforms.
 
-See 'NEWS' for the fully detailed changes.
+See 'NEWS.md' for the fully detailed changes including incompatible changes.
 
-See the file 'QALog' about quality assurance state.
+Please report us if you find a problem.
 
-Please report us if you find a problem. And if you have a time, run
-'make-report.sh' and send us the result regardless of PASSed or FAILed. It
-greatly helps the development, especially for non-PC platforms.
+  Issues:
+    https://github.com/uim/sigscheme/issues
 
 Mailinglist: sigscheme-ja@googlegroups.com
 
@@ -37,17 +36,24 @@ Mailinglist: sigscheme-ja@googlegroups.com
 Notes for Packagers and System Integrators
 ------------------------------------------
 
-  - 0.8.0 introduced various system-installed Scheme libraries. Please install
-    them in addition to libsscm
+  - SigScheme can be built with Meson or GNU Autotools. Meson is recommended
 
-  - libgcroots has been updated and bundled in this release. Since it is
-    installed as a separated library independent of libsscm, please create its
-    own package, and make SigScheme package depending on it with
-    "--with-libgcroots=installed"
+  - SigScheme installs system Scheme libraries. Please install them in
+    addition to libsscm
+
+  - SigScheme uses system BDWGC (8.3.0 or later) or libgcroots to find GC
+    roots. libgcroots is also bundled. Since it is installed as a separated
+    library independent of libsscm, please use system BDWGC or create its own
+    package, and make SigScheme package depending on it with "-Dgc=bdwgc" or
+    "-Dgc=gcroots" ("--with-libgcroots=installed" for GNU Autotools)
 
   - The ABI of libsscm varies by configuration. So to make libsscm sharable,
-    please specify "--enable-conf=full" and keep other feature options
-    untouched for system-installed library
+    please specify "-Dconf=full" ("--enable-conf=full" for GNU Autotools) and
+    keep other feature options untouched for system-installed library
 
-  - The options "--enable-debug" and/or "--enable-backtrace" make SigScheme
-    quite heavy. Please keep them unspecified for normal library
+  - The ABI of libsscm isn't compatible with 0.9.6. The soname is
+    libsscm.so.4
+
+  - The options "-Ddebug_mode=true" and/or "-Dbacktrace=true"
+    ("--enable-debug" and/or "--enable-backtrace" for GNU Autotools) make
+    SigScheme quite heavy. Please keep them unspecified for normal library

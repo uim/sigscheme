@@ -32,7 +32,6 @@ sscm_tests = [
   'test-srfi0.scm',
   'test-srfi1-obsolete.scm',
   'test-srfi2.scm',
-  'test-srfi6.scm',
   'test-srfi8.scm',
   'test-srfi9.scm',
   'test-srfi28.scm',
@@ -80,8 +79,13 @@ if use['utf8'] and use['srfi6'] and iconv_dependency.found()
   # It specifies "-C UTF-8" in its script prelude.
   sscm_tests += ['test-coding.scm']
 endif
+# They use SRFI-64 instead of lib/unittest.scm.
+sscm_srfi64_tests = [
+  'test-srfi6.scm',
+]
 if use['srfi64']
   sscm_tests += ['test-srfi64.scm']
+  sscm_tests += sscm_srfi64_tests
 endif
 if use['srfi180']
   sscm_tests += ['test-srfi180.scm']
@@ -98,12 +102,14 @@ endif
 
 if use['shell']
   foreach sscm_test : sscm_tests
+    sscm_test_args = ['--system-load-path', meson.project_source_root() / 'lib']
+    if sscm_srfi64_tests.contains(sscm_test)
+      # It makes the exit status non-zero on failure.
+      sscm_test_args += ['--load', files('srfi64-runner.scm')]
+    endif
     test(sscm_test,
          sscm,
-         args: [
-           '--system-load-path', meson.project_source_root() / 'lib',
-           files(sscm_test),
-         ],
+         args: sscm_test_args + [files(sscm_test)],
          should_fail: sscm_xfail_tests.contains(sscm_test),
          suite: 'sscm',
          workdir: meson.project_source_root())

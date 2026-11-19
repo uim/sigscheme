@@ -7,4 +7,10 @@ case "$1" in
   *)  test_file="@abs_top_builddir@/test/$1" ;;
 esac
 
+# Tests that use SRFI-64 need the runner that makes the exit status
+# non-zero on failure.
+case " $SSCM_SRFI64_TESTS " in
+  *" ${test_file##*/} "*) SSCM="$SSCM --load @abs_top_srcdir@/test/srfi64-runner.scm" ;;
+esac
+
 cd @top_srcdir@ && $SSCM "$test_file"

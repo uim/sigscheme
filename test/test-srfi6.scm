@@ -2,7 +2,7 @@
 ;;  About    : unit test for SRFI-6 Basic String Ports
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,77 +31,65 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
-
 (require-extension (srfi 6))
 
-(if (not (provided? "srfi-6"))
-    (test-skip "SRFI-6 is not enabled"))
+(require-extension (srfi 64))
 
-(define tn test-name)
+(test-begin "SRFI-6")
 
 ;;
 ;; open-input-string
 ;;
 
-(tn "open-input-string invalid forms")
-(assert-error  (tn) (lambda () (open-input-string)))
-(assert-error  (tn) (lambda () (open-input-string '())))
-(assert-error  (tn) (lambda () (open-input-string (current-input-port))))
-(assert-error  (tn) (lambda () (open-input-string "" "")))
+(test-group "open-input-string invalid forms"
+  (test-error (open-input-string))
+  (test-error (open-input-string '()))
+  (test-error (open-input-string (current-input-port)))
+  (test-error (open-input-string "" "")))
 
-;; immutable
-(define p
-  (open-input-string "(a . (b . (c . ()))) 34"))
+(test-group "open-input-string immutable"
+  (define p (open-input-string "(a . (b . (c . ()))) 34"))
+  (test-assert (input-port? p))
+  (test-equal '(a b c) (read p))
+  (test-equal 34 (read p))
+  (test-assert (eof-object? (read p)))
+  (test-assert (eof-object? (read-char (open-input-string "")))))
 
-(tn "open-input-string immutable")
-(assert-true   (tn) (input-port? p))
-(assert-equal? (tn) '(a b c) (read p))
-(assert-equal? (tn) 34 (read p))
-(assert-true   (tn) (eof-object? (read p)))
-(assert-true   (tn) (eof-object? (read-char (open-input-string ""))))
-
-;; mutable
-(define p2
-  (open-input-string (string-copy "(a . (b . (c . ()))) 34")))
-
-(tn "open-input-string mutable")
-(assert-true   (tn) (input-port? p2))
-(assert-equal? (tn) '(a b c) (read p2))
-(assert-equal? (tn) 34 (read p2))
-(assert-true   (tn) (eof-object? (read p2)))
-(assert-true   (tn) (eof-object? (read-char
-                                  (open-input-string (string-copy "")))))
+(test-group "open-input-string mutable"
+  (define p (open-input-string (string-copy "(a . (b . (c . ()))) 34")))
+  (test-assert (input-port? p))
+  (test-equal '(a b c) (read p))
+  (test-equal 34 (read p))
+  (test-assert (eof-object? (read p)))
+  (test-assert (eof-object? (read-char
+                             (open-input-string (string-copy ""))))))
 
 ;;
 ;; open-output-string and get-output-string
 ;;
 
-(tn "open-output-string invalid forms")
-(assert-error  (tn) (lambda () (open-output-string '())))
-(assert-error  (tn) (lambda () (open-output-string (current-input-port))))
-(assert-error  (tn) (lambda () (open-output-string "")))
+(test-group "open-output-string invalid forms"
+  (test-error (open-output-string '()))
+  (test-error (open-output-string (current-input-port)))
+  (test-error (open-output-string "")))
 
-(tn "get-output-string invalid forms")
-(assert-error  (tn) (lambda () (get-output-string)))
-(assert-error  (tn) (lambda () (get-output-string (current-output-port))))
+(test-group "get-output-string invalid forms"
+  (test-error (get-output-string))
+  (test-error (get-output-string (current-output-port))))
 
-(tn "output string")
-(assert-equal? (tn)
-               "a(b c)"
-               (let ((q (open-output-string))
-                     (x '(a b c)))
-                 (write (car x) q)
-                 (write (cdr x) q)
-                 (get-output-string q)))
-(assert-equal? (tn)
-               "aB"
-               (let ((q (open-output-string)))
-                 (write-char #\a q)
-                 (write-char #\B q)
-                 (get-output-string q)))
-(assert-equal? (tn)
-               ""
-               (get-output-string (open-output-string)))
+(test-group "output string"
+  (test-equal "a(b c)"
+              (let ((q (open-output-string))
+                    (x '(a b c)))
+                (write (car x) q)
+                (write (cdr x) q)
+                (get-output-string q)))
+  (test-equal "aB"
+              (let ((q (open-output-string)))
+                (write-char #\a q)
+                (write-char #\B q)
+                (get-output-string q)))
+  (test-equal ""
+              (get-output-string (open-output-string))))
 
-(total-report)
+(test-end "SRFI-6")

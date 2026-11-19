@@ -38,7 +38,6 @@ sscm_tests = \
         test-srfi0.scm \
         test-srfi1-obsolete.scm \
         test-srfi2.scm \
-        test-srfi6.scm \
         test-srfi8.scm \
         test-srfi9.scm \
         test-srfi28.scm \
@@ -102,12 +101,16 @@ EXTRA_DIST += \
 	coding/unknown.scm \
 	coding/utf-8.scm
 
+# They use SRFI-64 instead of lib/unittest.scm. run-singletest.sh loads
+# srfi64-runner.scm for them.
+sscm_srfi64_tests = \
+        test-srfi6.scm
 if USE_SRFI64
-sscm_optional_tests += test-srfi64.scm
+sscm_optional_tests += test-srfi64.scm $(sscm_srfi64_tests)
 else
-sscm_xfail_tests += test-srfi64.scm
+sscm_xfail_tests += test-srfi64.scm $(sscm_srfi64_tests)
 endif
-EXTRA_DIST += test-srfi64.scm
+EXTRA_DIST += test-srfi64.scm $(sscm_srfi64_tests) srfi64-runner.scm
 
 if USE_SRFI180
 sscm_optional_tests += test-srfi180.scm
@@ -173,6 +176,8 @@ EXTRA_DIST += $(sscm_tests) $(imported_tests)
 EXTRA_DIST += r7rs/chibi-test.scm r7rs/meson.build r7rs/run.py \
               r7rs/r7rs-tests.scm r7rs/known-failures.txt
 
+AM_TESTS_ENVIRONMENT = \
+        SSCM_SRFI64_TESTS='$(sscm_srfi64_tests)'; export SSCM_SRFI64_TESTS;
 LOG_COMPILER = $(SH)
 AM_LOG_FLAGS = $(top_builddir)/test/run-singletest.sh
 if USE_SHELL

@@ -786,7 +786,8 @@ except a skipped test group is counted as the specification says.
 
   - The simple test runner reports failures, unexpected successes, wrong
     numbers of tests and a summary to the current output port. It doesn't
-    write a log file.
+    write a log file. A test that has no name is reported with its position
+    in its group such as `group/#3`.
   - The `error-type` of `test-error` is `#t` for any error or a predicate that
     is called with the raised object. Other values never match. An error in
     the predicate is a failure and `actual-error` is still the raised object.

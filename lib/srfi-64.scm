@@ -33,7 +33,8 @@
 ;; Implementation-defined behaviors:
 ;;
 ;; * The simple test runner reports failures and a summary to the current
-;;   output port. It doesn't write a log file.
+;;   output port. It doesn't write a log file. A test that has no name is
+;;   reported with its position in its group such as "group/#3".
 ;; * The error-type of test-error is #t for any error or a predicate that
 ;;   is called with the raised object. Other values never match. An error
 ;;   in the predicate is a failure and actual-error is still the raised
@@ -172,6 +173,10 @@
 ;;     (source-form + 1 2)
 ;;     (expected-value . 4)
 ;;     (actual-value . 3)
+;;
+;; If the test has no name, "#" and its position in its group are used
+;; instead of the name such as "group/#3". The first one is "#1". A nested
+;; group is counted as one test.
 (define (%srfi64-report runner label)
   (display label)
   (display ": ")
@@ -179,7 +184,12 @@
               (display group)
               (display "/"))
             (test-runner-group-path runner))
-  (display (test-runner-test-name runner))
+  (let ((name (test-runner-test-name runner)))
+    (if (equal? name "")
+        (begin
+          (display "#")
+          (display (%srfi64-frame-count (%srfi64-current-frame runner))))
+        (display name)))
   (newline)
   (for-each (lambda (entry)
               (if (memq (car entry)

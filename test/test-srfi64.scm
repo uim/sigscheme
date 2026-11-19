@@ -504,6 +504,27 @@
                              (test-assert "xpass" #t)
                              (test-skip "skip")
                              (test-assert "skip" #f)
+                             (test-end "g")))))
+  ;; A test that has no name is reported with its position in its group.
+  ;; A nested group is counted as one test.
+  (test-equal (lines "FAIL: g/#2"
+                     "  (source-form . #f)"
+                     "  (actual-value . #f)"
+                     "FAIL: g/nested/#1"
+                     "  (source-form . #f)"
+                     "  (actual-value . #f)"
+                     "FAIL: g/#4"
+                     "  (source-form . #f)"
+                     "  (actual-value . #f)"
+                     "pass: 1, fail: 3, xpass: 0, xfail: 0, skip: 0")
+              (output-of (lambda ()
+                           (test-with-runner (test-runner-simple)
+                             (test-begin "g")
+                             (test-assert #t)
+                             (test-assert #f)
+                             (test-group "nested"
+                               (test-assert #f))
+                             (test-assert #f)
                              (test-end "g"))))))
 
 (test-group "test results"

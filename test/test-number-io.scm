@@ -2,7 +2,7 @@
 ;;  About    : unit test for R5RS number<->string conversion procedures
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -440,7 +440,7 @@
    (string-eval
     "(assert-equal? (tn)
                     -576460752303423488
-                    (string->number \"-576460752303423488\")))")
+                    (string->number \"-576460752303423488\"))")
    (assert-false (tn) (string->number  "576460752303423488"))
    (assert-false (tn) (string->number "-576460752303423489")))
   ((64)
@@ -451,7 +451,7 @@
    (string-eval
     "(assert-equal? (tn)
                     -9223372036854775808
-                    (string->number \"-9223372036854775808\")))")
+                    (string->number \"-9223372036854775808\"))")
    (assert-false (tn) (string->number  "9223372036854775808"))
    (assert-false (tn) (string->number "-9223372036854775809")))
   (else

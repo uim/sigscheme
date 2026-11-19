@@ -1574,7 +1574,7 @@
    (string-eval
     "(assert-equal? (tn) 9223372036854775807 (abs -9223372036854775807))")
    (string-eval
-    "(assert-error  (tn) (lambda ()          (abs -9223372036854775808))))"))
+    "(assert-error  (tn) (lambda ()          (abs -9223372036854775808)))"))
   (else
    (assert-fail (tn) "unknown int bitwidth")))
 

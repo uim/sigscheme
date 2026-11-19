@@ -37,7 +37,9 @@
 
 #include <config.h>
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
 #include <sys/param.h>
@@ -72,12 +74,51 @@ static struct g_sscm sscm;
 /*=======================================
   File Local Function Declarations
 =======================================*/
+static const char **extract_load_files(int argc, char **argv);
 static void *repl(void *dummy);
 static void repl_loop(void);
 
 /*=======================================
   Function Definitions
 =======================================*/
+/*
+ * Removes all "--load <file>" from argv and returns the files as a
+ * NULL-terminated array. They are options of the sscm command, not of
+ * libsscm. So they can't be specified by a script prelude.
+ */
+static const char **
+extract_load_files(int argc, char **argv)
+{
+    const char **files, **file;
+    char **src, **dst;
+
+    files = file = malloc(sizeof(char *) * (argc + 1));
+    if (!files)
+        exit(EXIT_FAILURE);
+
+    for (src = dst = &argv[1]; *src && (*src)[0] == '-';) {
+        if (strcmp(*src, "--load") == 0) {
+            if (!src[1]) {
+                fputs(SCM_ERR_HEADER "no file specified for --load\n", stderr);
+                exit(EXIT_FAILURE);
+            }
+            *file++ = src[1];
+            src += 2;
+        } else {
+            /* Other options are validated by scm_initialize(). All of them
+             * take a value. */
+            *dst++ = *src++;
+            if (*src)
+                *dst++ = *src++;
+        }
+    }
+    while ((*dst++ = *src++))
+        ;
+    *file = NULL;
+
+    return files;
+}
+
 static void *
 repl(void *dummy)
 {
@@ -175,8 +216,10 @@ int
 main(int argc, char **argv)
 {
     const char *filename;
+    const char **load_files, **load_file;
     char **rest_argv;
 
+    load_files = extract_load_files(argc, argv);
     rest_argv = scm_initialize(NULL, (const char *const *)argv);
     filename = rest_argv[0];
 
@@ -196,6 +239,10 @@ main(int argc, char **argv)
 #if SCM_USE_SRFI34
     scm_require_module("srfi-34");
 #endif
+
+    for (load_file = load_files; *load_file; load_file++)
+        scm_load(*load_file);
+    free(load_files);
 
     if (filename) {
         scm_load(filename);

@@ -116,4 +116,20 @@ if use['shell']
   endforeach
 endif
 
+if use['shell'] and use['srfi64']
+  test('test-sscm-load.scm',
+       sscm,
+       args: [
+         '--system-load-path', meson.project_source_root() / 'lib',
+         '--load', files('sscm-load/first.scm'),
+         '--load', files('sscm-load/second.scm'),
+         '--load', files('srfi64-runner.scm'),
+         files('test-sscm-load.scm'),
+         # This is an argument of the script.
+         '--load', 'ignored',
+       ],
+       suite: 'sscm',
+       workdir: meson.project_source_root())
+endif
+
 subdir('r7rs')

@@ -112,6 +112,9 @@ sscm_xfail_tests += test-srfi64.scm $(sscm_srfi64_tests)
 endif
 EXTRA_DIST += test-srfi64.scm $(sscm_srfi64_tests) srfi64-runner.scm
 
+# It's run only with Meson because it needs --load options.
+EXTRA_DIST += test-sscm-load.scm sscm-load/first.scm sscm-load/second.scm
+
 if USE_SRFI180
 sscm_optional_tests += test-srfi180.scm
 else

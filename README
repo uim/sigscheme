@@ -182,6 +182,11 @@ To execute a Scheme script, specify it as argument.
 
   $ sscm <filename>
 
+To load files before the script or the interactive mode, specify them with
+`--load`. They are loaded in the specified order.
+
+  $ sscm --load <filename> [--load <filename> ...] [<filename>]
+
 
 How to build unreleased version
 -------------------------------

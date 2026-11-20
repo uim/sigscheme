@@ -79,6 +79,9 @@
 (define (eof)
   (string-read ""))
 
+(define (string-eval str)
+  (eval (string-read str) (interaction-environment)))
+
 (define (obj->literal obj)
   (let ((port (open-output-string)))
     (write obj port)

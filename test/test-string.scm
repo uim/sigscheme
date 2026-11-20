@@ -33,32 +33,35 @@
 
 ;; See also test-string-{core,null,pred,proc}.scm
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (if (not (symbol-bound? 'string?))
-    (test-skip "R5RS strings is not enabled"))
+    (test-skip-file "R5RS strings is not enabled"))
 
 (if (not (provided? "r6rs-chars"))
-    (test-skip "R6RS characters is not enabled"))
+    (test-skip-file "R6RS characters is not enabled"))
 
-(define tn test-name)
+(test-begin "test-string")
 (define cp string-copy)
 
 (if (and (provided? "sigscheme")
          (not (symbol-bound? 'make-string)))
-    (test-skip "string part of R5RS is not enabled"))
+    (test-skip-file "string part of R5RS is not enabled"))
 
-(tn "symbol->string")
-(assert-equal? (tn) "a"  (symbol->string 'a))
-(assert-equal? (tn) "ab" (symbol->string 'ab))
+(test-begin "symbol->string")
+(test-equal "a"  (symbol->string 'a))
+(test-equal "ab" (symbol->string 'ab))
+(test-end "symbol->string")
 
 ;; TODO: need to investigate (string->symbol "") behavior
-(tn "string->symbol immutable")
-(assert-equal? (tn) 'a  (string->symbol "a"))
-(assert-equal? (tn) 'ab (string->symbol "ab"))
-(tn "string->symbol mutable")
-(assert-equal? (tn) 'a  (string->symbol (cp "a")))
-(assert-equal? (tn) 'ab (string->symbol (cp "ab")))
+(test-begin "string->symbol immutable")
+(test-equal 'a  (string->symbol "a"))
+(test-equal 'ab (string->symbol "ab"))
+(test-end "string->symbol immutable")
+(test-begin "string->symbol mutable")
+(test-equal 'a  (string->symbol (cp "a")))
+(test-equal 'ab (string->symbol (cp "ab")))
+(test-end "string->symbol mutable")
 
 ;;
 ;; escape sequences
@@ -69,223 +72,228 @@
     (list->string (list (integer->char i)))))
 
 ;; R5RS compliant
-(tn "R5RS escape sequence")
-(assert-equal? (tn) (integer->string 34)        "\"")  ;; 34
-(assert-equal? (tn) (list->string '(#\"))       "\"")  ;; 34
-(assert-equal? (tn) '(#\")       (string->list "\""))  ;; 34
-(assert-equal? (tn) (integer->string 92)        "\\")  ;; 92
-(assert-equal? (tn) (list->string '(#\\))       "\\")  ;; 92
-(assert-equal? (tn) '(#\\)       (string->list "\\"))  ;; 92
-(assert-equal? (tn) (integer->string 10)        "\n")  ;; 110
-(assert-equal? (tn) (list->string '(#\newline)) "\n")  ;; 110
-(assert-equal? (tn) '(#\newline) (string->list "\n"))  ;; 110
+(test-begin "R5RS escape sequence")
+(test-equal (integer->string 34)        "\"")  ;; 34
+(test-equal (list->string '(#\"))       "\"")  ;; 34
+(test-equal '(#\")       (string->list "\""))  ;; 34
+(test-equal (integer->string 92)        "\\")  ;; 92
+(test-equal (list->string '(#\\))       "\\")  ;; 92
+(test-equal '(#\\)       (string->list "\\"))  ;; 92
+(test-equal (integer->string 10)        "\n")  ;; 110
+(test-equal (list->string '(#\newline)) "\n")  ;; 110
+(test-equal '(#\newline) (string->list "\n"))  ;; 110
+(test-end "R5RS escape sequence")
 
 ;; R6RS(SRFI-75) compliant
-(tn "R6RS escape sequence")
+(test-begin "R6RS escape sequence")
 ;; See also test-string-null.scm for "\x00" tests
-(assert-equal? (tn) (integer->string 7)           "\a")  ;; 97
-(assert-equal? (tn) (list->string '(#\alarm))     "\a")  ;; 97
-(assert-equal? (tn) '(#\alarm)  (string->list    "\a"))  ;; 97
-(assert-equal? (tn) (integer->string 8)           "\b")  ;; 98
-(assert-equal? (tn) (list->string '(#\backspace)) "\b")  ;; 98
-(assert-equal? (tn) '(#\backspace) (string->list "\b"))  ;; 98
-(assert-equal? (tn) (integer->string 12)          "\f")  ;; 102
-(assert-equal? (tn) (list->string '(#\page))      "\f")  ;; 102
-(assert-equal? (tn) '(#\page)   (string->list    "\f"))  ;; 102
-(assert-equal? (tn) (integer->string 13)          "\r")  ;; 114
-(assert-equal? (tn) (list->string '(#\return))    "\r")  ;; 114
-(assert-equal? (tn) '(#\return) (string->list    "\r"))  ;; 114
-(assert-equal? (tn) (integer->string 9)           "\t")  ;; 116
-(assert-equal? (tn) (list->string '(#\tab))       "\t")  ;; 116
-(assert-equal? (tn) '(#\tab)    (string->list    "\t"))  ;; 116
-(assert-equal? (tn) (integer->string 11)          "\v")  ;; 118
-(assert-equal? (tn) (list->string '(#\vtab))      "\v")  ;; 118
-(assert-equal? (tn) '(#\vtab)   (string->list    "\v"))  ;; 118
+(test-equal (integer->string 7)           "\a")  ;; 97
+(test-equal (list->string '(#\alarm))     "\a")  ;; 97
+(test-equal '(#\alarm)  (string->list    "\a"))  ;; 97
+(test-equal (integer->string 8)           "\b")  ;; 98
+(test-equal (list->string '(#\backspace)) "\b")  ;; 98
+(test-equal '(#\backspace) (string->list "\b"))  ;; 98
+(test-equal (integer->string 12)          "\f")  ;; 102
+(test-equal (list->string '(#\page))      "\f")  ;; 102
+(test-equal '(#\page)   (string->list    "\f"))  ;; 102
+(test-equal (integer->string 13)          "\r")  ;; 114
+(test-equal (list->string '(#\return))    "\r")  ;; 114
+(test-equal '(#\return) (string->list    "\r"))  ;; 114
+(test-equal (integer->string 9)           "\t")  ;; 116
+(test-equal (list->string '(#\tab))       "\t")  ;; 116
+(test-equal '(#\tab)    (string->list    "\t"))  ;; 116
+(test-equal (integer->string 11)          "\v")  ;; 118
+(test-equal (list->string '(#\vtab))      "\v")  ;; 118
+(test-equal '(#\vtab)   (string->list    "\v"))  ;; 118
+(test-end "R6RS escape sequence")
 ;; "\|" is removed from final R6RS
-;;(assert-error  (tn) (integer->string 124)         "\|")  ;; 124
+;;(test-error (integer->string 124)         "\|")  ;; 124
 
 ;; All these conventional escape sequences should cause parse error as defined
 ;; in SRFI-75: "Any other character in a string after a backslash is an
 ;; error".
-(tn "conventional escape sequence")
+(test-begin "conventional escape sequence")
 ;;                            "\0"   ;; 0
-(assert-parse-error (tn) "\"\\ \"")  ;; 32
-(assert-parse-error (tn) "\"\\!\"")  ;; 33
+(test-error (string-read "\"\\ \""))  ;; 32
+(test-error (string-read "\"\\!\""))  ;; 33
 ;;                            "\""   ;; 34
-(assert-parse-error (tn) "\"\\#\"")  ;; 35
-(assert-parse-error (tn) "\"\\$\"")  ;; 36
-(assert-parse-error (tn) "\"\\%\"")  ;; 37
-(assert-parse-error (tn) "\"\\&\"")  ;; 38
-(assert-parse-error (tn) "\"\\'\"")  ;; 39
-(assert-parse-error (tn) "\"\\(\"")  ;; 40
-(assert-parse-error (tn) "\"\\)\"")  ;; 41
-(assert-parse-error (tn) "\"\\*\"")  ;; 42
-(assert-parse-error (tn) "\"\\+\"")  ;; 43
-(assert-parse-error (tn) "\"\\,\"")  ;; 44
-(assert-parse-error (tn) "\"\\-\"")  ;; 45
-(assert-parse-error (tn) "\"\\.\"")  ;; 46
-(assert-parse-error (tn) "\"\\/\"")  ;; 47
-(assert-parse-error (tn) "\"\\0\"")  ;; 48
-(assert-parse-error (tn) "\"\\1\"")  ;; 49
-(assert-parse-error (tn) "\"\\2\"")  ;; 50
-(assert-parse-error (tn) "\"\\3\"")  ;; 51
-(assert-parse-error (tn) "\"\\4\"")  ;; 52
-(assert-parse-error (tn) "\"\\5\"")  ;; 53
-(assert-parse-error (tn) "\"\\6\"")  ;; 54
-(assert-parse-error (tn) "\"\\7\"")  ;; 55
-(assert-parse-error (tn) "\"\\8\"")  ;; 56
-(assert-parse-error (tn) "\"\\9\"")  ;; 57
-(assert-parse-error (tn) "\"\\:\"")  ;; 58
-(assert-parse-error (tn) "\"\\;\"")  ;; 59
-(assert-parse-error (tn) "\"\\<\"")  ;; 60
-(assert-parse-error (tn) "\"\\=\"")  ;; 61
-(assert-parse-error (tn) "\"\\>\"")  ;; 62
-(assert-parse-error (tn) "\"\\?\"")  ;; 63
-(assert-parse-error (tn) "\"\\@\"")  ;; 64
-(assert-parse-error (tn) "\"\\A\"")  ;; 65
-(assert-parse-error (tn) "\"\\B\"")  ;; 66
-(assert-parse-error (tn) "\"\\C\"")  ;; 67
-(assert-parse-error (tn) "\"\\D\"")  ;; 68
-(assert-parse-error (tn) "\"\\E\"")  ;; 69
-(assert-parse-error (tn) "\"\\F\"")  ;; 70
-(assert-parse-error (tn) "\"\\G\"")  ;; 71
-(assert-parse-error (tn) "\"\\H\"")  ;; 72
-(assert-parse-error (tn) "\"\\I\"")  ;; 73
-(assert-parse-error (tn) "\"\\J\"")  ;; 74
-(assert-parse-error (tn) "\"\\K\"")  ;; 75
-(assert-parse-error (tn) "\"\\L\"")  ;; 76
-(assert-parse-error (tn) "\"\\M\"")  ;; 77
-(assert-parse-error (tn) "\"\\N\"")  ;; 78
-(assert-parse-error (tn) "\"\\O\"")  ;; 79
-(assert-parse-error (tn) "\"\\P\"")  ;; 80
-(assert-parse-error (tn) "\"\\Q\"")  ;; 81
-(assert-parse-error (tn) "\"\\R\"")  ;; 82
-(assert-parse-error (tn) "\"\\S\"")  ;; 83
-(assert-parse-error (tn) "\"\\T\"")  ;; 84
-(assert-parse-error (tn) "\"\\U\"")  ;; 85
-(assert-parse-error (tn) "\"\\V\"")  ;; 86
-(assert-parse-error (tn) "\"\\W\"")  ;; 87
-(assert-parse-error (tn) "\"\\X\"")  ;; 88
-(assert-parse-error (tn) "\"\\Y\"")  ;; 89
-(assert-parse-error (tn) "\"\\Z\"")  ;; 90
-(assert-parse-error (tn) "\"\\[\"")  ;; 91
+(test-error (string-read "\"\\#\""))  ;; 35
+(test-error (string-read "\"\\$\""))  ;; 36
+(test-error (string-read "\"\\%\""))  ;; 37
+(test-error (string-read "\"\\&\""))  ;; 38
+(test-error (string-read "\"\\'\""))  ;; 39
+(test-error (string-read "\"\\(\""))  ;; 40
+(test-error (string-read "\"\\)\""))  ;; 41
+(test-error (string-read "\"\\*\""))  ;; 42
+(test-error (string-read "\"\\+\""))  ;; 43
+(test-error (string-read "\"\\,\""))  ;; 44
+(test-error (string-read "\"\\-\""))  ;; 45
+(test-error (string-read "\"\\.\""))  ;; 46
+(test-error (string-read "\"\\/\""))  ;; 47
+(test-error (string-read "\"\\0\""))  ;; 48
+(test-error (string-read "\"\\1\""))  ;; 49
+(test-error (string-read "\"\\2\""))  ;; 50
+(test-error (string-read "\"\\3\""))  ;; 51
+(test-error (string-read "\"\\4\""))  ;; 52
+(test-error (string-read "\"\\5\""))  ;; 53
+(test-error (string-read "\"\\6\""))  ;; 54
+(test-error (string-read "\"\\7\""))  ;; 55
+(test-error (string-read "\"\\8\""))  ;; 56
+(test-error (string-read "\"\\9\""))  ;; 57
+(test-error (string-read "\"\\:\""))  ;; 58
+(test-error (string-read "\"\\;\""))  ;; 59
+(test-error (string-read "\"\\<\""))  ;; 60
+(test-error (string-read "\"\\=\""))  ;; 61
+(test-error (string-read "\"\\>\""))  ;; 62
+(test-error (string-read "\"\\?\""))  ;; 63
+(test-error (string-read "\"\\@\""))  ;; 64
+(test-error (string-read "\"\\A\""))  ;; 65
+(test-error (string-read "\"\\B\""))  ;; 66
+(test-error (string-read "\"\\C\""))  ;; 67
+(test-error (string-read "\"\\D\""))  ;; 68
+(test-error (string-read "\"\\E\""))  ;; 69
+(test-error (string-read "\"\\F\""))  ;; 70
+(test-error (string-read "\"\\G\""))  ;; 71
+(test-error (string-read "\"\\H\""))  ;; 72
+(test-error (string-read "\"\\I\""))  ;; 73
+(test-error (string-read "\"\\J\""))  ;; 74
+(test-error (string-read "\"\\K\""))  ;; 75
+(test-error (string-read "\"\\L\""))  ;; 76
+(test-error (string-read "\"\\M\""))  ;; 77
+(test-error (string-read "\"\\N\""))  ;; 78
+(test-error (string-read "\"\\O\""))  ;; 79
+(test-error (string-read "\"\\P\""))  ;; 80
+(test-error (string-read "\"\\Q\""))  ;; 81
+(test-error (string-read "\"\\R\""))  ;; 82
+(test-error (string-read "\"\\S\""))  ;; 83
+(test-error (string-read "\"\\T\""))  ;; 84
+(test-error (string-read "\"\\U\""))  ;; 85
+(test-error (string-read "\"\\V\""))  ;; 86
+(test-error (string-read "\"\\W\""))  ;; 87
+(test-error (string-read "\"\\X\""))  ;; 88
+(test-error (string-read "\"\\Y\""))  ;; 89
+(test-error (string-read "\"\\Z\""))  ;; 90
+(test-error (string-read "\"\\[\""))  ;; 91
 ;;                            "\\"   ;; 92
-(assert-parse-error (tn) "\"\\]\"")  ;; 93
-(assert-parse-error (tn) "\"\\^\"")  ;; 94
-(assert-parse-error (tn) "\"\\_\"")  ;; 95
-(assert-parse-error (tn) "\"\\`\"")  ;; 96
+(test-error (string-read "\"\\]\""))  ;; 93
+(test-error (string-read "\"\\^\""))  ;; 94
+(test-error (string-read "\"\\_\""))  ;; 95
+(test-error (string-read "\"\\`\""))  ;; 96
 ;;                            "\a"   ;; 97
 ;;                            "\b"   ;; 98
-(assert-parse-error (tn) "\"\\c\"")  ;; 99
-(assert-parse-error (tn) "\"\\d\"")  ;; 100
-(assert-parse-error (tn) "\"\\e\"")  ;; 101
+(test-error (string-read "\"\\c\""))  ;; 99
+(test-error (string-read "\"\\d\""))  ;; 100
+(test-error (string-read "\"\\e\""))  ;; 101
 ;;                            "\f"   ;; 102
-(assert-parse-error (tn) "\"\\g\"")  ;; 103
-(assert-parse-error (tn) "\"\\h\"")  ;; 104
-(assert-parse-error (tn) "\"\\i\"")  ;; 105
-(assert-parse-error (tn) "\"\\j\"")  ;; 106
-(assert-parse-error (tn) "\"\\k\"")  ;; 107
-(assert-parse-error (tn) "\"\\l\"")  ;; 108
-(assert-parse-error (tn) "\"\\m\"")  ;; 109
+(test-error (string-read "\"\\g\""))  ;; 103
+(test-error (string-read "\"\\h\""))  ;; 104
+(test-error (string-read "\"\\i\""))  ;; 105
+(test-error (string-read "\"\\j\""))  ;; 106
+(test-error (string-read "\"\\k\""))  ;; 107
+(test-error (string-read "\"\\l\""))  ;; 108
+(test-error (string-read "\"\\m\""))  ;; 109
 ;;                            "\n"   ;; 110
-(assert-parse-error (tn) "\"\\o\"")  ;; 111
-(assert-parse-error (tn) "\"\\p\"")  ;; 112
-(assert-parse-error (tn) "\"\\q\"")  ;; 113
+(test-error (string-read "\"\\o\""))  ;; 111
+(test-error (string-read "\"\\p\""))  ;; 112
+(test-error (string-read "\"\\q\""))  ;; 113
 ;;                            "\r"   ;; 114
-(assert-parse-error (tn) "\"\\s\"")  ;; 115
+(test-error (string-read "\"\\s\""))  ;; 115
 ;;                            "\t"   ;; 116
-(assert-parse-error (tn) "\"\\u\"")  ;; 117
+(test-error (string-read "\"\\u\""))  ;; 117
 ;;                            "\v"   ;; 118
-(assert-parse-error (tn) "\"\\w\"")  ;; 119
-(assert-parse-error (tn) "\"\\x\"")  ;; 120
-(assert-parse-error (tn) "\"\\y\"")  ;; 121
-(assert-parse-error (tn) "\"\\z\"")  ;; 122
-(assert-parse-error (tn) "\"\\{\"")  ;; 123
+(test-error (string-read "\"\\w\""))  ;; 119
+(test-error (string-read "\"\\x\""))  ;; 120
+(test-error (string-read "\"\\y\""))  ;; 121
+(test-error (string-read "\"\\z\""))  ;; 122
+(test-error (string-read "\"\\{\""))  ;; 123
 ;; "\|" is removed from final R6RS
 ;; R7RS allows \|.
 (if (not (provided? "r7rs"))
-    (assert-parse-error (tn) "\"\\|\"")  ;; 124
+    (test-error (string-read "\"\\|\""))  ;; 124
     )
-(assert-parse-error (tn) "\"\\}\"")  ;; 125
-(assert-parse-error (tn) "\"\\~\"")  ;; 126
+(test-error (string-read "\"\\}\""))  ;; 125
+(test-error (string-read "\"\\~\""))  ;; 126
+(test-end "conventional escape sequence")
 
 ;; raw control chars
-(tn "raw control char in string literal")
+(test-begin "raw control char in string literal")
 ;; See also test-string-null.scm for " " (charcode 0) test
-(assert-equal? (tn) (integer->string   1) "")  ;; 1
-(assert-equal? (tn) (integer->string   2) "")  ;; 2
-(assert-equal? (tn) (integer->string   3) "")  ;; 3
-(assert-equal? (tn) (integer->string   4) "")  ;; 4
-(assert-equal? (tn) (integer->string   5) "")  ;; 5
-(assert-equal? (tn) (integer->string   6) "")  ;; 6
-(assert-equal? (tn) (integer->string   7) "")  ;; 7
-(assert-equal? (tn) (integer->string   8) "")  ;; 8  ;; DON'T EDIT THIS LINE!
-(assert-equal? (tn) (integer->string   9) "	")  ;; 9
-(assert-equal? (tn) (integer->string  10) "
+(test-equal (integer->string   1) "")  ;; 1
+(test-equal (integer->string   2) "")  ;; 2
+(test-equal (integer->string   3) "")  ;; 3
+(test-equal (integer->string   4) "")  ;; 4
+(test-equal (integer->string   5) "")  ;; 5
+(test-equal (integer->string   6) "")  ;; 6
+(test-equal (integer->string   7) "")  ;; 7
+(test-equal (integer->string   8) "")  ;; 8  ;; DON'T EDIT THIS LINE!
+(test-equal (integer->string   9) "	")  ;; 9
+(test-equal (integer->string  10) "
 ")  ;; 10 ;; DON'T EDIT THIS LINE!
-(assert-equal? (tn) (integer->string  11) "")  ;; 11
-(assert-equal? (tn) (integer->string  12) "")  ;; 12
-(assert-equal? (tn) (integer->string  13) "")  ;; 13 ;; DON'T EDIT THIS LINE!
-(assert-equal? (tn) (integer->string  14) "")  ;; 14
-(assert-equal? (tn) (integer->string  15) "")  ;; 15
-(assert-equal? (tn) (integer->string  16) "")  ;; 16
-(assert-equal? (tn) (integer->string  17) "")  ;; 17
-(assert-equal? (tn) (integer->string  18) "")  ;; 18
-(assert-equal? (tn) (integer->string  19) "")  ;; 19
-(assert-equal? (tn) (integer->string  20) "")  ;; 20
-(assert-equal? (tn) (integer->string  21) "")  ;; 21
-(assert-equal? (tn) (integer->string  22) "")  ;; 22
-(assert-equal? (tn) (integer->string  23) "")  ;; 23
-(assert-equal? (tn) (integer->string  24) "")  ;; 24
-(assert-equal? (tn) (integer->string  25) "")  ;; 25 ;; DON'T EDIT THIS LINE!
-(assert-equal? (tn) (integer->string  26) "")  ;; 26
-(assert-equal? (tn) (integer->string  27) "")  ;; 27
-(assert-equal? (tn) (integer->string  28) "")  ;; 28
-(assert-equal? (tn) (integer->string  29) "")  ;; 29
-(assert-equal? (tn) (integer->string  30) "")  ;; 30
-(assert-equal? (tn) (integer->string  31) "")  ;; 31
-(assert-equal? (tn) (integer->string 127) "")  ;; 127
+(test-equal (integer->string  11) "")  ;; 11
+(test-equal (integer->string  12) "")  ;; 12
+(test-equal (integer->string  13) "")  ;; 13 ;; DON'T EDIT THIS LINE!
+(test-equal (integer->string  14) "")  ;; 14
+(test-equal (integer->string  15) "")  ;; 15
+(test-equal (integer->string  16) "")  ;; 16
+(test-equal (integer->string  17) "")  ;; 17
+(test-equal (integer->string  18) "")  ;; 18
+(test-equal (integer->string  19) "")  ;; 19
+(test-equal (integer->string  20) "")  ;; 20
+(test-equal (integer->string  21) "")  ;; 21
+(test-equal (integer->string  22) "")  ;; 22
+(test-equal (integer->string  23) "")  ;; 23
+(test-equal (integer->string  24) "")  ;; 24
+(test-equal (integer->string  25) "")  ;; 25 ;; DON'T EDIT THIS LINE!
+(test-equal (integer->string  26) "")  ;; 26
+(test-equal (integer->string  27) "")  ;; 27
+(test-equal (integer->string  28) "")  ;; 28
+(test-equal (integer->string  29) "")  ;; 29
+(test-equal (integer->string  30) "")  ;; 30
+(test-equal (integer->string  31) "")  ;; 31
+(test-equal (integer->string 127) "")  ;; 127
+(test-end "raw control char in string literal")
 
 ;; escaped raw control chars
-(tn "escaped raw control char in string literal")
+(test-begin "escaped raw control char in string literal")
 ;; See also test-string-null.scm for " " (charcode 0) test
-(assert-parse-error (tn) "\"\\\"")  ;; 1
-(assert-parse-error (tn) "\"\\\"")  ;; 2
-(assert-parse-error (tn) "\"\\\"")  ;; 3
-(assert-parse-error (tn) "\"\\\"")  ;; 4
-(assert-parse-error (tn) "\"\\\"")  ;; 5
-(assert-parse-error (tn) "\"\\\"")  ;; 6
-(assert-parse-error (tn) "\"\\\"")  ;; 7
-(assert-parse-error (tn) "\"\\\"")  ;; 8  ;; DON'T EDIT THIS LINE!
-(assert-parse-error (tn) "\"\\	\"")  ;; 9
+(test-error (string-read "\"\\\""))  ;; 1
+(test-error (string-read "\"\\\""))  ;; 2
+(test-error (string-read "\"\\\""))  ;; 3
+(test-error (string-read "\"\\\""))  ;; 4
+(test-error (string-read "\"\\\""))  ;; 5
+(test-error (string-read "\"\\\""))  ;; 6
+(test-error (string-read "\"\\\""))  ;; 7
+(test-error (string-read "\"\\\""))  ;; 8  ;; DON'T EDIT THIS LINE!
+(test-error (string-read "\"\\	\""))  ;; 9
 ;; R7RS allows a line continuation.
 (if (not (provided? "r7rs"))
-    (assert-parse-error (tn) "\"\\
-\"")  ;; 10  ;; DON'T EDIT THIS LINE!
+    (test-error (string-read "\"\\
+\""))  ;; 10  ;; DON'T EDIT THIS LINE!
     )
-(assert-parse-error (tn) "\"\\\"")  ;; 11
-(assert-parse-error (tn) "\"\\\"")  ;; 12
+(test-error (string-read "\"\\\""))  ;; 11
+(test-error (string-read "\"\\\""))  ;; 12
 (if (not (provided? "r7rs"))
-    (assert-parse-error (tn) "\"\\\"")  ;; 13  ;; DON'T EDIT THIS LINE!
+    (test-error (string-read "\"\\\""))  ;; 13  ;; DON'T EDIT THIS LINE!
     )
-(assert-parse-error (tn) "\"\\\"")  ;; 14
-(assert-parse-error (tn) "\"\\\"")  ;; 15
-(assert-parse-error (tn) "\"\\\"")  ;; 16
-(assert-parse-error (tn) "\"\\\"")  ;; 17
-(assert-parse-error (tn) "\"\\\"")  ;; 18
-(assert-parse-error (tn) "\"\\\"")  ;; 19
-(assert-parse-error (tn) "\"\\\"")  ;; 20
-(assert-parse-error (tn) "\"\\\"")  ;; 21
-(assert-parse-error (tn) "\"\\\"")  ;; 22
-(assert-parse-error (tn) "\"\\\"")  ;; 23
-(assert-parse-error (tn) "\"\\\"")  ;; 24
-(assert-parse-error (tn) "\"\\\"")  ;; 25  ;; DON'T EDIT THIS LINE!
-(assert-parse-error (tn) "\"\\\"")  ;; 26
-(assert-parse-error (tn) "\"\\\"")  ;; 27
-(assert-parse-error (tn) "\"\\\"")  ;; 28
-(assert-parse-error (tn) "\"\\\"")  ;; 29
-(assert-parse-error (tn) "\"\\\"")  ;; 30
-(assert-parse-error (tn) "\"\\\"")  ;; 31
-(assert-parse-error (tn) "\"\\\"")  ;; 127
+(test-error (string-read "\"\\\""))  ;; 14
+(test-error (string-read "\"\\\""))  ;; 15
+(test-error (string-read "\"\\\""))  ;; 16
+(test-error (string-read "\"\\\""))  ;; 17
+(test-error (string-read "\"\\\""))  ;; 18
+(test-error (string-read "\"\\\""))  ;; 19
+(test-error (string-read "\"\\\""))  ;; 20
+(test-error (string-read "\"\\\""))  ;; 21
+(test-error (string-read "\"\\\""))  ;; 22
+(test-error (string-read "\"\\\""))  ;; 23
+(test-error (string-read "\"\\\""))  ;; 24
+(test-error (string-read "\"\\\""))  ;; 25  ;; DON'T EDIT THIS LINE!
+(test-error (string-read "\"\\\""))  ;; 26
+(test-error (string-read "\"\\\""))  ;; 27
+(test-error (string-read "\"\\\""))  ;; 28
+(test-error (string-read "\"\\\""))  ;; 29
+(test-error (string-read "\"\\\""))  ;; 30
+(test-error (string-read "\"\\\""))  ;; 31
+(test-error (string-read "\"\\\""))  ;; 127
+(test-end "escaped raw control char in string literal")
 
-(total-report)
+(test-end "test-string")

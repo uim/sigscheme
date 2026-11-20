@@ -75,6 +75,15 @@
 (define (string-read str)
   (read (open-input-string str)))
 
+;; Returns #<eof>.
+(define (eof)
+  (string-read ""))
+
+(define (obj->literal obj)
+  (let ((port (open-output-string)))
+    (write obj port)
+    (get-output-string port)))
+
 
 ;;
 ;; Implementation information

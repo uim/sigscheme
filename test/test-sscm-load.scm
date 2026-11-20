@@ -33,7 +33,7 @@
 ;; This must be run with:
 ;;
 ;;   sscm --load test/sscm-load/first.scm --load test/sscm-load/second.scm \
-;;        --load test/srfi64-runner.scm test/test-sscm-load.scm --load ignored
+;;        --load test/helper.scm test/test-sscm-load.scm --load ignored
 
 (require-extension (srfi 64))
 

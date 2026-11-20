@@ -1,5 +1,5 @@
-;;  Filename : srfi64-runner.scm
-;;  About    : test runner for tests that use SRFI-64
+;;  Filename : helper.scm
+;;  About    : helper for tests that use SRFI-64
 ;;
 ;;  Copyright (c) 2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
@@ -30,12 +30,17 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-;; This is loaded by "sscm --load" before a test that uses SRFI-64. The
-;; simple test runner only reports results. This makes the sscm command
-;; exit with a non-zero status on failure too.
+;; This is loaded by "sscm --load" before a test that uses SRFI-64.
 
 (require-extension (srfi 64))
 
+
+;;
+;; Test runner
+;;
+
+;; The simple test runner only reports results. This makes the sscm
+;; command exit with a non-zero status on failure too.
 (test-runner-factory
  (lambda ()
    (let* ((runner (test-runner-simple))
@@ -46,5 +51,5 @@
                               (if (> (+ (test-runner-fail-count runner)
                                         (test-runner-xpass-count runner))
                                      0)
-                                  (exit 70))))  ;; EX_SOFTWARE as unittest.scm
+                                  (exit 70))))  ;; EX_SOFTWARE
      runner)))

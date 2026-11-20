@@ -38,6 +38,7 @@ sscm_tests = \
         test-srfi0.scm \
         test-srfi1-obsolete.scm \
         test-srfi2.scm \
+        test-srfi6.scm \
         test-srfi8.scm \
         test-srfi9.scm \
         test-srfi28.scm \
@@ -101,16 +102,17 @@ EXTRA_DIST += \
 	coding/unknown.scm \
 	coding/utf-8.scm
 
-# They use SRFI-64 instead of lib/unittest.scm. run-singletest.sh loads
-# srfi64-runner.scm for them.
+# They use SRFI-64 with helper.scm instead of lib/unittest.scm.
+# run-singletest.sh loads helper.scm for them and skips them when SRFI-64
+# is disabled.
 sscm_srfi64_tests = \
         test-srfi6.scm
 if USE_SRFI64
-sscm_optional_tests += test-srfi64.scm $(sscm_srfi64_tests)
+sscm_optional_tests += test-srfi64.scm
 else
-sscm_xfail_tests += test-srfi64.scm $(sscm_srfi64_tests)
+sscm_xfail_tests += test-srfi64.scm
 endif
-EXTRA_DIST += test-srfi64.scm $(sscm_srfi64_tests) srfi64-runner.scm
+EXTRA_DIST += test-srfi64.scm helper.scm
 
 # It's run only with Meson because it needs --load options.
 EXTRA_DIST += test-sscm-load.scm sscm-load/first.scm sscm-load/second.scm

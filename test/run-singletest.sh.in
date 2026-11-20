@@ -7,10 +7,16 @@ case "$1" in
   *)  test_file="@abs_top_builddir@/test/$1" ;;
 esac
 
-# Tests that use SRFI-64 need the runner that makes the exit status
-# non-zero on failure.
+# Tests that use SRFI-64 need helper.scm. It has the runner that makes
+# the exit status non-zero on failure.
 case " $SSCM_SRFI64_TESTS " in
-  *" ${test_file##*/} "*) SSCM="$SSCM --load @abs_top_srcdir@/test/srfi64-runner.scm" ;;
+  *" ${test_file##*/} "*)
+    if test "@use_srfi64@" != yes; then
+      echo "SKIP: SRFI-64 is not enabled"
+      exit 77
+    fi
+    SSCM="$SSCM --load @abs_top_srcdir@/test/helper.scm"
+    ;;
 esac
 
 cd @top_srcdir@ && $SSCM "$test_file"

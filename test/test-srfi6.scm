@@ -31,65 +31,77 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (srfi 6))
-
 (require-extension (srfi 64))
 
-(test-begin "SRFI-6")
+(require-extension (srfi 6))
+
+(test-begin "test-srfi6")
 
 ;;
 ;; open-input-string
 ;;
 
-(test-group "open-input-string invalid forms"
-  (test-error (open-input-string))
-  (test-error (open-input-string '()))
-  (test-error (open-input-string (current-input-port)))
-  (test-error (open-input-string "" "")))
+(test-begin "open-input-string invalid forms")
+(test-error (open-input-string))
+(test-error (open-input-string '()))
+(test-error (open-input-string (current-input-port)))
+(test-error (open-input-string "" ""))
+(test-end "open-input-string invalid forms")
 
-(test-group "open-input-string immutable"
-  (define p (open-input-string "(a . (b . (c . ()))) 34"))
-  (test-assert (input-port? p))
-  (test-equal '(a b c) (read p))
-  (test-equal 34 (read p))
-  (test-assert (eof-object? (read p)))
-  (test-assert (eof-object? (read-char (open-input-string "")))))
+;; immutable
+(define p
+  (open-input-string "(a . (b . (c . ()))) 34"))
 
-(test-group "open-input-string mutable"
-  (define p (open-input-string (string-copy "(a . (b . (c . ()))) 34")))
-  (test-assert (input-port? p))
-  (test-equal '(a b c) (read p))
-  (test-equal 34 (read p))
-  (test-assert (eof-object? (read p)))
-  (test-assert (eof-object? (read-char
-                             (open-input-string (string-copy ""))))))
+(test-begin "open-input-string immutable")
+(test-assert (input-port? p))
+(test-equal '(a b c) (read p))
+(test-equal 34 (read p))
+(test-assert (eof-object? (read p)))
+(test-assert (eof-object? (read-char (open-input-string ""))))
+(test-end "open-input-string immutable")
+
+;; mutable
+(define p2
+  (open-input-string (string-copy "(a . (b . (c . ()))) 34")))
+
+(test-begin "open-input-string mutable")
+(test-assert (input-port? p2))
+(test-equal '(a b c) (read p2))
+(test-equal 34 (read p2))
+(test-assert (eof-object? (read p2)))
+(test-assert (eof-object? (read-char
+                           (open-input-string (string-copy "")))))
+(test-end "open-input-string mutable")
 
 ;;
 ;; open-output-string and get-output-string
 ;;
 
-(test-group "open-output-string invalid forms"
-  (test-error (open-output-string '()))
-  (test-error (open-output-string (current-input-port)))
-  (test-error (open-output-string "")))
+(test-begin "open-output-string invalid forms")
+(test-error (open-output-string '()))
+(test-error (open-output-string (current-input-port)))
+(test-error (open-output-string ""))
+(test-end "open-output-string invalid forms")
 
-(test-group "get-output-string invalid forms"
-  (test-error (get-output-string))
-  (test-error (get-output-string (current-output-port))))
+(test-begin "get-output-string invalid forms")
+(test-error (get-output-string))
+(test-error (get-output-string (current-output-port)))
+(test-end "get-output-string invalid forms")
 
-(test-group "output string"
-  (test-equal "a(b c)"
-              (let ((q (open-output-string))
-                    (x '(a b c)))
-                (write (car x) q)
-                (write (cdr x) q)
-                (get-output-string q)))
-  (test-equal "aB"
-              (let ((q (open-output-string)))
-                (write-char #\a q)
-                (write-char #\B q)
-                (get-output-string q)))
-  (test-equal ""
-              (get-output-string (open-output-string))))
+(test-begin "output string")
+(test-equal "a(b c)"
+            (let ((q (open-output-string))
+                  (x '(a b c)))
+              (write (car x) q)
+              (write (cdr x) q)
+              (get-output-string q)))
+(test-equal "aB"
+            (let ((q (open-output-string)))
+              (write-char #\a q)
+              (write-char #\B q)
+              (get-output-string q)))
+(test-equal ""
+            (get-output-string (open-output-string)))
+(test-end "output string")
 
-(test-end "SRFI-6")
+(test-end "test-srfi6")

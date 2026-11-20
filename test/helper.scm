@@ -81,3 +81,6 @@
 ;;
 
 (define sigscheme? (provided? "sigscheme"))
+
+(define fixnum-bits (and (symbol-bound? 'fixnum-width)
+                         (fixnum-width)))

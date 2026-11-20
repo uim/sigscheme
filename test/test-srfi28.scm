@@ -2,7 +2,7 @@
 ;;  About    : unit test for SRFI-28
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -33,170 +33,147 @@
 
 ;; All tests in this file are passed against r3166 (new repository)
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (require-extension (srfi 28))
 
-(if (not (provided? "srfi-28"))
-    (test-skip "SRFI-28 is not enabled"))
+(test-begin "test-srfi28")
 
-(define tn test-name)
+(test-begin "format invalid form")
+(test-error (format))
+(test-error (format #f))
+(test-error (format #\a))
+(test-error (format "~"))
+(test-error (format "a~"))
+(test-error (format "a" "a"))
+(test-end "format invalid form")
 
-(tn "format invalid form")
-(assert-error  (tn) (lambda () (format)))
-(assert-error  (tn) (lambda () (format #f)))
-(assert-error  (tn) (lambda () (format #\a)))
-(assert-error  (tn) (lambda () (format "~")))
-(assert-error  (tn) (lambda () (format "a~")))
-(assert-error  (tn) (lambda () (format "a" "a")))
+(test-begin "format unknown directives")
+(test-error (format "~z"))
+(test-error (format "~Z"))
+(test-error (format "~'"))
+(test-error (format "~$"))
+(test-end "format unknown directives")
 
-(tn "format unknown directives")
-(assert-error  (tn) (lambda () (format "~z")))
-(assert-error  (tn) (lambda () (format "~Z")))
-(assert-error  (tn) (lambda () (format "~'")))
-(assert-error  (tn) (lambda () (format "~$")))
-
-(tn "format SRFI-48 directives")
+(test-begin "format SRFI-48 directives")
 (if (not (provided? "srfi-48"))
     (begin
-      (assert-error  (tn) (lambda () (format "~w" 0)))
-      (assert-error  (tn) (lambda () (format "~d" 0)))
-      (assert-error  (tn) (lambda () (format "~x" 0)))
-      (assert-error  (tn) (lambda () (format "~o" 0)))
-      (assert-error  (tn) (lambda () (format "~b" 0)))
-      (assert-error  (tn) (lambda () (format "~c" #\a)))
-      (assert-error  (tn) (lambda () (format "~f" 0)))
-      (assert-error  (tn) (lambda () (format "~2f" 0)))
-      (assert-error  (tn) (lambda () (format "~2,3f" 0)))
-      (assert-error  (tn) (lambda () (format "~?" "~s" '(0))))
-      (assert-error  (tn) (lambda () (format "~k" "~s" '(0))))
-      (assert-error  (tn) (lambda () (format "~y" '(0))))
+      (test-error (format "~w" 0))
+      (test-error (format "~d" 0))
+      (test-error (format "~x" 0))
+      (test-error (format "~o" 0))
+      (test-error (format "~b" 0))
+      (test-error (format "~c" #\a))
+      (test-error (format "~f" 0))
+      (test-error (format "~2f" 0))
+      (test-error (format "~2,3f" 0))
+      (test-error (format "~?" "~s" '(0)))
+      (test-error (format "~k" "~s" '(0)))
+      (test-error (format "~y" '(0)))
 
-      (assert-error  (tn) (lambda () (format "~t")))
-      (assert-error  (tn) (lambda () (format "~_")))
-      (assert-error  (tn) (lambda () (format "~&")))
-      (assert-error  (tn) (lambda () (format "~h")))))
+      (test-error (format "~t"))
+      (test-error (format "~_"))
+      (test-error (format "~&"))
+      (test-error (format "~h"))))
+(test-end "format SRFI-48 directives")
 
-(tn "format no directive")
-(assert-error  (tn) (lambda () (format "" 0)))
-(assert-equal? (tn)
-               ""
-               (format ""))
-(assert-equal? (tn)
-               "aBc"
-               (format "aBc"))
+(test-begin "format no directive")
+(test-error (format "" 0))
+(test-equal ""
+            (format ""))
+(test-equal "aBc"
+            (format "aBc"))
+(test-end "format no directive")
 
-(tn "format ~a")
-(assert-error  (tn) (lambda () (format "~a")))
-(assert-error  (tn) (lambda () (format "~a" 0 1)))
-(assert-error  (tn) (lambda () (format "~1a" 1)))
-(assert-equal? (tn)
-               "#f"
-               (format "~a" #f))
-(assert-equal? (tn)
-               "#t"
-               (format "~a" #t))
-(assert-equal? (tn)
-               "123"
-               (format "~a" 123))
-(assert-equal? (tn)
-               "a"
-               (format "~a" #\a))
-(assert-equal? (tn)
-               "aBc"
-               (format "~a" "aBc"))
-(assert-equal? (tn)
-               "(#t 123 a aBc (0))"
-               (format "~a" '(#t 123 #\a "aBc" (0))))
+(test-begin "format ~a")
+(test-error (format "~a"))
+(test-error (format "~a" 0 1))
+(test-error (format "~1a" 1))
+(test-equal "#f"
+            (format "~a" #f))
+(test-equal "#t"
+            (format "~a" #t))
+(test-equal "123"
+            (format "~a" 123))
+(test-equal "a"
+            (format "~a" #\a))
+(test-equal "aBc"
+            (format "~a" "aBc"))
+(test-equal "(#t 123 a aBc (0))"
+            (format "~a" '(#t 123 #\a "aBc" (0))))
+(test-end "format ~a")
 
-(tn "format ~A")
-(assert-error  (tn) (lambda () (format "~A")))
-(assert-error  (tn) (lambda () (format "~A" 0 1)))
-(assert-error  (tn) (lambda () (format "~1A" 1)))
-(assert-equal? (tn)
-               "#f"
-               (format "~A" #f))
-(assert-equal? (tn)
-               "#t"
-               (format "~A" #t))
-(assert-equal? (tn)
-               "123"
-               (format "~A" 123))
-(assert-equal? (tn)
-               "a"
-               (format "~A" #\a))
-(assert-equal? (tn)
-               "aBc"
-               (format "~A" "aBc"))
-(assert-equal? (tn)
-               "(#t 123 a aBc (0))"
-               (format "~A" '(#t 123 #\a "aBc" (0))))
+(test-begin "format ~A")
+(test-error (format "~A"))
+(test-error (format "~A" 0 1))
+(test-error (format "~1A" 1))
+(test-equal "#f"
+            (format "~A" #f))
+(test-equal "#t"
+            (format "~A" #t))
+(test-equal "123"
+            (format "~A" 123))
+(test-equal "a"
+            (format "~A" #\a))
+(test-equal "aBc"
+            (format "~A" "aBc"))
+(test-equal "(#t 123 a aBc (0))"
+            (format "~A" '(#t 123 #\a "aBc" (0))))
+(test-end "format ~A")
 
-(tn "format ~s")
-(assert-error  (tn) (lambda () (format "~s")))
-(assert-error  (tn) (lambda () (format "~s" 0 1)))
-(assert-error  (tn) (lambda () (format "~1s" 1)))
-(assert-equal? (tn)
-               "#f"
-               (format "~s" #f))
-(assert-equal? (tn)
-               "#t"
-               (format "~s" #t))
-(assert-equal? (tn)
-               "123"
-               (format "~s" 123))
-(assert-equal? (tn)
-               "#\\a"
-               (format "~s" #\a))
-(assert-equal? (tn)
-               "\"aBc\""
-               (format "~s" "aBc"))
-(assert-equal? (tn)
-               "(#t 123 #\\a \"aBc\" (0))"
-               (format "~s" '(#t 123 #\a "aBc" (0))))
+(test-begin "format ~s")
+(test-error (format "~s"))
+(test-error (format "~s" 0 1))
+(test-error (format "~1s" 1))
+(test-equal "#f"
+            (format "~s" #f))
+(test-equal "#t"
+            (format "~s" #t))
+(test-equal "123"
+            (format "~s" 123))
+(test-equal "#\\a"
+            (format "~s" #\a))
+(test-equal "\"aBc\""
+            (format "~s" "aBc"))
+(test-equal "(#t 123 #\\a \"aBc\" (0))"
+            (format "~s" '(#t 123 #\a "aBc" (0))))
+(test-end "format ~s")
 
-(tn "format ~S")
-(assert-error  (tn) (lambda () (format "~S")))
-(assert-error  (tn) (lambda () (format "~S" 0 1)))
-(assert-error  (tn) (lambda () (format "~1S" 1)))
-(assert-equal? (tn)
-               "#f"
-               (format "~S" #f))
-(assert-equal? (tn)
-               "#t"
-               (format "~S" #t))
-(assert-equal? (tn)
-               "123"
-               (format "~S" 123))
-(assert-equal? (tn)
-               "#\\a"
-               (format "~S" #\a))
-(assert-equal? (tn)
-               "\"aBc\""
-               (format "~S" "aBc"))
-(assert-equal? (tn)
-               "(#t 123 #\\a \"aBc\" (0))"
-               (format "~S" '(#t 123 #\a "aBc" (0))))
+(test-begin "format ~S")
+(test-error (format "~S"))
+(test-error (format "~S" 0 1))
+(test-error (format "~1S" 1))
+(test-equal "#f"
+            (format "~S" #f))
+(test-equal "#t"
+            (format "~S" #t))
+(test-equal "123"
+            (format "~S" 123))
+(test-equal "#\\a"
+            (format "~S" #\a))
+(test-equal "\"aBc\""
+            (format "~S" "aBc"))
+(test-equal "(#t 123 #\\a \"aBc\" (0))"
+            (format "~S" '(#t 123 #\a "aBc" (0))))
+(test-end "format ~S")
 
-(tn "format ~%")
-(assert-error  (tn) (lambda () (format "~%" 0)))
-(assert-equal? (tn)
-               "\n"
-               (format "~%"))
+(test-begin "format ~%")
+(test-error (format "~%" 0))
+(test-equal "\n"
+            (format "~%"))
+(test-end "format ~%")
 
-(tn "format ~~")
-(assert-error  (tn) (lambda () (format "~~" 0)))
-(assert-equal? (tn)
-               "~"
-               (format "~~"))
+(test-begin "format ~~")
+(test-error (format "~~" 0))
+(test-equal "~"
+            (format "~~"))
+(test-end "format ~~")
 
-(tn "format mixed directives")
-(assert-equal? (tn)
-               "~\n"
-               (format "~~~%"))
-(assert-equal? (tn)
-               "slashified: #\\a\nany: a\n"
-               (format "slashified: ~s~%any: ~a~%" #\a #\a))
+(test-begin "format mixed directives")
+(test-equal "~\n"
+            (format "~~~%"))
+(test-equal "slashified: #\\a\nany: a\n"
+            (format "slashified: ~s~%any: ~a~%" #\a #\a))
+(test-end "format mixed directives")
 
-(if (not (provided? "srfi-48"))
-    (total-report))
+(test-end "test-srfi28")

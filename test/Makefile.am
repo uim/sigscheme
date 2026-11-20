@@ -106,18 +106,34 @@ EXTRA_DIST += \
 # run-singletest.sh loads helper.scm for them and skips them when SRFI-64
 # is disabled.
 sscm_srfi64_tests = \
+        test-apply.scm \
+        test-begin.scm \
+        test-continuation.scm \
+        test-define-internal.scm \
         test-define.scm \
+        test-do.scm \
+        test-dyn-extent.scm \
         test-enc-eucjp.scm \
+        test-eval.scm \
         test-formal-syntax.scm \
         test-formatplus.scm \
+        test-lambda.scm \
+        test-legacy-macro.scm \
+        test-let.scm \
+        test-letrec.scm \
+        test-letstar.scm \
         test-map.scm \
+        test-named-let.scm \
+        test-quote.scm \
         test-real.scm \
         test-srfi180.scm \
         test-srfi28.scm \
         test-srfi34.scm \
         test-srfi48.scm \
         test-srfi6.scm \
-        test-syntax-rules.scm
+        test-syntax-rules.scm \
+        test-syntax.scm \
+        test-values.scm
 if USE_SRFI64
 sscm_optional_tests += test-srfi64.scm
 else

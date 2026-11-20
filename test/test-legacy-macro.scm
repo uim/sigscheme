@@ -1,7 +1,7 @@
 ;;  Filename : test-legacy-macro.scm
 ;;  About    : unit tests for legacy define-macro
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -32,8 +32,9 @@
 
 ;; SigScheme does not have gensym.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
+(test-begin "test-legacy-macro")
 
 (test-begin "define-macro invalid forms")
 ;; invalid identifier
@@ -48,7 +49,7 @@
 ;; another macro as alias
 (define-macro m (lambda () #t))
 (test-error (define-macro m2 m))
-(test-end)
+(test-end "define-macro invalid forms")
 
 (test-begin "define-macro non-toplevel env")
 (cond-expand
@@ -64,7 +65,7 @@
       (lambda ()
         ``,?var)))
   (test-eq 'val (m))))
-(test-end)
+(test-end "define-macro non-toplevel env")
 
 (test-begin "define-macro bad definition placement")
 ;; non-toplevel definition
@@ -76,7 +77,7 @@
   (lambda ()
     '(define foo 3)))
 (test-error (if #t (m)))
-(test-end)
+(test-end "define-macro bad definition placement")
 
 (test-begin "define-macro referring runtime env")
 (define cnt 0)
@@ -102,7 +103,7 @@
   (test-eqv 4 (proc-m))
   (test-eqv 4 (proc-m))
   (test-eqv 4 (proc-m))))
-(test-end)
+(test-end "define-macro referring runtime env")
 
 (test-begin "define-macro varname conflict")
 (define foo 1)
@@ -129,7 +130,7 @@
 (test-eqv 1 foo)
 (test-eqv 2 bar)
 (test-eqv 3 tmp)
-(test-end)
+(test-end "define-macro varname conflict")
 
 (test-begin "define-macro evaluation timings")
 (define foo 3)
@@ -159,56 +160,56 @@
   (test-eqv 9 (proc-m2)))
  (else
   (test-eqv 7 (proc-m2))))
-(test-end)
+(test-end "define-macro evaluation timings")
 
 (test-begin "define-macro syntactic keywords handling")
 (define-macro m
   (lambda (op x y)
     `(,op ,x ,y)))
-(test-false (m and #f #f))
-(test-false (m and #f #t))
-(test-false (m and #t #f))
-(test-true  (m and #t #t))
-(test-false (m or  #f #f))
-(test-true  (m or  #f #t))
-(test-true  (m or  #t #f))
-(test-true  (m or  #t #t))
+(test-assert (not (m and #f #f)))
+(test-assert (not (m and #f #t)))
+(test-assert (not (m and #t #f)))
+(test-assert (m and #t #t))
+(test-assert (not (m or  #f #f)))
+(test-assert (m or  #f #t))
+(test-assert (m or  #t #f))
+(test-assert (m or  #t #t))
 (define-macro m
   (lambda args
     `,args))
-(test-false (m and #f #f))
-(test-false (m and #f #t))
-(test-false (m and #t #f))
-(test-true  (m and #t #t))
-(test-true  (m and #t #t #t))
-(test-false (m or  #f #f))
-(test-true  (m or  #f #t))
-(test-true  (m or  #t #f))
-(test-true  (m or  #t #t))
-(test-true  (m or  #t #t #f))
+(test-assert (not (m and #f #f)))
+(test-assert (not (m and #f #t)))
+(test-assert (not (m and #t #f)))
+(test-assert (m and #t #t))
+(test-assert (m and #t #t #t))
+(test-assert (not (m or  #f #f)))
+(test-assert (m or  #f #t))
+(test-assert (m or  #t #f))
+(test-assert (m or  #t #t))
+(test-assert (m or  #t #t #f))
 (define-macro (m op x y)
     `(,op ,x ,y))
-(test-false (m and #f #f))
-(test-false (m and #f #t))
-(test-false (m and #t #f))
-(test-true  (m and #t #t))
-(test-false (m or  #f #f))
-(test-true  (m or  #f #t))
-(test-true  (m or  #t #f))
-(test-true  (m or  #t #t))
+(test-assert (not (m and #f #f)))
+(test-assert (not (m and #f #t)))
+(test-assert (not (m and #t #f)))
+(test-assert (m and #t #t))
+(test-assert (not (m or  #f #f)))
+(test-assert (m or  #f #t))
+(test-assert (m or  #t #f))
+(test-assert (m or  #t #t))
 (define-macro (m . args)
   `,args)
-(test-false (m and #f #f))
-(test-false (m and #f #t))
-(test-false (m and #t #f))
-(test-true  (m and #t #t))
-(test-true  (m and #t #t #t))
-(test-false (m or  #f #f))
-(test-true  (m or  #f #t))
-(test-true  (m or  #t #f))
-(test-true  (m or  #t #t))
-(test-true  (m or  #t #t #f))
-(test-end)
+(test-assert (not (m and #f #f)))
+(test-assert (not (m and #f #t)))
+(test-assert (not (m and #t #f)))
+(test-assert (m and #t #t))
+(test-assert (m and #t #t #t))
+(test-assert (not (m or  #f #f)))
+(test-assert (m or  #f #t))
+(test-assert (m or  #t #f))
+(test-assert (m or  #t #t))
+(test-assert (m or  #t #t #f))
+(test-end "define-macro syntactic keywords handling")
 
 (test-begin "define-macro nested macro")
 (define-macro swap
@@ -227,6 +228,6 @@
 (test-eqv 1  (m foo bar))
 (test-eqv 4 foo)
 (test-eqv 3 bar)
-(test-end)
+(test-end "define-macro nested macro")
 
-(test-report-result)
+(test-end "test-legacy-macro")

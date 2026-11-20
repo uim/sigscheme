@@ -2,7 +2,7 @@
 ;;  About    : unit test for R5RS apply
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,74 +31,78 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
-(define tn test-name)
+(test-begin "test-apply")
 
-(tn "apply invalid form")
-(assert-error  (tn) (lambda () (apply #f '())))
-(assert-error  (tn) (lambda () (apply and '())))
-(assert-error  (tn) (lambda () (apply +)))
-(assert-error  (tn) (lambda () (apply + 1)))
-(assert-error  (tn) (lambda () (apply + 1 2)))
-(assert-error  (tn) (lambda () (apply + 1 2 3)))
-(assert-error  (tn) (lambda () (apply + 1 2 . 3)))
+(test-begin "apply invalid form")
+(test-error (apply #f '()))
+(test-error (apply and '()))
+(test-error (apply +))
+(test-error (apply + 1))
+(test-error (apply + 1 2))
+(test-error (apply + 1 2 3))
+(test-error (apply + 1 2 . 3))
+(test-end "apply invalid form")
 
-(tn "apply single-argument")
-(assert-equal? (tn) 0 (apply + '()))
-(assert-equal? (tn) 1 (apply + '(1)))
-(assert-equal? (tn) 3 (apply + '(1 2)))
-(assert-equal? (tn) 6 (apply + '(1 2 3)))
+(test-begin "apply single-argument")
+(test-equal 0 (apply + '()))
+(test-equal 1 (apply + '(1)))
+(test-equal 3 (apply + '(1 2)))
+(test-equal 6 (apply + '(1 2 3)))
+(test-end "apply single-argument")
 
-(tn "apply multi-arguments")
-(assert-equal? (tn) 1 (apply + 1 '()))
-(assert-equal? (tn) 3 (apply + 1 2 '()))
-(assert-equal? (tn) 3 (apply + 1 '(2)))
-(assert-equal? (tn) 6 (apply + 1 2 3 '()))
-(assert-equal? (tn) 6 (apply + 1 2 '(3)))
-(assert-equal? (tn) 6 (apply + 1 '(2 3)))
+(test-begin "apply multi-arguments")
+(test-equal 1 (apply + 1 '()))
+(test-equal 3 (apply + 1 2 '()))
+(test-equal 3 (apply + 1 '(2)))
+(test-equal 6 (apply + 1 2 3 '()))
+(test-equal 6 (apply + 1 2 '(3)))
+(test-equal 6 (apply + 1 '(2 3)))
+(test-end "apply multi-arguments")
 ;; Further tests exist on bigloo-apply.scm
 
-(tn "apply that returns multiple values")
+(test-begin "apply that returns multiple values")
 (call-with-values
     (lambda () (apply values '(1 2 3)))
   (lambda vals
-    (assert-equal? (tn) '(1 2 3) vals)))
+    (test-equal '(1 2 3) vals)))
 (call-with-values
     (lambda () (apply values 1 2 '(3)))
   (lambda vals
-    (assert-equal? (tn) '(1 2 3) vals)))
+    (test-equal '(1 2 3) vals)))
       
 
 ;; check apply
-(assert-equal? "apply check1" #t (apply = '(1 1 1)))
-(assert-equal? "apply check2" 6  (apply + `(1 2 ,(+ 1 2))))
-(assert-equal? "apply check3" '(3) (apply cddr '((1 2 3))))
-(assert-equal? "apply check4" #t (apply equal? '((1 2) (1 2))))
-(assert-equal? "apply check5" "iu" (apply substring '("aiueo" 1 3)))
+(test-equal "apply check1" #t (apply = '(1 1 1)))
+(test-equal "apply check2" 6  (apply + `(1 2 ,(+ 1 2))))
+(test-equal "apply check3" '(3) (apply cddr '((1 2 3))))
+(test-equal "apply check4" #t (apply equal? '((1 2) (1 2))))
+(test-equal "apply check5" "iu" (apply substring '("aiueo" 1 3)))
 
-(assert-equal? "apply check6" 4  (apply (lambda (x y) (+ x y)) '(1 3)))
-(assert-equal? "apply check7" 4  (apply (lambda (x y) (+ x y)) '(1 3)))
-(assert-equal? "apply check8" '(1 2 3) (apply (lambda x x) '(1 2 3)))
-(assert-equal? "apply check9" 1 (apply (lambda (x) x) '(1)))
-(assert-equal? "apply check10" '(1) (apply (lambda x x) '(1)))
+(test-equal "apply check6" 4  (apply (lambda (x y) (+ x y)) '(1 3)))
+(test-equal "apply check7" 4  (apply (lambda (x y) (+ x y)) '(1 3)))
+(test-equal "apply check8" '(1 2 3) (apply (lambda x x) '(1 2 3)))
+(test-equal "apply check9" 1 (apply (lambda (x) x) '(1)))
+(test-equal "apply check10" '(1) (apply (lambda x x) '(1)))
 
-(assert-equal? "apply check11" 2 (apply (lambda x x 2) '(1)))
+(test-equal "apply check11" 2 (apply (lambda x x 2) '(1)))
 
-(assert-equal? "apply check12" '() (apply (lambda (a . b) b) '(1)))
-(assert-equal? "apply check13" '(2) (apply (lambda (a . b) b) '(1 2)))
-(assert-equal? "apply check13" '() (apply (lambda (a b . c) c) '(1 2)))
+(test-equal "apply check12" '() (apply (lambda (a . b) b) '(1)))
+(test-equal "apply check13" '(2) (apply (lambda (a . b) b) '(1 2)))
+(test-equal "apply check13" '() (apply (lambda (a b . c) c) '(1 2)))
 
 (define (dotarg-2 x . y)
   (+ x (car y)))
 
-(assert-equal? "sequence dot-arg func apply check" 4 (apply dotarg-2 '(1 3)))
-(assert-equal? "sequence dot-arg func apply check" 4 (apply dotarg-2 '(1 3)))
+(test-equal "sequence dot-arg func apply check" 4 (apply dotarg-2 '(1 3)))
+(test-equal "sequence dot-arg func apply check" 4 (apply dotarg-2 '(1 3)))
 
 (define compose
   (lambda (f g)
     (lambda args
       (f (apply g args)))))
-(assert-equal? "apply check5" "100" ((compose number->string *) 4 25))
+(test-equal "apply check5" "100" ((compose number->string *) 4 25))
+(test-end "apply that returns multiple values")
 
-(total-report)
+(test-end "test-apply")

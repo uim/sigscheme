@@ -2,7 +2,7 @@
 ;;  About    : unit tests for multiple values
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,56 +31,59 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
-(define tn test-name)
+(test-begin "test-values")
 
 
 ;;
 ;; values
 ;;
 
-;; These tests use explicit equivalence predicates instead of assert-equal?, to
+;; These tests use explicit equivalence predicates instead of test-equal, to
 ;; avoid being affected by multiple-values -specific behavior.
 
-(tn "values invalid forms")
+(test-begin "values invalid forms")
 ;; Normal continuations accept exactly one value only.
-(assert-error  (tn) (lambda () (eq? '() (values))))
-(assert-error  (tn) (lambda () (eq? '() (apply values '()))))
-(assert-error  (tn) (lambda () (eq? '() (values . 1))))
-(assert-error  (tn) (lambda () (eq? '() (values 1 2))))
-(assert-error  (tn) (lambda () (eq? '() (apply values '(1 2)))))
-(assert-error  (tn) (lambda () (eq? '() (values 1 . 2))))
+(test-error (eq? '() (values)))
+(test-error (eq? '() (apply values '())))
+(test-error (eq? '() (values . 1)))
+(test-error (eq? '() (values 1 2)))
+(test-error (eq? '() (apply values '(1 2))))
+(test-error (eq? '() (values 1 . 2)))
+(test-end "values invalid forms")
 
-(tn "values disallowed places")
+(test-begin "values disallowed places")
 ;; top-level variable
-(assert-error  (tn) (lambda () (eval '(define foo (values 1 2 3))
-                                     (interaction-environment))))
+(test-error (eval '(define foo (values 1 2 3))
+                  (interaction-environment)))
 (define foo 1)
-(assert-error  (tn) (lambda () (eval '(set! foo (values 1 2 3))
-                                     (interaction-environment))))
+(test-error (eval '(set! foo (values 1 2 3))
+                  (interaction-environment)))
 ;; internal variable
-(assert-error  (tn) (lambda () (define bar (values 1 2 3))))
+(test-error (define bar (values 1 2 3)))
 ;; others
-(assert-error  (tn) (lambda () (let ((bar (values 1 2 3))) #t)))
-(assert-error  (tn) (lambda () (let* ((bar (values 1 2 3))) #t)))
-(assert-error  (tn) (lambda () (letrec ((bar (values 1 2 3))) #t)))
-(assert-error  (tn) (lambda () (if (values 1 2 3) #t)))
-(assert-error  (tn) (lambda () (and (values 1 2 3) #t)))
-(assert-error  (tn) (lambda () (or (values 1 2 3) #t)))
-(assert-error  (tn) (lambda () (cond ((values 1 2 3) #t) (else #t))))
-(assert-error  (tn) (lambda () (case (values 1 2 3) (else #t))))
-(assert-error  (tn) (lambda () (begin (values 1 2 3) #t)))
-(assert-error  (tn) (lambda () ((lambda () (values 1 2 3) #t))))
+(test-error (let ((bar (values 1 2 3))) #t))
+(test-error (let* ((bar (values 1 2 3))) #t))
+(test-error (letrec ((bar (values 1 2 3))) #t))
+(test-error (if (values 1 2 3) #t))
+(test-error (and (values 1 2 3) #t))
+(test-error (or (values 1 2 3) #t))
+(test-error (cond ((values 1 2 3) #t) (else #t)))
+(test-error (case (values 1 2 3) (else #t)))
+(test-error (begin (values 1 2 3) #t))
+(test-error ((lambda () (values 1 2 3) #t)))
+(test-end "values disallowed places")
 
-(tn "values")
+(test-begin "values")
 ;; Exactly one value.
-(assert-true   (tn) (eqv? 1 (values 1)))
-(assert-true   (tn) (eqv? 1 (apply values '(1))))
-(assert-true   (tn) (eq? '() (values '())))
-(assert-true   (tn) (eq? '() (apply values '(()))))
-(assert-true   (tn) (eq? #f (values #f)))
-(assert-true   (tn) (eq? #f (apply values '(#f))))
+(test-assert (eqv? 1 (values 1)))
+(test-assert (eqv? 1 (apply values '(1))))
+(test-assert (eq? '() (values '())))
+(test-assert (eq? '() (apply values '(()))))
+(test-assert (eq? #f (values #f)))
+(test-assert (eq? #f (apply values '(#f))))
+(test-end "values")
 
 ;; Returning multiple values in top-level is allowed (SigScheme-specific).
 ;; These forms test whether evaluations are passed without blowing up.
@@ -101,162 +104,135 @@
 ;; call-with-values
 ;;
 
-(tn "call-with-values invalid forms")
-(assert-error  (tn) (lambda ()
-                      (call-with-values)))
-(assert-error  (tn) (lambda ()
-                      (call-with-values even?)))
-(assert-error  (tn) (lambda ()
-                      (call-with-values even? #t)))
-(assert-error  (tn) (lambda ()
-                      (call-with-values #t even?)))
+(test-begin "call-with-values invalid forms")
+(test-error (call-with-values))
+(test-error (call-with-values even?))
+(test-error (call-with-values even? #t))
+(test-error (call-with-values #t even?))
+(test-end "call-with-values invalid forms")
 
-(tn "call-with-values")
-(assert-equal? (tn)
-               -1
-               (call-with-values * -))
+(test-begin "call-with-values")
+(test-equal -1
+            (call-with-values * -))
 
-(assert-equal? (tn)
-               'ok
-               (call-with-values
-                   (lambda () (values))
-                 (lambda () 'ok)))
-(assert-equal? (tn)
-               '()
-               (call-with-values
-                   (lambda () (values))
-                 (lambda args args)))
-(assert-equal? (tn)
-               'ok
-               (call-with-values
-                   (lambda () (apply values '()))
-                 (lambda () 'ok)))
-(assert-equal? (tn)
-               '()
-               (call-with-values
-                   (lambda () (apply values '()))
-                 (lambda args args)))
+(test-equal 'ok
+            (call-with-values
+                (lambda () (values))
+              (lambda () 'ok)))
+(test-equal '()
+            (call-with-values
+                (lambda () (values))
+              (lambda args args)))
+(test-equal 'ok
+            (call-with-values
+                (lambda () (apply values '()))
+              (lambda () 'ok)))
+(test-equal '()
+            (call-with-values
+                (lambda () (apply values '()))
+              (lambda args args)))
 
-(assert-equal? (tn)
-               1
-               (call-with-values
-                   (lambda () (values 1))
-                 (lambda (x) x)))
-(assert-equal? (tn)
-               '(1)
-               (call-with-values
-                   (lambda () (values 1))
-                 (lambda args args)))
-(assert-equal? (tn)
-               1
-               (call-with-values
-                   (lambda () (apply values '(1)))
-                 (lambda (x) x)))
-(assert-equal? (tn)
-               '(1)
-               (call-with-values
-                   (lambda () (apply values '(1)))
-                 (lambda args args)))
+(test-equal 1
+            (call-with-values
+                (lambda () (values 1))
+              (lambda (x) x)))
+(test-equal '(1)
+            (call-with-values
+                (lambda () (values 1))
+              (lambda args args)))
+(test-equal 1
+            (call-with-values
+                (lambda () (apply values '(1)))
+              (lambda (x) x)))
+(test-equal '(1)
+            (call-with-values
+                (lambda () (apply values '(1)))
+              (lambda args args)))
 
-(assert-equal? (tn)
-               '(1 2)
-               (call-with-values
-                   (lambda () (values 1 2))
-                 (lambda (x y) (list x y))))
-(assert-equal? (tn)
-               '(1 2)
-               (call-with-values
-                   (lambda () (values 1 2))
-                 (lambda args args)))
-(assert-equal? (tn)
-               '(1 2)
-               (call-with-values
-                   (lambda () (apply values '(1 2)))
-                 (lambda (x y) (list x y))))
-(assert-equal? (tn)
-               '(1 2)
-               (call-with-values
-                   (lambda () (apply values '(1 2)))
-                 (lambda args args)))
+(test-equal '(1 2)
+            (call-with-values
+                (lambda () (values 1 2))
+              (lambda (x y) (list x y))))
+(test-equal '(1 2)
+            (call-with-values
+                (lambda () (values 1 2))
+              (lambda args args)))
+(test-equal '(1 2)
+            (call-with-values
+                (lambda () (apply values '(1 2)))
+              (lambda (x y) (list x y))))
+(test-equal '(1 2)
+            (call-with-values
+                (lambda () (apply values '(1 2)))
+              (lambda args args)))
+(test-end "call-with-values")
 
-(tn "call-with-values by apply")
-(assert-equal? (tn)
-               -1
-               (apply call-with-values (list * -)))
+(test-begin "call-with-values by apply")
+(test-equal -1
+            (apply call-with-values (list * -)))
 
-(assert-equal? (tn)
-               'ok
-               (apply call-with-values
-                      (list (lambda () (values))
-                            (lambda () 'ok))))
-(assert-equal? (tn)
-               '()
-               (apply call-with-values
-                      (list (lambda () (values))
-                            (lambda args args))))
-(assert-equal? (tn)
-               'ok
-               (apply call-with-values
-                      (list (lambda () (apply values '()))
-                            (lambda () 'ok))))
-(assert-equal? (tn)
-               '()
-               (apply call-with-values
-                      (list (lambda () (apply values '()))
-                            (lambda args args))))
+(test-equal 'ok
+            (apply call-with-values
+                   (list (lambda () (values))
+                         (lambda () 'ok))))
+(test-equal '()
+            (apply call-with-values
+                   (list (lambda () (values))
+                         (lambda args args))))
+(test-equal 'ok
+            (apply call-with-values
+                   (list (lambda () (apply values '()))
+                         (lambda () 'ok))))
+(test-equal '()
+            (apply call-with-values
+                   (list (lambda () (apply values '()))
+                         (lambda args args))))
 
-(assert-equal? (tn)
-               1
-               (apply call-with-values
-                      (list (lambda () (values 1))
-                            (lambda (x) x))))
-(assert-equal? (tn)
-               '(1)
-               (apply call-with-values
-                      (list (lambda () (values 1))
-                            (lambda args args))))
-(assert-equal? (tn)
-               1
-               (apply call-with-values
-                      (list (lambda () (apply values '(1)))
-                            (lambda (x) x))))
-(assert-equal? (tn)
-               '(1)
-               (apply call-with-values
-                      (list (lambda () (apply values '(1)))
-                            (lambda args args))))
+(test-equal 1
+            (apply call-with-values
+                   (list (lambda () (values 1))
+                         (lambda (x) x))))
+(test-equal '(1)
+            (apply call-with-values
+                   (list (lambda () (values 1))
+                         (lambda args args))))
+(test-equal 1
+            (apply call-with-values
+                   (list (lambda () (apply values '(1)))
+                         (lambda (x) x))))
+(test-equal '(1)
+            (apply call-with-values
+                   (list (lambda () (apply values '(1)))
+                         (lambda args args))))
 
-(assert-equal? (tn)
-               '(1 2)
-               (apply call-with-values
-                      (list (lambda () (values 1 2))
-                            (lambda (x y) (list x y)))))
-(assert-equal? (tn)
-               '(1 2)
-               (apply call-with-values
-                      (list (lambda () (values 1 2))
-                            (lambda args args))))
-(assert-equal? (tn)
-               '(1 2)
-               (apply call-with-values
-                      (list (lambda () (apply values '(1 2)))
-                            (lambda (x y) (list x y)))))
-(assert-equal? (tn)
-               '(1 2)
-               (apply call-with-values
-                      (list (lambda () (apply values '(1 2)))
-                            (lambda args args))))
+(test-equal '(1 2)
+            (apply call-with-values
+                   (list (lambda () (values 1 2))
+                         (lambda (x y) (list x y)))))
+(test-equal '(1 2)
+            (apply call-with-values
+                   (list (lambda () (values 1 2))
+                         (lambda args args))))
+(test-equal '(1 2)
+            (apply call-with-values
+                   (list (lambda () (apply values '(1 2)))
+                         (lambda (x y) (list x y)))))
+(test-equal '(1 2)
+            (apply call-with-values
+                   (list (lambda () (apply values '(1 2)))
+                         (lambda args args))))
+(test-end "call-with-values by apply")
 
-(tn "call-with-values misc")
+(test-begin "call-with-values misc")
 ;; test whether the variable is properly bound
-(assert-equal? (tn)
-               1
-               ((lambda (n)
-                  (call-with-values
-                      (lambda () (values 2 3 n))
-                    (lambda (dummy1 dummy2 n2)
-                      n2)))
-                1))
+(test-equal 1
+            ((lambda (n)
+               (call-with-values
+                   (lambda () (values 2 3 n))
+                 (lambda (dummy1 dummy2 n2)
+                   n2)))
+             1))
+(test-end "call-with-values misc")
 
 
-(total-report)
+(test-end "test-values")

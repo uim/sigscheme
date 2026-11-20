@@ -2,7 +2,7 @@
 ;;  About    : unit test for continuation
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,180 +31,153 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (if (not (symbol-bound? 'call-with-current-continuation))
-    (test-skip "R5RS continuation is not enabled"))
+    (test-skip-file "R5RS continuation is not enabled"))
 
-(define tn test-name)
+(test-begin "test-continuation")
 (define call/cc call-with-current-continuation)
 
-(tn "call/cc invalid forms")
+(test-begin "call/cc invalid forms")
 ;; no procedure
-(assert-error  (tn) (lambda ()
-                      (call-with-current-continuation)))
+(test-error (call-with-current-continuation))
 ;; not a procedure
-(assert-error  (tn) (lambda ()
-                      (call-with-current-continuation #t)))
+(test-error (call-with-current-continuation #t))
 ;; excessive
-(assert-error  (tn) (lambda ()
-                      (call-with-current-continuation procedure? #t)))
+(test-error (call-with-current-continuation procedure? #t))
+(test-end "call/cc invalid forms")
 
-(tn "call/cc")
+(test-begin "call/cc")
 ;; not applicable
-(assert-error  (tn) (lambda ()
-                      (call-with-current-continuation +)))
+(test-error (call-with-current-continuation +))
 
-(assert-equal? (tn)
-               -3
-               (call-with-current-continuation
-                (lambda (exit)
-                  (for-each (lambda (x)
-                              (if (negative? x)
-                                  (exit x)))
-                            '(54 0 37 -3 245 19))
-                  #t)))
+(test-equal -3
+            (call-with-current-continuation
+             (lambda (exit)
+               (for-each (lambda (x)
+                           (if (negative? x)
+                               (exit x)))
+                         '(54 0 37 -3 245 19))
+               #t)))
 
 (define list-length
   (lambda (obj)
     (call-with-current-continuation
      (lambda (return)
        (letrec ((re
-		 (lambda (obj1)
-		   (cond ((null? obj1) 0)
-			 ((pair? obj1)
-			  (+ (re (cdr obj1)) 1))
-			 (else
-			  (return #f))))))
+                 (lambda (obj1)
+                   (cond ((null? obj1) 0)
+                         ((pair? obj1)
+                          (+ (re (cdr obj1)) 1))
+                         (else
+                          (return #f))))))
       (re obj))))))
 
-(assert-equal? (tn) 4  (list-length '(1 2 3 4)))
-(assert-equal? (tn) #f (list-length '(a b . c)))
+(test-equal 4  (list-length '(1 2 3 4)))
+(test-equal #f (list-length '(a b . c)))
 
 ;; function written in C as proc
-(assert-true   (tn) (call/cc procedure?))
+(test-assert (call/cc procedure?))
 
 ;; another continuation as proc
-(assert-true   (tn) (procedure? (call/cc (lambda (c) (call/cc c)))))
+(test-assert (procedure? (call/cc (lambda (c) (call/cc c)))))
 
-(assert-equal? (tn) 'ret-call/cc
-	       (call-with-current-continuation
-		(lambda (k)
-		  'ret-call/cc)))
+(test-equal 'ret-call/cc
+            (call-with-current-continuation
+             (lambda (k)
+               'ret-call/cc)))
 
-(assert-equal? (tn) 'ret-call/cc
-	       (call-with-current-continuation
-		(lambda (k)
-		  (k 'ret-call/cc))))
+(test-equal 'ret-call/cc
+            (call-with-current-continuation
+             (lambda (k)
+               (k 'ret-call/cc))))
 
 ;; Call an expired continuation. Current SigScheme cause an error due to its
 ;; setjmp/longjmp implementation.
-(assert-error  (tn)
-               (lambda ()
-                 (let ((res (call-with-current-continuation
-                             (lambda (k)
-                               k))))
-                   (if (procedure? res)
-                       (res 'succeeded)
-                       res))))
+(test-error (let ((res (call-with-current-continuation
+                        (lambda (k)
+                          k))))
+              (if (procedure? res)
+                  (res 'succeeded)
+                  res)))
 
 ;; "6.4 Control features" of R5RS:
 ;; The escape procedure accepts the same number of arguments as the
 ;; continuation to the original call to call-with-current-continuation.
 ;; Except for continuations created by the `call-with-values' procedure, all
 ;; continuations take exactly one value.
-(assert-error (tn)
-              (lambda ()
-                (call-with-current-continuation
-                 (lambda (k)
-                   (k (values 1 2))))))
+(test-error (call-with-current-continuation
+             (lambda (k)
+               (k (values 1 2)))))
 
-(assert-error (tn)
-              (lambda ()
-                (call-with-current-continuation
-                 (lambda (k)
-                   (k (values))))))
+(test-error (call-with-current-continuation
+             (lambda (k)
+               (k (values)))))
 
 ;; one value is OK
-(assert-equal? (tn)
-               1
-               (call-with-current-continuation
-                (lambda (k)
-                  (k (values 1)))))
+(test-equal 1
+            (call-with-current-continuation
+             (lambda (k)
+               (k (values 1)))))
+(test-end "call/cc")
 
-(tn "call/cc SigScheme-specific behavior")
+(test-begin "call/cc SigScheme-specific behavior")
 (if (and (provided? "sigscheme")
          (provided? "nested-continuation-only"))
     ;; expired continuation
-    (assert-error  (tn) (lambda ()
-                          ((call/cc (lambda (c) c))
-                           procedure?)))
-    (assert-true   (tn) ((call/cc (lambda (c) c))
-                         procedure?)))
+    (test-error ((call/cc (lambda (c) c))
+                 procedure?))
+    (test-assert ((call/cc (lambda (c) c))
+                  procedure?)))
+(test-end "call/cc SigScheme-specific behavior")
 
-(tn "call/cc multiple values continuation")
-(assert-equal? (tn)
-               '()
-               (call-with-values
-                   (lambda ()
-                     (call/cc (lambda (k) (k))))
-                 (lambda args
-                   args)))
-(assert-error  (tn)
-               (lambda ()
-                 (call-with-values
-                     (lambda ()
-                       (call/cc (lambda (k) (k 0))))
-                   (lambda ()
-                     #t))))
-(assert-error  (tn)
-               (lambda ()
-                 (call-with-values
-                     (lambda ()
-                       (call/cc (lambda (k) (k 0))))
-                   (lambda (x y)
-                     #t))))
-(assert-error  (tn)
-               (lambda ()
-                 (call/cc (lambda (k) (k)))))
+(test-begin "call/cc multiple values continuation")
+(test-equal '()
+            (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k))))
+              (lambda args
+                args)))
+(test-error (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0))))
+              (lambda ()
+                #t)))
+(test-error (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0))))
+              (lambda (x y)
+                #t)))
+(test-error (call/cc (lambda (k) (k))))
 
-(assert-equal? (tn)
-               '(0 1 2)
-               (call-with-values
-                   (lambda ()
-                     (call/cc (lambda (k) (k 0 1 2))))
-                 (lambda args
-                   args)))
-(assert-error  (tn)
-               (lambda ()
-                 (call-with-values
-                     (lambda ()
-                       (call/cc (lambda (k) (k 0 1 2))))
-                   (lambda ()
-                     #t))))
-(assert-error  (tn)
-               (lambda ()
-                 (call-with-values
-                     (lambda ()
-                       (call/cc (lambda (k) (k 0 1 2))))
-                   (lambda (x)
-                     #t))))
-(assert-error  (tn)
-               (lambda ()
-                 (call-with-values
-                     (lambda ()
-                       (call/cc (lambda (k) (k 0 1 2))))
-                   (lambda (x y)
-                     #t))))
-(assert-error  (tn)
-               (lambda ()
-                 (call-with-values
-                     (lambda ()
-                       (call/cc (lambda (k) (k 0 1 2))))
-                   (lambda (x y z a)
-                     #t))))
-(assert-error  (tn)
-               (lambda ()
-                 (call/cc (lambda (k) (k 0 1 2)))))
+(test-equal '(0 1 2)
+            (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0 1 2))))
+              (lambda args
+                args)))
+(test-error (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0 1 2))))
+              (lambda ()
+                #t)))
+(test-error (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0 1 2))))
+              (lambda (x)
+                #t)))
+(test-error (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0 1 2))))
+              (lambda (x y)
+                #t)))
+(test-error (call-with-values
+                (lambda ()
+                  (call/cc (lambda (k) (k 0 1 2))))
+              (lambda (x y z a)
+                #t)))
+(test-error (call/cc (lambda (k) (k 0 1 2))))
+(test-end "call/cc multiple values continuation")
 
-(total-report)
+(test-end "test-continuation")

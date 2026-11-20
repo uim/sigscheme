@@ -2,7 +2,7 @@
 ;;  About    : unit test for dynamic extent
 ;;
 ;;  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,13 +31,12 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (if (not (symbol-bound? 'dynamic-wind))
-    (test-skip "R5RS dynamic-wind is not enabled"))
+    (test-skip-file "R5RS dynamic-wind is not enabled"))
 
-(define *test-track-progress* #f)
-(define tn test-name)
+(test-begin "test-dyn-extent")
 
 ;;
 ;; dynamic-wind
@@ -48,26 +47,92 @@
   (lambda (sym)
     (set! dynwind-res (append dynwind-res (list sym)))))
 
-(tn "dynamic-wind: without escape")
+(test-begin "dynamic-wind: without escape")
 ;; no escape with depth 1
 (set! dynwind-res '())
-(assert-equal? (tn)
-               '(before thunk after)
-               (begin
+(test-equal '(before thunk after)
+            (begin
+              (dynamic-wind
+                  (lambda ()
+                    (append-sym! 'before))
+                  (lambda ()
+                    (append-sym! 'thunk))
+                  (lambda ()
+                    (append-sym! 'after)))
+              dynwind-res))
+
+;; no escape with depth 2
+(set! dynwind-res '())
+(test-equal '(before1 thunk1 before2 thunk2 after2 after1)
+            (begin
+              (dynamic-wind
+                  (lambda ()
+                    (append-sym! 'before1))
+                  (lambda ()
+                    (append-sym! 'thunk1)
+                    (dynamic-wind
+                        (lambda ()
+                          (append-sym! 'before2))
+                        (lambda ()
+                          (append-sym! 'thunk2))
+                        (lambda ()
+                          (append-sym! 'after2))))
+                  (lambda ()
+                    (append-sym! 'after1)))
+              dynwind-res))
+
+;; no escape with depth 3
+(set! dynwind-res '())
+(test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+              after3 after2 after1)
+            (begin
+              (dynamic-wind
+                  (lambda ()
+                    (append-sym! 'before1))
+                  (lambda ()
+                    (append-sym! 'thunk1)
+                    (dynamic-wind
+                        (lambda ()
+                          (append-sym! 'before2))
+                        (lambda ()
+                          (append-sym! 'thunk2)
+                          (dynamic-wind
+                              (lambda ()
+                                (append-sym! 'before3))
+                              (lambda ()
+                                (append-sym! 'thunk3))
+                              (lambda ()
+                                (append-sym! 'after3))))
+                        (lambda ()
+                          (append-sym! 'after2))))
+                  (lambda ()
+                    (append-sym! 'after1)))
+              dynwind-res))
+(test-end "dynamic-wind: without escape")
+
+(test-begin "dynamic-wind: escape from deeper thunk")
+;; escape from thunk1
+(set! dynwind-res '())
+(test-equal '(before thunk after)
+            (begin
+              (call/cc
+               (lambda (k)
                  (dynamic-wind
                      (lambda ()
                        (append-sym! 'before))
                      (lambda ()
-                       (append-sym! 'thunk))
+                       (append-sym! 'thunk)
+                       (k #f))
                      (lambda ()
-                       (append-sym! 'after)))
-                 dynwind-res))
-                   
-;; no escape with depth 2
+                       (append-sym! 'after)))))
+              dynwind-res))
+
+;; escape from thunk2
 (set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 after2 after1)
-               (begin
+(test-equal '(before1 thunk1 before2 thunk2 after2 after1)
+            (begin
+              (call/cc
+               (lambda (k)
                  (dynamic-wind
                      (lambda ()
                        (append-sym! 'before1))
@@ -77,19 +142,21 @@
                            (lambda ()
                              (append-sym! 'before2))
                            (lambda ()
-                             (append-sym! 'thunk2))
+                             (append-sym! 'thunk2)
+                             (k #f))
                            (lambda ()
                              (append-sym! 'after2))))
                      (lambda ()
-                       (append-sym! 'after1)))
-                 dynwind-res))
+                       (append-sym! 'after1)))))
+              dynwind-res))
 
-;; no escape with depth 3
+;; escape from thunk3
 (set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 before3 thunk3
-                 after3 after2 after1)
-               (begin
+(test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+                      after3 after2 after1)
+            (begin
+              (call/cc
+               (lambda (k)
                  (dynamic-wind
                      (lambda ()
                        (append-sym! 'before1))
@@ -104,186 +171,111 @@
                                  (lambda ()
                                    (append-sym! 'before3))
                                  (lambda ()
-                                   (append-sym! 'thunk3))
+                                   (append-sym! 'thunk3)
+                                   (k #f))
                                  (lambda ()
                                    (append-sym! 'after3))))
                            (lambda ()
                              (append-sym! 'after2))))
                      (lambda ()
-                       (append-sym! 'after1)))
-                 dynwind-res))
-
-(tn "dynamic-wind: escape from deeper thunk")
-;; escape from thunk1
-(set! dynwind-res '())
-(assert-equal? (tn)
-               '(before thunk after)
-               (begin
-                 (call/cc
-                  (lambda (k)
-                    (dynamic-wind
-                        (lambda ()
-                          (append-sym! 'before))
-                        (lambda ()
-                          (append-sym! 'thunk)
-                          (k #f))
-                        (lambda ()
-                          (append-sym! 'after)))))
-                 dynwind-res))
-
-;; escape from thunk2
-(set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 after2 after1)
-               (begin
-                 (call/cc
-                  (lambda (k)
-                    (dynamic-wind
-                        (lambda ()
-                          (append-sym! 'before1))
-                        (lambda ()
-                          (append-sym! 'thunk1)
-                          (dynamic-wind
-                              (lambda ()
-                                (append-sym! 'before2))
-                              (lambda ()
-                                (append-sym! 'thunk2)
-                                (k #f))
-                              (lambda ()
-                                (append-sym! 'after2))))
-                        (lambda ()
-                          (append-sym! 'after1)))))
-                 dynwind-res))
-
-;; escape from thunk3
-(set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 before3 thunk3
-                         after3 after2 after1)
-               (begin
-                 (call/cc
-                  (lambda (k)
-                    (dynamic-wind
-                        (lambda ()
-                          (append-sym! 'before1))
-                        (lambda ()
-                          (append-sym! 'thunk1)
-                          (dynamic-wind
-                              (lambda ()
-                                (append-sym! 'before2))
-                              (lambda ()
-                                (append-sym! 'thunk2)
-                                (dynamic-wind
-                                    (lambda ()
-                                      (append-sym! 'before3))
-                                    (lambda ()
-                                      (append-sym! 'thunk3)
-                                      (k #f))
-                                    (lambda ()
-                                      (append-sym! 'after3))))
-                              (lambda ()
-                                (append-sym! 'after2))))
-                        (lambda ()
-                          (append-sym! 'after1)))))
-                 dynwind-res))
+                       (append-sym! 'after1)))))
+              dynwind-res))
 
 ;; escape from thunk3 to thunk1
 (set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 before3 thunk3
-                         after3 after2 after1)
-               (begin
-                 (dynamic-wind
-                     (lambda ()
-                       (append-sym! 'before1))
-                     (lambda ()
-                       (append-sym! 'thunk1)
-                       (call/cc
-                        (lambda (k)
-                          (dynamic-wind
-                              (lambda ()
-                                (append-sym! 'before2))
-                              (lambda ()
-                                (append-sym! 'thunk2)
-                                (dynamic-wind
-                                    (lambda ()
-                                      (append-sym! 'before3))
-                                    (lambda ()
-                                      (append-sym! 'thunk3)
-                                      (k #f))
-                                    (lambda ()
-                                      (append-sym! 'after3))))
-                              (lambda ()
-                                (append-sym! 'after2))))))
-                     (lambda ()
-                       (append-sym! 'after1)))
-                 dynwind-res))
+(test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+                      after3 after2 after1)
+            (begin
+              (dynamic-wind
+                  (lambda ()
+                    (append-sym! 'before1))
+                  (lambda ()
+                    (append-sym! 'thunk1)
+                    (call/cc
+                     (lambda (k)
+                       (dynamic-wind
+                           (lambda ()
+                             (append-sym! 'before2))
+                           (lambda ()
+                             (append-sym! 'thunk2)
+                             (dynamic-wind
+                                 (lambda ()
+                                   (append-sym! 'before3))
+                                 (lambda ()
+                                   (append-sym! 'thunk3)
+                                   (k #f))
+                                 (lambda ()
+                                   (append-sym! 'after3))))
+                           (lambda ()
+                             (append-sym! 'after2))))))
+                  (lambda ()
+                    (append-sym! 'after1)))
+              dynwind-res))
 
 ;; escape from thunk3 to thunk2
 (set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 before3 thunk3
-                         after3 after2 after1)
-               (begin
-                 (dynamic-wind
-                     (lambda ()
-                       (append-sym! 'before1))
-                     (lambda ()
-                       (append-sym! 'thunk1)
-                       (dynamic-wind
-                           (lambda ()
-                             (append-sym! 'before2))
-                           (lambda ()
-                             (append-sym! 'thunk2)
-                             (call/cc
-                              (lambda (k)
-                                (dynamic-wind
-                                    (lambda ()
-                                      (append-sym! 'before3))
-                                    (lambda ()
-                                      (append-sym! 'thunk3)
-                                      (k #f))
-                                    (lambda ()
-                                      (append-sym! 'after3))))))
-                           (lambda ()
-                             (append-sym! 'after2))))
-                     (lambda ()
-                       (append-sym! 'after1)))
-                 dynwind-res))
+(test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+                      after3 after2 after1)
+            (begin
+              (dynamic-wind
+                  (lambda ()
+                    (append-sym! 'before1))
+                  (lambda ()
+                    (append-sym! 'thunk1)
+                    (dynamic-wind
+                        (lambda ()
+                          (append-sym! 'before2))
+                        (lambda ()
+                          (append-sym! 'thunk2)
+                          (call/cc
+                           (lambda (k)
+                             (dynamic-wind
+                                 (lambda ()
+                                   (append-sym! 'before3))
+                                 (lambda ()
+                                   (append-sym! 'thunk3)
+                                   (k #f))
+                                 (lambda ()
+                                   (append-sym! 'after3))))))
+                        (lambda ()
+                          (append-sym! 'after2))))
+                  (lambda ()
+                    (append-sym! 'after1)))
+              dynwind-res))
 
 ;; escape from thunk3 to thunk3
 (set! dynwind-res '())
-(assert-equal? (tn)
-               '(before1 thunk1 before2 thunk2 before3 thunk3
-                         after3 after2 after1)
-               (begin
-                 (dynamic-wind
-                     (lambda ()
-                       (append-sym! 'before1))
-                     (lambda ()
-                       (append-sym! 'thunk1)
-                       (dynamic-wind
-                           (lambda ()
-                             (append-sym! 'before2))
-                           (lambda ()
-                             (append-sym! 'thunk2)
-                                (dynamic-wind
-                                    (lambda ()
-                                      (append-sym! 'before3))
-                                    (lambda ()
-                                      (call/cc
-                                       (lambda (k)
-                                         (append-sym! 'thunk3)
-                                         (k #f))))
-                                    (lambda ()
-                                      (append-sym! 'after3))))
-                           (lambda ()
-                             (append-sym! 'after2))))
-                     (lambda ()
-                       (append-sym! 'after1)))
-                 dynwind-res))
+(test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+                      after3 after2 after1)
+            (begin
+              (dynamic-wind
+                  (lambda ()
+                    (append-sym! 'before1))
+                  (lambda ()
+                    (append-sym! 'thunk1)
+                    (dynamic-wind
+                        (lambda ()
+                          (append-sym! 'before2))
+                        (lambda ()
+                          (append-sym! 'thunk2)
+                             (dynamic-wind
+                                 (lambda ()
+                                   (append-sym! 'before3))
+                                 (lambda ()
+                                   (call/cc
+                                    (lambda (k)
+                                      (append-sym! 'thunk3)
+                                      (k #f))))
+                                 (lambda ()
+                                   (append-sym! 'after3))))
+                        (lambda ()
+                          (append-sym! 'after2))))
+                  (lambda ()
+                    (append-sym! 'after1)))
+              dynwind-res))
+(test-end "dynamic-wind: escape from deeper thunk")
 
-(tn "dynamic-wind: SigScheme-specific escape behavior")
+(test-begin "dynamic-wind: SigScheme-specific escape behavior")
 ;; R5RS: 6.4 Control features
 ;; > The effect of using a captured continuation to enter or exit the dynamic
 ;; > extent of a call to before or after is undefined.
@@ -291,103 +283,101 @@
 ;; escape from before3 to thunk1
 (set! dynwind-res '())
 (if (provided? "sigscheme")
-    (assert-equal? (tn)
-                   '(before1 thunk1 before2 thunk2 before3 after2 after1)
-                   (begin
-                     (dynamic-wind
-                         (lambda ()
-                           (append-sym! 'before1))
-                         (lambda ()
-                           (append-sym! 'thunk1)
-                           (call/cc
-                            (lambda (k)
-                              (dynamic-wind
-                                  (lambda ()
-                                    (append-sym! 'before2))
-                                  (lambda ()
-                                    (append-sym! 'thunk2)
-                                    (dynamic-wind
-                                        (lambda ()
-                                          (append-sym! 'before3)
-                                          (k #f))
-                                        (lambda ()
-                                          (append-sym! 'thunk3))
-                                        (lambda ()
-                                          (append-sym! 'after3))))
-                                  (lambda ()
-                                    (append-sym! 'after2))))))
-                         (lambda ()
-                           (append-sym! 'after1)))
-                     dynwind-res)))
+    (test-equal '(before1 thunk1 before2 thunk2 before3 after2 after1)
+                (begin
+                  (dynamic-wind
+                      (lambda ()
+                        (append-sym! 'before1))
+                      (lambda ()
+                        (append-sym! 'thunk1)
+                        (call/cc
+                         (lambda (k)
+                           (dynamic-wind
+                               (lambda ()
+                                 (append-sym! 'before2))
+                               (lambda ()
+                                 (append-sym! 'thunk2)
+                                 (dynamic-wind
+                                     (lambda ()
+                                       (append-sym! 'before3)
+                                       (k #f))
+                                     (lambda ()
+                                       (append-sym! 'thunk3))
+                                     (lambda ()
+                                       (append-sym! 'after3))))
+                               (lambda ()
+                                 (append-sym! 'after2))))))
+                      (lambda ()
+                        (append-sym! 'after1)))
+                  dynwind-res)))
 
 ;; escape from after3 to thunk1
 (set! dynwind-res '())
 (if (provided? "sigscheme")
-    (assert-equal? (tn)
-                   '(before1 thunk1 before2 thunk2 before3 thunk3
-                             after3 after2 after1)
-                   (begin
-                     (dynamic-wind
-                         (lambda ()
-                           (append-sym! 'before1))
-                         (lambda ()
-                           (append-sym! 'thunk1)
-                           (call/cc
-                            (lambda (k)
-                              (dynamic-wind
-                                  (lambda ()
-                                    (append-sym! 'before2))
-                                  (lambda ()
-                                    (append-sym! 'thunk2)
-                                    (dynamic-wind
-                                        (lambda ()
-                                          (append-sym! 'before3))
-                                        (lambda ()
-                                          (append-sym! 'thunk3))
-                                        (lambda ()
-                                          (append-sym! 'after3)
-                                          (k #f))))
-                                  (lambda ()
-                                    (append-sym! 'after2))))))
-                         (lambda ()
-                           (append-sym! 'after1)))
-                     dynwind-res)))
+    (test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+                          after3 after2 after1)
+                (begin
+                  (dynamic-wind
+                      (lambda ()
+                        (append-sym! 'before1))
+                      (lambda ()
+                        (append-sym! 'thunk1)
+                        (call/cc
+                         (lambda (k)
+                           (dynamic-wind
+                               (lambda ()
+                                 (append-sym! 'before2))
+                               (lambda ()
+                                 (append-sym! 'thunk2)
+                                 (dynamic-wind
+                                     (lambda ()
+                                       (append-sym! 'before3))
+                                     (lambda ()
+                                       (append-sym! 'thunk3))
+                                     (lambda ()
+                                       (append-sym! 'after3)
+                                       (k #f))))
+                               (lambda ()
+                                 (append-sym! 'after2))))))
+                      (lambda ()
+                        (append-sym! 'after1)))
+                  dynwind-res)))
 
 ;; thunk3 -> after3 -> thunk1
 (set! dynwind-res '())
 (if (provided? "sigscheme")
-    (assert-equal? (tn)
-                   '(before1 thunk1 before2 thunk2 before3 thunk3
-                             after3 after2 after1)
-                   (begin
-                     (dynamic-wind
-                         (lambda ()
-                           (append-sym! 'before1))
-                         (lambda ()
-                           (append-sym! 'thunk1)
-                           (call/cc
-                            (lambda (k)
-                              (dynamic-wind
-                                  (lambda ()
-                                    (append-sym! 'before2))
-                                  (lambda ()
-                                    (append-sym! 'thunk2)
-                                    (call/cc
-                                     (lambda (j)
-                                       (dynamic-wind
-                                           (lambda ()
-                                             (append-sym! 'before3))
-                                           (lambda ()
-                                             (append-sym! 'thunk3)
-                                             (j #f))
-                                           (lambda ()
-                                             (append-sym! 'after3)
-                                             (k #f))))))
-                                  (lambda ()
-                                    (append-sym! 'after2))))))
-                         (lambda ()
-                           (append-sym! 'after1)))
-                     dynwind-res)))
+    (test-equal '(before1 thunk1 before2 thunk2 before3 thunk3
+                          after3 after2 after1)
+                (begin
+                  (dynamic-wind
+                      (lambda ()
+                        (append-sym! 'before1))
+                      (lambda ()
+                        (append-sym! 'thunk1)
+                        (call/cc
+                         (lambda (k)
+                           (dynamic-wind
+                               (lambda ()
+                                 (append-sym! 'before2))
+                               (lambda ()
+                                 (append-sym! 'thunk2)
+                                 (call/cc
+                                  (lambda (j)
+                                    (dynamic-wind
+                                        (lambda ()
+                                          (append-sym! 'before3))
+                                        (lambda ()
+                                          (append-sym! 'thunk3)
+                                          (j #f))
+                                        (lambda ()
+                                          (append-sym! 'after3)
+                                          (k #f))))))
+                               (lambda ()
+                                 (append-sym! 'after2))))))
+                      (lambda ()
+                        (append-sym! 'after1)))
+                  dynwind-res)))
+(test-end "dynamic-wind: SigScheme-specific escape behavior")
 
 
-(total-report)
+(test-end "test-dyn-extent")

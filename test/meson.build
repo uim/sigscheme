@@ -99,6 +99,11 @@ endif
 # They use SRFI-64 with helper.scm instead of lib/unittest.scm. They are
 # run only when SRFI-64 is enabled.
 sscm_srfi64_tests = [
+  'test-formal-syntax.scm',
+  'test-map.scm',
+  'test-real.scm',
+  'test-srfi180.scm',
+  'test-srfi34.scm',
   'test-srfi6.scm',
 ]
 

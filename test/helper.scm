@@ -32,7 +32,7 @@
 
 ;; This is loaded by "sscm --load" before a test that uses SRFI-64.
 
-(require-extension (srfi 64))
+(require-extension (srfi 6 64))
 
 
 ;;
@@ -53,3 +53,31 @@
                                      0)
                                   (exit 70))))  ;; EX_SOFTWARE
      runner)))
+
+;; Skips all tests in the test file. test-skip of SRFI-64 can't be used for
+;; it because forms that aren't tests such as definitions are still
+;; evaluated. They may need a disabled feature.
+(define (test-skip-file reason)
+  (display "SKIP: ")
+  (display reason)
+  (newline)
+  (exit 77))  ;; Meson and Automake report it as a skipped test.
+
+
+;;
+;; Utilities
+;;
+
+;; Returns #<undef>.
+(define (undef)
+  (for-each values '()))
+
+(define (string-read str)
+  (read (open-input-string str)))
+
+
+;;
+;; Implementation information
+;;
+
+(define sigscheme? (provided? "sigscheme"))

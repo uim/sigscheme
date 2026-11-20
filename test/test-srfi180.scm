@@ -32,9 +32,10 @@
 
 
 
-(require-extension (unittest) (srfi 6 180))
+(require-extension (srfi 64))
+(require-extension (srfi 6 180))
 
-(define tn test-name)
+(test-begin "test-srfi180")
 
 (define (read-json str)
   (json-read (open-input-string str)))
@@ -49,9 +50,9 @@
     (thunk)
     #f))
 
-(define (assert-json-error name str)
-  (assert-true name (string? (json-error-reason-of
-                              (lambda () (read-json str))))))
+(define (test-json-error str)
+  (test-assert (string? (json-error-reason-of
+                         (lambda () (read-json str))))))
 
 (define (generator->list generator)
   (let loop ((objs '()))
@@ -70,132 +71,142 @@
             (set! chars (cdr chars))
             c)))))
 
-(tn "json-read literals")
-(assert-equal? (tn) 'null (read-json "null"))
-(assert-equal? (tn) #t (read-json "true"))
-(assert-equal? (tn) #f (read-json "false"))
-(assert-true (tn) (json-null? (read-json "null")))
-(assert-false (tn) (json-null? #f))
-(assert-json-error (tn) "nul")
-(assert-json-error (tn) "True")
+(test-begin "json-read literals")
+(test-equal 'null (read-json "null"))
+(test-equal #t (read-json "true"))
+(test-equal #f (read-json "false"))
+(test-assert (json-null? (read-json "null")))
+(test-assert (not (json-null? #f)))
+(test-json-error "nul")
+(test-json-error "True")
+(test-end "json-read literals")
 
-(tn "json-read numbers")
-(assert-equal? (tn) 0 (read-json "0"))
-(assert-equal? (tn) 0 (read-json "-0"))
-(assert-equal? (tn) 42 (read-json "42"))
-(assert-equal? (tn) -42 (read-json "-42"))
-(assert-equal? (tn) 2.5 (read-json "2.5"))
-(assert-equal? (tn) -0.25 (read-json "-25e-2"))
-(assert-equal? (tn) 1000.0 (read-json "1E3"))
-(assert-equal? (tn) 1000.0 (read-json "1e+3"))
-(assert-true (tn) (inexact? (read-json "12345678901234567890")))
-(assert-json-error (tn) "01")
-(assert-json-error (tn) "+1")
-(assert-json-error (tn) ".5")
-(assert-json-error (tn) "1.")
-(assert-json-error (tn) "1e")
-(assert-json-error (tn) "-")
+(test-begin "json-read numbers")
+(test-equal 0 (read-json "0"))
+(test-equal 0 (read-json "-0"))
+(test-equal 42 (read-json "42"))
+(test-equal -42 (read-json "-42"))
+(test-equal 2.5 (read-json "2.5"))
+(test-equal -0.25 (read-json "-25e-2"))
+(test-equal 1000.0 (read-json "1E3"))
+(test-equal 1000.0 (read-json "1e+3"))
+(test-assert (inexact? (read-json "12345678901234567890")))
+(test-json-error "01")
+(test-json-error "+1")
+(test-json-error ".5")
+(test-json-error "1.")
+(test-json-error "1e")
+(test-json-error "-")
+(test-end "json-read numbers")
 
-(tn "json-read strings")
-(assert-equal? (tn) "" (read-json "\"\""))
-(assert-equal? (tn) "abc" (read-json "\"abc\""))
-(assert-equal? (tn) "\"\\/\b\f\n\r\t"
-               (read-json "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\""))
-(assert-equal? (tn) "A~" (read-json "\"\\u0041\\u007e\""))
-(assert-json-error (tn) "\"abc")
-(assert-json-error (tn) "\"\\x\"")
-(assert-json-error (tn) "\"\\u00g0\"")
-(assert-json-error (tn) (string #\" (integer->char 1) #\"))
+(test-begin "json-read strings")
+(test-equal "" (read-json "\"\""))
+(test-equal "abc" (read-json "\"abc\""))
+(test-equal "\"\\/\b\f\n\r\t"
+       (read-json "\"\\\"\\\\\\/\\b\\f\\n\\r\\t\""))
+(test-equal "A~" (read-json "\"\\u0041\\u007e\""))
+(test-json-error "\"abc")
+(test-json-error "\"\\x\"")
+(test-json-error "\"\\u00g0\"")
+(test-json-error (string #\" (integer->char 1) #\"))
 (if (equal? (%%current-char-codec) "UTF-8")
     (begin
-      (assert-equal? (tn) (string (integer->char #x3042))
-                     (read-json "\"\\u3042\""))
-      (assert-equal? (tn) (string (integer->char #x1f600))
-                     (read-json "\"\\ud83d\\ude00\""))
-      (assert-json-error (tn) "\"\\ud83d\"")
-      (assert-json-error (tn) "\"\\ude00\""))
-    (assert-json-error (tn) "\"\\u3042\""))
+      (test-equal (string (integer->char #x3042))
+             (read-json "\"\\u3042\""))
+      (test-equal (string (integer->char #x1f600))
+             (read-json "\"\\ud83d\\ude00\""))
+      (test-json-error "\"\\ud83d\"")
+      (test-json-error "\"\\ude00\""))
+    (test-json-error "\"\\u3042\""))
+(test-end "json-read strings")
 
-(tn "json-read arrays")
-(assert-equal? (tn) '#() (read-json "[]"))
-(assert-equal? (tn) '#(1 "a" #(null)) (read-json " [ 1 , \"a\" ,[null] ] "))
-(assert-json-error (tn) "[")
-(assert-json-error (tn) "[1")
-(assert-json-error (tn) "[1,]")
-(assert-json-error (tn) "[,1]")
-(assert-json-error (tn) "[1 2]")
-(assert-json-error (tn) "[1}")
+(test-begin "json-read arrays")
+(test-equal '#() (read-json "[]"))
+(test-equal '#(1 "a" #(null)) (read-json " [ 1 , \"a\" ,[null] ] "))
+(test-json-error "[")
+(test-json-error "[1")
+(test-json-error "[1,]")
+(test-json-error "[,1]")
+(test-json-error "[1 2]")
+(test-json-error "[1}")
+(test-end "json-read arrays")
 
-(tn "json-read objects")
-(assert-equal? (tn) '() (read-json "{}"))
-(assert-equal? (tn) '((a . 1) (b . #(#t)) (c . ((d . null))))
-               (read-json "{\"a\": 1, \"b\": [true], \"c\": {\"d\": null}}"))
-(assert-json-error (tn) "{")
-(assert-json-error (tn) "{\"a\"}")
-(assert-json-error (tn) "{\"a\" 1}")
-(assert-json-error (tn) "{\"a\": 1,}")
-(assert-json-error (tn) "{a: 1}")
-(assert-json-error (tn) "{\"a\": 1]")
+(test-begin "json-read objects")
+(test-equal '() (read-json "{}"))
+(test-equal '((a . 1) (b . #(#t)) (c . ((d . null))))
+       (read-json "{\"a\": 1, \"b\": [true], \"c\": {\"d\": null}}"))
+(test-json-error "{")
+(test-json-error "{\"a\"}")
+(test-json-error "{\"a\" 1}")
+(test-json-error "{\"a\": 1,}")
+(test-json-error "{a: 1}")
+(test-json-error "{\"a\": 1]")
+(test-end "json-read objects")
 
-(tn "json-read toplevel")
-(assert-true (tn) (eof-object? (read-json "")))
-(assert-true (tn) (eof-object? (read-json "  \n")))
+(test-begin "json-read toplevel")
+(test-assert (eof-object? (read-json "")))
+(test-assert (eof-object? (read-json "  \n")))
 (let ((port (open-input-string "1 [2] {\"a\": 3}")))
-  (assert-equal? (tn) 1 (json-read port))
-  (assert-equal? (tn) '#(2) (json-read port))
-  (assert-equal? (tn) '((a . 3)) (json-read port))
-  (assert-true (tn) (eof-object? (json-read port))))
-(assert-equal? (tn) '#(1 2) (json-read (string-generator "[1, 2]")))
+  (test-equal 1 (json-read port))
+  (test-equal '#(2) (json-read port))
+  (test-equal '((a . 3)) (json-read port))
+  (test-assert (eof-object? (json-read port))))
+(test-equal '#(1 2) (json-read (string-generator "[1, 2]")))
+(test-end "json-read toplevel")
 
-(tn "json-generator")
-(assert-equal? (tn) '(42)
-               (generator->list
-                (json-generator (open-input-string "42 101 1337"))))
-(assert-equal? (tn) '(array-start 42 array-end)
-               (generator->list
-                (json-generator (open-input-string "[42] 101 1337"))))
-(assert-equal? (tn) '(object-start "a" array-start 1 array-end "b" null
-                      object-end)
-               (generator->list
-                (json-generator (string-generator
-                                 "{\"a\": [1], \"b\": null}"))))
+(test-begin "json-generator")
+(test-equal '(42)
+       (generator->list
+        (json-generator (open-input-string "42 101 1337"))))
+(test-equal '(array-start 42 array-end)
+       (generator->list
+        (json-generator (open-input-string "[42] 101 1337"))))
+(test-equal '(object-start "a" array-start 1 array-end "b" null
+              object-end)
+       (generator->list
+        (json-generator (string-generator
+                         "{\"a\": [1], \"b\": null}"))))
+(test-end "json-generator")
 
-(tn "json-fold")
-(assert-equal? (tn) '(#(1 #(2 3)) . 0)
-               (json-fold cons
-                          (lambda (seed) '())
-                          (lambda (seed) (list->vector (reverse seed)))
-                          (lambda (seed) '())
-                          (lambda (seed) (reverse seed))
-                          0
-                          (open-input-string "[1, [2, 3]]")))
+(test-begin "json-fold")
+(test-equal '(#(1 #(2 3)) . 0)
+       (json-fold cons
+                  (lambda (seed) '())
+                  (lambda (seed) (list->vector (reverse seed)))
+                  (lambda (seed) '())
+                  (lambda (seed) (reverse seed))
+                  0
+                  (open-input-string "[1, [2, 3]]")))
 ;; The sum of each array is added to the outer seed.
-(assert-equal? (tn) 6
-               (json-fold +
-                          (lambda (seed) 0)
-                          (lambda (seed) seed)
-                          (lambda (seed) 0)
-                          (lambda (seed) seed)
-                          0
-                          (open-input-string "[1, [2, 3]]")))
+(test-equal 6
+       (json-fold +
+                  (lambda (seed) 0)
+                  (lambda (seed) seed)
+                  (lambda (seed) 0)
+                  (lambda (seed) seed)
+                  0
+                  (open-input-string "[1, [2, 3]]")))
+(test-end "json-fold")
 
-(tn "json-lines-read")
-(assert-equal? (tn) '(1 ((a . 2)) #(3))
-               (generator->list
-                (json-lines-read
-                 (open-input-string "1\n{\"a\": 2}\n\n[3]\n"))))
-(assert-equal? (tn) '(1 2)
-               (generator->list (json-lines-read (string-generator "1\n2"))))
+(test-begin "json-lines-read")
+(test-equal '(1 ((a . 2)) #(3))
+       (generator->list
+        (json-lines-read
+         (open-input-string "1\n{\"a\": 2}\n\n[3]\n"))))
+(test-equal '(1 2)
+       (generator->list (json-lines-read (string-generator "1\n2"))))
+(test-end "json-lines-read")
 
-(tn "json-sequence-read")
+(test-begin "json-sequence-read")
 (let ((rs (string (integer->char 30))))
-  (assert-equal? (tn) '(1 #(2) "3")
-                 (generator->list
-                  (json-sequence-read
-                   (open-input-string
-                    (string-append rs "1\n" rs "[2]\n" rs "\"3\"\n"))))))
+  (test-equal '(1 #(2) "3")
+         (generator->list
+          (json-sequence-read
+           (open-input-string
+            (string-append rs "1\n" rs "[2]\n" rs "\"3\"\n"))))))
+(test-end "json-sequence-read")
 
-(tn "limits")
+(test-begin "limits")
 ;; Parameters can be changed only with R7RS.
 (if (symbol-bound? 'parameterize)
     (let ((read-with-limits
@@ -204,71 +215,75 @@
                                    (json-number-of-character-limit ,n-chars))
                       (json-read (open-input-string ,str)))
                    (interaction-environment)))))
-      (assert-equal? (tn) '#(#(1)) (read-with-limits 2 +inf.0 "[[1]]"))
-      (assert-true (tn) (string? (json-error-reason-of
-                                  (lambda ()
-                                    (read-with-limits 1 +inf.0 "[[1]]")))))
-      (assert-equal? (tn) '#(1) (read-with-limits +inf.0 3 "[1]"))
-      (assert-true (tn) (string? (json-error-reason-of
-                                  (lambda ()
-                                    (read-with-limits +inf.0 2 "[1]")))))))
-(assert-equal? (tn) +inf.0 (json-nesting-depth-limit))
-(assert-equal? (tn) +inf.0 (json-number-of-character-limit))
+      (test-equal '#(#(1)) (read-with-limits 2 +inf.0 "[[1]]"))
+      (test-assert (string? (json-error-reason-of
+                             (lambda ()
+                               (read-with-limits 1 +inf.0 "[[1]]")))))
+      (test-equal '#(1) (read-with-limits +inf.0 3 "[1]"))
+      (test-assert (string? (json-error-reason-of
+                             (lambda ()
+                               (read-with-limits +inf.0 2 "[1]")))))))
+(test-equal +inf.0 (json-nesting-depth-limit))
+(test-equal +inf.0 (json-number-of-character-limit))
+(test-end "limits")
 
-(tn "json-write")
-(assert-equal? (tn) "null" (write-json 'null))
-(assert-equal? (tn) "true" (write-json #t))
-(assert-equal? (tn) "false" (write-json #f))
-(assert-equal? (tn) "-42" (write-json -42))
-(assert-equal? (tn) "2.5" (write-json 2.5))
-(assert-equal? (tn) "\"a\\\"\\\\\\n\\t\\r\\b\\f\\u0001\\u001f/\""
-               (write-json (string #\a #\" #\\ #\newline #\tab
-                                   (integer->char 13) (integer->char 8)
-                                   (integer->char 12) (integer->char 1)
-                                   (integer->char 31) #\/)))
-(assert-equal? (tn) "[]" (write-json '#()))
-(assert-equal? (tn) "{}" (write-json '()))
-(assert-equal? (tn) "{\"a\":[1,{\"b\":null}],\"c\":\"d\"}"
-               (write-json '((a . #(1 ((b . null)))) (c . "d"))))
-(assert-equal? (tn) '((a . #(1 2.5 "x" #t #f null)) (b))
-               (read-json (write-json '((a . #(1 2.5 "x" #t #f null))
-                                        (b)))))
+(test-begin "json-write")
+(test-equal "null" (write-json 'null))
+(test-equal "true" (write-json #t))
+(test-equal "false" (write-json #f))
+(test-equal "-42" (write-json -42))
+(test-equal "2.5" (write-json 2.5))
+(test-equal "\"a\\\"\\\\\\n\\t\\r\\b\\f\\u0001\\u001f/\""
+       (write-json (string #\a #\" #\\ #\newline #\tab
+                           (integer->char 13) (integer->char 8)
+                           (integer->char 12) (integer->char 1)
+                           (integer->char 31) #\/)))
+(test-equal "[]" (write-json '#()))
+(test-equal "{}" (write-json '()))
+(test-equal "{\"a\":[1,{\"b\":null}],\"c\":\"d\"}"
+       (write-json '((a . #(1 ((b . null)))) (c . "d"))))
+(test-equal '((a . #(1 2.5 "x" #t #f null)) (b))
+       (read-json (write-json '((a . #(1 2.5 "x" #t #f null))
+                                (b)))))
+(test-end "json-write")
 
-(tn "json-write errors")
+(test-begin "json-write errors")
 (define (json-write-error-reason obj)
   (json-error-reason-of (lambda () (write-json obj))))
-(assert-true (tn) (string? (json-write-error-reason 'foo)))
-(assert-true (tn) (string? (json-write-error-reason +inf.0)))
-(assert-true (tn) (string? (json-write-error-reason (- +inf.0 +inf.0))))
-(assert-true (tn) (string? (json-write-error-reason '(1 2))))
-(assert-true (tn) (string? (json-write-error-reason '((a . 1) . b))))
-(assert-true (tn) (string? (json-write-error-reason '(("a" . 1)))))
-(assert-true (tn) (string? (json-write-error-reason #\a)))
+(test-assert (string? (json-write-error-reason 'foo)))
+(test-assert (string? (json-write-error-reason +inf.0)))
+(test-assert (string? (json-write-error-reason (- +inf.0 +inf.0))))
+(test-assert (string? (json-write-error-reason '(1 2))))
+(test-assert (string? (json-write-error-reason '((a . 1) . b))))
+(test-assert (string? (json-write-error-reason '(("a" . 1)))))
+(test-assert (string? (json-write-error-reason #\a)))
 ;; Nothing is written on error.
 (let ((port (open-output-string)))
   (json-error-reason-of (lambda () (json-write '#(1 foo) port)))
-  (assert-equal? (tn) "" (get-output-string port)))
+  (test-equal "" (get-output-string port)))
+(test-end "json-write errors")
 
-(tn "json-accumulator")
+(test-begin "json-accumulator")
 (let* ((port (open-output-string))
        (accumulate (json-accumulator port)))
   (for-each accumulate
             '(object-start "a" array-start 1 "b" array-end object-end))
-  (assert-equal? (tn) "{\"a\":[1,\"b\"]}" (get-output-string port)))
+  (test-equal "{\"a\":[1,\"b\"]}" (get-output-string port)))
 (let* ((strings '())
        (accumulate (json-accumulator
                     (lambda (str) (set! strings (cons str strings))))))
   (for-each accumulate '(array-start 1 2 array-end))
-  (assert-equal? (tn) "[1,2]" (apply string-append (reverse strings))))
+  (test-equal "[1,2]" (apply string-append (reverse strings))))
 (define (accumulator-error-reason tokens)
   (json-error-reason-of
    (lambda ()
      (for-each (json-accumulator (open-output-string)) tokens))))
-(assert-true (tn) (string? (accumulator-error-reason '(array-end))))
-(assert-true (tn) (string? (accumulator-error-reason
-                            '(array-start object-end))))
-(assert-true (tn) (string? (accumulator-error-reason '(object-start 1))))
-(assert-true (tn) (string? (accumulator-error-reason
-                            '(object-start "a" object-end))))
+(test-assert (string? (accumulator-error-reason '(array-end))))
+(test-assert (string? (accumulator-error-reason
+                       '(array-start object-end))))
+(test-assert (string? (accumulator-error-reason '(object-start 1))))
+(test-assert (string? (accumulator-error-reason
+                       '(object-start "a" object-end))))
+(test-end "json-accumulator")
 
-(total-report)
+(test-end "test-srfi180")

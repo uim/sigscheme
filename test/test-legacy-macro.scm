@@ -65,7 +65,9 @@
                        (let ((?var 'val))
                          (lambda ()
                            ``,?var)))
-                    (interaction-environment))))
+                    (interaction-environment)))
+  ;; The invalid definition isn't kept.
+  (test-assert (not (symbol-bound? 'm))))
  (else
   (define-macro m
     (let ((?var 'val))

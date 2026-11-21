@@ -113,11 +113,14 @@ scm_s_define_macro(ScmObj identifier, ScmObj rest, ScmEvalState *eval_state)
     identifier = SCM_UNWRAP_KEYWORD(identifier);
 
     closure = scm_toplevel_value(identifier, eval_state->env);
-    if (!CLOSUREP(closure))
+    /* scm_s_define() has already defined the identifier. Don't keep it
+     * when it can't be a syntactic closure. */
+    if (!CLOSUREP(closure)
+        || !scm_toplevel_environmentp(SCM_CLOSURE_ENV(closure))) {
         scm_set_toplevel(identifier, SCM_UNBOUND, eval_state->env);
-    ENSURE_CLOSURE(closure);
-    if (!scm_toplevel_environmentp(SCM_CLOSURE_ENV(closure)))
+        ENSURE_CLOSURE(closure);
         ERR("syntactic closure in SigScheme must have toplevel environment");
+    }
     /* destructively mark the closure as syntactic */
     SCM_CLOSURE_SET_ENV(closure, SCM_SYNTACTIC_CLOSURE_ENV);
 

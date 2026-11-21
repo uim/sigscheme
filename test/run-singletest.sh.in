@@ -7,28 +7,42 @@ case "$1" in
   *)  test_file="@abs_top_builddir@/test/$1" ;;
 esac
 
-# test-srfi64.scm tests SRFI-64 itself. test-fail.scm and
-# test-unittest.scm use lib/unittest.scm. All other tests use SRFI-64
-# with helper.scm. It has the runner that makes the exit status non-zero
-# on failure.
-#
-# lib/srfi-64.scm in the source tree can be used even if SRFI-64 is
-# disabled when the features that SRFI-64 requires are enabled:
-#   load continuation hygienic_macro port reader
-#   srfi6 srfi9 srfi23 srfi34 srfi55
+# usage: skip_unless_enabled NAME USE...
+# Skips the test unless all features that NAME requires are enabled.
+skip_unless_enabled() {
+  name="$1"
+  shift
+  for use in "$@"; do
+    if test "$use" != yes; then
+      echo "SKIP: features that $name requires are not enabled"
+      exit 77
+    fi
+  done
+}
+
 case "${test_file##*/}" in
-  test-fail.scm|test-srfi64.scm|test-unittest.scm)
+  test-srfi64.scm)
+    # It tests SRFI-64 itself.
+    ;;
+  test-fail.scm|test-unittest.scm)
+    # They use lib/unittest.scm. lib/unittest.scm and they use:
+    #   legacy_macro sscm_extensions srfi0 srfi6 srfi23 srfi34 srfi55
+    skip_unless_enabled lib/unittest.scm \
+      @use_legacy_macro@ @use_sscm_extensions@ @use_srfi0@ @use_srfi6@ \
+      @use_srfi23@ @use_srfi34@ @use_srfi55@
     ;;
   *)
-    for use in \
+    # Other tests use SRFI-64 with helper.scm. It has the runner that
+    # makes the exit status non-zero on failure.
+    #
+    # lib/srfi-64.scm in the source tree can be used even if SRFI-64 is
+    # disabled when the features that SRFI-64 requires are enabled:
+    #   load continuation hygienic_macro port reader
+    #   srfi6 srfi9 srfi23 srfi34 srfi55
+    skip_unless_enabled SRFI-64 \
       @use_load@ @use_continuation@ @use_hygienic_macro@ @use_port@ \
       @use_reader@ @use_srfi6@ @use_srfi9@ @use_srfi23@ @use_srfi34@ \
-      @use_srfi55@; do
-      if test "$use" != yes; then
-        echo "SKIP: features that SRFI-64 requires are not enabled"
-        exit 77
-      fi
-    done
+      @use_srfi55@
     SSCM="$SSCM --load @abs_top_srcdir@/test/helper.scm"
     ;;
 esac

@@ -10,7 +10,6 @@ sscm_tests = [
   'test-do.scm',
   'test-dyn-extent.scm',
   'test-eval.scm',
-  'test-fail.scm',
   'test-formatplus.scm',
   'test-lambda.scm',
   'test-legacy-macro.scm',
@@ -46,7 +45,6 @@ sscm_tests = [
   'test-string.scm',
   'test-syntax-rules.scm',
   'test-syntax.scm',
-  'test-unittest.scm',
   'test-values.scm',
 ]
 sscm_xfail_tests = [
@@ -94,6 +92,19 @@ if use['eucjp']
 endif
 if use['sjis']
   sscm_tests += ['test-enc-sjis.scm']
+endif
+
+# test-fail.scm and test-unittest.scm use lib/unittest.scm. They are run
+# only when the features that lib/unittest.scm and they use are enabled.
+unittest_available = true
+foreach feature : ['legacy_macro', 'sscm_extensions',
+                   'srfi0', 'srfi6', 'srfi23', 'srfi34', 'srfi55']
+  if not use[feature]
+    unittest_available = false
+  endif
+endforeach
+if unittest_available
+  sscm_tests += ['test-fail.scm', 'test-unittest.scm']
 endif
 
 # They don't use helper.scm. test-srfi64.scm tests SRFI-64 itself and

@@ -50,7 +50,8 @@ sscm_tests = [
 sscm_xfail_tests = [
   'test-fail.scm',
 ]
-if use['utf8']
+# SRFI-22 is required for a script prelude ("#! /usr/bin/env sscm -C ...").
+if use['utf8'] and use['srfi22']
   # They specify "-C UTF-8" in their script prelude.
   sscm_tests += [
     'test-bool.scm',
@@ -74,7 +75,7 @@ if use['utf8']
     'test-vector.scm',
   ]
 endif
-if use['utf8'] and use['srfi6'] and iconv_dependency.found()
+if use['utf8'] and use['srfi22'] and use['srfi6'] and iconv_dependency.found()
   # It specifies "-C UTF-8" in its script prelude.
   sscm_tests += ['test-coding.scm']
 endif
@@ -84,13 +85,16 @@ endif
 if use['srfi180']
   sscm_tests += ['test-srfi180.scm']
 endif
-if use['euccn']
+if use['euccn'] and use['srfi22']
+  # It specifies "-C EUC-CN" in its script prelude.
   sscm_tests += ['test-enc-eucgeneric.scm']
 endif
-if use['eucjp']
+if use['eucjp'] and use['srfi22']
+  # They specify "-C EUC-JP" in their script prelude.
   sscm_tests += ['test-enc-eucjp.scm', 'test-char.scm']
 endif
-if use['sjis']
+if use['sjis'] and use['srfi22']
+  # It specifies "-C Shift_JIS" in its script prelude.
   sscm_tests += ['test-enc-sjis.scm']
 endif
 
@@ -125,8 +129,53 @@ foreach feature : feature_required_dependencies['srfi64']
   endif
 endforeach
 
+# Features that a test requires in addition to the above conditions. A
+# test isn't run when one of them is disabled.
+#
+# * A SRFI or 'sscm_extensions': The test uses it by require-extension.
+# * 'srfi0': The test uses cond-expand.
+# * 'srfi22': test-formatplus.scm loads test-srfi48.scm that has a
+#   script prelude.
+sscm_test_requirements = {
+  'test-enc-utf8.scm': ['srfi28'],
+  'test-formatplus.scm': ['srfi6', 'srfi22', 'srfi28', 'srfi38', 'srfi48'],
+  'test-legacy-macro.scm': ['srfi0'],
+  'test-library.scm': ['srfi0'],
+  'test-list.scm': ['sscm_extensions'],
+  'test-real.scm': ['srfi6'],
+  'test-srfi0.scm': ['srfi0'],
+  'test-srfi1-another.scm': ['srfi1', 'srfi6', 'srfi23', 'srfi38'],
+  'test-srfi1-obsolete.scm': ['srfi1', 'srfi8'],
+  'test-srfi2.scm': ['srfi2'],
+  'test-srfi6.scm': ['srfi6'],
+  'test-srfi8.scm': ['srfi8'],
+  'test-srfi9.scm': ['srfi6', 'srfi9'],
+  'test-srfi28.scm': ['srfi28'],
+  'test-srfi34-2.scm': ['srfi34'],
+  'test-srfi34.scm': ['srfi8', 'srfi34'],
+  'test-srfi38.scm': ['srfi6', 'srfi38'],
+  'test-srfi43.scm': ['srfi0', 'srfi43'],
+  'test-srfi48.scm': ['srfi6', 'srfi28', 'srfi38', 'srfi48'],
+  'test-srfi55.scm': ['sscm_extensions', 'srfi1', 'srfi2', 'srfi8', 'srfi23',
+                      'srfi48', 'srfi55', 'srfi60'],
+  'test-srfi60.scm': ['srfi60'],
+  'test-srfi180.scm': ['srfi6'],
+  'test-sscm-ext.scm': ['sscm_extensions'],
+  'test-string-proc.scm': ['sscm_extensions'],
+  'test-vector.scm': ['sscm_extensions'],
+}
+
 if use['shell']
   foreach sscm_test : sscm_tests
+    sscm_test_available = true
+    foreach feature : sscm_test_requirements.get(sscm_test, [])
+      if not use[feature]
+        sscm_test_available = false
+      endif
+    endforeach
+    if not sscm_test_available
+      continue
+    endif
     sscm_test_args = ['--system-load-path', meson.project_source_root() / 'lib']
     if not sscm_no_helper_tests.contains(sscm_test)
       if not srfi64_available

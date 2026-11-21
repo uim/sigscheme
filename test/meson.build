@@ -101,7 +101,6 @@ endif
 # helper.scm and are run only when SRFI-64 is enabled.
 sscm_no_helper_tests = [
   'test-fail.scm',
-  'test-library.scm',
   'test-srfi64.scm',
   'test-unittest.scm',
 ]

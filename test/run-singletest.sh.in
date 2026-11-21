@@ -7,12 +7,12 @@ case "$1" in
   *)  test_file="@abs_top_builddir@/test/$1" ;;
 esac
 
-# test-srfi64.scm tests SRFI-64 itself and test-fail.scm,
-# test-library.scm and test-unittest.scm use lib/unittest.scm. All other
-# tests use SRFI-64 with helper.scm. It has the runner that makes the
-# exit status non-zero on failure.
+# test-srfi64.scm tests SRFI-64 itself. test-fail.scm and
+# test-unittest.scm use lib/unittest.scm. All other tests use SRFI-64
+# with helper.scm. It has the runner that makes the exit status non-zero
+# on failure.
 case "${test_file##*/}" in
-  test-fail.scm|test-library.scm|test-srfi64.scm|test-unittest.scm)
+  test-fail.scm|test-srfi64.scm|test-unittest.scm)
     ;;
   *)
     if test "@use_srfi64@" != yes; then

@@ -274,11 +274,11 @@
 
 ;; Calls THUNK while (GET) returns VALUE. (PUT VALUE) sets it.
 (define (%srfi64-call-with get put value thunk)
-  (let ((other value))
-    (define (swap!)
-      (let ((current (get)))
-        (put other)
-        (set! other current)))
+  (let* ((other value)
+         (swap! (lambda ()
+                  (let ((current (get)))
+                    (put other)
+                    (set! other current)))))
     (dynamic-wind swap! thunk swap!)))
 
 (define-syntax test-with-runner

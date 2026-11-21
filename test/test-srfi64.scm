@@ -89,7 +89,7 @@
 ;; Joins LINES with newlines.
 (define (lines . lines)
   (apply string-append
-         (map (lambda (line) (string-append line (string #\newline)))
+         (map (lambda (line) (string-append line "\n"))
               lines)))
 
 (test-begin "SRFI-64")
@@ -278,9 +278,15 @@
   (test-equal '(("g1-a" . pass) ("g1-b" . fail))
               (kinds (lambda ()
                        (test-group "g1"
-                         (define x 1)
-                         (test-eqv "g1-a" 1 x)
-                         (test-eqv "g1-b" 2 x)))))
+                         (test-eqv "g1-a" 1 1)
+                         (test-eqv "g1-b" 2 1)))))
+  ;; A body can have definitions.
+  (if (provided? "internal-definitions")
+      (test-equal '(("defined" . pass))
+                  (kinds (lambda ()
+                           (test-group "g"
+                             (define x 1)
+                             (test-eqv "defined" 1 x))))))
   (let ((executed? #f))
     (test-equal '()
                 (kinds (lambda ()
@@ -349,16 +355,18 @@
            (test-group-with-cleanup "g"
              (set! cleaned? #t))))
     (test-assert "only cleanup" cleaned?))
-  (test-equal '(("defined" . pass))
-              (kinds (lambda ()
-                       (test-group-with-cleanup "g"
-                         (define x 1)
-                         (test-eqv "defined" 1 x)
-                         #f)))))
+  ;; A body can have definitions.
+  (if (provided? "internal-definitions")
+      (test-equal '(("defined" . pass))
+                  (kinds (lambda ()
+                           (test-group-with-cleanup "g"
+                             (define x 1)
+                             (test-eqv "defined" 1 x)
+                             #f))))))
 
 (test-group "test-begin and test-end"
-  (let ((events '()))
-    (define (record! event) (set! events (cons event events)))
+  (let* ((events '())
+         (record! (lambda (event) (set! events (cons event events)))))
     (let ((runner (test-runner-null)))
       (test-runner-on-group-begin! runner
                                    (lambda (runner name count)

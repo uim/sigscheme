@@ -363,7 +363,7 @@
 (test-error (let ()
               (define-values (a b) (values 1 2 3))
               a))
-(test-error (define-values (a b) (values 1)))
+(test-error (let () (define-values (a b) (values 1)) #t))
 (test-error (let ()
               (define-values (a 1) (values 1 2))
               a))

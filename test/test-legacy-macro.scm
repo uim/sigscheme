@@ -38,27 +38,34 @@
 
 (test-begin "define-macro invalid forms")
 ;; invalid identifier
-(test-error (define-macro #\m (lambda () #t)))
-(test-error (define-macro "m" (lambda () #f)))
+(test-error (eval '(define-macro #\m (lambda () #t))
+                  (interaction-environment)))
+(test-error (eval '(define-macro "m" (lambda () #f))
+                  (interaction-environment)))
 ;; invalid closure
-(test-error (define-macro m '(lambda () #t)))
-(test-error (define-macro m #f))
+(test-error (eval '(define-macro m '(lambda () #t))
+                  (interaction-environment)))
+(test-error (eval '(define-macro m #f)
+                  (interaction-environment)))
 (test-error m)  ;; must be unbound here
 ;; syntactic keyword
-(test-error (define-macro m and))
+(test-error (eval '(define-macro m and)
+                  (interaction-environment)))
 ;; another macro as alias
 (define-macro m (lambda () #t))
-(test-error (define-macro m2 m))
+(test-error (eval '(define-macro m2 m)
+                  (interaction-environment)))
 (test-end "define-macro invalid forms")
 
 (test-begin "define-macro non-toplevel env")
 (cond-expand
  (sigscheme
   ;; SigScheme does not accept non-toplevel env for syntactic closures.
-  (test-error (define-macro m
-                (let ((?var 'val))
-                  (lambda ()
-                    ``,?var)))))
+  (test-error (eval '(define-macro m
+                       (let ((?var 'val))
+                         (lambda ()
+                           ``,?var)))
+                    (interaction-environment))))
  (else
   (define-macro m
     (let ((?var 'val))

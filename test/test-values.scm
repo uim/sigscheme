@@ -61,7 +61,7 @@
 (test-error (eval '(set! foo (values 1 2 3))
                   (interaction-environment)))
 ;; internal variable
-(test-error (define bar (values 1 2 3)))
+(test-error (let () (define bar (values 1 2 3)) #t))
 ;; others
 (test-error (let ((bar (values 1 2 3))) #t))
 (test-error (let* ((bar (values 1 2 3))) #t))

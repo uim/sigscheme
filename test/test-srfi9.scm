@@ -46,23 +46,35 @@
 (test-error (test-read-eval-string
              "(if #t (define-record-type my-rec (make-my-rec) my-rec?))"))
 ;; invalid record names
-(test-error (define-record-type 'my-rec (make-my-rec) my-rec?))
-(test-error (define-record-type "my-rec" (make-my-rec) my-rec?))
+(test-error (eval '(define-record-type 'my-rec (make-my-rec) my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type "my-rec" (make-my-rec) my-rec?)
+                  (interaction-environment)))
 ;; invalid predicate names
-(test-error (define-record-type my-rec (make-my-rec) 'my-rec?))
-(test-error (define-record-type my-rec (make-my-rec) "my-rec?"))
+(test-error (eval '(define-record-type my-rec (make-my-rec) 'my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type my-rec (make-my-rec) "my-rec?")
+                  (interaction-environment)))
 ;; invalid constructor
-(test-error (define-record-type my-rec make-my-rec my-rec?))
-(test-error (define-record-type my-rec '(make-my-rec) my-rec?))
-(test-error (define-record-type my-rec (list make-my-rec) my-rec?))
-(test-error (define-record-type my-rec (list 'make-my-rec) my-rec?))
-(test-error (define-record-type my-rec #(make-my-rec) my-rec?))
-(test-error (define-record-type my-rec '#(make-my-rec) my-rec?))
+(test-error (eval '(define-record-type my-rec make-my-rec my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type my-rec '(make-my-rec) my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type my-rec (list make-my-rec) my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type my-rec (list 'make-my-rec) my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type my-rec #(make-my-rec) my-rec?)
+                  (interaction-environment)))
+(test-error (eval '(define-record-type my-rec '#(make-my-rec) my-rec?)
+                  (interaction-environment)))
 ;; non-existent field name in constructor
-(test-error (define-record-type my-rec (make-my-rec x) my-rec?))
+(test-error (eval '(define-record-type my-rec (make-my-rec x) my-rec?)
+                  (interaction-environment)))
 ;; without accessor
-(test-error (define-record-type my-rec (make-my-rec x) my-rec?
-              (x)))
+(test-error (eval '(define-record-type my-rec (make-my-rec x) my-rec?
+                     (x))
+                  (interaction-environment)))
 (test-end "SRFI-9 invalid forms")
 
 (test-begin "SRFI-9 no-field record")

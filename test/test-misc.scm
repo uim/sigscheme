@@ -4,7 +4,7 @@
 ;;  About    : unit tests for miscellaneous procedures
 ;;
 ;;  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -33,73 +33,73 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (if (not (provided? "r6rs-chars"))
-    (test-skip "R6RS characters is not enabled"))
+    (test-skip-file "R6RS characters is not enabled"))
 
-(define tn test-name)
+(test-begin "test-misc")
 
-(tn "procedure?")
-(assert-eq? (tn) #f (procedure? #f))
-(assert-eq? (tn) #f (procedure? #t))
-(assert-eq? (tn) #f (procedure? '()))
+(test-begin "procedure?")
+(test-eq #f (procedure? #f))
+(test-eq #f (procedure? #t))
+(test-eq #f (procedure? '()))
 (if (provided? "sigscheme")
     (begin
-      (assert-eq? (tn) #f (procedure? (eof)))
-      (assert-eq? (tn) #f (procedure? (undef)))))
-(assert-eq? (tn) #f (procedure? 0))
-(assert-eq? (tn) #f (procedure? 1))
-(assert-eq? (tn) #f (procedure? 3))
-(assert-eq? (tn) #f (procedure? -1))
-(assert-eq? (tn) #f (procedure? -3))
-(assert-eq? (tn) #f (procedure? 'symbol))
-(assert-eq? (tn) #f (procedure? 'SYMBOL))
-(assert-eq? (tn) #f (procedure? #\a))
-(assert-eq? (tn) #f (procedure? #\あ))
-(assert-eq? (tn) #f (procedure? ""))
-(assert-eq? (tn) #f (procedure? " "))
-(assert-eq? (tn) #f (procedure? "a"))
-(assert-eq? (tn) #f (procedure? "A"))
-(assert-eq? (tn) #f (procedure? "aBc12!"))
-(assert-eq? (tn) #f (procedure? "あ"))
-(assert-eq? (tn) #f (procedure? "あ0イう12!"))
-(assert-eq? (tn) #t (procedure? car))
-(assert-eq? (tn) #f (procedure? 'car))
-(assert-eq? (tn) #t (procedure? +))
-(assert-eq? (tn) #t (procedure? (lambda () #t)))
-(assert-eq? (tn) #f (procedure? '(lambda () #t)))
+      (test-eq #f (procedure? (eof)))
+      (test-eq #f (procedure? (undef)))))
+(test-eq #f (procedure? 0))
+(test-eq #f (procedure? 1))
+(test-eq #f (procedure? 3))
+(test-eq #f (procedure? -1))
+(test-eq #f (procedure? -3))
+(test-eq #f (procedure? 'symbol))
+(test-eq #f (procedure? 'SYMBOL))
+(test-eq #f (procedure? #\a))
+(test-eq #f (procedure? #\あ))
+(test-eq #f (procedure? ""))
+(test-eq #f (procedure? " "))
+(test-eq #f (procedure? "a"))
+(test-eq #f (procedure? "A"))
+(test-eq #f (procedure? "aBc12!"))
+(test-eq #f (procedure? "あ"))
+(test-eq #f (procedure? "あ0イう12!"))
+(test-eq #t (procedure? car))
+(test-eq #f (procedure? 'car))
+(test-eq #t (procedure? +))
+(test-eq #t (procedure? (lambda () #t)))
+(test-eq #f (procedure? '(lambda () #t)))
 
 ;; syntactic keywords should not be appeared as operand
 (if sigscheme?
     (begin
       ;; pure syntactic keyword
-      (assert-error (tn) (lambda () (procedure? else)))
+      (test-error (procedure? else))
       ;; expression keyword
-      (assert-error (tn) (lambda () (procedure? do)))))
+      (test-error (procedure? do))))
 
 (call-with-current-continuation
  (lambda (k)
-   (assert-eq? (tn) #t (procedure? k))))
-(assert-eq? (tn) #t (call-with-current-continuation procedure?))
-(assert-eq? (tn) #f (procedure? (current-output-port)))
-(assert-eq? (tn) #f (procedure? '(#t . #t)))
-(assert-eq? (tn) #f (procedure? (cons #t #t)))
-(assert-eq? (tn) #f (procedure? '(0 1 2)))
-(assert-eq? (tn) #f (procedure? (list 0 1 2)))
-(assert-eq? (tn) #f (procedure? '#()))
-(assert-eq? (tn) #f (procedure? (vector)))
-(assert-eq? (tn) #f (procedure? '#(0 1 2)))
-(assert-eq? (tn) #f (procedure? (vector 0 1 2)))
+   (test-eq #t (procedure? k))))
+(test-eq #t (call-with-current-continuation procedure?))
+(test-eq #f (procedure? (current-output-port)))
+(test-eq #f (procedure? '(#t . #t)))
+(test-eq #f (procedure? (cons #t #t)))
+(test-eq #f (procedure? '(0 1 2)))
+(test-eq #f (procedure? (list 0 1 2)))
+(test-eq #f (procedure? '#()))
+(test-eq #f (procedure? (vector)))
+(test-eq #f (procedure? '#(0 1 2)))
+(test-eq #f (procedure? (vector 0 1 2)))
+(test-end "procedure?")
 
-(tn "Optional argument modification")
+(test-begin "Optional argument modification")
 ;; Dotted
-(assert-equal? (tn)
-               '(a . #t)
-               ((lambda args (set-cdr! args #t) args) 'a 'b 'c))
+(test-equal '(a . #t)
+            ((lambda args (set-cdr! args #t) args) 'a 'b 'c))
 ;; Circular
-(assert-equal? (tn)
-               'a
-               (caddr ((lambda args (set-cdr! args args) args) 'a 'b)))
+(test-equal 'a
+            (caddr ((lambda args (set-cdr! args args) args) 'a 'b)))
+(test-end "Optional argument modification")
 
-(total-report)
+(test-end "test-misc")

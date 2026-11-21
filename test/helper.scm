@@ -87,6 +87,12 @@
     (write obj port)
     (get-output-string port)))
 
+(define (print-expected expected)
+  (display " expected print: ")
+  (display expected)
+  (newline)
+  (display "   actual print: "))
+
 
 ;;
 ;; Implementation information

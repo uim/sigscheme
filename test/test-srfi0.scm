@@ -1,7 +1,7 @@
 ;;  Filename : test-srfi0.scm
 ;;  About    : unit tests for SRFI-0
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -30,8 +30,10 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
+
+(test-begin "test-srfi0")
 
 (test-begin "cond-expand invalid forms")
 (test-error (cond-expand))
@@ -43,7 +45,7 @@
 ;; cond-expand may only be placed to toplevel
 (test-error (if #t (cond-expand (else #t))))
 (test-error ((lambda () (cond-expand (else #t)))))
-(test-end)
+(test-end "cond-expand invalid forms")
 
 (test-begin "cond-expand null matched body")
 (test-eq (undef) (eval '(cond-expand (else))
@@ -58,9 +60,9 @@
                        (interaction-environment)))
 (test-eq (undef) (eval '(cond-expand ((not nonexistent)))
                        (interaction-environment)))
-(test-end)
+(test-end "cond-expand null matched body")
 
 (test-begin "cond-expand")
-(test-end)
+(test-end "cond-expand")
 
-(test-report-result)
+(test-end "test-srfi0")

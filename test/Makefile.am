@@ -133,20 +133,35 @@ sscm_srfi64_tests = \
         test-list.scm \
         test-map.scm \
         test-member.scm \
+        test-misc.scm \
         test-named-let.scm \
         test-number-arith.scm \
         test-number-cmp.scm \
         test-number-io.scm \
         test-number-literal.scm \
         test-number-pred.scm \
+        test-obsolete.scm \
         test-pair.scm \
         test-quote.scm \
+        test-r7rs.scm \
         test-real.scm \
+        test-srfi0.scm \
+        test-srfi1-another.scm \
+        test-srfi1-obsolete.scm \
         test-srfi180.scm \
+        test-srfi2.scm \
         test-srfi28.scm \
+        test-srfi34-2.scm \
         test-srfi34.scm \
+        test-srfi38.scm \
+        test-srfi43.scm \
         test-srfi48.scm \
+        test-srfi55.scm \
         test-srfi6.scm \
+        test-srfi60.scm \
+        test-srfi8.scm \
+        test-srfi9.scm \
+        test-sscm-ext.scm \
         test-string-cmp.scm \
         test-string-core.scm \
         test-string-null.scm \

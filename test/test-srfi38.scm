@@ -2,7 +2,7 @@
 ;;  About    : unit test for SRFI-38
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,45 +31,41 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (require-extension (srfi 6 38))
 
-(if (not (provided? "srfi-38"))
-    (test-skip "SRFI-38 is not enabled"))
-
-(define tn test-name)
+(test-begin "test-srfi38")
 
 (if (not (symbol-bound? 'cadddr))
     (define cadddr
       (lambda (lst)
         (caddr (cdr lst)))))
 
-(tn "write/ss short-name alias")
+(test-begin "write/ss short-name alias")
 (if sigscheme?
     (begin
-      (assert-true   (tn) (symbol-bound? 'write/ss))
-      (assert-true   (tn) (string-eval
-                           "(eq? write/ss write-with-shared-structure)"))))
+      (test-assert (symbol-bound? 'write/ss))
+      (test-assert (string-eval
+                    "(eq? write/ss write-with-shared-structure)"))))
+(test-end "write/ss short-name alias")
 
-(tn "write/ss invalid form")
-(assert-error  (tn) (lambda ()
-                      (write-with-shared-structure)))
-(assert-error  (tn) (lambda ()
-                      (write-with-shared-structure #f . (current-output-port))))
-(assert-error  (tn) (lambda ()
-                      (write-with-shared-structure #f (current-output-port) . #t)))
+(test-begin "write/ss invalid form")
+(test-error (write-with-shared-structure))
+(test-error (write-with-shared-structure #f . (current-output-port)))
+(test-error (write-with-shared-structure #f (current-output-port) . #t))
 (if sigscheme?
-    (assert-error  (tn) (lambda ()
-                          (write-with-shared-structure
-                           #f (current-output-port) #t . #t))))
+    (test-error (write-with-shared-structure
+                 #f (current-output-port) #t . #t)))
+(test-end "write/ss invalid form")
 
-(tn "write/ss with implicit port")
+(test-begin "write/ss with implicit port")
 (print-expected "\"abc\"")
 (write-with-shared-structure "abc")
 (newline)
+(test-end "write/ss with implicit port")
 
-(tn "write/ss with explicit port arg")
+(test-begin "write/ss with explicit port arg")
 (let* ((outs (open-output-string))
        (s "abc")
        (convolution `(,s 1 #(,s b) ,(list 2) () ,s)))
@@ -78,26 +74,26 @@
   (vector-set! (caddr convolution) 1 (cddr convolution))
   (set-cdr! (cadddr convolution) (cdr convolution))
   (write-with-shared-structure convolution outs)
-  (assert-equal? (tn)
-                 "#1=(#2=\"abc\" . #3=(#1# . #4=(#(#2# #4#) (2 . #3#) () #2#)))"
-                 (get-output-string outs)))
+  (test-equal "#1=(#2=\"abc\" . #3=(#1# . #4=(#(#2# #4#) (2 . #3#) () #2#)))"
+              (get-output-string outs)))
 
 (let* ((outs (open-output-string))
        (a-pair (cons 'kar 'kdr))
             (convolution (eval (list 'lambda '() a-pair) (interaction-environment))))
        (set-cdr! a-pair convolution)
        (write-with-shared-structure convolution outs)
-       (assert-equal? (tn)
-                      "#1=#<closure (() (kar . #1#))>"
-                      (get-output-string outs)))
+       (test-equal "#1=#<closure (() (kar . #1#))>"
+                   (get-output-string outs)))
+(test-end "write/ss with explicit port arg")
 
-(tn "write/ss with explicit port arg and optarg")
+(test-begin "write/ss with explicit port arg and optarg")
 (let ((p (open-output-string)))
   (write-with-shared-structure "abc" p #t)
-  (assert-equal? (tn) "\"abc\"" (get-output-string p)))
+  (test-equal "\"abc\"" (get-output-string p)))
 (if sigscheme?
     (let ((p (open-output-string)))
       (write-with-shared-structure "abc" p #t #t)  ;; accepts 2+ optarg
-      (assert-equal? (tn) "\"abc\"" (get-output-string p))))
+      (test-equal "\"abc\"" (get-output-string p))))
+(test-end "write/ss with explicit port arg and optarg")
 
-(total-report)
+(test-end "test-srfi38")

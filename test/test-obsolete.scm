@@ -2,7 +2,7 @@
 ;;  About    : unit tests for obsolete miscellaneous R5RS things
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -31,82 +31,81 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (if (not (provided? "r6rs-chars"))
-    (test-skip "R6RS characters is not enabled"))
+    (test-skip-file "R6RS characters is not enabled"))
 
-(define *test-track-progress* #f)
-(define tn test-name)
+(test-begin "test-obsolete")
 (define cp string-copy)
 
 
-(assert-equal? "basic case check1" 'case1 (case 1
-					 ((1) 'case1)
-					 ((2) 'case2)))
+(test-equal "basic case check1" 'case1 (case 1
+                                      ((1) 'case1)
+                                      ((2) 'case2)))
 
-(assert-equal? "basic case check2" 'case2 (case 2
-					 ((1) 'case1)
-					 ((2) 'case2)))
+(test-equal "basic case check2" 'case2 (case 2
+                                      ((1) 'case1)
+                                      ((2) 'case2)))
 
-(assert-equal? "basic case check3" #t (case (* 2 3)
-			      ((2 3 4 7)   #f)
-			      ((1 4 6 8 9) #t)))
+(test-equal "basic case check3" #t (case (* 2 3)
+                           ((2 3 4 7)   #f)
+                           ((1 4 6 8 9) #t)))
 
-(assert-equal? "basic case else"  'caseelse (case 3
-					   ((1) 'case1)
-					   ((2) 'case2)
-					   (else
-					    'caseelse)))
+(test-equal "basic case else" 'caseelse (case 3
+                                       ((1) 'case1)
+                                       ((2) 'case2)
+                                       (else
+                                        'caseelse)))
 
 (define mularg-apply
   (letrec ((apply-2 apply)
-	   (append-to-last
-	    (lambda (lst)
-	      (if (null? (cdr lst))
-		  (car lst)
-		  (cons (car lst) (append-to-last (cdr lst)))))))
+           (append-to-last
+            (lambda (lst)
+              (if (null? (cdr lst))
+                  (car lst)
+                  (cons (car lst) (append-to-last (cdr lst)))))))
     (lambda args
       (apply-2 (car args) (append-to-last (cdr args))))))
-(assert-equal? "basic letrec test3" '((1) . 2) (mularg-apply cons '(1) '(2)))
-(assert-equal? "basic letrec test4" '(1 2) (mularg-apply cons 1 '((2))))
+(test-equal "basic letrec test3" '((1) . 2) (mularg-apply cons '(1) '(2)))
+(test-equal "basic letrec test4" '(1 2) (mularg-apply cons 1 '((2))))
 ;; SigScheme dependent behavior
-(assert-error  "basic letrec test5" (lambda ()
-                                      (letrec ((letrec-a 1)
-                                               (letrec-b letrec-a))
-                                        letrec-b)))
+(test-error "basic letrec test5" #t (letrec ((letrec-a 1)
+                                             (letrec-b letrec-a))
+                                      letrec-b))
 
 
-(assert-equal? "basic map test1" '(2 2 2) (map cadr '((1 2) (1 2) (1 2))))
-(assert-equal? "basic map test2" '(2 4 6) (map + '(1 2 3) '(1 2 3)))
-(assert-equal? "basic map test3" '(2 4 6) (map (lambda (x y) (+ x y))
-						'(1 2 3) '(1 2 3)))
+(test-equal "basic map test1" '(2 2 2) (map cadr '((1 2) (1 2) (1 2))))
+(test-equal "basic map test2" '(2 4 6) (map + '(1 2 3) '(1 2 3)))
+(test-equal "basic map test3" '(2 4 6) (map (lambda (x y) (+ x y))
+                                             '(1 2 3) '(1 2 3)))
 
 (define (callee a)
-  (assert-equal? "basic map test4" '(1 2) a))
+  (test-equal "basic map test4" '(1 2) a))
 
 (map callee '((1 2)))
 
 
 ; numbers in various radices
-(assert-true "binary number test1" (= #b1111 15))
-(assert-true "binary number test2" (= #b010  2))
-(assert-true "binary number test3" (= #b0    0))
-(assert-true "binary number test4" (= #b-1   -1))
-(assert-true "binary number test5" (= #b-10  -2))
-(assert-true "binary number test6" (= #b-010 -2))
-(assert-true "octal number test1"  (= #o077  63))
-(assert-true "octal number test2"  (= #o361  241))
-(assert-true "decimal number test1" (= #d3900 3900))
-(assert-true "decimal number test2" (= #d18782 18782))
-(assert-true "hexadecimal test1" (= #xffff 65535))
-(assert-true "hexadecimal test2" (= #x0A7b 2683))
+(test-assert "binary number test1" (= #b1111 15))
+(test-assert "binary number test2" (= #b010  2))
+(test-assert "binary number test3" (= #b0    0))
+(test-assert "binary number test4" (= #b-1   -1))
+(test-assert "binary number test5" (= #b-10  -2))
+(test-assert "binary number test6" (= #b-010 -2))
+(test-assert "octal number test1" (= #o077  63))
+(test-assert "octal number test2" (= #o361  241))
+(test-assert "decimal number test1" (= #d3900 3900))
+(test-assert "decimal number test2" (= #d18782 18782))
+(test-assert "hexadecimal test1" (= #xffff 65535))
+(test-assert "hexadecimal test2" (= #x0A7b 2683))
 
-(tn "pair?")
-(assert-true   (tn) (pair? '(a . b)))
-(assert-true   (tn) (pair? '(a b c)))
-(assert-equal? (tn) #f (pair? '()))
-(assert-equal? (tn) #f (pair? '#(a b)))
+(test-begin "pair?")
+(test-assert (pair? '(a . b)))
+(test-assert (pair? '(a b c)))
+(test-equal #f (pair? '()))
+(test-equal #f (pair? '#(a b)))
+(test-end "pair?")
 
 ;;
 ;; All procedures that take a string as argument are tested with
@@ -116,56 +115,59 @@
 ;;
 
 
-(tn "string->list immutable")
-(assert-equal? (tn) '()                (string->list ""))
-(assert-equal? (tn) '(#\\)             (string->list "\\"))
-(assert-equal? (tn) '(#\\ #\\)         (string->list "\\\\"))
-(assert-equal? (tn) '(#\\ #\\ #\\)     (string->list "\\\\\\"))
-;;(assert-equal? (tn) '(#\tab)           (string->list "\t"))
-(assert-equal? (tn) '(#\	)      (string->list "\t"))
-;;(assert-equal? (tn) '(#\return)        (string->list "\r"))
-(assert-equal? (tn) '(#\)            (string->list "\r"))
-(assert-equal? (tn) '(#\ #\)       (string->list "\r\r"))
-(assert-equal? (tn) '(#\newline)           (string->list "\n"))
-(assert-equal? (tn) '(#\newline #\newline) (string->list "\n\n"))
-(assert-equal? (tn) '(#\space)         (string->list " "))
-(assert-equal? (tn) '(#\space #\space) (string->list "  "))
-(assert-equal? (tn) '(#\")             (string->list "\""))
-(assert-equal? (tn) '(#\" #\")         (string->list "\"\""))
-(tn "string->list mutable")
-(assert-equal? (tn) '()                    (string->list (cp "")))
-(assert-equal? (tn) '(#\\)                 (string->list (cp "\\")))
-(assert-equal? (tn) '(#\\ #\\)             (string->list (cp "\\\\")))
-(assert-equal? (tn) '(#\\ #\\ #\\)         (string->list (cp "\\\\\\")))
-;;(assert-equal? (tn) '(#\tab)           (string->list (cp "\t")))
-(assert-equal? (tn) '(#\	)            (string->list (cp "\t")))
-;;(assert-equal? (tn) '(#\return)        (string->list (cp "\r")))
-(assert-equal? (tn) '(#\)                (string->list (cp "\r")))
-(assert-equal? (tn) '(#\ #\)           (string->list (cp "\r\r")))
-(assert-equal? (tn) '(#\newline)           (string->list (cp "\n")))
-(assert-equal? (tn) '(#\newline #\newline) (string->list (cp "\n\n")))
-(assert-equal? (tn) '(#\space)             (string->list (cp " ")))
-(assert-equal? (tn) '(#\space #\space)     (string->list (cp "  ")))
-(assert-equal? (tn) '(#\")                 (string->list (cp "\"")))
-(assert-equal? (tn) '(#\" #\")             (string->list (cp "\"\"")))
+(test-begin "string->list immutable")
+(test-equal '()                (string->list ""))
+(test-equal '(#\\)             (string->list "\\"))
+(test-equal '(#\\ #\\)         (string->list "\\\\"))
+(test-equal '(#\\ #\\ #\\)     (string->list "\\\\\\"))
+;;(test-equal '(#\tab)           (string->list "\t"))
+(test-equal '(#\	)      (string->list "\t"))
+;;(test-equal '(#\return)        (string->list "\r"))
+(test-equal '(#\)            (string->list "\r"))
+(test-equal '(#\ #\)       (string->list "\r\r"))
+(test-equal '(#\newline)           (string->list "\n"))
+(test-equal '(#\newline #\newline) (string->list "\n\n"))
+(test-equal '(#\space)         (string->list " "))
+(test-equal '(#\space #\space) (string->list "  "))
+(test-equal '(#\")             (string->list "\""))
+(test-equal '(#\" #\")         (string->list "\"\""))
+(test-end "string->list immutable")
+(test-begin "string->list mutable")
+(test-equal '()                    (string->list (cp "")))
+(test-equal '(#\\)                 (string->list (cp "\\")))
+(test-equal '(#\\ #\\)             (string->list (cp "\\\\")))
+(test-equal '(#\\ #\\ #\\)         (string->list (cp "\\\\\\")))
+;;(test-equal '(#\tab)           (string->list (cp "\t")))
+(test-equal '(#\	)            (string->list (cp "\t")))
+;;(test-equal '(#\return)        (string->list (cp "\r")))
+(test-equal '(#\)                (string->list (cp "\r")))
+(test-equal '(#\ #\)           (string->list (cp "\r\r")))
+(test-equal '(#\newline)           (string->list (cp "\n")))
+(test-equal '(#\newline #\newline) (string->list (cp "\n\n")))
+(test-equal '(#\space)             (string->list (cp " ")))
+(test-equal '(#\space #\space)     (string->list (cp "  ")))
+(test-equal '(#\")                 (string->list (cp "\"")))
+(test-equal '(#\" #\")             (string->list (cp "\"\"")))
+(test-end "string->list mutable")
 
-(tn "list->string")
-(assert-equal? (tn) ""     (list->string '()))
-(assert-equal? (tn) "\\"     (list->string '(#\\)))
-(assert-equal? (tn) "\\\\"   (list->string '(#\\ #\\)))
-(assert-equal? (tn) "\\\\\\" (list->string '(#\\ #\\ #\\)))
-(assert-equal? (tn) "\t" (list->string '(#\	)))
-;;(assert-equal? (tn) "\t" (list->string '(#\tab)))
-(assert-equal? (tn) "\r" (list->string '(#\)))
-;;(assert-equal? (tn) "\r" (list->string '(#\return)))
-(assert-equal? (tn) "\n" (list->string '(#\
+(test-begin "list->string")
+(test-equal ""     (list->string '()))
+(test-equal "\\"     (list->string '(#\\)))
+(test-equal "\\\\"   (list->string '(#\\ #\\)))
+(test-equal "\\\\\\" (list->string '(#\\ #\\ #\\)))
+(test-equal "\t" (list->string '(#\	)))
+;;(test-equal "\t" (list->string '(#\tab)))
+(test-equal "\r" (list->string '(#\)))
+;;(test-equal "\r" (list->string '(#\return)))
+(test-equal "\n" (list->string '(#\
 )))
-(assert-equal? (tn) "\n" (list->string '(#\newline)))
-(assert-equal? (tn) " " (list->string '(#\ )))
-(assert-equal? (tn) " " (list->string '(#\space)))
-(assert-equal? (tn) " " (list->string '(#\ )))
-(assert-equal? (tn) "\"" (list->string '(#\")))
-(assert-equal? (tn) "\"a\"" (list->string '(#\" #\a #\")))
+(test-equal "\n" (list->string '(#\newline)))
+(test-equal " " (list->string '(#\ )))
+(test-equal " " (list->string '(#\space)))
+(test-equal " " (list->string '(#\ )))
+(test-equal "\"" (list->string '(#\")))
+(test-equal "\"a\"" (list->string '(#\" #\a #\")))
+(test-end "list->string")
 
 
-(total-report)
+(test-end "test-obsolete")

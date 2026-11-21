@@ -1,7 +1,7 @@
 ;;  Filename : test-srfi43.scm
 ;;  About    : unit tests for SRFI-43
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -30,8 +30,11 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest) (srfi 43))
+(require-extension (srfi 64))
+(require-extension (srfi 43))
 
+
+(test-begin "test-srfi43")
 
 (test-begin "let-vector-start+end invalid forms")
 (define vec (vector 'foo 'bar 'baz))
@@ -55,7 +58,7 @@
 (test-error (let-vector-start+end vector-ref vec '() '#() #t))
 ;; no body
 (test-error (let-vector-start+end vector-ref vec '() (start end)))
-(test-end)
+(test-end "let-vector-start+end invalid forms")
 
 (test-begin "let-vector-start+end null vector")
 (test-error (let-vector-start+end vector-ref '#() '(-1)   (start end) #t))
@@ -72,7 +75,7 @@
 (test-error (let-vector-start+end vector-ref '#() '(1 -1) (start end) #t))
 (test-error (let-vector-start+end vector-ref '#() '(1 0)  (start end) #t))
 (test-error (let-vector-start+end vector-ref '#() '(1 1)  (start end) #t))
-(test-end)
+(test-end "let-vector-start+end null vector")
 
 (test-begin "let-vector-start+end length 1")
 (define vec (vector 'foo))
@@ -100,7 +103,7 @@
 (test-error (let-vector-start+end vector-ref vec '(1 0)   (start end) #t))
 (test-error (let-vector-start+end vector-ref vec '(1 1)   (start end) #t))
 (test-error (let-vector-start+end vector-ref vec '(1 2)   (start end) #t))
-(test-end)
+(test-end "let-vector-start+end length 1")
 
 (test-begin "let-vector-start+end length 2")
 (define vec (vector 'foo 'bar))
@@ -146,7 +149,7 @@
 (test-error (let-vector-start+end vector-ref vec '(2 1)   (start end) #t))
 (test-error (let-vector-start+end vector-ref vec '(2 2)   (start end) #t))
 (test-error (let-vector-start+end vector-ref vec '(2 3)   (start end) #t))
-(test-end)
+(test-end "let-vector-start+end length 2")
 
 (test-begin "let-vector-start+end length 3")
 (define vec (vector 'foo 'bar 'baz))
@@ -213,7 +216,7 @@
 (test-error (let-vector-start+end vector-ref vec '(3 1)   (start end) #t))
 (test-error (let-vector-start+end vector-ref vec '(3 2)   (start end) #t))
 (test-error (let-vector-start+end vector-ref vec '(3 3)   (start end) #t))
-(test-end)
+(test-end "let-vector-start+end length 3")
 
 ;; Test real let-vector-start+end use.
 (test-begin "vector->list R5RS")
@@ -221,7 +224,7 @@
             (vector->list '#()))
 (test-equal '(0 1 2 3 4)
             (vector->list '#(0 1 2 3 4)))
-(test-end)
+(test-end "vector->list R5RS")
 
 (test-begin "vector->list with start index")
 (test-error (vector->list '#(0 1 2 3 4) -1))
@@ -242,7 +245,7 @@
  (else
   (test-error (vector->list '#(0 1 2 3 4) 5))))
 (test-error (vector->list '#(0 1 2 3 4) 6))
-(test-end)
+(test-end "vector->list with start index")
 
 (test-begin "vector->list with start and end index")
 (test-error (vector->list '#(0 1 2 3 4) 0 -1))
@@ -277,6 +280,6 @@
               (vector->list '#(0 1 2 3 4) 5 5)))
  (else
   (test-error (vector->list '#(0 1 2 3 4) 5 5))))
-(test-end)
+(test-end "vector->list with start and end index")
 
-(test-report-result)
+(test-end "test-srfi43")

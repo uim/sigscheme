@@ -2,7 +2,7 @@
 ;;  About    : unit test for the SRFI-2 'and-let*'
 ;;
 ;;  Copyright (C) 2005-2006 Kazuki Ohta <mover AT hct.zaq.ne.jp>
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -33,14 +33,11 @@
 
 ;; See also oleg-srfi2.scm
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
 (require-extension (srfi 2))
 
-(if (not (provided? "srfi-2"))
-    (test-skip "SRFI-2 is not enabled"))
-
-(define tn test-name)
+(test-begin "test-srfi2")
 
 ;; (and-let* <claws> <body>)
 ;; 
@@ -51,155 +48,157 @@
 (define true #t)
 (define false #f)
 
-(tn "and-let* invalid forms")
-(assert-error  (tn) (lambda () (and-let*)))
-(assert-error  (tn) (lambda () (and-let* #t #t)))
-(assert-error  (tn) (lambda () (and-let* ((#t) . #t) #t)))
-(assert-error  (tn) (lambda () (and-let* ((foo #t) . #t) #t)))
-(assert-error  (tn) (lambda () (and-let* ((foo . #t)) #t)))
-(assert-error  (tn) (lambda () (and-let* ((foo #t . #t)) #t)))
-(assert-error  (tn) (lambda () (and-let* (1) #t)))
+(test-begin "and-let* invalid forms")
+(test-error (and-let*))
+(test-error (and-let* #t #t))
+(test-error (and-let* ((#t) . #t) #t))
+(test-error (and-let* ((foo #t) . #t) #t))
+(test-error (and-let* ((foo . #t)) #t))
+(test-error (and-let* ((foo #t . #t)) #t))
+(test-error (and-let* (1) #t))
+(test-end "and-let* invalid forms")
 
-(tn "and-let* misc normal forms")
-(assert-eq?    (tn) #t  (and-let* ()))
-(assert-eq?    (tn) 'ok (and-let* ((foo 'ok)) foo))
-(assert-eq?    (tn) #t  (and-let* () #t))
-(assert-eq?    (tn) #t  (and-let* () #t #t))
-(assert-eq?    (tn) #t  (and-let* () #t #t #t))
-(assert-false  (tn)     (and-let* () #f))
-(assert-false  (tn)     (and-let* () #t #f))
-(assert-false  (tn)     (and-let* () #t #t #f))
-(assert-eq?    (tn) #t  (and-let* () #t #f #t))
+(test-begin "and-let* misc normal forms")
+(test-eq #t  (and-let* ()))
+(test-eq 'ok (and-let* ((foo 'ok)) foo))
+(test-eq #t  (and-let* () #t))
+(test-eq #t  (and-let* () #t #t))
+(test-eq #t  (and-let* () #t #t #t))
+(test-assert (not (and-let* () #f)))
+(test-assert (not (and-let* () #t #f)))
+(test-assert (not (and-let* () #t #t #f)))
+(test-eq #t  (and-let* () #t #f #t))
+(test-end "and-let* misc normal forms")
 
-(tn "and-let* (<variable> <expression>) style claw")
-(assert-false  (tn) (and-let* ((false (< 2 1)))
-                      #t))
-(assert-false  (tn) (and-let* ((true  (< 1 2))
-                               (false (< 2 1)))
-                      #t))
-(assert-true   (tn) (and-let* ((one 1)
-                               (two (+ one 1))
-                               (three (+ two 1)))
-                      (= three 3)))
-(assert-false  (tn) (and-let* ((one 1)
-                               (two (+ one 1))
-                               (three (+ two 1)))
-                      (= three 4)))
-(assert-equal? (tn)
-               6
-               (and-let* ((one 1)
-                          (two (+ one 1))
-                          (three (+ two 1)))
-                 (+ one two three)))
+(test-begin "and-let* (<variable> <expression>) style claw")
+(test-assert (not (and-let* ((false (< 2 1)))
+                    #t)))
+(test-assert (not (and-let* ((true  (< 1 2))
+                             (false (< 2 1)))
+                    #t)))
+(test-assert (and-let* ((one 1)
+                        (two (+ one 1))
+                        (three (+ two 1)))
+               (= three 3)))
+(test-assert (not (and-let* ((one 1)
+                             (two (+ one 1))
+                             (three (+ two 1)))
+                    (= three 4))))
+(test-equal 6
+            (and-let* ((one 1)
+                       (two (+ one 1))
+                       (three (+ two 1)))
+              (+ one two three)))
+(test-end "and-let* (<variable> <expression>) style claw")
 
-(tn "and-let* <bound-variable> style claw")
-(assert-eq?    (tn) 'ok   (and-let* (true)
-                            'ok))
-(assert-eq?    (tn) #t    (and-let* (true)))
-(assert-eq?    (tn) 'ok   (and-let* (even?)
-                            'ok))
-(assert-equal? (tn) even? (and-let* (even?)))
-(assert-false  (tn)       (and-let* (false)
-                            'ok))
-(assert-false  (tn)       (and-let* (false)))
-(assert-eq?    (tn) 'ok   (and-let* (even?
-                                     true)
-                            'ok))
-(assert-eq?    (tn) #t    (and-let* (even?
-                                     true)))
-(assert-false  (tn)       (and-let* (even?
-                                     true
-                                     false)
-                            'ok))
-(assert-false  (tn)       (and-let* (even?
-                                     true
-                                     false)))
+(test-begin "and-let* <bound-variable> style claw")
+(test-eq 'ok   (and-let* (true)
+                 'ok))
+(test-eq #t    (and-let* (true)))
+(test-eq 'ok   (and-let* (even?)
+                 'ok))
+(test-equal even? (and-let* (even?)))
+(test-assert (not (and-let* (false)
+                    'ok)))
+(test-assert (not (and-let* (false))))
+(test-eq 'ok   (and-let* (even?
+                          true)
+                 'ok))
+(test-eq #t    (and-let* (even?
+                          true)))
+(test-assert (not (and-let* (even?
+                             true
+                             false)
+                    'ok)))
+(test-assert (not (and-let* (even?
+                             true
+                             false))))
+(test-end "and-let* <bound-variable> style claw")
 
-(tn "and-let* (<expression>) style claw")
-(assert-eq?    (tn) 'ok   (and-let* (('ok))))
-(assert-eq?    (tn) 'okok (and-let* (('ok)) 'okok))
-(assert-equal? (tn) 1     (and-let* ((1))))
-(assert-equal? (tn) 'ok   (and-let* ((1)) 'ok))
-(assert-equal? (tn) "ok"  (and-let* (("ok"))))
-(assert-equal? (tn) 'ok   (and-let* (("ok")) 'ok))
-(assert-eq?    (tn) 'ok   (and-let* ((#t))
-                            'ok))
-(assert-false  (tn)       (and-let* ((#f))
-                            'ok))
-(assert-eq?    (tn) 'ok   (and-let* (((integer? 1)))
-                            'ok))
-(assert-false  (tn)       (and-let* (((integer? #t)))
-                            'ok))
-(assert-eq?    (tn) 'ok   (and-let* (((integer? 1))
-                                     ((integer? 2)))
-                            'ok))
-(assert-false  (tn)       (and-let* (((integer? 1))
-                                     ((integer? 2))
-                                     ((integer? #t)))
-                            'ok))
+(test-begin "and-let* (<expression>) style claw")
+(test-eq 'ok   (and-let* (('ok))))
+(test-eq 'okok (and-let* (('ok)) 'okok))
+(test-equal 1     (and-let* ((1))))
+(test-equal 'ok   (and-let* ((1)) 'ok))
+(test-equal "ok"  (and-let* (("ok"))))
+(test-equal 'ok   (and-let* (("ok")) 'ok))
+(test-eq 'ok   (and-let* ((#t))
+                 'ok))
+(test-assert (not (and-let* ((#f))
+                    'ok)))
+(test-eq 'ok   (and-let* (((integer? 1)))
+                 'ok))
+(test-assert (not (and-let* (((integer? #t)))
+                    'ok)))
+(test-eq 'ok   (and-let* (((integer? 1))
+                          ((integer? 2)))
+                 'ok))
+(test-assert (not (and-let* (((integer? 1))
+                             ((integer? 2))
+                             ((integer? #t)))
+                    'ok)))
+(test-end "and-let* (<expression>) style claw")
 
-(tn "and-let* combined forms")
-(assert-eq?    (tn) 'ok   (and-let* (true
-                                     even?
-                                     ((integer? 1)))
-                            'ok))
-(assert-eq?    (tn) 'ok   (and-let* (true
-                                     even?
-                                     ((integer? 1))
-                                     (foo '(1 2 3))
-                                     ((list? foo))
-                                     (bar foo))
-                            'ok))
-(assert-false  (tn)       (and-let* (true
-                                     even?
-                                     ((integer? 1))
-                                     (foo '#(1 2 3))
-                                     ((list? foo))
-                                     (bar foo))
-                            'ok))
-(assert-false  (tn)       (and-let* (true
-                                     even?
-                                     ((integer? 1))
-                                     (foo '(1 2 3))
-                                     (bar (car foo))
-                                     bar
-                                     ((null? bar)))
-                            'ok))
+(test-begin "and-let* combined forms")
+(test-eq 'ok   (and-let* (true
+                          even?
+                          ((integer? 1)))
+                 'ok))
+(test-eq 'ok   (and-let* (true
+                          even?
+                          ((integer? 1))
+                          (foo '(1 2 3))
+                          ((list? foo))
+                          (bar foo))
+                 'ok))
+(test-assert (not (and-let* (true
+                             even?
+                             ((integer? 1))
+                             (foo '#(1 2 3))
+                             ((list? foo))
+                             (bar foo))
+                    'ok)))
+(test-assert (not (and-let* (true
+                             even?
+                             ((integer? 1))
+                             (foo '(1 2 3))
+                             (bar (car foo))
+                             bar
+                             ((null? bar)))
+                    'ok)))
+(test-end "and-let* combined forms")
 
-(tn "and-let* internal definitions")
+(test-begin "and-let* internal definitions")
 (define foo 1)
-(assert-equal? (tn)
-               3
-               (and-let* ()
-                 (define foo 3)
-                 foo))
-(assert-equal? (tn) 1 foo)
+(test-equal 3
+            (and-let* ()
+              (define foo 3)
+              foo))
+(test-equal 1 foo)
 
 (define foo 1)
 (define bar 2)
-(assert-equal? (tn)
-               5
-               (and-let* ((foo 3)
-                          (bar 4))
-                 (define foo 5)
-                 foo))
-(assert-equal? (tn) 1 foo)
-(assert-equal? (tn) 2 bar)
+(test-equal 5
+            (and-let* ((foo 3)
+                       (bar 4))
+              (define foo 5)
+              foo))
+(test-equal 1 foo)
+(test-equal 2 bar)
 
 (define foo 1)
-(assert-equal? (tn)
-               3
-               (and-let* ((foo 2))
-                 (set! foo 3)
-                 foo))
-(assert-equal? (tn) 1 foo)
+(test-equal 3
+            (and-let* ((foo 2))
+              (set! foo 3)
+              foo))
+(test-equal 1 foo)
 
 (define foo 1)
-(assert-equal? (tn)
-               3
-               (and-let* ()
-                 (set! foo 3)
-                 foo))
-(assert-equal? (tn) 3 foo)
+(test-equal 3
+            (and-let* ()
+              (set! foo 3)
+              foo))
+(test-equal 3 foo)
+(test-end "and-let* internal definitions")
 
-(total-report)
+(test-end "test-srfi2")

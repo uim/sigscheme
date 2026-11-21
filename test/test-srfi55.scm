@@ -1,7 +1,7 @@
 ;;  Filename : test-srfi55.scm
 ;;  About    : unit test for SRFI-55
 ;;
-;;  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+;;  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
 ;;
 ;;  All rights reserved.
 ;;
@@ -30,39 +30,37 @@
 ;;  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
-;; SRFI-55 is enabled by default if exists.
-(if (not (provided? "srfi-55"))
-    (test-skip "SRFI-55 is not enabled"))
+(test-begin "test-srfi55")
 
-(define tn test-name)
-
-(tn "require-extension")
+(test-begin "require-extension")
 ;; sscm-ext is enabled by default for SRFI-55
-(assert-true   (tn) (provided? "sscm-ext"))
+(test-assert (provided? "sscm-ext"))
 (require-extension (sscm-ext))
-(assert-true   (tn) (provided? "sscm-ext"))
+(test-assert (provided? "sscm-ext"))
+(test-end "require-extension")
 
-(tn "require-extension SRFIs")
-(assert-false  (tn) (provided? "srfi-1"))
-(assert-false  (tn) (provided? "srfi-2"))
-(assert-false  (tn) (provided? "srfi-48"))
-(assert-false  (tn) (provided? "srfi-60"))
+(test-begin "require-extension SRFIs")
+(test-assert (not (provided? "srfi-1")))
+(test-assert (not (provided? "srfi-2")))
+(test-assert (not (provided? "srfi-48")))
+(test-assert (not (provided? "srfi-60")))
 (require-extension (srfi 1 48 2 60))
-(assert-true   (tn) (provided? "srfi-1"))
-(assert-true   (tn) (provided? "srfi-2"))
-(assert-true   (tn) (provided? "srfi-48"))
-(assert-true   (tn) (provided? "srfi-60"))
+(test-assert (provided? "srfi-1"))
+(test-assert (provided? "srfi-2"))
+(test-assert (provided? "srfi-48"))
+(test-assert (provided? "srfi-60"))
 ;; mixed
 (require-extension (sscm-ext) (srfi 1 8 2 60) (sscm-ext) (srfi 23))
-(assert-true   (tn) (provided? "srfi-1"))
-(assert-true   (tn) (provided? "srfi-2"))
-(assert-true   (tn) (provided? "srfi-8"))
-(assert-true   (tn) (provided? "srfi-23"))
-(assert-true   (tn) (provided? "srfi-48"))
-(assert-true   (tn) (provided? "srfi-60"))
-(assert-true   (tn) (provided? "sscm-ext"))
+(test-assert (provided? "srfi-1"))
+(test-assert (provided? "srfi-2"))
+(test-assert (provided? "srfi-8"))
+(test-assert (provided? "srfi-23"))
+(test-assert (provided? "srfi-48"))
+(test-assert (provided? "srfi-60"))
+(test-assert (provided? "sscm-ext"))
+(test-end "require-extension SRFIs")
 
 
-(total-report)
+(test-end "test-srfi55")

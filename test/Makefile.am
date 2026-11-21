@@ -113,12 +113,16 @@ sscm_srfi64_tests = \
         test-char-cmp.scm \
         test-char-pred.scm \
         test-char.scm \
+        test-coding.scm \
         test-continuation.scm \
         test-define-internal.scm \
         test-define.scm \
         test-do.scm \
         test-dyn-extent.scm \
+        test-enc-eucgeneric.scm \
         test-enc-eucjp.scm \
+        test-enc-sjis.scm \
+        test-enc-utf8.scm \
         test-eq.scm \
         test-equal.scm \
         test-eqv.scm \

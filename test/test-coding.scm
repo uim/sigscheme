@@ -35,83 +35,87 @@
 
 
 
-(require-extension (unittest))
+(require-extension (srfi 64))
 
-(define tn test-name)
+(test-begin "test-coding")
 
-(tn "coding declaration")
+(test-begin "coding declaration")
 (load "test/coding/euc-jp.scm")
-(assert-equal? (tn) "日本語" coding-euc-jp)
-(assert-equal? (tn) 3 (string-length coding-euc-jp))
+(test-equal "日本語" coding-euc-jp)
+(test-equal 3 (string-length coding-euc-jp))
 (load "test/coding/shift_jis.scm")
-(assert-equal? (tn) "日本語" coding-shift-jis)
+(test-equal "日本語" coding-shift-jis)
 ;; The second line and Emacs' end-of-line suffix
 (load "test/coding/utf-8.scm")
-(assert-equal? (tn) "日本語" coding-utf-8)
+(test-equal "日本語" coding-utf-8)
+(test-end "coding declaration")
 
-(tn "coding declaration errors")
-(assert-error (tn) (lambda () (load "test/coding/invalid.scm")))
-(assert-error (tn) (lambda () (load "test/coding/unknown.scm")))
+(test-begin "coding declaration errors")
+(test-error (load "test/coding/invalid.scm"))
+(test-error (load "test/coding/unknown.scm"))
+(test-end "coding declaration errors")
 
-(tn "coding declaration with ISO-8859-1")
+(test-begin "coding declaration with ISO-8859-1")
 ;; The generic singlebyte codec reads bytes as is.
 (with-char-codec "ISO-8859-1"
   (lambda ()
     (load "test/coding/euc-jp.scm")
-    (assert-equal? (tn) 6 (string-length coding-euc-jp))))
+    (test-equal 6 (string-length coding-euc-jp))))
+(test-end "coding declaration with ISO-8859-1")
 
-(tn "fallback encodings")
-(assert-equal? (tn) '() (%%load-fallback-encodings))
+(test-begin "fallback encodings")
+(test-equal '() (%%load-fallback-encodings))
 ;; An unknown encoding is skipped.
 (%%set-load-fallback-encodings! '("no-such-encoding" "EUC-JP"))
-(assert-equal? (tn) '("no-such-encoding" "EUC-JP") (%%load-fallback-encodings))
+(test-equal '("no-such-encoding" "EUC-JP") (%%load-fallback-encodings))
 (load "test/coding/fallback-euc-jp.scm")
-(assert-equal? (tn) "日本語" fallback-euc-jp)
+(test-equal "日本語" fallback-euc-jp)
 ;; A valid file in the current codec isn't converted.
 (load "test/coding/fallback-utf-8.scm")
-(assert-equal? (tn) "日本語" fallback-utf-8)
+(test-equal "日本語" fallback-utf-8)
 ;; A coding declaration takes precedence.
 (load "test/coding/shift_jis.scm")
-(assert-equal? (tn) "日本語" coding-shift-jis)
+(test-equal "日本語" coding-shift-jis)
 ;; None of the fallback encodings can convert it.
-(assert-error (tn) (lambda () (load "test/coding/fallback-invalid.scm")))
+(test-error (load "test/coding/fallback-invalid.scm"))
 (%%set-load-fallback-encodings! '())
-(assert-error (tn) (lambda () (%%set-load-fallback-encodings! '(euc-jp))))
-(assert-error (tn) (lambda () (%%set-load-fallback-encodings! '("EUC-JP" . 1))))
+(test-error (%%set-load-fallback-encodings! '(euc-jp)))
+(test-error (%%set-load-fallback-encodings! '("EUC-JP" . 1)))
 ;; The list is modified after it's set.
 (let ((encodings (list "EUC-JP")))
   (%%set-load-fallback-encodings! encodings)
   (set-car! encodings 'euc-jp)
-  (assert-error (tn) (lambda () (load "test/coding/fallback-euc-jp.scm")))
+  (test-error (load "test/coding/fallback-euc-jp.scm"))
   (%%set-load-fallback-encodings! '()))
-(assert-error (tn) (lambda () (%%set-load-fallback-encodings! "EUC-JP")))
+(test-error (%%set-load-fallback-encodings! "EUC-JP"))
+(test-end "fallback encodings")
 
-(tn "broken file")
-(assert-error (tn) (lambda () (load "test/coding/fallback-invalid.scm")))
+(test-begin "broken file")
+(test-error (load "test/coding/fallback-invalid.scm"))
 ;; The error message has the file name.
 (if (symbol-bound? 'error-object-message)
     (let ((message (guard (e (#t (error-object-message e)))
                      (load "test/coding/fallback-invalid.scm")))
           (file "test/coding/fallback-invalid.scm"))
-      (assert-equal? (tn)
-                     file
-                     (substring message
-                                (- (string-length message)
-                                   (string-length file))
-                                (string-length message)))))
+      (test-equal file
+                  (substring message
+                             (- (string-length message)
+                                (string-length file))
+                             (string-length message)))))
+(test-end "broken file")
 
-(tn "with-load-fallback-encodings")
+(test-begin "with-load-fallback-encodings")
 (set! fallback-euc-jp #f)
 (with-load-fallback-encodings '("EUC-JP")
   (lambda ()
-    (assert-equal? (tn) '("EUC-JP") (%%load-fallback-encodings))
+    (test-equal '("EUC-JP") (%%load-fallback-encodings))
     (load "test/coding/fallback-euc-jp.scm")))
-(assert-equal? (tn) "日本語" fallback-euc-jp)
-(assert-equal? (tn) '() (%%load-fallback-encodings))
+(test-equal "日本語" fallback-euc-jp)
+(test-equal '() (%%load-fallback-encodings))
 ;; The fallback encodings are restored on error.
-(assert-error (tn) (lambda ()
-                     (with-load-fallback-encodings '("EUC-JP")
-                       (lambda () (error "error")))))
-(assert-equal? (tn) '() (%%load-fallback-encodings))
+(test-error (with-load-fallback-encodings '("EUC-JP")
+              (lambda () (error "error"))))
+(test-equal '() (%%load-fallback-encodings))
+(test-end "with-load-fallback-encodings")
 
-(total-report)
+(test-end "test-coding")

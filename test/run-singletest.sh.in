@@ -11,14 +11,24 @@ esac
 # test-unittest.scm use lib/unittest.scm. All other tests use SRFI-64
 # with helper.scm. It has the runner that makes the exit status non-zero
 # on failure.
+#
+# lib/srfi-64.scm in the source tree can be used even if SRFI-64 is
+# disabled when the features that SRFI-64 requires are enabled:
+#   load continuation hygienic_macro port reader
+#   srfi6 srfi9 srfi23 srfi34 srfi55
 case "${test_file##*/}" in
   test-fail.scm|test-srfi64.scm|test-unittest.scm)
     ;;
   *)
-    if test "@use_srfi64@" != yes; then
-      echo "SKIP: SRFI-64 is not enabled"
-      exit 77
-    fi
+    for use in \
+      @use_load@ @use_continuation@ @use_hygienic_macro@ @use_port@ \
+      @use_reader@ @use_srfi6@ @use_srfi9@ @use_srfi23@ @use_srfi34@ \
+      @use_srfi55@; do
+      if test "$use" != yes; then
+        echo "SKIP: features that SRFI-64 requires are not enabled"
+        exit 77
+      fi
+    done
     SSCM="$SSCM --load @abs_top_srcdir@/test/helper.scm"
     ;;
 esac

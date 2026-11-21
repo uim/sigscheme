@@ -98,18 +98,27 @@ endif
 
 # They don't use helper.scm. test-srfi64.scm tests SRFI-64 itself and
 # the others use lib/unittest.scm. All other tests use SRFI-64 with
-# helper.scm and are run only when SRFI-64 is enabled.
+# helper.scm.
 sscm_no_helper_tests = [
   'test-fail.scm',
   'test-srfi64.scm',
   'test-unittest.scm',
 ]
 
+# lib/srfi-64.scm in the source tree can be used even if SRFI-64 is
+# disabled when the features that SRFI-64 requires are enabled.
+srfi64_available = true
+foreach feature : feature_required_dependencies['srfi64']
+  if not use[feature]
+    srfi64_available = false
+  endif
+endforeach
+
 if use['shell']
   foreach sscm_test : sscm_tests
     sscm_test_args = ['--system-load-path', meson.project_source_root() / 'lib']
     if not sscm_no_helper_tests.contains(sscm_test)
-      if not use['srfi64']
+      if not srfi64_available
         continue
       endif
       # It makes the exit status non-zero on failure.
@@ -124,7 +133,7 @@ if use['shell']
   endforeach
 endif
 
-if use['shell'] and use['srfi64']
+if use['shell'] and srfi64_available
   test('test-sscm-load.scm',
        sscm,
        args: [

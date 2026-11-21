@@ -96,85 +96,20 @@ if use['sjis']
   sscm_tests += ['test-enc-sjis.scm']
 endif
 
-# They use SRFI-64 with helper.scm instead of lib/unittest.scm. They are
-# run only when SRFI-64 is enabled.
-sscm_srfi64_tests = [
-  'test-apply.scm',
-  'test-assoc.scm',
-  'test-begin.scm',
-  'test-bool.scm',
-  'test-char-cmp.scm',
-  'test-char-pred.scm',
-  'test-char.scm',
-  'test-coding.scm',
-  'test-continuation.scm',
-  'test-define-internal.scm',
-  'test-define.scm',
-  'test-do.scm',
-  'test-dyn-extent.scm',
-  'test-enc-eucgeneric.scm',
-  'test-enc-eucjp.scm',
-  'test-enc-sjis.scm',
-  'test-enc-utf8.scm',
-  'test-eq.scm',
-  'test-equal.scm',
-  'test-eqv.scm',
-  'test-eval.scm',
-  'test-formal-syntax.scm',
-  'test-formatplus.scm',
-  'test-lambda.scm',
-  'test-legacy-macro.scm',
-  'test-let.scm',
-  'test-letrec.scm',
-  'test-letstar.scm',
-  'test-list.scm',
-  'test-map.scm',
-  'test-member.scm',
-  'test-misc.scm',
-  'test-named-let.scm',
-  'test-number-arith.scm',
-  'test-number-cmp.scm',
-  'test-number-io.scm',
-  'test-number-literal.scm',
-  'test-number-pred.scm',
-  'test-obsolete.scm',
-  'test-pair.scm',
-  'test-quote.scm',
-  'test-r7rs.scm',
-  'test-real.scm',
-  'test-srfi0.scm',
-  'test-srfi1-another.scm',
-  'test-srfi1-obsolete.scm',
-  'test-srfi180.scm',
-  'test-srfi2.scm',
-  'test-srfi28.scm',
-  'test-srfi34-2.scm',
-  'test-srfi34.scm',
-  'test-srfi38.scm',
-  'test-srfi43.scm',
-  'test-srfi48.scm',
-  'test-srfi55.scm',
-  'test-srfi6.scm',
-  'test-srfi60.scm',
-  'test-srfi8.scm',
-  'test-srfi9.scm',
-  'test-sscm-ext.scm',
-  'test-string-cmp.scm',
-  'test-string-core.scm',
-  'test-string-null.scm',
-  'test-string-proc.scm',
-  'test-string.scm',
-  'test-symbol.scm',
-  'test-syntax-rules.scm',
-  'test-syntax.scm',
-  'test-values.scm',
-  'test-vector.scm',
+# They don't use helper.scm. test-srfi64.scm tests SRFI-64 itself and
+# the others use lib/unittest.scm. All other tests use SRFI-64 with
+# helper.scm and are run only when SRFI-64 is enabled.
+sscm_no_helper_tests = [
+  'test-fail.scm',
+  'test-library.scm',
+  'test-srfi64.scm',
+  'test-unittest.scm',
 ]
 
 if use['shell']
   foreach sscm_test : sscm_tests
     sscm_test_args = ['--system-load-path', meson.project_source_root() / 'lib']
-    if sscm_srfi64_tests.contains(sscm_test)
+    if not sscm_no_helper_tests.contains(sscm_test)
       if not use['srfi64']
         continue
       endif

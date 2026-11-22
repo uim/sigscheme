@@ -726,24 +726,26 @@
      (begin
        (define a va)
        (define b vb)))))
-(test-equal "syntax-rules internal definitions"
-            '(1 2)
-            (let ()
-              (define-pair x y 1 2)
-              (list x y)))
-(test-equal "syntax-rules internal definitions mixed"
-            '(0 1 2 3)
-            (let ()
-              (define w 0)
-              (define-pair x y 1 2)
-              (define z 3)
-              (list w x y z)))
-(test-equal "syntax-rules internal definitions in begin"
-            '(1 2)
-            (let ()
-              (begin
-                (define-pair x y 1 2))
-              (list x y)))
+(if (provided? "internal-definitions")
+    (begin
+      (test-equal "syntax-rules internal definitions"
+                  '(1 2)
+                  (let ()
+                    (define-pair x y 1 2)
+                    (list x y)))
+      (test-equal "syntax-rules internal definitions mixed"
+                  '(0 1 2 3)
+                  (let ()
+                    (define w 0)
+                    (define-pair x y 1 2)
+                    (define z 3)
+                    (list w x y z)))
+      (test-equal "syntax-rules internal definitions in begin"
+                  '(1 2)
+                  (let ()
+                    (begin
+                      (define-pair x y 1 2))
+                    (list x y)))))
 (define-syntax my-if
   (syntax-rules ()
     ((_ c t e) (cond (c t) (else e)))))

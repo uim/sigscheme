@@ -169,6 +169,8 @@
 (test-end "and-let* combined forms")
 
 (test-begin "and-let* internal definitions")
+(if (not (provided? "internal-definitions"))
+    (test-skip-rest))
 (define foo 1)
 (test-equal 3
             (and-let* ()

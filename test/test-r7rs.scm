@@ -149,7 +149,8 @@
               (list (param-a)
                     (parameterize ((param-a 3)) (param-a))
                     (param-a))))
-(test-equal 3 (parameterize ((param-a 2)) (define x 1) (+ x (param-a))))
+(if (provided? "internal-definitions")
+    (test-equal 3 (parameterize ((param-a 2)) (define x 1) (+ x (param-a)))))
 (test-equal 'ok (parameterize () 'ok))
 ;; The value is restored when a continuation escapes from the body.
 (test-equal 5
@@ -256,6 +257,8 @@
 (test-end "syntax-rules underscore")
 
 (test-begin "internal define-syntax")
+(if (not (provided? "internal-definitions"))
+    (test-skip-rest))
 (test-equal 1
             (let ()
               (define-syntax one
@@ -348,21 +351,23 @@
 (test-equal '(1 2) dv-d)
 (define-values (dv-e) 5)
 (test-equal 5 dv-e)
-(test-equal '(1 2 3 (4 5))
-            (let ()
-              (define-values (a b) (values 1 2))
-              (define c 3)
-              (define-values r (values 4 5))
-              (list a b c r)))
-(test-equal 'g
-            (let ()
-              (define (f) (g))
-              (define-values (g) (values (lambda () 'g)))
-              (f)))
-(test-equal 'ok
-            (let ()
-              (define-values () (values))
-              'ok))
+(if (provided? "internal-definitions")
+    (begin
+      (test-equal '(1 2 3 (4 5))
+                  (let ()
+                    (define-values (a b) (values 1 2))
+                    (define c 3)
+                    (define-values r (values 4 5))
+                    (list a b c r)))
+      (test-equal 'g
+                  (let ()
+                    (define (f) (g))
+                    (define-values (g) (values (lambda () 'g)))
+                    (f)))
+      (test-equal 'ok
+                  (let ()
+                    (define-values () (values))
+                    'ok))))
 (test-error (let ()
               (define-values (a b) (values 1 2 3))
               a))
@@ -1458,12 +1463,14 @@
             (let ((port (open-output-string)))
               (write (r7rs-kons 1 2) port)
               (get-output-string port)))
-(test-equal '(#t 5)
-            (let ()
-              (define-record-type point (make-point x y) point?
-                (x point-x)
-                (y point-y))
-              (list (point? (make-point 5 6)) (point-x (make-point 5 6)))))
+(if (provided? "internal-definitions")
+    (test-equal '(#t 5)
+                (let ()
+                  (define-record-type point (make-point x y) point?
+                    (x point-x)
+                    (y point-y))
+                  (list (point? (make-point 5 6))
+                        (point-x (make-point 5 6))))))
 (test-assert (not (symbol-bound? 'point?)))
 (test-end "define-record-type")
 

@@ -63,6 +63,11 @@
   (newline)
   (exit 77))  ;; Meson and Automake report it as a skipped test.
 
+;; Skips the rest of tests in the current test group. Forms that aren't
+;; tests are still evaluated.
+(define (test-skip-rest)
+  (test-skip (lambda (runner) #t)))
+
 
 ;;
 ;; Utilities

@@ -176,6 +176,8 @@
 (test-end "let internal definitions lacking sequence part")
 
 (test-begin "let internal definitions cross reference")
+(if (not (provided? "internal-definitions"))
+    (test-skip-rest))
 ;; R5RS: 5.2.2 Internal definitions
 ;; Just as for the equivalent `letrec' expression, it must be possible to
 ;; evaluate each <expression> of every internal definition in a <body> without
@@ -350,6 +352,8 @@
 (test-end "let internal definitions cross reference")
 
 (test-begin "let internal definitions valid forms")
+(if (not (provided? "internal-definitions"))
+    (test-skip-rest))
 ;; valid internal definitions
 (test-equal '(1)
             (let ()

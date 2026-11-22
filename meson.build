@@ -1,6 +1,6 @@
 project('sigscheme',
         'c',
-        version: '1.0.1',
+        version: '1.0.2',
         license: 'BSD-3-Clause',
         license_files: ['COPYING'],
         default_options: [

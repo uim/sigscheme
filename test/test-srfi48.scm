@@ -66,6 +66,12 @@
 (test-error (format '#(0 1) "~s" '#(0 1)))
 (test-error (format "~"))
 (test-error (format "a~"))
+;; not an output port
+(test-error (format (current-input-port) "~~"))
+(test-error (format (current-input-port) "~d" 1))
+(let ((port (open-output-string)))
+  (close-output-port port)
+  (test-error (format port "~d" 1)))
 (test-end "SRFI-48 format invalid form")
 
 (test-begin "SRFI-48 format explicit port")

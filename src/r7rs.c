@@ -1821,6 +1821,11 @@ scm_p_read_bytevector(ScmObj k, ScmObj args)
     if (len < 0)
         ERR_OBJ("non-negative integer required but got", k);
     port = prepare_binary_port(SCM_MANGLE(name), args, scm_in);
+    /* They are checked here because an error by scm_port_get_char() leaks
+     * bytes. */
+    SCM_ENSURE_LIVE_PORT(port);
+    if (!(SCM_PORT_FLAG(port) & SCM_PORTFLAG_INPUT))
+        ERR_OBJ("input port required but got", port);
 
     bytes = scm_malloc(len);
     for (n = 0; n < len; n++) {

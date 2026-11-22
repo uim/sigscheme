@@ -5,7 +5,7 @@
  *  Copyright (C) 2005      Kazuki Ohta <mover AT hct.zaq.ne.jp>
  *  Copyright (C) 2005-2006 Jun Inoue <jun.lambda AT gmail.com>
  *  Copyright (C) 2005-2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -83,13 +83,14 @@ scm_p_make_vector(ScmObj scm_len, ScmObj args)
     if (len < 0)
         ERR_OBJ("length must be a non-negative integer", scm_len);
 
-    vec = scm_malloc(sizeof(ScmObj) * len);
     if (NULLP(args)) {
         filler = SCM_UNDEF;
     } else {
         filler = POP(args);
         ASSERT_NO_MORE_ARG(args);
     }
+    /* An error must not be raised until vec is owned by the vector. */
+    vec = scm_malloc(sizeof(ScmObj) * len);
     for (i = 0; i < len; i++)
         vec[i] = filler;
 

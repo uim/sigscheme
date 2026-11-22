@@ -739,6 +739,11 @@ format_internal(ScmObj port, enum ScmFormatCapability fcap,
             ERR_OBJ("port or boolean required but got", port);
         implicit_portp = scm_false;
     }
+    /* They are checked here because an error on output leaks a formatted
+     * number. The current output port may also be closed. */
+    SCM_ENSURE_LIVE_PORT(port);
+    if (!(SCM_PORT_FLAG(port) & SCM_PORTFLAG_OUTPUT))
+        ERR_OBJ("output port required but got", port);
 
     last_c = '\0';
     FORMAT_STR_INIT(cur, fmt); 

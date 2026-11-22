@@ -132,13 +132,15 @@ scm_p_bytevector(ScmObj args)
     len = scm_length(args);
     if (!SCM_LISTLEN_PROPERP(len))
         ERR_OBJ("proper list required but got", args);
+    rest = args;
+    FOR_EACH (obj, rest)
+        ENSURE_BYTE(obj);
+    /* An error must not be raised until vec is owned by the bytevector. */
     vec = scm_malloc(len);
     i = 0;
     rest = args;
-    FOR_EACH (obj, rest) {
-        ENSURE_BYTE(obj);
+    FOR_EACH (obj, rest)
         vec[i++] = SCM_INT_VALUE(obj);
-    }
 
     return MAKE_BYTEVECTOR(vec, len);
 }

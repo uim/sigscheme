@@ -847,6 +847,9 @@
       (x (list 1 2 3)))
   (write-simple (list x x) out)
   (test-equal "((1 2 3) (1 2 3))" (get-output-string out)))
+;; not an output port
+(test-error (write '(1 2) (current-input-port)))
+(test-error (write-shared '(1 2) (current-input-port)))
 (test-end "write-shared and write-simple")
 
 (define (read-from-string str)
@@ -1311,6 +1314,10 @@
   (test-equal #u8(3 4 5) (read-bytevector 10 port))
   (test-assert (eof-object? (read-bytevector 1 port))))
 (test-error (read-bytevector -1 (open-input-bytevector #u8())))
+(let ((port (open-input-bytevector #u8(1 2))))
+  (close-port port)
+  (test-error (read-bytevector 2 port)))
+(test-error (read-bytevector 2 (open-output-bytevector)))
 (test-end "read-bytevector")
 
 (test-begin "read-bytevector!")

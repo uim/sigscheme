@@ -543,6 +543,10 @@ scm_p_list2string(ScmObj lst)
     len = 0;
     FOR_EACH (ch, rest) {
         ENSURE_CHAR(ch);
+#if !SCM_USE_NULL_CAPABLE_STRING
+        if (SCM_CHAR_VALUE(ch) == '\0')
+            ERR(SCM_ERRMSG_NULL_IN_STRING);
+#endif
 #if SCM_USE_MULTIBYTE_CHAR
         ch_val = SCM_CHAR_VALUE(ch);
         str_size += SCM_CHARCODEC_CHAR_LEN(scm_current_char_codec, ch_val);
@@ -553,12 +557,9 @@ scm_p_list2string(ScmObj lst)
     }
     ENSURE_PROPER_LIST_TERMINATION(rest, lst);
 
+    /* An error must not be raised until str is owned by the string. */
     dst = str = scm_malloc(str_size);
     FOR_EACH (ch, lst) {
-#if !SCM_USE_NULL_CAPABLE_STRING
-        if (SCM_CHAR_VALUE(ch) == '\0')
-            ERR(SCM_ERRMSG_NULL_IN_STRING);
-#endif
 #if SCM_USE_MULTIBYTE_CHAR
         dst = SCM_CHARCODEC_INT2STR(scm_current_char_codec, dst,
                                     SCM_CHAR_VALUE(ch), SCM_MB_STATELESS);

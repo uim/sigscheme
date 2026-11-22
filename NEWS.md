@@ -37,6 +37,11 @@ failures with some features disabled.
     procedure when it failed for a closure that doesn't have the
     toplevel environment.
 
+  * Fixed memory leaks on an error of `make-vector`, `list->string`,
+    `bytevector`, `read-bytevector`, `write` and `display` of a pair
+    or a vector with R7RS, `format` of a number and a script prelude
+    with a relative `--system-load-path`.
+
   * Fixed build failures and test failures with some features
     disabled.
     * SRFI-0 doesn't require `quasiquote`.

@@ -204,7 +204,7 @@ scm_display(ScmObj port, ScmObj obj)
 }
 
 static void
-write_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype)
+ensure_live_output_port(ScmObj port)
 {
     DECLARE_INTERNAL_FUNCTION("write");
 
@@ -212,6 +212,12 @@ write_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype)
     SCM_ENSURE_LIVE_PORT(port);
     if (!(SCM_PORT_FLAG(port) & SCM_PORTFLAG_OUTPUT))
         ERR_OBJ("output port required but got", port);
+}
+
+static void
+write_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype)
+{
+    ensure_live_output_port(port);
 
     write_obj(port, obj, otype);
     scm_port_flush(port);
@@ -1003,6 +1009,10 @@ write_ss_internal(ScmObj port, ScmObj obj, enum ScmOutputType otype,
 {
     scm_write_ss_context ctx;
     size_t i;
+
+    /* It's checked here because an error by write_internal() leaks
+     * ctx.seen.ents. */
+    ensure_live_output_port(port);
 
     ctx.next_index = 1;
     ctx.cycles_only = cycles_only;

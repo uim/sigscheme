@@ -638,8 +638,8 @@ scm_interpret_argv(char **argv)
     const char *encoding, *sys_load_path;
 #if SCM_USE_MULTIBYTE_CHAR
     ScmCharCodec *specified_codec;
-    ScmObj err_obj;
 #endif
+    ScmObj err_obj;
     DECLARE_INTERNAL_FUNCTION("scm_interpret_argv");
 
     encoding = sys_load_path = NULL;
@@ -695,11 +695,19 @@ scm_interpret_argv(char **argv)
     if (sys_load_path) {
         /* scm_set_system_load_path() can't report an error before the
          * initialization because ports aren't initialized yet. */
-        if (!l_scm_initialized && !ABSOLUTE_PATHP(sys_load_path)) {
-            fprintf(stderr,
-                    SCM_ERR_HEADER "system load path must be absolute: %s\n",
-                    sys_load_path);
-            exit(EXIT_FAILURE);
+        if (!ABSOLUTE_PATHP(sys_load_path)) {
+            if (l_scm_initialized) {
+                /* sys_load_path is an element of argv. */
+                err_obj = CONST_STRING(sys_load_path);
+                scm_free_argv(argv);
+                ERR_OBJ("system load path must be absolute", err_obj);
+            } else {
+                fprintf(stderr,
+                        SCM_ERR_HEADER
+                        "system load path must be absolute: %s\n",
+                        sys_load_path);
+                exit(EXIT_FAILURE);
+            }
         }
         scm_set_system_load_path(sys_load_path);
     }

@@ -26,10 +26,11 @@ case "${test_file##*/}" in
     ;;
   test-fail.scm|test-unittest.scm)
     # They use lib/unittest.scm. lib/unittest.scm and they use:
-    #   legacy_macro sscm_extensions srfi0 srfi6 srfi23 srfi34 srfi55
+    #   legacy_macro quasiquote sscm_extensions srfi0 srfi6 srfi23 srfi34
+    #   srfi55
     skip_unless_enabled lib/unittest.scm \
-      @use_legacy_macro@ @use_sscm_extensions@ @use_srfi0@ @use_srfi6@ \
-      @use_srfi23@ @use_srfi34@ @use_srfi55@
+      @use_legacy_macro@ @use_quasiquote@ @use_sscm_extensions@ @use_srfi0@ \
+      @use_srfi6@ @use_srfi23@ @use_srfi34@ @use_srfi55@
     ;;
   *)
     # Other tests use SRFI-64 with helper.scm. It has the runner that

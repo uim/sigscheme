@@ -546,7 +546,7 @@ srfi6: port string
 srfi9: hygienic_macro load vector srfi23
 srfi34: continuation srfi23
 srfi38: writer
-srfi43: load vector srfi8 srfi23 sscm_extensions
+srfi43: load quasiquote vector srfi8 srfi23 sscm_extensions
 srfi55: load sscm_extensions
 srfi60: int
 srfi64: load continuation hygienic_macro port reader srfi6 srfi9 srfi23 srfi34 srfi55

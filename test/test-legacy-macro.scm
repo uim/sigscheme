@@ -34,6 +34,9 @@
 
 (require-extension (srfi 64))
 
+(if (not (symbol-bound? 'quasiquote))
+    (test-skip-file "R5RS quasiquote is not enabled"))
+
 (test-begin "test-legacy-macro")
 
 (test-begin "define-macro invalid forms")

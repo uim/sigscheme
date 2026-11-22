@@ -55,29 +55,31 @@
                         ((_ datum) 'datum))))
               (foo () foo (bar . baz) #(bad))))
 
-(test-equal "syntax-rules unwrap in quasiquote (lists)"
-            '(sym (sym . sym)
-                  (quasiquote ((unquote sym) unquote sym))
-                  ((quasiquote (unquote-splicing sym)))
-                  (0 0 . 0))
-            (let ((sym 0))
-              (let-syntax
-                  ((macro
-                       (syntax-rules ()
-                         ((_) (list `sym `(sym . sym)
-                                    ``(,sym . ,sym) `(`,@sym)
-                                    `(,@(list sym) ,sym . ,sym))))))
-                (macro))))
+(if (symbol-bound? 'quasiquote)
+    (begin
+      (test-equal "syntax-rules unwrap in quasiquote (lists)"
+                  '(sym (sym . sym)
+                        (quasiquote ((unquote sym) unquote sym))
+                        ((quasiquote (unquote-splicing sym)))
+                        (0 0 . 0))
+                  (let ((sym 0))
+                    (let-syntax
+                        ((macro
+                             (syntax-rules ()
+                               ((_) (list `sym `(sym . sym)
+                                          ``(,sym . ,sym) `(`,@sym)
+                                          `(,@(list sym) ,sym . ,sym))))))
+                      (macro))))
 
-(test-equal "syntax-rules unwrap in quasiquote (vectors)"
-            '(#() #(sym) #(sym 0) #((quasiquote (unquote sym)) 0))
-            (let ((sym 0))
-              (let-syntax
-                  ((macro
-                       (syntax-rules ()
-                         ((_) (list `#() `#(sym) `#(sym ,sym)
-                                    `#(`,sym ,@(list sym)))))))
-                (macro))))
+      (test-equal "syntax-rules unwrap in quasiquote (vectors)"
+                  '(#() #(sym) #(sym 0) #((quasiquote (unquote sym)) 0))
+                  (let ((sym 0))
+                    (let-syntax
+                        ((macro
+                             (syntax-rules ()
+                               ((_) (list `#() `#(sym) `#(sym ,sym)
+                                          `#(`,sym ,@(list sym)))))))
+                      (macro))))))
 
 (test-equal "syntax-rules unwrap in case"
             'ok

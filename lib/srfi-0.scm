@@ -78,8 +78,9 @@
                            (else
                             (rec (cdr rest)))))))
           (if clause
-              `(begin
-                 ;; raise error if cond-expand is placed in non-toplevel
-                 (define-macro %cond-expand-dummy (lambda () #t))
-                 . ,(cdr clause))
+              ;; Be quasiquote free to allow --disable-quasiquote
+              (cons 'begin
+                    ;; raise error if cond-expand is placed in non-toplevel
+                    (cons '(define-macro %cond-expand-dummy (lambda () #t))
+                          (cdr clause)))
               (error "unfulfilled cond-expand"))))))

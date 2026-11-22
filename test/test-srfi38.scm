@@ -68,7 +68,7 @@
 (test-begin "write/ss with explicit port arg")
 (let* ((outs (open-output-string))
        (s "abc")
-       (convolution `(,s 1 #(,s b) ,(list 2) () ,s)))
+       (convolution (list s 1 (vector s 'b) (list 2) '() s)))
   ; go crazy with mutators
   (set-car! (cdr convolution) convolution)
   (vector-set! (caddr convolution) 1 (cddr convolution))

@@ -75,7 +75,8 @@
 
 ;; check apply
 (test-equal "apply check1" #t (apply = '(1 1 1)))
-(test-equal "apply check2" 6  (apply + `(1 2 ,(+ 1 2))))
+(if (symbol-bound? 'quasiquote)
+    (test-equal "apply check2" 6  (apply + `(1 2 ,(+ 1 2)))))
 (test-equal "apply check3" '(3) (apply cddr '((1 2 3))))
 (test-equal "apply check4" #t (apply equal? '((1 2) (1 2))))
 (test-equal "apply check5" "iu" (apply substring '("aiueo" 1 3)))

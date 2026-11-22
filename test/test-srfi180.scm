@@ -211,9 +211,10 @@
 (if (symbol-bound? 'parameterize)
     (let ((read-with-limits
            (lambda (depth n-chars str)
-             (eval `(parameterize ((json-nesting-depth-limit ,depth)
-                                   (json-number-of-character-limit ,n-chars))
-                      (json-read (open-input-string ,str)))
+             (eval (list 'parameterize
+                         (list (list 'json-nesting-depth-limit depth)
+                               (list 'json-number-of-character-limit n-chars))
+                         (list 'json-read (list 'open-input-string str)))
                    (interaction-environment)))))
       (test-equal '#(#(1)) (read-with-limits 2 +inf.0 "[[1]]"))
       (test-assert (string? (json-error-reason-of

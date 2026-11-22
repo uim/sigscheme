@@ -350,6 +350,11 @@
           (if (eof-object? library)
               libraries
               (loop (cons library libraries))))))))
+;; They are unbound without R5RS quasiquote.
+(define unbound-symbols
+  (if (symbol-bound? 'quasiquote)
+      '()
+      '(quasiquote unquote unquote-splicing)))
 (define (unexported-symbols library)
   (let ((exports (%%library-exports (car library))))
     (let loop ((syms (cdr library))
@@ -357,6 +362,7 @@
       (cond
        ((null? syms) (reverse unexported))
        ((assq (car syms) exports) (loop (cdr syms) unexported))
+       ((memq (car syms) unbound-symbols) (loop (cdr syms) unexported))
        (else (loop (cdr syms) (cons (car syms) unexported)))))))
 (test-equal '((scheme base))
             (assoc '(scheme base) (map (lambda (library)

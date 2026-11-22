@@ -101,7 +101,7 @@ endif
 # test-fail.scm and test-unittest.scm use lib/unittest.scm. They are run
 # only when the features that lib/unittest.scm and they use are enabled.
 unittest_available = true
-foreach feature : ['legacy_macro', 'sscm_extensions',
+foreach feature : ['legacy_macro', 'quasiquote', 'sscm_extensions',
                    'srfi0', 'srfi6', 'srfi23', 'srfi34', 'srfi55']
   if not use[feature]
     unittest_available = false

@@ -3,6 +3,11 @@ What's SigScheme
 
 SigScheme is a R5RS and R7RS small Scheme interpreter for embedded use.
 
+It features low memory consumption (2-words per cons cell), multibyte
+characters handling (UTF-8, EUCs and Shift_JIS) and more.
+
+It is mainly developed to be the Scheme interpreter of uim.
+
   Homepage:
     https://github.com/uim/sigscheme
 

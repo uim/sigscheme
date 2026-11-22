@@ -36,7 +36,9 @@ Documents update
 ~~~~~~~~~~~~~~~~
 
 Add a section for the new version at the top of `NEWS.md`. The release note
-of GitHub Releases is generated from the section. Update `RELNOTE` too.
+of GitHub Releases is generated from the section. Write a summary of the
+release at the top of the section and notes for packagers and system
+integrators at the bottom of the section if needed.
 
 Versioning
 ~~~~~~~~~~

@@ -2,7 +2,7 @@
  *  Filename : test-array2list.c
  *  About    : test for C array <-> Scheme list conversion functions
  *
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -115,16 +115,19 @@ TST_CASE("scm_list2array()")
 
     ary = scm_list2array(SCM_NULL, &len, refer_c_str);
     TST_TN_EQ_INT(0, len);
+    free(ary);
 
     ary = scm_list2array(scm_eval_c_string(list1), &len, refer_c_str);
     TST_TN_EQ_INT(1, len);
     TST_TN_EQ_STR("abc", ary[0]);
+    free(ary);
 
     ary = scm_list2array(scm_eval_c_string(list3), &len, refer_c_str);
     TST_TN_EQ_INT(3, len);
     TST_TN_EQ_STR("abc", ary[0]);
     TST_TN_EQ_STR("def", ary[1]);
     TST_TN_EQ_STR("gh",  ary[2]);
+    free(ary);
 }
 
 TST_CASE("scm_list2array() without conversion")
@@ -136,14 +139,17 @@ TST_CASE("scm_list2array() without conversion")
 
     ary = scm_list2array(SCM_NULL, &len, NULL);
     TST_TN_EQ_INT(0, len);
+    free(ary);
 
     ary = scm_list2array(scm_eval_c_string(list1), &len, NULL);
     TST_TN_EQ_INT(1, len);
     TST_TN_TRUE(EQUALP(CONST_STRING("abc"), (ScmObj)ary[0]));
+    free(ary);
 
     ary = scm_list2array(scm_eval_c_string(list3), &len, NULL);
     TST_TN_EQ_INT(3, len);
     TST_TN_TRUE(EQUALP(CONST_STRING("abc"), (ScmObj)ary[0]));
     TST_TN_TRUE(EQUALP(CONST_STRING("def"), (ScmObj)ary[1]));
     TST_TN_TRUE(EQUALP(CONST_STRING("gh"),  (ScmObj)ary[2]));
+    free(ary);
 }

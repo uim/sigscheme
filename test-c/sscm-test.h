@@ -3,7 +3,7 @@
  *  About    : scheme C-level testing utilities
  *
  *  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -154,6 +154,17 @@ struct _tst_suite_info {
     } stats;
 };
 
+static void tst_log(tst_suite_info *suite, tst_case_info *result,
+                    char *msg) SCM_UNUSED;
+
+/* Logs MSG that is allocated by tst_format() and frees it. */
+static void
+tst_log(tst_suite_info *suite, tst_case_info *result, char *msg)
+{
+    suite->logger(suite, result, msg);
+    free(msg);
+}
+
 #define TST_DEFAULT_SUITE_SETUP                 \
     {                                           \
         tst_puts, NULL, {0}                     \
@@ -267,26 +278,25 @@ tst_analyze(tst_suite_info *suite, tst_case_info *result)
     ++suite->stats.cases;
     if (result->abortp) {
         ++suite->stats.aborts;
-        suite->logger(suite, result,
-                      tst_format("* ABORTED: %s\n", result->desc));
+        tst_log(suite, result, tst_format("* ABORTED: %s\n", result->desc));
     } else {
-        suite->logger(suite, result,
-                      tst_format("%s: %s\n",
-                                 result->fail ? "* FAILED"
-                                              : "    OK",
-                                 result->desc));
+        tst_log(suite, result,
+                tst_format("%s: %s\n",
+                           result->fail ? "* FAILED"
+                                        : "    OK",
+                           result->desc));
     }
 }
 
 static void
 tst_summarize(tst_suite_info *suite)
 {
-    suite->logger(suite, NULL,
-                  tst_format("%d test cases, %d aborted.  %d individual "
-                             "tests, %d succeeded and %d failed.\n",
-                             suite->stats.cases, suite->stats.aborts,
-                             suite->stats.done,
-                             suite->stats.succ, suite->stats.fail));
+    tst_log(suite, NULL,
+            tst_format("%d test cases, %d aborted.  %d individual "
+                       "tests, %d succeeded and %d failed.\n",
+                       suite->stats.cases, suite->stats.aborts,
+                       suite->stats.done,
+                       suite->stats.succ, suite->stats.fail));
 }
 
 static int tst_count SCM_UNUSED;
@@ -312,9 +322,8 @@ tst_name(const char *testcase_desc, int serial)
 /* ------------------------------
  * Tests
  */
-#define TST_LOG(msg)  TST_SUITE_INFO->logger(TST_SUITE_INFO,    \
-                                             TST_CASE_INFO,     \
-                                             msg)
+/* MSG must be allocated by tst_format(). It's freed. */
+#define TST_LOG(msg)  tst_log(TST_SUITE_INFO, TST_CASE_INFO, msg)
 #define TST_FAIL(msg) (++TST_CASE_INFO->done,   \
                        ++TST_CASE_INFO->fail,   \
                        TST_LOG(msg),            \

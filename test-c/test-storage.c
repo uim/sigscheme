@@ -3,7 +3,7 @@
  *  About    : scheme object representation and accessor test
  *
  *  Copyright (C) 2006 Jun Inoue <jun.lambda@gmail.com>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -225,8 +225,8 @@ TST_CASE("char")
 TST_CASE("symbol")
 {
     ScmObj obj;
-    char *p = scm_strdup("abcdefghijklmnopqrstuv");
-    p = (char*)(((intptr_t)p + 7)& (-8));
+    char *name = scm_strdup("abcdefghijklmnopqrstuv");
+    char *p = (char*)(((intptr_t)name + 7)& (-8));
 
 #define SYMBOL_TST(tst, nam, val)               \
     tst(obj, SYMBOL,                            \
@@ -235,6 +235,7 @@ TST_CASE("symbol")
 
     SYMBOL_TST(TST_INIT2, p, LIST_1(SCM_NULL));
     SYMBOL_TST(TST_SET2, NULL, SCM_NULL);
+    free(name);
 }
 
 

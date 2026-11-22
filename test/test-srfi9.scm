@@ -43,8 +43,10 @@
 (test-begin "SRFI-9 invalid forms")
 ;; invalid definition placement
 (test-error (if #t (define-record-type my-rec (make-my-rec) my-rec?)))
-(test-error (test-read-eval-string
-             "(if #t (define-record-type my-rec (make-my-rec) my-rec?))"))
+(if (provided? "strict-toplevel-definitions")
+    (test-error
+     (test-read-eval-string
+      "(if #t (define-record-type my-rec (make-my-rec) my-rec?))")))
 ;; invalid record names
 (test-error (eval '(define-record-type 'my-rec (make-my-rec) my-rec?)
                   (interaction-environment)))

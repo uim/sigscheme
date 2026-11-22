@@ -41,6 +41,9 @@
               (symbol-bound? 'string?)))
     (test-skip-file "EUC-JP codec is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip-file "R6RS characters is not enabled"))
+
 (test-begin "test-enc-eucjp")
 
 ;; string?

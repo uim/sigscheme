@@ -36,6 +36,9 @@
 (if (not (provided? "r7rs"))
     (test-skip-file "R7RS is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip-file "R6RS characters is not enabled"))
+
 (test-begin "test-r7rs")
 
 (test-begin "vector literal")

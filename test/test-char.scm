@@ -38,6 +38,9 @@
 (if (not (symbol-bound? 'char?))
     (test-skip-file "R5RS characters is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip-file "R6RS characters is not enabled"))
+
 (test-begin "test-char")
 (define unicode? (provided? "full-unicode"))
 

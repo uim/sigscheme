@@ -104,7 +104,8 @@
 (test-end "module many definitions")
 
 (test-begin "module toplevel definitions")
-(test-error (eval '(if #t (define zz 1)) module))
+(if (provided? "strict-toplevel-definitions")
+    (test-error (eval '(if #t (define zz 1)) module)))
 (test-error (eval 'no-such-variable module))
 (test-end "module toplevel definitions")
 
@@ -376,7 +377,10 @@
 (test-equal 'ok (eval '(let ((x 'ok)) x) env))
 (test-assert (eq? env (environment '(scheme base)
                                     '(only (scheme write) write))))
-(test-error (eval '(define x 1) env))
+;; A definition in an immutable environment is rejected by the same
+;; mechanism as strict toplevel definitions.
+(if (provided? "strict-toplevel-definitions")
+    (test-error (eval '(define x 1) env)))
 (test-error (eval '(set! car 1) env))
 (test-end "environment")
 

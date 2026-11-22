@@ -216,7 +216,8 @@
 (test-begin "vector-ref immutable")
 (define immv1 '#(e0))
 (define immv5 '#(e0 e1 e2 e3 e4))
-(if sigscheme?
+(if (and sigscheme?
+         (provided? "const-vector-literal"))
     (begin
       (test-assert (not (vector-mutable? immv1)))
       (test-assert (not (vector-mutable? immv5)))))
@@ -342,14 +343,17 @@
 (test-error (vector-set! '#()  1 x))
 ;; length 1
 (test-error (vector-set! '#(0) -1 x))
-(test-error (vector-set! '#(0)  0 x))
 (test-error (vector-set! '#(0)  1 x))
 ;; length 3
 (test-error (vector-set! '#(0 1 2) -1 x))
-(test-error (vector-set! '#(0 1 2)  0 x))
-(test-error (vector-set! '#(0 1 2)  1 x))
-(test-error (vector-set! '#(0 1 2)  2 x))
 (test-error (vector-set! '#(0 1 2)  3 x))
+;; A valid index is an error only for a constant vector.
+(if (provided? "const-vector-literal")
+    (begin
+      (test-error (vector-set! '#(0)  0 x))
+      (test-error (vector-set! '#(0 1 2)  0 x))
+      (test-error (vector-set! '#(0 1 2)  1 x))
+      (test-error (vector-set! '#(0 1 2)  2 x))))
 (test-end "vector-set! immutable")
 
 ;;
@@ -540,10 +544,12 @@
 (test-end "vector-fill! mutable")
 
 (test-begin "vector-fill! immutable")
-(test-error (vector-fill! '#()      #t))
-(test-error (vector-fill! '#(a)     #t))
-(test-error (vector-fill! '#(a b)   #t))
-(test-error (vector-fill! '#(a b c) #t))
+(if (provided? "const-vector-literal")
+    (begin
+      (test-error (vector-fill! '#()      #t))
+      (test-error (vector-fill! '#(a)     #t))
+      (test-error (vector-fill! '#(a b)   #t))
+      (test-error (vector-fill! '#(a b c) #t))))
 (test-end "vector-fill! immutable")
 
 

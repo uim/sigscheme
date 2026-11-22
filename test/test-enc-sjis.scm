@@ -42,6 +42,9 @@
               (symbol-bound? 'string?)))
     (test-skip-file "Shift_JIS codec is not enabled"))
 
+(if (not (provided? "r6rs-chars"))
+    (test-skip-file "R6RS characters is not enabled"))
+
 (test-begin "test-enc-sjis")
 
 (test-equal "string 1" "”ül‚É‚Í" (string #\”ü #\l #\‚É #\‚Í))

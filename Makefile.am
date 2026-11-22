@@ -27,6 +27,8 @@ EXTRA_DIST = \
 if USE_LIBSSCM
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = sigscheme.pc
+
+dist_doc_DATA = COPYING README
 endif
 
 $(pkgconfig_DATA): config.status

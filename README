@@ -65,7 +65,7 @@ SigScheme can be built with Meson or GNU Autotools. Meson is
 recommended. GNU Autotools is still supported for compatibility but
 it will be removed in the future.
 
-Meson 0.63.0 or later and Ninja are required to build with Meson.
+Meson 1.1.0 or later and Ninja are required to build with Meson.
 
 Run 'meson setup' with some options at the top directory.
 

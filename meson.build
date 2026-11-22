@@ -1,9 +1,14 @@
 project('sigscheme',
         'c',
         version: '1.0.1',
-        # 0.63.0 or later is needed to build test programs that aren't
-        # built by default on 'meson test'.
-        meson_version: '>=0.63.0')
+        license: 'BSD-3-Clause',
+        license_files: ['COPYING'],
+        default_options: [
+          # The same as the default --docdir of configure.
+          'licensedir=share/doc/sigscheme',
+        ],
+        # 1.1.0 or later is needed for license_files.
+        meson_version: '>=1.1.0')
 
 fs = import('fs')
 
@@ -903,6 +908,9 @@ subdir('test')
 subdir('test-c')
 
 if use['libsscm']
+  # COPYING is installed by license_files of project().
+  install_data('README', install_dir: docdir)
+
   # Clients such as uim use these variables to detect features.
   pc_variables = ['scmlibdir=' + ('${prefix}' / scmlibdir)]
   foreach feature : [

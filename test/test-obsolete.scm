@@ -115,59 +115,63 @@
 ;;
 
 
-(test-begin "string->list immutable")
-(test-equal '()                (string->list ""))
-(test-equal '(#\\)             (string->list "\\"))
-(test-equal '(#\\ #\\)         (string->list "\\\\"))
-(test-equal '(#\\ #\\ #\\)     (string->list "\\\\\\"))
-;;(test-equal '(#\tab)           (string->list "\t"))
-(test-equal '(#\	)      (string->list "\t"))
-;;(test-equal '(#\return)        (string->list "\r"))
-(test-equal '(#\)            (string->list "\r"))
-(test-equal '(#\ #\)       (string->list "\r\r"))
-(test-equal '(#\newline)           (string->list "\n"))
-(test-equal '(#\newline #\newline) (string->list "\n\n"))
-(test-equal '(#\space)         (string->list " "))
-(test-equal '(#\space #\space) (string->list "  "))
-(test-equal '(#\")             (string->list "\""))
-(test-equal '(#\" #\")         (string->list "\"\""))
-(test-end "string->list immutable")
-(test-begin "string->list mutable")
-(test-equal '()                    (string->list (cp "")))
-(test-equal '(#\\)                 (string->list (cp "\\")))
-(test-equal '(#\\ #\\)             (string->list (cp "\\\\")))
-(test-equal '(#\\ #\\ #\\)         (string->list (cp "\\\\\\")))
-;;(test-equal '(#\tab)           (string->list (cp "\t")))
-(test-equal '(#\	)            (string->list (cp "\t")))
-;;(test-equal '(#\return)        (string->list (cp "\r")))
-(test-equal '(#\)                (string->list (cp "\r")))
-(test-equal '(#\ #\)           (string->list (cp "\r\r")))
-(test-equal '(#\newline)           (string->list (cp "\n")))
-(test-equal '(#\newline #\newline) (string->list (cp "\n\n")))
-(test-equal '(#\space)             (string->list (cp " ")))
-(test-equal '(#\space #\space)     (string->list (cp "  ")))
-(test-equal '(#\")                 (string->list (cp "\"")))
-(test-equal '(#\" #\")             (string->list (cp "\"\"")))
-(test-end "string->list mutable")
+;; string->list and list->string are available only with R5RS string
+;; procedures.
+(if (symbol-bound? 'string->list)
+    (begin
+      (test-begin "string->list immutable")
+      (test-equal '()                (string->list ""))
+      (test-equal '(#\\)             (string->list "\\"))
+      (test-equal '(#\\ #\\)         (string->list "\\\\"))
+      (test-equal '(#\\ #\\ #\\)     (string->list "\\\\\\"))
+      ;;(test-equal '(#\tab)           (string->list "\t"))
+      (test-equal '(#\	)      (string->list "\t"))
+      ;;(test-equal '(#\return)        (string->list "\r"))
+      (test-equal '(#\)            (string->list "\r"))
+      (test-equal '(#\ #\)       (string->list "\r\r"))
+      (test-equal '(#\newline)           (string->list "\n"))
+      (test-equal '(#\newline #\newline) (string->list "\n\n"))
+      (test-equal '(#\space)         (string->list " "))
+      (test-equal '(#\space #\space) (string->list "  "))
+      (test-equal '(#\")             (string->list "\""))
+      (test-equal '(#\" #\")         (string->list "\"\""))
+      (test-end "string->list immutable")
+      (test-begin "string->list mutable")
+      (test-equal '()                    (string->list (cp "")))
+      (test-equal '(#\\)                 (string->list (cp "\\")))
+      (test-equal '(#\\ #\\)             (string->list (cp "\\\\")))
+      (test-equal '(#\\ #\\ #\\)         (string->list (cp "\\\\\\")))
+      ;;(test-equal '(#\tab)           (string->list (cp "\t")))
+      (test-equal '(#\	)            (string->list (cp "\t")))
+      ;;(test-equal '(#\return)        (string->list (cp "\r")))
+      (test-equal '(#\)                (string->list (cp "\r")))
+      (test-equal '(#\ #\)           (string->list (cp "\r\r")))
+      (test-equal '(#\newline)           (string->list (cp "\n")))
+      (test-equal '(#\newline #\newline) (string->list (cp "\n\n")))
+      (test-equal '(#\space)             (string->list (cp " ")))
+      (test-equal '(#\space #\space)     (string->list (cp "  ")))
+      (test-equal '(#\")                 (string->list (cp "\"")))
+      (test-equal '(#\" #\")             (string->list (cp "\"\"")))
+      (test-end "string->list mutable")
 
-(test-begin "list->string")
-(test-equal ""     (list->string '()))
-(test-equal "\\"     (list->string '(#\\)))
-(test-equal "\\\\"   (list->string '(#\\ #\\)))
-(test-equal "\\\\\\" (list->string '(#\\ #\\ #\\)))
-(test-equal "\t" (list->string '(#\	)))
-;;(test-equal "\t" (list->string '(#\tab)))
-(test-equal "\r" (list->string '(#\)))
-;;(test-equal "\r" (list->string '(#\return)))
-(test-equal "\n" (list->string '(#\
-)))
-(test-equal "\n" (list->string '(#\newline)))
-(test-equal " " (list->string '(#\ )))
-(test-equal " " (list->string '(#\space)))
-(test-equal " " (list->string '(#\ )))
-(test-equal "\"" (list->string '(#\")))
-(test-equal "\"a\"" (list->string '(#\" #\a #\")))
-(test-end "list->string")
+      (test-begin "list->string")
+      (test-equal ""     (list->string '()))
+      (test-equal "\\"     (list->string '(#\\)))
+      (test-equal "\\\\"   (list->string '(#\\ #\\)))
+      (test-equal "\\\\\\" (list->string '(#\\ #\\ #\\)))
+      (test-equal "\t" (list->string '(#\	)))
+      ;;(test-equal "\t" (list->string '(#\tab)))
+      (test-equal "\r" (list->string '(#\)))
+      ;;(test-equal "\r" (list->string '(#\return)))
+      (test-equal "\n" (list->string '(#\
+      )))
+      (test-equal "\n" (list->string '(#\newline)))
+      (test-equal " " (list->string '(#\ )))
+      (test-equal " " (list->string '(#\space)))
+      (test-equal " " (list->string '(#\ )))
+      (test-equal "\"" (list->string '(#\")))
+      (test-equal "\"a\"" (list->string '(#\" #\a #\")))
+      (test-end "list->string")))
 
 
 (test-end "test-obsolete")

@@ -550,9 +550,9 @@ srfi43: load quasiquote vector srfi8 srfi23 sscm_extensions
 srfi55: load sscm_extensions
 srfi60: int
 srfi64: load continuation hygienic_macro port reader srfi6 srfi9 srfi23 srfi34 srfi55
-srfi69: load int string vector srfi9 srfi23
+srfi69: load int string string_procedure vector srfi9 srfi23
 srfi95: load int
-srfi180: load int real char string vector port srfi6 srfi34 sscm_extensions
+srfi180: load int real char string string_procedure vector port srfi6 srfi34 sscm_extensions
 r6rs_named_chars: char
 r6rs_chars: char utf8 reader r6rs_named_chars number_io
 r7rs: continuation hygienic_macro int char string string_procedure vector bytevector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars

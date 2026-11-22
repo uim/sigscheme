@@ -45,6 +45,9 @@
 (if (not (provided? "r6rs-chars"))
     (test-skip-file "R6RS characters is not enabled"))
 
+(if (not (symbol-bound? 'string->list))
+    (test-skip-file "R5RS string procedures are not enabled"))
+
 (test-begin "test-enc-sjis")
 
 (test-equal "string 1" "”ül‚É‚Í" (string #\”ü #\l #\‚É #\‚Í))

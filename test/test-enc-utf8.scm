@@ -46,6 +46,9 @@
 (if (not (provided? "r6rs-chars"))
     (test-skip-file "R6RS characters is not enabled"))
 
+(if (not (symbol-bound? 'string->list))
+    (test-skip-file "R5RS string procedures are not enabled"))
+
 (test-begin "test-enc-utf8")
 
 (test-equal "string 1" "美人には" (string #\美 #\人 #\に #\は))

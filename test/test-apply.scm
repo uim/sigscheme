@@ -79,7 +79,8 @@
     (test-equal "apply check2" 6  (apply + `(1 2 ,(+ 1 2)))))
 (test-equal "apply check3" '(3) (apply cddr '((1 2 3))))
 (test-equal "apply check4" #t (apply equal? '((1 2) (1 2))))
-(test-equal "apply check5" "iu" (apply substring '("aiueo" 1 3)))
+(if (symbol-bound? 'substring)
+    (test-equal "apply check5" "iu" (apply substring '("aiueo" 1 3))))
 
 (test-equal "apply check6" 4  (apply (lambda (x y) (+ x y)) '(1 3)))
 (test-equal "apply check7" 4  (apply (lambda (x y) (+ x y)) '(1 3)))

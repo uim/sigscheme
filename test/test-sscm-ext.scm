@@ -43,16 +43,19 @@
 (define ud (undef))
 
 (test-begin "sscm-version")
+(test-assert (string? (sscm-version)))
 ;; MAJOR.MINOR.PATCHLEVEL
-(let ((n-dots 0)
-      (n-others 0))
-  (for-each (lambda (c)
-              (cond
-               ((char=? c #\.) (set! n-dots (+ n-dots 1)))
-               ((not (char-numeric? c)) (set! n-others (+ n-others 1)))))
-            (string->list (sscm-version)))
-  (test-equal 2 n-dots)
-  (test-equal 0 n-others))
+(if (symbol-bound? 'string->list)
+    (let ((n-dots 0)
+          (n-others 0))
+      (for-each (lambda (c)
+                  (cond
+                   ((char=? c #\.) (set! n-dots (+ n-dots 1)))
+                   ((not (char-numeric? c))
+                    (set! n-others (+ n-others 1)))))
+                (string->list (sscm-version)))
+      (test-equal 2 n-dots)
+      (test-equal 0 n-others)))
 (test-end "sscm-version")
 
 (test-begin "%%current-char-codec")

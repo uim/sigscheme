@@ -181,6 +181,20 @@ or
 make check
 ```
 
+### AddressSanitizer
+
+SigScheme can be built and tested with AddressSanitizer.
+
+```bash
+meson setup -Db_sanitize=address build
+meson test -C build
+```
+
+`-Db_lundef=false` is also needed with Clang.
+
+libgcroots 0.3.8 or later is required when system libgcroots is
+used. The bundled libgcroots and `-Dgc=tiny-subst` can also be used.
+
 ## Installation
 
 ```bash

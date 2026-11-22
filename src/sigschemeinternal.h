@@ -195,6 +195,30 @@ extern "C" {
 /*=======================================
   Macro Definitions
 =======================================*/
+/* AddressSanitizer: GCC and MSVC define __SANITIZE_ADDRESS__ and Clang
+ * supports __has_feature(address_sanitizer). SCM_NO_SANITIZE_ADDRESS is for
+ * functions that scan the stack conservatively and functions that have a
+ * local variable that must be placed in the real stack. */
+#if defined(__SANITIZE_ADDRESS__)
+#define SCM_WITH_ASAN 1
+#elif defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define SCM_WITH_ASAN 1
+#endif
+#endif
+#ifndef SCM_WITH_ASAN
+#define SCM_WITH_ASAN 0
+#endif
+#if SCM_WITH_ASAN
+#if defined(_MSC_VER) && !defined(__clang__)
+#define SCM_NO_SANITIZE_ADDRESS __declspec(no_sanitize_address)
+#else
+#define SCM_NO_SANITIZE_ADDRESS __attribute__((__no_sanitize_address__))
+#endif
+#else
+#define SCM_NO_SANITIZE_ADDRESS
+#endif
+
 #define SCM_ERR_HEADER "Error: "
 
 #define ABSOLUTE_PATHP(path) ((path)[0] == '/')

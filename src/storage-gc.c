@@ -785,6 +785,9 @@ gc_mark_protected_var(void)
 }
 
 /* mark a contiguous region such as stack */
+/* The stack has red zones of AddressSanitizer between local variables. They
+ * are also read here. */
+SCM_NO_SANITIZE_ADDRESS
 static void
 gc_mark_locations_n(ScmObj *start, size_t n)
 {

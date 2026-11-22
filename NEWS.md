@@ -29,7 +29,10 @@ failures with some features disabled.
 
   * Installed `COPYING` and `README.md`.
 
-  * Updated bundled libgcroots to 0.3.7.
+  * Added support for AddressSanitizer. See "AddressSanitizer" in
+    `README.md` for details.
+
+  * Updated bundled libgcroots to 0.3.8.
 
 ### Fixes
 

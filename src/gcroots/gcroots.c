@@ -3,7 +3,7 @@
  *  About    : SigScheme-dependent portable implementation of libgcroots
  *
  *  Copyright (C) 2006 YAMAMOTO Kengo <yamaken AT bp.iij4u.or.jp>
- *  Copyright (c) 2007-2008 SigScheme Project <uim-en AT googlegroups.com>
+ *  Copyright (c) 2007-2026 SigScheme Project https://github.com/uim/sigscheme
  *
  *  All rights reserved.
  *
@@ -42,7 +42,12 @@
 #endif
 
 #include <sigscheme/sigscheme.h>
+#include "../sigschemeinternal.h"
 #include "gcroots.h"
+
+#if SCM_WITH_ASAN
+#include <sanitizer/asan_interface.h>
+#endif
 
 /*=======================================
   File Local Macro Definitions
@@ -110,6 +115,9 @@ GCROOTS_fin(GCROOTS_context *ctx)
     /* Nothing to do for this implementation. Caller must free ctx. */
 }
 
+/* stack_top must be in the real stack. AddressSanitizer may place local
+ * variables in a fake stack (heap) with detect_stack_use_after_return=1. */
+SCM_NO_SANITIZE_ADDRESS
 SCM_EXPORT void *
 GCROOTS_call_with_gc_ready_stack(GCROOTS_context *ctx,
                                  GCROOTS_user_proc proc, void *arg)
@@ -133,6 +141,8 @@ GCROOTS_call_with_gc_ready_stack(GCROOTS_context *ctx,
     return ret;
 }
 
+/* Saved registers must be in the real stack. */
+SCM_NO_SANITIZE_ADDRESS
 SCM_EXPORT void
 GCROOTS_mark(GCROOTS_context *ctx)
 {
@@ -156,12 +166,49 @@ GCROOTS_mark(GCROOTS_context *ctx)
     }
 }
 
+#if SCM_WITH_ASAN
+/* A frame in the fake stack of AddressSanitizer is referred from the real
+ * stack. So they are found by scanning the real stack and marked too. This
+ * is the same as libgcroots 0.3.8. */
+SCM_NO_SANITIZE_ADDRESS
+static void
+mark_fake_frames(GCROOTS_context *ctx, void **start, void **end)
+{
+    void *fake_stack;
+    void **p;
+    void *fake_start, *fake_end;
+    void *last_fake_start = NULL;
+
+    fake_stack = __asan_get_current_fake_stack();
+    if (!fake_stack)
+        return;
+
+    for (p = start; p < end; p++) {
+        if (__asan_addr_is_in_fake_stack(fake_stack, *p,
+                                         &fake_start, &fake_end)
+            && fake_start != last_fake_start) {
+            (*ctx->mark)(fake_start, fake_end, scm_false, scm_true);
+            last_fake_start = fake_start;
+        }
+    }
+}
+#endif
+
+/* stack_top must be in the real stack. */
+SCM_NO_SANITIZE_ADDRESS
 static void
 mark_internal(GCROOTS_context *ctx)
 {
     void *stack_top; /* approx */
 
     (*ctx->mark)(ctx->stack_base, &stack_top, scm_false, scm_false);
+#if SCM_WITH_ASAN
+    if ((void *)&stack_top < ctx->stack_base)
+        mark_fake_frames(ctx, (void **)&stack_top + 1, ctx->stack_base);
+    else
+        mark_fake_frames(ctx, (void **)ctx->stack_base + 1,
+                         (void **)&stack_top);
+#endif
 }
 
 int
@@ -191,6 +238,9 @@ GCROOTS_is_protected(GCROOTS_context *ctx, void *obj)
     return l_found;
 }
 
+/* The stack has red zones of AddressSanitizer between local variables. They
+ * are also read here. */
+SCM_NO_SANITIZE_ADDRESS
 static void
 find_obj(void *start, void *end, int is_certain, int is_aligned)
 {

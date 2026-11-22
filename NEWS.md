@@ -37,7 +37,7 @@ failures with some features disabled.
     `valgrind/memcheck.h` exists on build.
     * [uim/uim#60](https://github.com/uim/uim/issues/60)
 
-  * Updated bundled libgcroots to 0.3.8.
+  * Updated bundled libgcroots to 0.3.9.
 
 ### Fixes
 

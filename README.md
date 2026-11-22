@@ -200,7 +200,8 @@ used. The bundled libgcroots and `-Dgc=tiny-subst` can also be used.
 The GC scans the stack that has uninitialized locations. Valgrind
 reports it as a use of an uninitialized value. The reports are
 suppressed when SigScheme is built with `valgrind/memcheck.h`. It's
-used by default if it exists. `-Dvalgrind=enabled` requires it.
+used by default if it exists. `-Dvalgrind=enabled` requires it. The
+option is also used for the bundled libgcroots.
 
 ```bash
 meson setup -Dvalgrind=enabled build

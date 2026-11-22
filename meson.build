@@ -181,7 +181,20 @@ if gc in ['auto', 'bdwgc']
   endif
 endif
 if use_libgcroots == '' and gc in ['auto', 'gcroots']
-  gcroots = dependency('gcroots', version: '>= 0.2.3', fallback: 'libgcroots')
+  # The bundled libgcroots has the same valgrind option. Ours is
+  # passed to it to use the same value.
+  valgrind_option = get_option('valgrind')
+  if valgrind_option.enabled()
+    gcroots_valgrind = 'enabled'
+  elif valgrind_option.disabled()
+    gcroots_valgrind = 'disabled'
+  else
+    gcroots_valgrind = 'auto'
+  endif
+  gcroots = dependency('gcroots',
+                       version: '>= 0.2.3',
+                       fallback: 'libgcroots',
+                       default_options: ['valgrind=' + gcroots_valgrind])
   gcroots_dependencies += [gcroots]
   if gcroots.type_name() == 'internal'
     use_libgcroots = 'bundled one'

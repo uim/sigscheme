@@ -165,6 +165,11 @@ sscm_test_requirements = {
   'test-vector.scm': ['sscm_extensions'],
 }
 
+# A test that creates a temporary file creates it in this directory
+# instead of the current directory (the source directory). The source
+# directory may not be writable.
+sscm_test_env = {'SSCM_TEST_TMPDIR': meson.current_build_dir()}
+
 if use['shell']
   foreach sscm_test : sscm_tests
     sscm_test_available = true
@@ -187,6 +192,7 @@ if use['shell']
     test(sscm_test,
          sscm,
          args: sscm_test_args + [files(sscm_test)],
+         env: sscm_test_env,
          should_fail: sscm_xfail_tests.contains(sscm_test),
          suite: 'sscm',
          workdir: meson.project_source_root())

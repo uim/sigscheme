@@ -1357,7 +1357,11 @@
 (test-end "get-output-bytevector")
 
 (test-begin "binary file ports")
-(let ((path "test-r7rs-binary.tmp"))
+;; The temporary file is created in SSCM_TEST_TMPDIR if it's set because
+;; the current directory may not be writable.
+(let ((path (string-append (or (get-environment-variable "SSCM_TEST_TMPDIR")
+                               ".")
+                           "/test-r7rs-binary.tmp")))
   (let ((port (open-binary-output-file path)))
     (test-assert (binary-port? port))
     (write-bytevector #u8(0 1 2 200) port)

@@ -55,19 +55,19 @@
 (test-error (let () (define 1 1 'excessive) #t))
 (test-error (let () (define 1 1 . 'excessive) #t))
 ;; function forms
-;; An improper body such as "1 . 1" is detected when the procedure is
-;; called.
+;; An improper body such as "1 . 1" is detected without calling the
+;; procedure.
 (test-error (let () (define ()) #t))
 (test-error (let () (define () 1) #t))
 (test-error (let () (define (f)) #t))
 (test-error (let () (define (f) . 1) #t))
-(test-argcheck-error (let () (define (f) 1 . 1) (f)))
+(test-argcheck-error (let () (define (f) 1 . 1) #t))
 (test-error (let () (define (f x)) #t))
 (test-error (let () (define (f x) . 1) #t))
-(test-argcheck-error (let () (define (f x) 1 . 1) (f 0)))
+(test-argcheck-error (let () (define (f x) 1 . 1) #t))
 (test-error (let () (define (f . x)) #t))
 (test-error (let () (define (f . x) . 1) #t))
-(test-argcheck-error (let () (define (f . x) 1 . 1) (f)))
+(test-argcheck-error (let () (define (f . x) 1 . 1) #t))
 (test-end "define invalid form")
 
 (test-begin "define syntactic keywords as value")

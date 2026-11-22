@@ -121,6 +121,8 @@
 (test-assert (procedure? (case-lambda)))
 (test-error ((case-lambda)))
 (test-argcheck-error (case-lambda (1 2)))
+;; An improper body is detected without calling the procedure.
+(test-argcheck-error (case-lambda ((x) 1 . 1)))
 (test-error (case-lambda x))
 ;; The call is in a tail context.
 (define cl-loop

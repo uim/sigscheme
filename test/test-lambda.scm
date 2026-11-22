@@ -117,6 +117,18 @@
       (test-error (lambda (x #(a) . y) #t))
       (test-end "lambda invalid formals: vector as an arg")))
 
+(test-begin "lambda invalid body")
+(test-error (lambda ()))
+(test-error (lambda () . 1))
+(test-error (lambda (x)))
+(test-error (lambda x))
+;; An improper body is detected without calling the procedure.
+(test-argcheck-error (lambda () 1 . 1))
+(test-argcheck-error (lambda () 1 2 . 3))
+(test-argcheck-error (lambda (x) 1 . 1))
+(test-argcheck-error (lambda x 1 . 1))
+(test-end "lambda invalid body")
+
 (test-begin "lambda")
 ;; empty args
 (test-equal 'result

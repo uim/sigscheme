@@ -215,6 +215,11 @@ scm_s_lambda(ScmObj formals, ScmObj body, ScmObj env)
 
     /* Keeping variable name unique is user's responsibility. R5RS: "It is an
      * error for a <variable> to appear more than once in <formals>.". */
+
+    /* An improper body such as (1 . 1) is rejected here instead of on
+     * being called. An empty body is rejected below. */
+    if (CONSP(body) && !PROPER_LISTP(body))
+        ERR_OBJ("bad body", body);
 #else
     /* Crashless no-validation:
      * Regard any non-list object as symbol. Since the lookup operation search

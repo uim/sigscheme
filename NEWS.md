@@ -33,7 +33,7 @@ failures with some features disabled.
     `README.md` for details.
 
   * Suppressed false positives of Valgrind on the stack scan of the
-    GC (`-Dvalgrind=true`). It's enabled by default when
+    GC (`-Dvalgrind=enabled`). It's enabled by default when
     `valgrind/memcheck.h` exists on build.
     * [uim/uim#60](https://github.com/uim/uim/issues/60)
 
@@ -63,8 +63,9 @@ failures with some features disabled.
   * Meson 1.1.0 or later is required to build with Meson.
 
   * The suppression of false positives of Valgrind is built only when
-    `valgrind/memcheck.h` exists on build. Specify `-Dvalgrind=true`
-    to require it with Meson. Valgrind isn't needed at run time.
+    `valgrind/memcheck.h` exists on build. Specify
+    `-Dvalgrind=enabled` to require it with Meson. Valgrind isn't
+    needed at run time.
 
   * SigScheme installs `COPYING` and `README.md` to the document
     directory (`share/doc/sigscheme/` by default). Meson also

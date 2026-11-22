@@ -24,7 +24,8 @@ option('gc',
 # stack scan of the GC. It needs valgrind/memcheck.h on build. Valgrind
 # isn't needed at run time.
 option('valgrind',
-       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       type: 'feature',
+       value: 'auto',
        description: 'suppressing false positives of Valgrind')
 
 option('conf',

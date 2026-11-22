@@ -63,13 +63,9 @@ endforeach
 
 # valgrind/memcheck.h is for suppressing false positives of Valgrind
 # on the conservative stack scan of the GC. It's used if it exists by
-# default (-Dvalgrind=auto). -Dvalgrind=true requires it.
-valgrind = get_option('valgrind')
-use_valgrind = false
-if valgrind != 'false'
-  use_valgrind = cc.has_header('valgrind/memcheck.h',
-                               required: valgrind == 'true')
-endif
+# default (-Dvalgrind=auto). -Dvalgrind=enabled requires it.
+use_valgrind = cc.has_header('valgrind/memcheck.h',
+                             required: get_option('valgrind'))
 if use_valgrind
   config_data.set('HAVE_VALGRIND_MEMCHECK_H', 1)
 endif

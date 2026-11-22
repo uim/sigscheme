@@ -286,7 +286,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_quasiquote=yes
         use_promise=yes
         use_int=yes
-        use_numeric_io=yes
         use_char=yes
         use_string=yes
         use_string_procedures=yes
@@ -305,7 +304,6 @@ AX_FEATURE_ARG_X(conf, [select base configuration of SigScheme.
         use_real=yes
         # It requires real.
         use_srfi180=yes
-        use_numeric_io=yes
         use_char=yes
         use_string=yes
         use_string_procedures=yes
@@ -452,7 +450,6 @@ AX_FEATURE_ARG_Y(int,            [R5RS integer numbers])
 AX_FEATURE_VAR_N(rational,       [R5RS rational numbers (not implemented yet)])
 AX_FEATURE_ARG_N(real,           [inexact real numbers (flonums)])
 AX_FEATURE_VAR_N(complex,        [R5RS complex numbers (not implemented yet)])
-AX_FEATURE_ARG_Y(numeric-io,     [R5RS 'number->string' and 'string->number'])
 AX_FEATURE_ARG_Y(char,           [R5RS characters])
 AX_FEATURE_ARG_Y(string,         [primary procedures of R5RS strings])
 AX_FEATURE_ARG_Y(string-procedures, [rest procedures of R5RS strings])
@@ -528,7 +525,7 @@ backtrace: continuation port writer
 debug: raw_c_format
 debug_backtrace_val: debug backtrace raw_c_format
 
-format: writer port string
+format: writer port string number_io
 srfi28: format
 srfi48: format srfi28
 sscm_format_extension: format srfi48
@@ -557,7 +554,7 @@ srfi69: load int string vector srfi9 srfi23
 srfi95: load int
 srfi180: load int real char string vector port srfi6 srfi34 sscm_extensions
 r6rs_named_chars: char
-r6rs_chars: char utf8 reader r6rs_named_chars
+r6rs_chars: char utf8 reader r6rs_named_chars number_io
 r7rs: continuation hygienic_macro int char string string_procedure vector bytevector promise srfi6 srfi9 srfi34 srfi38 r6rs_named_chars
 bytevector: int string
 
@@ -567,7 +564,6 @@ int:        number
 rational:   number
 real:       number number_io
 complex:    number
-numeric_io: number_io
 number_io:  number string
 
 fixnum_long:     long_fixnum

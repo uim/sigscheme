@@ -111,9 +111,6 @@ option('int',
 option('real',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'inexact real numbers (flonums)')
-option('numeric_io',
-       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
-       description: 'R5RS \'number->string\' and \'string->number\'')
 option('char',
        type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
        description: 'R5RS characters')

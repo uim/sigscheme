@@ -64,6 +64,10 @@
 #include <sigscheme/sigscheme.h>
 #include "sigschemeinternal.h"
 
+#if HAVE_VALGRIND_MEMCHECK_H
+#include <valgrind/memcheck.h>
+#endif
+
 #ifdef SCM_WITH_BDWGC
 #include <gc/gc.h>
 #include <gc/gc_mark.h>
@@ -136,6 +140,9 @@ static GCROOTS_context *l_gcroots_ctx;
 static size_t l_gcing;
 static scm_bool l_allocating;
 #endif /* SCM_DEBUG */
+#if HAVE_VALGRIND_MEMCHECK_H
+static scm_bool l_on_valgrind;
+#endif
 #undef static
 SCM_GLOBAL_VARS_END(static_gc);
 #define l_heap_size            SCM_GLOBAL_VAR(static_gc, l_heap_size)
@@ -161,6 +168,9 @@ SCM_GLOBAL_VARS_END(static_gc);
 #define l_gcing                SCM_GLOBAL_VAR(static_gc, l_gcing)
 #define l_allocating           SCM_GLOBAL_VAR(static_gc, l_allocating)
 #endif /* SCM_DEBUG */
+#if HAVE_VALGRIND_MEMCHECK_H
+#define l_on_valgrind          SCM_GLOBAL_VAR(static_gc, l_on_valgrind)
+#endif
 SCM_DEFINE_STATIC_VARS(static_gc);
 
 /*=======================================
@@ -229,6 +239,10 @@ SCM_EXPORT void
 scm_init_gc(const ScmStorageConf *conf)
 {
     SCM_GLOBAL_VARS_INIT(static_gc);
+
+#if HAVE_VALGRIND_MEMCHECK_H
+    l_on_valgrind = RUNNING_ON_VALGRIND;
+#endif
 
 #if SCM_DEBUG
     l_gcing = 0;
@@ -791,15 +805,26 @@ SCM_NO_SANITIZE_ADDRESS
 static void
 gc_mark_locations_n(ScmObj *start, size_t n)
 {
-    ScmObj *objp;
+    ScmObj *objp, obj;
+#if HAVE_VALGRIND_MEMCHECK_H
+    scm_bool on_valgrind = l_on_valgrind;
+#endif
 
     SCM_BEGIN_GC_SUBCONTEXT();
 
     SCM_ASSERT(SCMOBJ_ALIGNEDP(start));
 
     for (objp = start; objp < &start[n]; objp++) {
-        if (within_heapp(*objp))
-            mark_obj(*objp);
+        obj = *objp;
+#if HAVE_VALGRIND_MEMCHECK_H
+        /* The stack has uninitialized locations. Valgrind reports a use of
+         * an uninitialized value for them. Only the copy is marked as
+         * defined not to hide uninitialized values of other code. */
+        if (on_valgrind)
+            VALGRIND_MAKE_MEM_DEFINED(&obj, sizeof(obj));
+#endif
+        if (within_heapp(obj))
+            mark_obj(obj);
     }
 
     SCM_END_GC_SUBCONTEXT();

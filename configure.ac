@@ -40,7 +40,7 @@ AC_PATH_PROGS(SHA256, sha256 sha256sum)
 # Checks for header files
 #
 
-AC_CHECK_HEADERS([sys/types.h malloc.h strings.h])
+AC_CHECK_HEADERS([sys/types.h malloc.h strings.h valgrind/memcheck.h])
 
 #
 # Checks for typedefs, structures, and compiler characteristics

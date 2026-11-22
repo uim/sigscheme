@@ -20,6 +20,13 @@ option('gc',
        value: 'auto',
        description: 'GC roots implementation: BDWGC, libgcroots, tiny substitution in src/gcroots or auto (BDWGC then libgcroots)')
 
+# This suppresses false positives of Valgrind on the conservative
+# stack scan of the GC. It needs valgrind/memcheck.h on build. Valgrind
+# isn't needed at run time.
+option('valgrind',
+       type: 'combo', choices: ['auto', 'true', 'false'], value: 'auto',
+       description: 'suppressing false positives of Valgrind')
+
 option('conf',
        type: 'combo',
        choices: ['regular', 'full', 'r5rs', 'r7rs', 'dev', 'uim'],

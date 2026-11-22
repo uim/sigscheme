@@ -61,6 +61,19 @@ foreach header : [
   endif
 endforeach
 
+# valgrind/memcheck.h is for suppressing false positives of Valgrind
+# on the conservative stack scan of the GC. It's used if it exists by
+# default (-Dvalgrind=auto). -Dvalgrind=true requires it.
+valgrind = get_option('valgrind')
+use_valgrind = false
+if valgrind != 'false'
+  use_valgrind = cc.has_header('valgrind/memcheck.h',
+                               required: valgrind == 'true')
+endif
+if use_valgrind
+  config_data.set('HAVE_VALGRIND_MEMCHECK_H', 1)
+endif
+
 type_prefix = '''
 #include <stddef.h>
 #include <stdint.h>
@@ -1004,6 +1017,7 @@ summary({
           'Fixnum size': feature_values['fixnum'],
           'getcontext': config_data.has('HAVE_GETCONTEXT'),
           'libgcroots': use_libgcroots,
+          'Valgrind support': use_valgrind,
         },
         section: 'Storage configuration')
 summary({

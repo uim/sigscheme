@@ -32,6 +32,11 @@ failures with some features disabled.
   * Added support for AddressSanitizer. See "AddressSanitizer" in
     `README.md` for details.
 
+  * Suppressed false positives of Valgrind on the stack scan of the
+    GC (`-Dvalgrind=true`). It's enabled by default when
+    `valgrind/memcheck.h` exists on build.
+    * [uim/uim#60](https://github.com/uim/uim/issues/60)
+
   * Updated bundled libgcroots to 0.3.8.
 
 ### Fixes
@@ -56,6 +61,10 @@ failures with some features disabled.
 ### Notes for packagers and system integrators
 
   * Meson 1.1.0 or later is required to build with Meson.
+
+  * The suppression of false positives of Valgrind is built only when
+    `valgrind/memcheck.h` exists on build. Specify `-Dvalgrind=true`
+    to require it with Meson. Valgrind isn't needed at run time.
 
   * SigScheme installs `COPYING` and `README.md` to the document
     directory (`share/doc/sigscheme/` by default). Meson also

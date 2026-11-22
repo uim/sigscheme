@@ -195,6 +195,17 @@ meson test -C build
 libgcroots 0.3.8 or later is required when system libgcroots is
 used. The bundled libgcroots and `-Dgc=tiny-subst` can also be used.
 
+### Valgrind
+
+The GC scans the stack that has uninitialized locations. Valgrind
+reports it as a use of an uninitialized value. The reports are
+suppressed when SigScheme is built with `valgrind/memcheck.h`. It's
+used by default if it exists. `-Dvalgrind=true` requires it.
+
+```bash
+meson setup -Dvalgrind=true build
+```
+
 ## Installation
 
 ```bash

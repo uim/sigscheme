@@ -160,7 +160,7 @@
       ;; pure syntactic keyword
       (test-error (symbol? else))
       ;; expression keyword
-      (test-error (symbol? do))))
+      (test-argcheck-error (symbol? do))))
 
 (call-with-current-continuation
  (lambda (k)

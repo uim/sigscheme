@@ -341,7 +341,7 @@
 (test-eqv 3.0 (log 8 2))
 (test-error (log -1))
 (test-error (log 1 -2))
-(test-error (log 1 2 3))
+(test-argcheck-error (log 1 2 3))
 (test-end "exp log")
 
 (test-begin "trigonometric functions")

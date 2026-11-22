@@ -124,7 +124,7 @@
       ;; pure syntactic keyword
       (test-error (number? else))
       ;; expression keyword
-      (test-error (number? do))))
+      (test-argcheck-error (number? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -220,7 +220,7 @@
       ;; pure syntactic keyword
       (test-error (integer? else))
       ;; expression keyword
-      (test-error (integer? do))))
+      (test-argcheck-error (integer? do))))
 
 (call-with-current-continuation
  (lambda (k)

@@ -74,7 +74,7 @@
       ;; pure syntactic keyword
       (test-error (pair? else))
       ;; expression keyword
-      (test-error (pair? do))))
+      (test-argcheck-error (pair? do))))
 
 (call-with-current-continuation
  (lambda (k)

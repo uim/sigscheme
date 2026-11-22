@@ -42,8 +42,12 @@
 ;; R7RS: 6.10 Control features
 ;; > If more than one list is given and not all lists have the same
 ;; > length, map terminates when the shortest list runs out.
+;;
+;; SigScheme without strict-argcheck doesn't reject it. map terminates when
+;; the shortest list runs out like R7RS.
 (define test-uneven
-  (if (provided? "r7rs")
+  (if (or (provided? "r7rs")
+          (not (provided? "strict-argcheck")))
       (lambda (expected thunk)
         (test-equal expected (thunk)))
       (lambda (expected thunk)
@@ -61,10 +65,10 @@
 
 (test-begin "map single-arg invalid forms")
 (test-error (map #t '(0 1 2)))
-(test-error (map even? '(0 1 2 . 3)))
-(test-error (map even? #t))
-(test-error (map even? '#(0 1 2)))
-(test-error (map even? #f))
+(test-argcheck-error (map even? '(0 1 2 . 3)))
+(test-argcheck-error (map even? #t))
+(test-argcheck-error (map even? '#(0 1 2)))
+(test-argcheck-error (map even? #f))
 (test-end "map single-arg invalid forms")
 
 (test-begin "map single-arg")
@@ -217,10 +221,10 @@
 
 (test-begin "for-each single-arg invalid forms")
 (test-error (for-each #t '(0 1 2)))
-(test-error (for-each even? '(0 1 2 . 3)))
-(test-error (for-each even? #t))
-(test-error (for-each even? '#(0 1 2)))
-(test-error (for-each even? #f))
+(test-argcheck-error (for-each even? '(0 1 2 . 3)))
+(test-argcheck-error (for-each even? #t))
+(test-argcheck-error (for-each even? '#(0 1 2)))
+(test-argcheck-error (for-each even? #f))
 (test-end "for-each single-arg invalid forms")
 
 (test-begin "for-each single-arg")

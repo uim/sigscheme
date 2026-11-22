@@ -45,7 +45,7 @@
 (test-begin "equal? invalid form")
 (test-error (equal?))
 (test-error (equal? #f))
-(test-error (equal? #f #f #f))
+(test-argcheck-error (equal? #f #f #f))
 (test-end "equal? invalid form")
 
 (test-begin "equal? different types")
@@ -216,10 +216,10 @@
 (test-end "equal? procedure")
 
 (test-begin "equal? syntax")
-(test-error (equal? if if))
-(test-error (equal? if set!))
-(test-error (equal? set! if))
-(test-error (equal? set! set!))
+(test-argcheck-error (equal? if if))
+(test-argcheck-error (equal? if set!))
+(test-argcheck-error (equal? set! if))
+(test-argcheck-error (equal? set! set!))
 (test-end "equal? syntax")
 ;; (define syntax if) is an invalid form
 
@@ -230,10 +230,10 @@
                  (macro2 (syntax-rules ()
                            ((_) 'macro2-expanded))))
       ;; syntactic keyword as value
-      (test-error (equal? macro1 macro1))
-      (test-error (equal? macro2 macro1))
-      (test-error (equal? macro1 macro2))
-      (test-error (equal? macro2 macro2))))
+      (test-argcheck-error (equal? macro1 macro1))
+      (test-argcheck-error (equal? macro2 macro1))
+      (test-argcheck-error (equal? macro1 macro2))
+      (test-argcheck-error (equal? macro2 macro2))))
 (test-end "equal? macro")
 
 (test-begin "equal? closure")

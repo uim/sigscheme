@@ -45,7 +45,7 @@
 (test-error (open-input-string))
 (test-error (open-input-string '()))
 (test-error (open-input-string (current-input-port)))
-(test-error (open-input-string "" ""))
+(test-argcheck-error (open-input-string "" ""))
 (test-end "open-input-string invalid forms")
 
 ;; immutable
@@ -78,9 +78,9 @@
 ;;
 
 (test-begin "open-output-string invalid forms")
-(test-error (open-output-string '()))
-(test-error (open-output-string (current-input-port)))
-(test-error (open-output-string ""))
+(test-argcheck-error (open-output-string '()))
+(test-argcheck-error (open-output-string (current-input-port)))
+(test-argcheck-error (open-output-string ""))
 (test-end "open-output-string invalid forms")
 
 (test-begin "get-output-string invalid forms")

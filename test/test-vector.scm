@@ -89,7 +89,7 @@
       ;; pure syntactic keyword
       (test-error (vector? else))
       ;; expression keyword
-      (test-error (vector? do))))
+      (test-argcheck-error (vector? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -111,7 +111,7 @@
 (test-begin "make-vector invalid forms")
 (test-error (make-vector #t))
 (test-error (make-vector #t #t))
-(test-error (make-vector 0 #t #t))
+(test-argcheck-error (make-vector 0 #t #t))
 (test-end "make-vector invalid forms")
 
 (test-begin "make-vector")

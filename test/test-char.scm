@@ -82,7 +82,7 @@
       ;; pure syntactic keyword
       (test-error (char? else))
       ;; expression keyword
-      (test-error (char? do))))
+      (test-argcheck-error (char? do))))
 
 (call-with-current-continuation
  (lambda (k)

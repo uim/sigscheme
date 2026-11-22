@@ -39,11 +39,11 @@
 
 (define my-test-error
   (lambda (proc)
-    (test-error (guard (var
-                        ;; not an error but user-raised object
-                        ((eq? var 'obj)
-                         #f))
-                  (proc)))))
+    (test-argcheck-error (guard (var
+                                 ;; not an error but user-raised object
+                                 ((eq? var 'obj)
+                                  #f))
+                           (proc)))))
 
 ;;
 ;; raise
@@ -448,10 +448,10 @@
               vals))
 
 (if (provided? "sigscheme")
-    (test-error (guard (var
-                        ((not (%%error-object? var))
-                         var))
-                  (raise (values 1 2)))))
+    (test-argcheck-error (guard (var
+                                 ((not (%%error-object? var))
+                                  var))
+                           (raise (values 1 2)))))
 (test-end "guard with multiple values")
 
 (test-begin "guard handler reraise")

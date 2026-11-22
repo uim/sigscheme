@@ -468,7 +468,7 @@
 (test-error `#(,@(`,@'())))
 (test-error `#(,@(,1)))
 (test-error `#(,@(`(,,1))))
-(test-error `(0 ,@((lambda () '(1 2 . 3))) 4))
+(test-argcheck-error `(0 ,@((lambda () '(1 2 . 3))) 4))
 (test-error `#(0 ,@((lambda () '(1 2 . 3))) 4))
 (test-error `,@#t)
 (test-error `,@1)

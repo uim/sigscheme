@@ -74,7 +74,7 @@
 (test-equal 'ok (let-values () 'ok))
 (test-error (let-values (((a b) (values 1))) a))
 (test-error (let-values (((a) (values 1 2))) a))
-(test-error (let-values (((a 1) (values 1 2))) a))
+(test-argcheck-error (let-values (((a 1) (values 1 2))) a))
 (test-error (let-values ((a)) a))
 (test-end "let-values")
 
@@ -120,7 +120,7 @@
 (test-equal 11 (let ((x 10)) ((case-lambda ((a) (+ a x))) 1)))
 (test-assert (procedure? (case-lambda)))
 (test-error ((case-lambda)))
-(test-error (case-lambda (1 2)))
+(test-argcheck-error (case-lambda (1 2)))
 (test-error (case-lambda x))
 ;; The call is in a tail context.
 (define cl-loop
@@ -372,9 +372,9 @@
               (define-values (a b) (values 1 2 3))
               a))
 (test-error (let () (define-values (a b) (values 1)) #t))
-(test-error (let ()
-              (define-values (a 1) (values 1 2))
-              a))
+(test-argcheck-error (let ()
+                       (define-values (a 1) (values 1 2))
+                       a))
 (test-end "define-values")
 
 (test-begin "case =>")
@@ -481,7 +481,7 @@
 (test-equal '(x x x) (make-list 3 'x))
 (test-error (make-list -1))
 (test-error (make-list 'a))
-(test-error (make-list 1 'x 'y))
+(test-argcheck-error (make-list 1 'x 'y))
 (test-end "make-list")
 
 (test-begin "list-set!")
@@ -526,7 +526,7 @@
 (let ((lst (list 1 2)))
   (set-cdr! (cdr lst) lst)
   (test-equal '(11 22 31) (map + lst '(10 20 30))))
-(test-error (r5rs:map + '(1 2 3) '(4 5)))
+(test-argcheck-error (r5rs:map + '(1 2 3) '(4 5)))
 (test-end "map")
 
 (test-begin "for-each")
@@ -534,7 +534,7 @@
   (for-each (lambda (x y) (set! sums (cons (+ x y) sums)))
             '(1 2 3) '(4 5))
   (test-equal '(7 5) sums))
-(test-error (r5rs:for-each + '(1 2 3) '(4 5)))
+(test-argcheck-error (r5rs:for-each + '(1 2 3) '(4 5)))
 (test-end "for-each")
 
 (test-begin "symbol=?")

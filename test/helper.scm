@@ -68,6 +68,15 @@
 (define (test-skip-rest)
   (test-skip (lambda (runner) #t)))
 
+;; test-error for an error that is detected only with strict-argcheck.
+;; Its expression isn't evaluated without strict-argcheck because an
+;; invalid form may not return.
+(define-syntax test-argcheck-error
+  (syntax-rules ()
+    ((_ arg ...)
+     (if (provided? "strict-argcheck")
+         (test-error arg ...)))))
+
 
 ;;
 ;; Utilities

@@ -568,11 +568,12 @@
 
 ;; Invalid forms.  And of course we're using macros to save typing
 ;; (which we can't in other tests because macros are optional).
-(test-error "macro use is improper list [can fail depending on config]" #t
-            (let-syntax
-                ((macro (syntax-rules ()
-                          ((_ . _) 'blah))))
-              (macro a . b)))
+(test-argcheck-error
+ "macro use is improper list [can fail depending on config]" #t
+ (let-syntax
+     ((macro (syntax-rules ()
+               ((_ . _) 'blah))))
+   (macro a . b)))
 
 (test-error "syntax-rules misplaced ellipsis 1" #t
             (let-syntax

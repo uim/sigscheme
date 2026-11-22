@@ -45,7 +45,7 @@
 (test-begin "eqv? invalid form")
 (test-error (eqv?))
 (test-error (eqv? #f))
-(test-error (eqv? #f #f #f))
+(test-argcheck-error (eqv? #f #f #f))
 (test-end "eqv? invalid form")
 
 (test-begin "eqv? different types")
@@ -220,10 +220,10 @@
 (test-end "eqv? procedure")
 
 (test-begin "eqv? syntax")
-(test-error (eqv? if if))
-(test-error (eqv? if set!))
-(test-error (eqv? set! if))
-(test-error (eqv? set! set!))
+(test-argcheck-error (eqv? if if))
+(test-argcheck-error (eqv? if set!))
+(test-argcheck-error (eqv? set! if))
+(test-argcheck-error (eqv? set! set!))
 (test-end "eqv? syntax")
 ;; (define syntax if) is an invalid form
 
@@ -234,10 +234,10 @@
                  (macro2 (syntax-rules ()
                            ((_) 'macro2-expanded))))
       ;; syntactic keyword as value
-      (test-error (eqv? macro1 macro1))
-      (test-error (eqv? macro2 macro1))
-      (test-error (eqv? macro1 macro2))
-      (test-error (eqv? macro2 macro2))))
+      (test-argcheck-error (eqv? macro1 macro1))
+      (test-argcheck-error (eqv? macro2 macro1))
+      (test-argcheck-error (eqv? macro1 macro2))
+      (test-argcheck-error (eqv? macro2 macro2))))
 (test-end "eqv? macro")
 
 (test-begin "eqv? closure")

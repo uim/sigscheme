@@ -53,9 +53,9 @@
 (test-error (let-vector-start+end vector-ref vec '() () #t))
 (test-error (let-vector-start+end vector-ref vec '() (start) #t))
 (test-error (let-vector-start+end vector-ref vec '() (start end extra) #t))
-(test-error (let-vector-start+end vector-ref vec '() '(start end) #t))
+(test-argcheck-error (let-vector-start+end vector-ref vec '() '(start end) #t))
 (test-error (let-vector-start+end vector-ref vec '() #() #t))
-(test-error (let-vector-start+end vector-ref vec '() '#() #t))
+(test-argcheck-error (let-vector-start+end vector-ref vec '() '#() #t))
 ;; no body
 (test-error (let-vector-start+end vector-ref vec '() (start end)))
 (test-end "let-vector-start+end invalid forms")

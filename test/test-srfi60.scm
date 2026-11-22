@@ -121,7 +121,7 @@
 
 (test-begin "lognot invalid forms")
 (test-error (lognot))
-(test-error (lognot 0 0))
+(test-argcheck-error (lognot 0 0))
 (test-end "lognot invalid forms")
 (test-begin "lognot")
 (test-equal -1            (lognot 0))

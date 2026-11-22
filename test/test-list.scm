@@ -95,7 +95,7 @@
       ;; pure syntactic keyword
       (test-error (null? else))
       ;; expression keyword
-      (test-error (null? do))))
+      (test-argcheck-error (null? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -153,7 +153,7 @@
       ;; pure syntactic keyword
       (test-error (list? else))
       ;; expression keyword
-      (test-error (list? do))))
+      (test-argcheck-error (list? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -239,12 +239,12 @@
 (test-equal '(a) (append '() '(a) '()))
 (test-equal '(a) (append '() '() '(a)))
 (test-equal 'a (append 'a))
-(test-error (append 'a 'b))
-(test-error (append 'a '(b)))
-(test-error (append 'a '()))
+(test-argcheck-error (append 'a 'b))
+(test-argcheck-error (append 'a '(b)))
+(test-argcheck-error (append 'a '()))
 (test-equal '(a . b) (append '(a . b)))
-(test-error (append '(a . b) '()))
-(test-error (append '() '(a . b) '()))
+(test-argcheck-error (append '(a . b) '()))
+(test-argcheck-error (append '() '(a . b) '()))
 (test-equal '(a . b) (append '() '() '(a . b)))
 (test-equal '(1 2 3 a . b) (append '(1) '(2 3) '(a . b)))
 (test-equal 7 (append (+ 3 4)))
@@ -273,11 +273,11 @@
 (test-begin "reverse")
 (test-equal '() (reverse '()))
 (test-error (reverse))
-(test-error (reverse '(a . b)))
-(test-error (reverse 'a))
-(test-error (reverse '() '()))
-(test-error (reverse '(a) '()))
-(test-error (reverse '() '(a)))
+(test-argcheck-error (reverse '(a . b)))
+(test-argcheck-error (reverse 'a))
+(test-argcheck-error (reverse '() '()))
+(test-argcheck-error (reverse '(a) '()))
+(test-argcheck-error (reverse '() '(a)))
 (test-end "reverse")
 
 (test-begin "reverse from R5RS examples")

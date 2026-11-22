@@ -303,7 +303,7 @@
       ;; pure syntactic keyword
       (test-error (proper-list? else))
       ;; expression keyword
-      (test-error (proper-list? do))))
+      (test-argcheck-error (proper-list? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -373,7 +373,7 @@
       ;; pure syntactic keyword
       (test-error (circular-list? else))
       ;; expression keyword
-      (test-error (circular-list? do))))
+      (test-argcheck-error (circular-list? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -443,7 +443,7 @@
       ;; pure syntactic keyword
       (test-error (dotted-list? else))
       ;; expression keyword
-      (test-error (dotted-list? do))))
+      (test-argcheck-error (dotted-list? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -540,7 +540,7 @@
       ;; pure syntactic keyword
       (test-error (not-pair? else))
       ;; expression keyword
-      (test-error (not-pair? do))))
+      (test-argcheck-error (not-pair? do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -1551,7 +1551,7 @@
 ;; map
 (test-begin "map invalid forms")
 (test-error (map +))
-(test-error (map + '#()))
+(test-argcheck-error (map + '#()))
 (test-error (map + '(1) '#(2)))
 (test-error (map #\a '(1)))
 (test-end "map invalid forms")
@@ -1937,7 +1937,7 @@
 
 ;; find
 (test-begin "find invalid forms")
-(test-error (find even? '#(1 2)))
+(test-argcheck-error (find even? '#(1 2)))
 (test-error (find 1 '(1 2)))
 (test-end "find invalid forms")
 (test-begin "find proper list")
@@ -1950,11 +1950,11 @@
 (test-eq elm9 (find (lambda (x) (eq? x elm9)) lst))
 (test-end "find proper list")
 (test-begin "find dotted list")
-(test-error (find even? 1))
+(test-argcheck-error (find even? 1))
 (test-equal 1            (find (lambda (x) (= x 1)) '(1 . 2)))
 (test-equal 2            (find (lambda (x) (= x 2)) '(1 2 . 3)))
 (test-equal 3            (find (lambda (x) (= x 3)) '(1 2 3 . 4)))
-(test-error (find even? '(1 . 2)))
+(test-argcheck-error (find even? '(1 . 2)))
 (test-equal 2            (find even? '(1 2 . 3)))
 (test-equal 2            (find even? '(1 2 3 . 4)))
 (test-equal 1            (find odd?  '(1 . 2)))
@@ -2011,7 +2011,7 @@
 
 ;; find-tail
 (test-begin "find-tail invalid forms")
-(test-error (find-tail even? '#(1 2)))
+(test-argcheck-error (find-tail even? '#(1 2)))
 (test-error (find-tail 1 '(1 2)))
 (test-end "find-tail invalid forms")
 (test-begin "find-tail proper list")
@@ -2026,13 +2026,13 @@
 (test-eq cdr9 (find-tail (lambda (x) (eq? x elm9)) lst))
 (test-end "find-tail proper list")
 (test-begin "find-tail dotted list")
-(test-error (find-tail even? 1))
+(test-argcheck-error (find-tail even? 1))
 ;; Although the behavior on dotted list is not defined in SRFI-1 itself, the
 ;; reference implementation returns the last pair. So SigScheme followed it.
 (test-equal '(1 . 2)     (find-tail (lambda (x) (= x 1)) '(1 . 2)))
 (test-equal '(2 . 3)     (find-tail (lambda (x) (= x 2)) '(1 2 . 3)))
 (test-equal '(3 . 4)     (find-tail (lambda (x) (= x 3)) '(1 2 3 . 4)))
-(test-error (find-tail even? '(1 . 2)))
+(test-argcheck-error (find-tail even? '(1 . 2)))
 (test-equal '(2 . 3)     (find-tail even? '(1 2 . 3)))
 (test-equal '(2 3 . 4)   (find-tail even? '(1 2 3 . 4)))
 (test-equal '(1 . 2)     (find-tail odd?  '(1 . 2)))
@@ -2386,7 +2386,7 @@
 ;; member
 (test-begin "member invalid forms")
 (test-error (member 1))
-(test-error (member 1 '#(1)))
+(test-argcheck-error (member 1 '#(1)))
 (test-error (member 1 '(1) #\a))
 (test-error (member 1 '(1) = '()))
 (test-end "member invalid forms")

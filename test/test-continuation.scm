@@ -45,7 +45,7 @@
 ;; not a procedure
 (test-error (call-with-current-continuation #t))
 ;; excessive
-(test-error (call-with-current-continuation procedure? #t))
+(test-argcheck-error (call-with-current-continuation procedure? #t))
 (test-end "call/cc invalid forms")
 
 (test-begin "call/cc")
@@ -107,13 +107,13 @@
 ;; continuation to the original call to call-with-current-continuation.
 ;; Except for continuations created by the `call-with-values' procedure, all
 ;; continuations take exactly one value.
-(test-error (call-with-current-continuation
-             (lambda (k)
-               (k (values 1 2)))))
+(test-argcheck-error (call-with-current-continuation
+                      (lambda (k)
+                        (k (values 1 2)))))
 
-(test-error (call-with-current-continuation
-             (lambda (k)
-               (k (values)))))
+(test-argcheck-error (call-with-current-continuation
+                      (lambda (k)
+                        (k (values)))))
 
 ;; one value is OK
 (test-equal 1
@@ -149,7 +149,7 @@
                   (call/cc (lambda (k) (k 0))))
               (lambda (x y)
                 #t)))
-(test-error (call/cc (lambda (k) (k))))
+(test-argcheck-error (call/cc (lambda (k) (k))))
 
 (test-equal '(0 1 2)
             (call-with-values
@@ -177,7 +177,7 @@
                   (call/cc (lambda (k) (k 0 1 2))))
               (lambda (x y z a)
                 #t)))
-(test-error (call/cc (lambda (k) (k 0 1 2))))
+(test-argcheck-error (call/cc (lambda (k) (k 0 1 2))))
 (test-end "call/cc multiple values continuation")
 
 (test-end "test-continuation")

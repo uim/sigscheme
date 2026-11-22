@@ -46,8 +46,8 @@
 (test-error (if))
 (test-error (if #t))
 (test-error (if #f))
-(test-error (if #t 'true 'false 'excessive))
-(test-error (if #f 'true 'false 'excessive))
+(test-argcheck-error (if #t 'true 'false 'excessive))
+(test-argcheck-error (if #f 'true 'false 'excessive))
 (test-end "if invalid form")
 
 (test-begin "if")
@@ -69,7 +69,7 @@
 (test-error (set!))
 (test-error (set! test-unbound))
 (test-error (set! test-var))
-(test-error (set! test-var #t #t))
+(test-argcheck-error (set! test-var #t #t))
 (test-error (set! 1 #t))
 (test-end "set! invalid form")
 
@@ -103,9 +103,9 @@
              ()
              (else #t)))
 ;; 'else' followed by another caluse
-(test-error (cond
-             (else #t)
-             (#t)))
+(test-argcheck-error (cond
+                      (else #t)
+                      (#t)))
 ;; 'else' clause must contain at least one expression (7.1.3 Expressions)
 (test-error (cond
              (else)))
@@ -240,17 +240,17 @@
               ((key))))
 (test-error (case 'key
               ((1 key))))
-(test-error (case 'key
-              (1)))
-(test-error (case 'key
-              ((1 . 2))))
+(test-argcheck-error (case 'key
+                       (1)))
+(test-argcheck-error (case 'key
+                       ((1 . 2))))
 ;; not a ((<datum> ...) <exp>...) style clause
-(test-error (case 'key
-              (1 'matched)))
-(test-error (case 'key
-              (key 'matched)))
-(test-error (case 'key
-              (#(key) 'matched)))
+(test-argcheck-error (case 'key
+                       (1 'matched)))
+(test-argcheck-error (case 'key
+                       (key 'matched)))
+(test-argcheck-error (case 'key
+                       (#(key) 'matched)))
 
 (if (provided? "sigscheme")
     (begin
@@ -264,27 +264,27 @@
       ;; causes error when evaled
       (test-error (case 1
                     ((1) . 2)))
-      (test-error (case 1
-                    ((1) #t . 2)))))
+      (test-argcheck-error (case 1
+                             ((1) #t . 2)))))
 
 (test-error (case 'key
              ()
              (else #t)))
 ;; 'else' followed by another caluse
-(test-error (case 'key
-             (else #t)
-             (#t)))
+(test-argcheck-error (case 'key
+                      (else #t)
+                      (#t)))
 ;; not specified in R5RS, but SigScheme should cause error
 (if (provided? "sigscheme")
     (test-error (case 'key
                  (else))))
-(test-error (case 'key
-             (=>)))
-(test-error (case 'key
-             (#t =>)))
-(test-error (case 'key
-             (#t =>)
-             (else #t)))
+(test-argcheck-error (case 'key
+                      (=>)))
+(test-argcheck-error (case 'key
+                      (#t =>)))
+(test-argcheck-error (case 'key
+                      (#t =>)
+                      (else #t)))
 (test-error (case 'key
              (else =>)))
 ;; R7RS supports (else => <expression>) clause.
@@ -368,10 +368,10 @@
 (test-end "case")
 
 (test-begin "case locally bound keyword")
-(test-error (let ((else #f))
-              (case 3
-                ((1) 'one)
-                (else 'x))))
+(test-argcheck-error (let ((else #f))
+                       (case 3
+                         ((1) 'one)
+                         (else 'x))))
 (if (provided? "r7rs")
     (test-equal 'ok
                 (let ((=> #f))
@@ -383,8 +383,8 @@
 ;; and
 ;;
 (test-begin "and")
-(test-error (and . #t))
-(test-error (and #t . #t))
+(test-argcheck-error (and . #t))
+(test-argcheck-error (and #t . #t))
 (test-equal #t (and))
 (test-equal #t (and (= 2 2) (> 2 1)))
 (test-equal #f (and (= 2 2) (< 2 1)))
@@ -398,8 +398,8 @@
 ;; or
 ;;
 (test-begin "or")
-(test-error (or . #t))
-(test-error (or #t . #t))
+(test-argcheck-error (or . #t))
+(test-argcheck-error (or #t . #t))
 (test-equal #f (or))
 (test-equal #t (or (= 2 2) (> 2 1)))
 (test-equal #t (or (= 2 2) (< 2 1)))

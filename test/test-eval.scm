@@ -187,8 +187,8 @@
                   (eval '(list x y)
                         '(((x . y) . (4 6 . 8)))))
       ;; not a symbol in formals
-      (test-error (eval '(+ 1 2)
-                        '(((x 3) . (4 6)))))
+      (test-argcheck-error (eval '(+ 1 2)
+                                 '(((x 3) . (4 6)))))
       ;; not a list as actuals
       (test-error (eval '(+ 1 2)
                         '(((x) . 4)

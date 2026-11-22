@@ -88,7 +88,7 @@
       ;; pure syntactic keyword
       (test-error (if else #t #f))
       ;; expression keyword
-      (test-error (if do #t #f))))
+      (test-argcheck-error (if do #t #f))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -140,7 +140,7 @@
       ;; pure syntactic keyword
       (test-error (not else))
       ;; expression keyword
-      (test-error (not do))))
+      (test-argcheck-error (not do))))
 
 (call-with-current-continuation
  (lambda (k)
@@ -189,7 +189,7 @@
       ;; pure syntactic keyword
       (test-error (boolean? else))
       ;; expression keyword
-      (test-error (boolean? do))))
+      (test-argcheck-error (boolean? do))))
 
 (call-with-current-continuation
  (lambda (k)

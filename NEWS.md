@@ -1,5 +1,61 @@
 # NEWS
 
+## 1.0.1 - 2026-11-22
+
+This release adds SRFI-64 (A Scheme API for test suites) and the
+`--load` option of `sscm`. It also fixes build failures and test
+failures with some features disabled.
+
+### Incompatible changes
+
+  * Removed `--enable-numeric-io` and `-Dnumeric_io`. `number->string`
+    and `string->number` are always enabled. A build failed without
+    them.
+
+  * Required Meson 1.1.0 or later.
+
+  * `lambda`, `define` and `case-lambda` reject an improper body such
+    as `(lambda () 1 . 1)` on creating a procedure with strict
+    argument check. It was rejected on calling the procedure.
+
+### Improvements
+
+  * Added SRFI-64 A Scheme API for test suites (`--enable-srfi64` and
+    `-Dsrfi64=true`). It's enabled by default. See "SRFI-64 A Scheme
+    API for test suites" in `doc/spec.txt` for details.
+
+  * Added `--load` option to `sscm`. `sscm --load FILE SCRIPT` loads
+    `FILE` before `SCRIPT`.
+
+  * Installed `COPYING` and `README.md`.
+
+  * Updated bundled libgcroots to 0.3.7.
+
+### Fixes
+
+  * Fixed a bug that `define-macro` kept its identifier as a normal
+    procedure when it failed for a closure that doesn't have the
+    toplevel environment.
+
+  * Fixed build failures and test failures with some features
+    disabled.
+    * SRFI-0 doesn't require `quasiquote`.
+    * The following features are enabled automatically when a feature
+      that requires them is enabled: `quasiquote` for SRFI-43, string
+      procedures for SRFI-69 and SRFI-180, and internal definitions for
+      SRFI-95 and SRFI-180.
+
+### Notes for packagers and system integrators
+
+  * Meson 1.1.0 or later is required to build with Meson.
+
+  * SigScheme installs `COPYING` and `README.md` to the document
+    directory (`share/doc/sigscheme/` by default). Meson also
+    installs `depmf.json` to it.
+
+  * The ABI of libsscm is compatible with 1.0.0. The soname is
+    `libsscm.so.4`.
+
 ## 1.0.0 - 2026-11-12
 
 This release supports R7RS small, inexact real numbers and Unicode

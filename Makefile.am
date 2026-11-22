@@ -28,7 +28,7 @@ if USE_LIBSSCM
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = sigscheme.pc
 
-dist_doc_DATA = COPYING README
+dist_doc_DATA = COPYING README.md
 endif
 
 $(pkgconfig_DATA): config.status

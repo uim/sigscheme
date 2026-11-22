@@ -909,7 +909,7 @@ subdir('test-c')
 
 if use['libsscm']
   # COPYING is installed by license_files of project().
-  install_data('README', install_dir: docdir)
+  install_data('README.md', install_dir: docdir)
 
   # Clients such as uim use these variables to detect features.
   pc_variables = ['scmlibdir=' + ('${prefix}' / scmlibdir)]
